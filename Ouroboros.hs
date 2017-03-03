@@ -1,3 +1,8 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+module Ouroboros where
+
+import qualified Data.Set as Set
+
 newtype StakeholderNumber = StakeholderNumber Int
   deriving (Eq, Ord, Enum)
 
@@ -5,6 +10,10 @@ data GenesisBlock = GenesisBlock {
        genesisStakeholders :: [(PubKey, Stake)],
        genesisAuxInfo      :: BitString
      }
+
+data PubKey
+data Stake
+data BitString
 
 newtype SlotNumber = SlotNumber Int
   deriving (Eq, Ord, Enum)
@@ -22,23 +31,27 @@ data Block = Block {
        blockSig   :: Signature
      }
 
+data Signature
+
 
 data Chain = InitBlock GenesisBlock
-           | ChainBlock Blockchain Block
+           | ChainBlock Chain Block
 
 
-data Functionality {
+data Functionality m = Functionality {
        genblock_req :: StakeholderNumber -> m (GenesisBlock, LeaderSelection)
      }
 
-type Protocol = Functionality -> StakeholderNumber -> m (Stakeholder m)
+data LeaderSelection
+
+type Protocol m = Functionality m -> StakeholderNumber -> m (Stakeholder m)
 
 data Stakeholder m = Stakeholder {
-       eventNewSlot :: m Stakeholder,
-       eventReceive :: Chain -> m Stakeholder
+       eventNewSlot :: m (Stakeholder m),
+       eventReceive :: Chain -> m (Stakeholder m)
      }
 
-protocol𝜋_SPoS :: Protocol
+protocol𝜋_SPoS :: Monad m => Protocol m
 protocol𝜋_SPoS _𝓕  i =
     initialisation
   where
@@ -54,6 +67,9 @@ protocol𝜋_SPoS _𝓕  i =
           st = _𝐻(_𝐵₀)
           _ℂ = Set.empty
 
-      return (Stakeholder (newSlot _𝓒  st) ((receive _𝓒  st))
+      return (Stakeholder (newSlot _𝓒  st) ((receive _𝓒  st)))
 
-    newSlot _𝓒  st _ℂ = do
+    newSlot _𝓒 st = undefined
+    receive _𝓒 st = undefined
+
+_𝐻 = undefined
