@@ -208,7 +208,8 @@ verify = undefined
 -- distinguished chain.
 --
 maxvalid_S :: Chain -> [Chain] -> Chain
-maxvalid_S chain chains =
+maxvalid_S chain [] = chain
+maxvalid_S chain (chains@(_ : _)) =
   let
     candidate = maximumBy (comparing chainLen) chains
   in
