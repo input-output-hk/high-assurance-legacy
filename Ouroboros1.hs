@@ -50,7 +50,10 @@ verify :: Eq a => PubKey -> Signature a -> a -> Bool
 verify (PubKey kp) (Signature kp' x') x = kp == kp' && x == x'
 
 newtype SlotNumber = SlotNumber Int
-  deriving (Eq, Ord, Enum)
+  deriving (Eq, Ord, Enum, Num, Real, Integral)
+
+newtype EpochNumber = EpochNumber Int
+  deriving (Eq, Ord, Enum, Num, Real, Integral)
 
 data Block a
    = Block {
@@ -60,6 +63,9 @@ data Block a
        blockSig   :: Signature (BlockHash a, a, SlotNumber)
      }
   deriving (Eq)
+
+signBlock :: BlockHash a -> a -> SlotNumber -> PrivKey -> Block a
+signBlock st d sl ski = Block st d sl (sign ski (st, d, sl))
 
 instance Show a => Show (Block a) where
   show = show . blockData
@@ -81,6 +87,19 @@ data Chain a = InitBlock GenesisBlock
 chainLen :: Chain a -> Int
 chainLen (InitBlock _)    = 0
 chainLen (ChainBlock c _) = 1 + chainLen c
+
+dropBlocks :: Int -> Chain a -> Chain a
+dropBlocks 0 c                = c
+dropBlocks n c@InitBlock{}    = c
+dropBlocks n (ChainBlock c _) = dropBlocks (n-1) c
+
+class Transactions ts where
+  adjustStakes :: ts -> Map UserId Stake -> Map UserId Stake
+
+-- this is horribly expensive, spec only
+stakeDist :: Transactions ts => (a -> ts) -> Chain a -> Map UserId Stake
+stakeDist _ (InitBlock b0)   = fmap snd (genesisStakeholders b0)
+stakeDist f (ChainBlock c b) = adjustStakes (f (blockData b)) (stakeDist f c)
 
 type BlockHash a = Hash (Either GenesisBlock (Block a))
 
@@ -126,12 +145,12 @@ diffused (but not necessarily in the same order they have been requested to be
 diffused).
 -}
 
-data DiffuseFunctionality a m
+data DiffuseFunctionality ts d m
    = DiffuseFunctionality {
-       diffuse      :: Chain a -> m (),
+       diffuse      :: Chain d -> m (),
        diffuseSkip  :: m (),
-       receive      :: m [Chain a],
-       transactions :: m a
+       receive      :: m [Chain d],
+       transactions :: m ts
      }
 
 data KeyFunctionality m
@@ -142,7 +161,7 @@ data KeyFunctionality m
 
 data StaticLeaderSelectionFunctionality m
    = StaticLeaderSelectionFunctionality {
-       genblock_req :: m (GenesisBlock, LeaderSelection)
+       genblock :: m (GenesisBlock, LeaderSelection)
      }
 
 type LeaderSelection = GenesisAuxInfo -> SlotNumber -> UserId
@@ -152,8 +171,8 @@ type LeaderSelection = GenesisAuxInfo -> SlotNumber -> UserId
 -- it is independent of the execution environment (simulation or otherwise),
 -- just executing actions to interact with the functionality.
 --
-protocol_SPoS :: forall m ts. (Monad m, Eq ts)
-              => DiffuseFunctionality ts m
+protocol_SPoS :: forall m ts d. (Monad m, Eq ts)
+              => DiffuseFunctionality ts ts m
               -> KeyFunctionality m
               -> StaticLeaderSelectionFunctionality m
               -> UserId
@@ -163,23 +182,25 @@ protocol_SPoS diffuseFunctionality@DiffuseFunctionality{..}
               StaticLeaderSelectionFunctionality{..} ui = do
 
     -- Initialisation
-    (b0, f)  <- genblock_req
+    (b0, f)  <- genblock
     (_, ski) <- getPubPrivKey ui
     vks      <- getAllPubKeys
 
     let aux = genesisAuxInfo b0
-        sl0 = toEnum 0
+        sl0 = 0
         c0  = InitBlock b0
         st0 = hashHead c0
 
     chainExtension_SPoS diffuseFunctionality ui vks ski f aux sl0 c0 st0
 
-chainExtension_SPoS :: forall m ts. (Monad m, Eq ts)
-                    => DiffuseFunctionality ts m
+chainExtension_SPoS :: forall m ts d. (Monad m, Eq ts)
+                    => DiffuseFunctionality ts ts m
                     -> UserId
                     -> Map UserId PubKey -> PrivKey
                     -> LeaderSelection -> GenesisAuxInfo
-                    -> SlotNumber -> Chain ts -> BlockHash ts
+                    -> SlotNumber
+                    -> Chain ts
+                    -> BlockHash ts
                     -> m ()
 chainExtension_SPoS DiffuseFunctionality{..} ui vks ski f aux = go
   where
@@ -192,8 +213,8 @@ chainExtension_SPoS DiffuseFunctionality{..} ui vks ski f aux = go
       if slotLeader slj == ui
         then do
           ts <- transactions
-          let newBlock = Block st ts slj (sign ski (st, ts, slj))
-              c'' = ChainBlock c' newBlock
+          let b   = signBlock st ts slj ski
+              c'' = ChainBlock c' b
           diffuse c''
           -- Note that we do not update our own state here
           -- we'll pick up our own broadcast next slot
@@ -208,7 +229,7 @@ chainExtension_SPoS DiffuseFunctionality{..} ui vks ski f aux = go
     collectValidChains :: Chain ts -> m (Chain ts, BlockHash ts)
     collectValidChains c = do
       cs <- receive
-      let c'  = maxValid c (filter verifyChain cs)
+      let c'  = maxValid_SPoS c (filter verifyChain cs)
           st' = hashHead c'
       return (c', st')
 
@@ -221,9 +242,9 @@ chainExtension_SPoS DiffuseFunctionality{..} ui vks ski f aux = go
       where
         vk' = vks Map.! slotLeader sl'
 
-maxValid :: Chain ts -> [Chain ts] -> Chain ts
-maxValid c [] = c
-maxValid c cs
+maxValid_SPoS :: Chain ts -> [Chain ts] -> Chain ts
+maxValid_SPoS c [] = c
+maxValid_SPoS c cs
   | chainLen c >= chainLen c' = c
   | otherwise                 = c'
   where
@@ -231,13 +252,142 @@ maxValid c cs
 
 
 
+data DynamicLeaderSelectionFunctionality m
+   = DynamicLeaderSelectionFunctionality {
+       genblock_epoch :: EpochNumber -> Map UserId Stake
+                      -> m (GenesisBlock, LeaderSelection)
+     }
+
+protocol_DPoS :: forall m ts. (Monad m, Eq ts, Transactions ts)
+              => DiffuseFunctionality ts (ts, GenesisAuxInfo) m
+              -> KeyFunctionality m
+              -> StaticLeaderSelectionFunctionality m
+              -> DynamicLeaderSelectionFunctionality m
+              -> Int  -- ^ @R@ epoch length in slots
+              -> Int  -- ^ @k@ param, block stability depth
+              -> UserId
+              -> m ()
+protocol_DPoS diffuseFunctionality@DiffuseFunctionality{..}
+              KeyFunctionality{..}
+              StaticLeaderSelectionFunctionality{..}
+              dynamicLeaderSelectionFunctionality
+              r k ui = do
+
+    -- Initialisation
+    (b0, f)  <- genblock
+    (_, ski) <- getPubPrivKey ui
+    vks      <- getAllPubKeys
+
+    let aux = genesisAuxInfo b0
+        sl0 = 0
+        c0  = InitBlock b0
+        st0 = hashHead c0
+
+    chainExtension_DPoS
+      diffuseFunctionality
+      dynamicLeaderSelectionFunctionality
+      r k ui vks ski
+      f aux sl0 c0 st0
+
+chainExtension_DPoS :: forall m ts.
+                      (Monad m, Eq ts, Transactions ts)
+                    => DiffuseFunctionality ts (ts, GenesisAuxInfo) m
+                    -> DynamicLeaderSelectionFunctionality m
+                    -> Int  -- ^ @R@ epoch length in slots
+                    -> Int  -- ^ @k@ param, block stability depth
+                    -> UserId
+                    -> Map UserId PubKey -> PrivKey
+                    -> LeaderSelection
+                    -> GenesisAuxInfo
+                    -> SlotNumber
+                    -> Chain (ts, GenesisAuxInfo)
+                    -> BlockHash (ts, GenesisAuxInfo)
+                    -> m ()
+chainExtension_DPoS DiffuseFunctionality{..}
+                    DynamicLeaderSelectionFunctionality{..}
+                    r k ui vks ski = go
+  where
+    go :: LeaderSelection
+       -> GenesisAuxInfo
+       -> SlotNumber
+       -> Chain (ts, GenesisAuxInfo)
+       -> BlockHash (ts, GenesisAuxInfo)
+       -> m ()
+    go f aux sl c st = do
+
+      let (j, newEpoch) = (EpochNumber (d+1), m == 0)
+                            where (d, m) = divMod r (fromEnum sl)
+
+      -- 2(a)
+      (f', aux') <-
+        if newEpoch && j >= 2
+          then do let sj = stakeDist fst (dropBlocks (k-1) c)
+                  (bj0, f') <- genblock_epoch j sj
+                  return (f', genesisAuxInfo bj0)
+                  -- note: this is silly, it's the same 'f' every time
+          else return (f, aux)
+
+      -- 2(b)
+      (c', st') <- collectValidChains f' aux' c
+
+      -- 2(c)
+      if slotLeader f' aux' sl == ui
+        then do
+          ts <- transactions
+          let b   = signBlock st (ts, aux') sl ski
+              c'' = ChainBlock c' b
+          diffuse c''
+          -- Note that we do not update our own state here
+          -- we'll pick up our own broadcast next slot
+
+        else
+          diffuseSkip
+
+      go f' aux' (succ sl) c' st'
+
+
+    slotLeader f aux = f aux
+
+    collectValidChains :: LeaderSelection -> GenesisAuxInfo
+                       -> Chain (ts, GenesisAuxInfo)
+                       -> m (Chain     (ts, GenesisAuxInfo),
+                             BlockHash (ts, GenesisAuxInfo))
+    collectValidChains f aux c = do
+      cs <- receive
+      let c'  = maxValid_DPoS c (filter (verifyChain f aux) cs)
+          st' = hashHead c'
+      return (c', st')
+
+    verifyChain :: LeaderSelection -> GenesisAuxInfo
+                -> Chain (ts, GenesisAuxInfo) -> Bool
+    verifyChain f aux (InitBlock _) = True -- ?!?
+    verifyChain f aux (ChainBlock c (Block st' dl' sl' sig')) =
+        verify vk' sig' (st', dl', sl') && verifyChain f aux c
+        -- do we not also need to check the slot number is right
+        -- and each block has the hash of its predecessor?
+      where
+        vk' = vks Map.! slotLeader f aux sl'
+
+
+maxValid_DPoS :: forall a. Chain a -> [Chain a] -> Chain a
+maxValid_DPoS c [] = c
+maxValid_DPoS c cs
+  | chainLen c >= chainLen c' = c
+  | otherwise                 = c'
+  where
+    c' = maximumBy (comparing chainLen) cs
+
 
 data SimTransaction = SimTransaction Int
   deriving (Eq, Show)
 
+instance Transactions SimTransaction where
+  -- no change in stake distribution
+  adjustStakes SimTransaction{} dist = dist
+
 type SimChain = Chain [SimTransaction]
 
-simDiffuseFunctionality :: DiffuseFunctionality [SimTransaction] SimM
+simDiffuseFunctionality :: DiffuseFunctionality [SimTransaction] [SimTransaction] SimM
 simDiffuseFunctionality =
     DiffuseFunctionality {
       diffuse      = \c -> Diffuse c (Return ()),
@@ -262,7 +412,7 @@ simStaticLeaderSelectionFunctionality :: Monad m
                                       -> StaticLeaderSelectionFunctionality m
 simStaticLeaderSelectionFunctionality seed0 users =
     StaticLeaderSelectionFunctionality {
-      genblock_req = return (b0, f)
+      genblock = return (b0, f)
     }
   where
     b0 = GenesisBlock {
@@ -345,7 +495,6 @@ simSetup_S seed users =
               simDiffuseFunctionality
               (simKeyFunctionality keys)
               (simStaticLeaderSelectionFunctionality seed stakes)
-
 
     keys :: Map UserId (PubKey, PrivKey)
     keys = Map.fromList [ (ui, (vk, sk)) | (ui, vk, sk, _s) <- users ]
