@@ -1,0 +1,237 @@
+\documentclass{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath, amssymb, stmaryrd}
+\usepackage{mathpazo, times}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{url}
+\usepackage{parskip}
+
+\newcommand{\sLam}[2]{\lambda {#1} \cdot {#2}}
+\newcommand{\sApp}[2]{{#1} {#2}}
+\newcommand{\sBind}[2]{{#1} \mathrel{\texttt{>}\!\!\texttt{>}\!\texttt{=}} {#2}}
+\newcommand{\sReturn}{\mathtt{return}}
+\newcommand{\sThrow}[1]{\mathtt{throw} \; {#1}}
+\newcommand{\sCatch}[2]{\mathtt{catch} \; {#1} \; {#2}}
+
+\newcommand{\sExpect}{\mathtt{expect}}
+\newcommand{\sSend}{\mathtt{send}}
+\newcommand{\sSpawn}{\mathtt{spawn}}
+\newcommand{\sLink}{\mathtt{link}}
+\newcommand{\sReconnect}{\mathtt{reconnect}}
+\newcommand{\sNewChan}{\mathtt{newChan}}
+\newcommand{\sSendChan}{\mathtt{sendChan}}
+\newcommand{\sReceiveChan}{\mathtt{receiveChan}}
+\newcommand{\sMonitor}{\mathtt{monitor}}
+
+\DeclareMathOperator{\sNodeOf}{node}
+\DeclareMathOperator{\sProcessOf}{process}
+
+\newcommand{\sSpawned}{\mathtt{spawned}}
+
+\newcommand{\sExtend}[1]{\mathrel{\triangleright_{#1}}}
+
+\newcommand{\sPar}{\mathrel{\parallel}}
+\newcommand{\sProc}[2]{{#1}_{#2}}
+
+\newcommand{\sNid}{\ensuremath{\mathit{nid}}}
+\newcommand{\sPid}{\ensuremath{\mathit{pid}}}
+\newcommand{\sCid}{\ensuremath{\mathit{cid}}}
+
+\newcommand{\sId}{\ensuremath{\mathit{id}}}
+\newcommand{\sRef}{\ensuremath{\mathit{ref}}}
+
+\newcommand{\sSystem}[2]{\left\langle #1 ; #2 \right\rangle}
+\newcommand{\sProcess}[4]{\left\langle U ; #1 ; #2 ; #3 ; #4 \right\rangle}
+
+\newcommand{\sChain}{\mathcal{C}}
+\newcommand{\sChains}{\mathbb{C}}
+\newcommand{\sState}{\mathit{st}}
+\newcommand{\sSlot}{\mathit{sl}}
+\newcommand{\sLeader}{\mathsf{F}}
+
+\newcommand{\sQueue}{\mathbb{Q}}
+\newcommand{\sProcesses}{\mathbb{P}}
+\newcommand{\sBlock}[4]{\left( #1 , #2 , #3 , #4 \right)}
+
+\DeclareMathOperator{\sMaxValid}{maxValid}
+\DeclareMathOperator{\sValid}{valid}
+
+\DeclareMathOperator{\sHead}{head}
+\newcommand{\sHash}{\mathit{H}}
+\newcommand{\sSign}[4]{\mathsf{Sign}_{#1}\left(#2, #3, #4\right)}
+
+
+\newcommand{\sLinks}{\ensuremath{\mathit{links}}}
+\newcommand{\sNode}[3]{\left[{#1} ; {#2}\right]_{#3}} 
+\newcommand{\sNodes}{\mathcal{N}}
+\newcommand{\sBlacklist}{\mathcal{B}}
+\newcommand{\sMonitors}{\mathcal{M}}
+
+\newcommand{\sJust}[1]{\mathtt{Just} \; {#1}}
+\newcommand{\sNothing}{\mathtt{Nothing}}
+
+\newcommand{\sCtxt}[1]{\mathbb{#1}}
+
+\newcommand{\sSenders}{\mathit{senders}}
+
+\newcommand{\OR}{\mathrel{|}}
+\newcommand{\where}{\mathrel{|}}
+
+\floatstyle{boxed}
+\restylefloat{figure}
+
+\lstset{basicstyle=\ttfamily\small}
+
+\begin{document}
+
+\title{Ouroboros blockchain protocol specification (DRAFT)}
+\author{Duncan Coutts\footnote{Well-Typed and IOHK, \texttt{duncan@well-typed.com}, \texttt{duncan.coutts@iohk.io}}}
+\date{\today}
+
+\maketitle
+
+\section{Introduction}
+
+This document is intended to be an alternative formulation of the Ouroboros
+blockchain protocol \cite{ouroboros}. The purpose is to describe the protocol
+executed by honest parties in a precise operational style, and to be concise
+by omitting proofs and other details needed to support proofs (such as the
+possible behaviour of adversaries), but to otherwise be faithful to the
+original paper.
+
+\section{Preliminaries}
+
+A time \emph{slot}, ranged over by $\sSlot \in \mathbb{N}$, represents a
+period of clock time of a fixed duration.
+
+An \emph{epoch}, ranged over by $e_j \in \mathbb{N}$, identifies a sequence of
+time slots $[jR \ldots j(R+1) - 1]$ where the parameter $R \in \mathbb{N}$
+is the fixed epoch length.
+
+A \emph{user} or \emph{party}, ranged over by $U \in \mathsf{User}$,
+represents an identifier for a stakeholder process taking part in the
+protocol. We sometimes write $U_i \in \{U_1, \ldots, U_n \}$ when describing
+a party within the context of all the parties taking part in the protocol,
+however user identifiers are not necessarily dense integers.
+
+A \emph{process}, ranged over by $\mathcal{P} \in \mathsf{Process}_\pi$ is a
+state tuple. The exact type of this state tuple is different for each version
+of the protocol and will be described below in the context of each protocol.
+For example, in the first protocol $\pi_{\text{SPoS}}$, a process
+$\mathcal{P}$ is a tuple $\sProcess{\sChain}{\sState}{\rho}{\sSlot}$.
+
+A \emph{process group}, ranged over by $\mathbb{P} \in \mathsf{ProcessGroup}$,
+is either empty, a single process $\mathcal{P}$ or a combination of process
+groups written $\mathbb{P}_1 \parallel \mathbb{P}_2$. The typical notation is
+$\sProcesses \sPar \langle a, b ... \rangle$ to denote a single process state
+tuple in the context of a group of other processes.
+
+A \emph{broadcast network}, ranged over by $\sQueue \in \mathsf{BroadcastNetwork}$, consists of a set of pairs $\mathsf{Chain} \times \mathsf{User}$.
+Each pair represents a message addressed to a particular user.
+
+The overall \emph{system} is a tuple $\mathsf{ProcessGroup} \times \mathsf{BroadcastNetwork}$
+
+\section{Protocol $\pi_{\text{SPoS}}$}
+
+This is the simplest of the four versions of the protocol from the paper
+\cite{ouroboros}.
+
+\bigskip
+
+\begin{equation*}
+\frac{
+  \begin{array}{c}
+    (B_0, \sLeader) \leftarrow \mathcal{F}_{\mathsf{LS}}^{\mathcal{D}, \sLeader}
+  \\[1mm]
+  \begin{array}{r@{\;}c@{\;}l@{\qquad}l@{\;}c@{\;}l}
+    \mathbb{U} & = & \{U_1, \ldots, U_n\}
+    &
+    B_0 & = & \left( (\mathsf{vk}_1, s_1), \ldots, (\mathsf{vk}_n, s_n), \rho \right)
+    \\[1mm]
+    \sChain & = & B_0
+    &
+    \sState & = & \sHash(\sHead(\sChain)
+  \end{array}
+  \end{array}
+}{
+  \sSystem{ \bigparallel_{U \in \mathbb{U}} \sProcess{\sChain}{\sState}{\rho}{0}}{\emptyset}
+} \textsc{init}
+\end{equation*}
+
+\bigskip
+
+\begin{equation*}
+\frac{
+\begin{array}{l@{\;}c@{\;}l@{\qquad}l@{\;}c@{\;}l}
+  \sChains & = & \left\{ \sChain' | \langle \sChain', U' \rangle \in \sQueue, U' = U, \sValid(\sChain') \right\}
+  &
+  \sChain' & = & \sMaxValid(\sChain, \sChains)
+  \\
+  \sQueue' & = & \left\{ \sChain' | \langle \sChain', U' \rangle \in \sQueue, U' \neq U \right\}
+  &
+  \sState' & = & \sHash(\sHead(\sChain'))
+\end{array}
+}{
+  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\rho}{\sSlot} }{\sQueue}
+\rightarrow
+  \sSystem{\sProcesses \sPar \sProcess{\sChain'}{\sState'}{\rho}{\sSlot} }{\sQueue'}
+} \textsc{receive}
+\end{equation*}
+
+\bigskip
+
+\begin{equation*}
+\frac{
+    \sLeader(\rho, sl) \neq U
+}{
+  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\rho}{\sSlot}}{\sQueue}
+\rightarrow
+  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\rho}{\sSlot+1}}{\sQueue}
+} \textsc{skip}
+\end{equation*}
+
+\bigskip
+
+\begin{equation*}
+\frac{
+    \begin{array}{c}
+    \sLeader(\rho, sl) = U
+    \\[1mm]
+    B = \sBlock{\sState}{d}{\sSlot}{\sigma}
+    \quad
+    \sigma = \sSign{sk_i}{\sState}{d}{\sSlot}
+    \quad
+    d \leftarrow \text{tranaction data}
+    \\[1.5mm]
+    \sChain' = \sChain | B
+    \qquad
+    \sQueue' = \sQueue \cup \{ \langle \sChain', U \rangle | U \in \mathbb{U} \}
+    \end{array}
+}{
+  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\rho}{\sSlot}}{\sQueue}
+\rightarrow
+  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\rho}{\sSlot+1}}{\sQueue'}
+} \textsc{diffuse}
+\end{equation*}
+
+\bigskip
+
+Meta-rules not currently encoded:
+\begin{itemize}
+\item Init: all process must start at the begin in slot 0, adding processes later is not covered.
+\item Order: each process $\mathcal{P} \in \mathbb{P}$ must $\textsc{receive}$ then
+either $\textsc{skip}$ or $\textsc{diffuse}$.
+\item Progress of time: all processes in $\mathbb{P}$ must $\textsc{skip}$ or $\textsc{diffuse}$
+once in each round.
+\end{itemize}
+
+
+\section{Protocol $\pi_{\text{DPoS}}$}
+
+TODO
+
+\bibliographystyle{apalike}
+\bibliography{references}
+
+\end{document}
