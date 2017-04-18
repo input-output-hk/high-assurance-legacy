@@ -367,6 +367,7 @@ chainExtension_DPoS DiffuseFunctionality{..}
         -- and each block has the hash of its predecessor?
       where
         vk' = vks Map.! slotLeader f aux sl'
+        --TODO: need to use the aux 
 
 
 maxValid_DPoS :: forall a. Chain a -> [Chain a] -> Chain a
