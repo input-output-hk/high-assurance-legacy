@@ -1,20 +1,24 @@
-\documentclass{article}
+\documentclass[12pt]{article}
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{amsmath, amssymb, stmaryrd}
-\usepackage{mathpazo, times}
-\usepackage{float}
-\usepackage{listings}
+\usepackage[colon]{natbib}
+\usepackage{microtype}
+\usepackage{mathpazo}
 \usepackage{url}
 \usepackage{parskip}
+\usepackage{multirow}
 
 
 \newcommand{\sExtend}{\mathrel{\triangleright}}
+\newcommand{\where}{\mathrel{|}}
+\newcommand{\fun}[1]{\mathsf{#1}}
+\newcommand{\type}[1]{\mathsf{#1}}
 
 \newcommand{\sPar}{\mathrel{\parallel}}
 \newcommand{\sProc}[2]{{#1}_{#2}}
 
 \newcommand{\sSystem}[2]{\left( #1, #2 \right)}
-\newcommand{\sProcess}[4]{\left( U, sk, #1, #2, #3, #4 \right)}
+\newcommand{\sProcess}[3]{\left( U, sk, #1, #2, #3 \right)}
 
 \newcommand{\sChain}{C}
 \newcommand{\sChains}{\mathbb{C}}
@@ -26,17 +30,8 @@
 \newcommand{\sProcesses}{\mathbb{P}}
 \newcommand{\sBlock}[4]{\left( #1 , #2 , #3 , #4 \right)}
 
-\newcommand{\sMaxValid}{\mathsf{maxValid}}
-\newcommand{\sValid}{\mathsf{valid}}
-\newcommand{\sHash}{\mathsf{H}}
 \newcommand{\sHead}{\mathsf{head}}
 \newcommand{\sSign}[4]{\mathsf{Sign}_{#1}\left(#2, #3, #4\right)}
-
-
-\floatstyle{boxed}
-\restylefloat{figure}
-
-\lstset{basicstyle=\ttfamily\small}
 
 \begin{document}
 
@@ -49,15 +44,53 @@
 \section{Introduction}
 
 This document is intended to be an alternative formulation of the Ouroboros
-blockchain protocol \cite{ouroboros}. The purpose is to describe the protocol
-executed by honest parties in a precise operational style, and to be concise
-by omitting proofs and other details needed to support proofs (such as the
-possible behaviour of adversaries), but to otherwise be faithful to the
-original paper.
+blockchain protocol as described by \cite{ouroboros}.
+
+There are two main audiences for this document: people familiar with the paper,
+and developers implementing the protocol.
+
+The purpose is in part to bridge the gap between these two audiences by
+describing the protocol executed by honest parties in a precise operational
+style.
+
+It is intended to be concise by omitting proofs and other details needed to
+support proofs (such as the possible behaviour of adversaries), but to
+otherwise be faithful to the paper.
+
+\section{Notation}
+
+Because of the two audiences we pick a notation that can be read in a
+mathematical style or in a computational style. That is, in a mathematical
+language of logic and sets, or a computational language of computable values
+(with associated types).
+
+\paragraph{Sets and types}
+The notation $x : \mathsf{X}$ can be read as $x \in \mathsf{X}$ i.e. $x$ being
+a member of the set $\mathsf{X}$, but can also be read as $x$ having the type
+$\mathsf{X}$.
+
+\paragraph{Finite sets}
+We use $\{\}$-notation for sets: set membership $x \in X$; the empty set $\{\}$, enumerated sets $\{x_1, \ldots, x_n\}$ and set comprehensions
+$\{ f(x) \where x \in X, p(x) \}$
+
+\paragraph{Finite maps}
+TODO
+
+\paragraph{Tuples}
+We use the notation $(x,y) : (X,Y)$, meaning the pair $(x,y) \in X \times Y$,
+or the standard interpretation as types. We allow tuples of any fixed size,
+e.g. $(x, y, z)$.
+
+\paragraph{Functions}
+We use the notation $f : X \rightarrow Y$ to describe the domain and co-domain.
+
+\paragraph{Predicates}
+TODO: mathematical predicates, computational functions to bool
+
 
 \section{Preliminaries}
 
-A time \emph{slot}, ranged over by $\sSlot \in \mathsf{Slot}$ where
+A time \emph{slot}, ranged over by $\sSlot : \mathsf{Slot}$ where
 $\mathsf{Slot} \cong \mathbb{N}$, represents a
 period of clock time of a fixed duration.
 
@@ -66,6 +99,23 @@ time slots $[jR \ldots j(R+1) - 1]$ where the parameter $R \in \mathbb{N}$
 is the fixed epoch length.
 
 TODO: block, chain, hash function including codomain of hash
+
+A \emph{blockchain} (or simply a \emph{chain}) is an inductive construction:
+\begin{itemize}
+\item given a genesis block $B_0$ there is a chain $\Diamond B_0$; and 
+\item given a chain $C$ and a block $B$ there is a chain $C \sExtend B$.
+\end{itemize}
+
+There is a function on chains
+\begin{equation*}
+\begin{array}{l@{\;}l@{\;}l}
+  \mathsf{head} & : \mathsf{Chain} & \rightarrow \mathsf{GenesisBlock} \cup \mathsf{Block}
+  \\
+  \mathsf{head} &(\Diamond B_0) & = B_0
+  \\
+  \mathsf{head} &(C \sExtend B) & = B
+\end{array}
+\end{equation*}
 
 A \emph{user} or \emph{party}, ranged over by $U \in \mathsf{User}$,
 represents an identifier for a stakeholder process taking part in the
@@ -77,7 +127,7 @@ A \emph{process}, ranged over by $P \in \mathsf{Process}_\pi$ is a
 state tuple. The exact type of this state tuple is different for each version
 of the protocol and will be described below in the context of each protocol.
 For example, in the first protocol $\pi_{\text{SPoS}}$, a process
-$P$ is a tuple $\sProcess{\sChain}{\sState}{\rho}{\sSlot}$.
+$P$ is a tuple $\sProcess{\sChain}{\sState}{\sSlot}$.
 
 A \emph{process group}, ranged over by $\mathbb{P} \in \mathsf{ProcessGroup}$,
 is either empty, a single process $P$ or a combination of process
@@ -106,18 +156,19 @@ as valid transitions on the state of the system, in the form
 \section{Protocol $\pi_{\text{SPoS}}$}
 
 This is the simplest of the four versions of the protocol from the paper
-\cite{ouroboros}.
+\citep{ouroboros}.
 
 In this protocol, a $P \in \mathsf{Process}_{\pi_{\text{SPoS}}}$ is
-a state tuple $\sProcess{\sChain}{\sState}{\rho}{\sSlot} \in 
-\mathsf{User} \times \mathsf{PrivKey} \times \mathsf{Chain} \times \mathsf{Hash} \times \mathsf{Aux} \times \mathsf{Slot}$
+a state tuple $\sProcess{\sChain}{\sState}{\sSlot} \in 
+\mathsf{User} \times \mathsf{PrivKey} \times \mathsf{Chain} \times \mathsf{Hash} \times \mathsf{Slot}$
 
 The protocol has a number of global parameters.
 \begin{itemize}
-\item The initial users $U_1, \ldots, U_n$ and their keys and stakes $(\mathsf{sk}_1, \mathsf{vk}_1, s_1), \ldots, (\mathsf{sk}_n, \mathsf{vk}_n, s_n)$
-\item A leader selection function $\sLeader \in \mathsf{Aux} \times \mathsf{Slot} \rightarrow \mathsf{User}$
+\item The initial users $\mathbb{U} = \{U_1, \ldots, U_n\}$ and their keys $\{(\mathsf{sk}_1, \mathsf{vk}_1), \ldots, (\mathsf{sk}_n, \mathsf{vk}_n)\}$
+\item The stake distribution $\mathbb{S} \in \mathsf{Stakes}$ for the users of $\mathbb{S} = \{ (\mathsf{vk}_1, s_1), \ldots, (\mathsf{vk}_n, s_n) \}$
+\item A leader selection function $\sLeader \in \mathsf{Stakes} \times \mathsf{Aux} \times \mathsf{Slot} \rightarrow \mathsf{User}$
 \item A PRNG seed $\rho \in \mathsf{Aux}$ used by the leader selection function
-\item A transaction data function $\mathsf{T} \in \mathsf{Slot} \rightarrow \mathsf{Data}$.
+\item A transaction data function $\mathsf{T} : \mathsf{Slot} \rightarrow \mathsf{Data}$.
 \end{itemize}
 
 Note that the transaction data function is not intended to be realistic,
@@ -128,17 +179,13 @@ this version of the protocol description.
 
 \begin{equation*}
 \frac{
-  \begin{array}{r@{\;}c@{\;}l@{\qquad}l@{\;}c@{\;}l}
-    \mathbb{U} & = & \{U_1, \ldots, U_n\}
-    &
-    B_0 & = & \left( (\mathsf{vk}_1, s_1), \ldots, (\mathsf{vk}_n, s_n), \rho \right)
-    \\[1mm]
-    \sChain & = & B_0
-    &
-    \sState & = & \sHash(\sHead(\sChain)
-  \end{array}
+  B_0 = (\mathbb{S}, \rho)
+  \qquad
+  \sChain = B_0
+  \qquad
+  \sState = \fun{hash}(\sHead(\sChain)
 }{
-  \sSystem{ \bigparallel_{U \in \mathbb{U}} \sProcess{\sChain}{\sState}{\rho}{0}}{\emptyset}
+  \sSystem{ \bigparallel_{U \in \mathbb{U}} \sProcess{\sChain}{\sState}{1}}{\{\}}
 } \textsc{init}
 \end{equation*}
 
@@ -147,18 +194,18 @@ this version of the protocol description.
 \begin{equation*}
 \frac{
 \begin{array}{l@{\;}c@{\;}l@{\qquad}l@{\;}c@{\;}l}
-  \sChains & = & \left\{ \sChain' | (\sChain', U') \in \sQueue, U' = U, \sValid(sl, \sChain') \right\}
+  \sChains & = & \left\{ \sChain' \where (\sChain', U') \in \sQueue, U' = U, \fun{valid}(\sChain', \fun{gblock}(\sChain), sl) \right\}
   &
-  \sChain' & = & \sMaxValid(\sChain, \sChains)
+  \sChain' & = & \fun{maxValid}(\sChain, \sChains)
   \\
-  \sQueue' & = & \left\{ \sChain' | (\sChain', U') \in \sQueue, U' \neq U \right\}
+  \sQueue' & = & \left\{ \sChain' \where (\sChain', U') \in \sQueue, U' \neq U \right\}
   &
-  \sState' & = & \sHash(\sHead(\sChain'))
+  \sState' & = & \fun{hash}(\sHead(\sChain'))
 \end{array}
 }{
-  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\rho}{\sSlot} }{\sQueue}
+  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\sSlot} }{\sQueue}
 \rightarrow
-  \sSystem{\sProcesses \sPar \sProcess{\sChain'}{\sState'}{\rho}{\sSlot} }{\sQueue'}
+  \sSystem{\sProcesses \sPar \sProcess{\sChain'}{\sState'}{\sSlot} }{\sQueue'}
 } \textsc{receive}
 \end{equation*}
 
@@ -166,11 +213,11 @@ this version of the protocol description.
 
 \begin{equation*}
 \frac{
-    \sLeader(\rho, sl) \neq U
+    \sLeader(\mathbb{S}, \rho, sl) \neq U
 }{
-  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\rho}{\sSlot}}{\sQueue}
+  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\sSlot}}{\sQueue}
 \rightarrow
-  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\rho}{\sSlot+1}}{\sQueue}
+  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\sSlot+1}}{\sQueue}
 } \textsc{skip}
 \end{equation*}
 
@@ -179,26 +226,68 @@ this version of the protocol description.
 \begin{equation*}
 \frac{
     \begin{array}{c}
-    \sLeader(\rho, sl) = U
+    \sLeader(\mathbb{S}, \rho, sl) = U
     \\[1mm]
     B = \sBlock{\sState}{d}{\sSlot}{\sigma}
-    \quad
+    \qquad
     \sigma = \sSign{sk}{\sState}{d}{\sSlot}
-    \quad
+    \qquad
     d = \mathsf{T}(\sSlot)
     \\[1.5mm]
     \sChain' = \sChain \sExtend B
     \qquad
-    \sQueue' = \sQueue \cup \{ (\sChain', U) | U \in \mathbb{U} \}
+    \sState' = \fun{hash}(\sHead(\sChain'))
+    \qquad
+    \sQueue' = \sQueue \cup \{ (\sChain', U) \where U \in \mathbb{U} \}
     \end{array}
 }{
-  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\rho}{\sSlot}}{\sQueue}
+  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\sSlot}}{\sQueue}
 \rightarrow
-  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\rho}{\sSlot+1}}{\sQueue'}
+  \sSystem{\sProcesses \sPar \sProcess{\sChain'}{\sState'}{\sSlot+1}}{\sQueue'}
 } \textsc{diffuse}
 \end{equation*}
 
 \bigskip
+
+These rules use a number of auxiliary definitions.
+
+The predicate $\fun{valid}$ determines if a chain is valid. This is with
+respect to a genesis block and the current time slot. Chains must have strictly
+increasing time slots, 
+
+\begin{equation*}
+\begin{array}{l}
+\fun{valid} : (\type{Chain}, \type{GenesisBlock}, \type{Slot})
+\\
+\begin{array}{@{}r@{\;}r@{\;}l}
+\fun{valid} \; (\sChain, B_0, sl)
+  & \iff  & \mathsf{validIncreasing}(\sChain) \\
+  & \land & \mathsf{validHashChain}(\sChain)  \\
+  & \land & \mathsf{genesisBlock}(\sChain) = B_0 \\
+  & \land & \forall (st, d, sl, \sigma) \in \mathsf{blocks}(\sChain). \;
+             \fun{verify}(vk, \sigma, (st, d, sl)) \\
+\end{array}
+\end{array}
+\end{equation*}
+
+A function $\fun{maxValid}$ selects the longest chain from
+$\mathbb{C} \cup \{C\}$, preferentially selecting $C$ and arbitrarily otherwise.
+\begin{equation*}
+\begin{array}{l}
+\fun{maxValid} : (\mathsf{Chain}, \mathbb{P}\mathsf{Chain}) \rightarrow \mathsf{User}
+\\
+\begin{array}{@{}l@{\quad \iff \quad}l@{}l}
+\fun{maxValid} (C, \mathbb{C}) = C'
+&
+C' \in \mathbb{C} \cup \{C\}\; \land \; & \forall C'' \in \mathbb{C}.\; \mathsf{length}(C') \geq \mathsf{length}(C'')
+\\
+\fun{maxValid} (C, \mathbb{C}) = C 
+&
+& \forall C'' \in \mathbb{C}.\; \mathsf{length}(C) \geq \mathsf{length}(C'')
+\end{array}
+\end{array}
+\end{equation*}
+
 
 Meta-rules not currently encoded:
 \begin{itemize}
@@ -225,9 +314,54 @@ Definitions currently missing
 
 \section{Protocol $\pi_{\text{DPoS}}$}
 
-TODO
+This is the second of the four versions of the protocol from the paper. It adds
+epochs with a different stake distribution and PRNG per epoch.
 
-\bibliographystyle{apalike}
+In this protocol, a $P \in \mathsf{Process}_{\pi_{\text{DPoS}}}$ is
+a state tuple $\sProcess{\sChain}{\sState}{\sSlot} \in 
+\mathsf{User} \times \mathsf{PrivKey} \times \mathsf{Chain} \times \mathsf{Hash} \times \mathsf{Slot}$
+
+The protocol has a number of global parameters.
+\begin{itemize}
+\item The initial users $\mathbb{U} = \{U_1, \ldots, U_n\}$ and their keys $\{(\mathsf{sk}_1, \mathsf{vk}_1), \ldots, (\mathsf{sk}_n, \mathsf{vk}_n)\}$
+\item The stake distribution $\mathbb{S} \in \mathsf{Stakes}$ for the users of $\mathbb{S} = \{ (\mathsf{vk}_1, s_1), \ldots, (\mathsf{vk}_n, s_n) \}$
+\item A leader selection function $\sLeader \in \mathsf{Stakes} \times \mathsf{Aux} \times \mathsf{Slot} \rightarrow \mathsf{User}$
+\item A PRNG seed $\rho \in \mathsf{Aux}$ used by the leader selection function
+\item A transaction data function $\mathsf{T} \in \mathsf{Slot} \rightarrow \mathsf{Data}$.
+\end{itemize}
+
+Note that the transaction data function is not intended to be realistic,
+it simply models the otherwise unspecified source of transaction data in
+this version of the protocol description.
+
+
+\begin{equation*}
+\frac{
+  \begin{array}{c}
+    \mathsf{newEpoch}(\sSlot)
+    \qquad
+    j = \mathsf{epoch}(\sSlot)
+    \qquad
+    j \geq 2
+    \\[1mm]
+    \mathbb{S}_j = \mathsf{stakeDist}(\sChain, j)
+    \qquad
+    \rho_j = \mathsf{beacon}(j)
+  \end{array}
+}{
+  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\sSlot}}{\sQueue}
+\rightarrow
+  \sSystem{\sProcesses \sPar \sProcess{\sChain}{\sState}{\sSlot}}{\sQueue}
+} \textsc{epoch}
+\end{equation*}
+
+TODO
+\begin{itemize}
+\item remember all the $\mathbb{S}_j$ for all epochs, or compute from C.
+\item remember all the $\rho_j$ for all epochs, or ask beacon
+\end{itemize}
+
+\bibliographystyle{plainnat}
 \bibliography{references}
 
 \end{document}
