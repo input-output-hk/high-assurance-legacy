@@ -316,7 +316,7 @@ chainExtension_DPoS DiffuseFunctionality{..}
     go f aux sl c st = do
 
       let (j, newEpoch) = (EpochNumber (d+1), m == 0)
-                            where (d, m) = divMod r (fromEnum sl)
+                            where (d, m) = divMod (fromEnum sl) r
 
       -- 2(a)
       (f', aux') <-
