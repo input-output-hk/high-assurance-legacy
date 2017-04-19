@@ -1,0 +1,20 @@
+channel ping : Int -- slot leader output
+channel pong : Int -- node output (not slot leader)
+channel tock       -- next slot
+
+nodes :: (Int) -> {Int}
+nodes(size) = {1 .. size}
+
+A :: (Int, (Int) -> Int, Int, Int) -> Proc
+A(size, leader, i, time) =
+    let f(t) =
+        let e = if i == leader(t) then ping.i else pong.i
+        within e -> tock -> f(t + 1)
+    within f(time)
+
+POOL :: (Int, (Int) -> Int) -> Proc
+POOL(size, leader) = 
+    [| { tock } |] i : nodes(size) @ A(size, leader, i, 0)
+
+SIMPLEPOOL :: Proc
+SIMPLEPOOL = POOL(3, \t @ 1 + (t % 3))
