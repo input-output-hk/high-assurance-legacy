@@ -1,0 +1,24 @@
+name:                praos
+version:             0.1.0.0
+license:             MIT
+license-file:        LICENSE
+author:              Edsko de Vries
+maintainer:          edsko@well-typed.com
+build-type:          Simple
+extra-source-files:  ChangeLog.md
+cabal-version:       >=1.10
+
+executable praos
+  main-is:             Praos.lhs
+  build-depends:       base
+                     , async
+                     , containers
+                     , generics-sop
+                     , mtl
+                     , optparse-applicative
+                     , QuickCheck
+                     , random
+                     , stm
+                     , time
+  default-language:    Haskell2010
+  ghc-options:         -Wall -threaded -pgmL lhs2TeX -optL--pre
