@@ -1,0 +1,13 @@
+# Latex outputs
+*.aux
+*.bbl
+*.blg
+*.log
+*.ptb
+*.tex
+*.toc
+
+# cabal stuff
+dist/
+dist-newstyle/
+.ghc.environment.*
