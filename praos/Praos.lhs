@@ -89,6 +89,8 @@ module Main (
   , bInp
   , bOut
   , fork
+  , delay
+  , psiLog
     -- *** Examples
   , ex1
     -- * Algorithm independent definitions
@@ -160,7 +162,6 @@ import Control.Concurrent
 import Control.Concurrent.Async
 import Control.Concurrent.STM (atomically)
 import Control.Monad
-import Control.Monad.IO.Class
 import Control.Monad.State.Class
 import Data.Bifunctor (first, second)
 import Data.Bits (xor)
@@ -172,6 +173,7 @@ import Data.Monoid ((<>))
 import Data.Ord (comparing)
 import Data.Set (Set, (\\))
 import Data.Time.Clock (getCurrentTime, diffUTCTime)
+import Data.Typeable (Typeable)
 import Generics.SOP hiding (shift, fn, hd, S)
 import Options.Applicative (option, auto, long, help, value, showDefaultWith, metavar, flag')
 import System.IO.Unsafe (unsafePerformIO)
@@ -788,7 +790,8 @@ data Psi :: [Type] -> Type where
   BInp  :: Broadcast bs a -> Seconds -> ((Maybe a ,Seconds) -> Psi bs) -> Psi bs  -- broadcast input
   BOut  :: Broadcast bs a -> DeltaQ -> a -> Psi bs -> Psi bs                      -- broadcast output
   Fork  :: ProcId -> Psi ^[] -> Psi bs -> Psi bs                                  -- fork new process
-  Prim  :: IO a -> (a -> Psi bs) -> Psi bs                                        -- primitive operations
+  Delay :: Seconds -> Psi bs -> Psi bs                                            -- delay
+  Log   :: (Summarize a, Typeable a) => a -> Psi bs -> Psi bs                     -- logging
 \end{code}
 
 For unicast- and broadcast input, a \emph{timeout} is specified (as second
@@ -867,9 +870,12 @@ evalOne pid cs c = go
         writeToLog (summarize a)
         forM_ cs $ \c' -> send (c' `at` b) dq a
         go k
-    go (Prim p k) = do
-        a <- p
-        go $ k a
+    go (Delay s k) = do
+        threadDelay $ microseconds s
+        go k
+    go (Log a k) = do
+        writeToLog $ summarize a
+        go k
     go (Fork cfg aux k) = do
         let cs'  = replicate (length cs) Nil
             aux' = evalOne cfg cs' Nil aux
@@ -903,12 +909,14 @@ The advantage of using CPS is that we can now make |SPsi| an instance of a numbe
 %
 \begin{codegroup}
 \begin{code}
-new   :: Summarize a => SPsi s b (Unicast a)
-uInp  :: Unicast a -> Seconds -> SPsi s b (Maybe a, Seconds)
-uOut  :: Unicast a -> DeltaQ -> a -> SPsi s b ()
-bInp  :: Summarize b => Seconds -> SPsi s b (Maybe b, Seconds)
-bOut  :: Summarize b => DeltaQ -> b -> SPsi s b ()
-fork  :: ProcId -> Psi ^[] -> SPsi s b ()
+new     :: Summarize a => SPsi s b (Unicast a)
+uInp    :: Unicast a -> Seconds -> SPsi s b (Maybe a, Seconds)
+uOut    :: Unicast a -> DeltaQ -> a -> SPsi s b ()
+bInp    :: Summarize b => Seconds -> SPsi s b (Maybe b, Seconds)
+bOut    :: Summarize b => DeltaQ -> b -> SPsi s b ()
+fork    :: ProcId -> Psi ^[] -> SPsi s b ()
+delay   :: Seconds -> SPsi s b ()
+psiLog  :: (Summarize a, Typeable a) => a -> SPsi s b ()
 \end{code}
 %if style == newcode
 \begin{code}
@@ -918,6 +926,8 @@ uOut c dq a  = SPsi $ \s k -> UOut c dq a               (k s ())
 bInp t       = SPsi $ \s k -> BInp (Broadcast IZ) t     (k s)
 bOut dq b    = SPsi $ \s k -> BOut (Broadcast IZ) dq b  (k s ())
 fork cfg p   = SPsi $ \s k -> Fork cfg p                (k s ())
+delay n      = SPsi $ \s k -> Delay n                   (k s ())
+psiLog a     = SPsi $ \s k -> Log a                     (k s ())
 
 instance Functor (SPsi s b) where
   fmap = liftM
@@ -929,9 +939,6 @@ instance Applicative (SPsi s b) where
 instance Monad (SPsi s b) where
   return a = SPsi $ \s k -> k s a
   x >>= f  = SPsi $ \s k -> runSPsi x s (\s' a -> runSPsi (f a) s' k)
-
-instance MonadIO (SPsi s b) where
-  liftIO io = SPsi $ \s k -> Prim io (k s)
 
 instance MonadState s (SPsi s b) where
   get   = SPsi $ \s k -> k s s
@@ -952,7 +959,7 @@ a value |a| every |n| seconds is given~by
 every :: Summarize a => Seconds -> a -> SPsi () a ()
 every n a =  forever $ do
                bOut miracle a
-               liftIO $ threadDelay $ microseconds n
+               delay n
 \end{code}
 
 As an example of a process with non-trivial state, the following process
@@ -976,9 +983,9 @@ showTicks :: SPsi Int ExampleBroadcastMsg ()
 showTicks =  forever $ do
                (mmsg, _) <- bInp 10 -- 10 seconds timeout
                case mmsg of
-                 Nothing      -> liftIO $ putStrLn "timeout!"
+                 Nothing      -> psiLog "timeout!"
                  Just ExTick  -> modify (+ 1)
-                 Just ExShow  -> get >>= liftIO . print
+                 Just ExShow  -> get >>= psiLog
 \end{code}
 \end{codegroup}
 
@@ -2093,13 +2100,13 @@ bcStakeholder dq timeout =
       (mmsg, _) <- bInp timeout
       case mmsg of
         Nothing                    -> do
-            liftIO $ writeToLog "Timeout waiting for broadcast."
+            psiLog "Timeout waiting for broadcast."
             mainLoop sl
         Just (BcChain c)           -> do
           isValid <- gets $ verifyAndPrune sl c
           case isValid of
             Right c'      -> modify $ \s -> s { bcRecvChains = c' : bcRecvChains s }
-            Left failure  -> liftIO $ writeToLog $ "Received invalid chain: " ++ summarize failure
+            Left failure  -> psiLog $ "Received invalid chain: " ++ summarize failure
           mainLoop sl
         Just (BcEndSlot nextSlot)  -> do
           modify bcPickMaxValid
@@ -2164,7 +2171,7 @@ The beacon is parameterized by the length of the slot in seconds.
 \begin{code}
 beacon :: (InjectEndSlot msg) => Seconds -> SPsi () msg ()
 beacon slotLength = forM_ (tail slotNumbers) $ \slotInEpoch -> do
-   liftIO $ threadDelay (microseconds slotLength)
+   delay slotLength
    bOut miracle $ injectEndSlot slotInEpoch
 \end{code}
 
@@ -2487,7 +2494,7 @@ bbStakeholder dq timeout =
       (mmsg, _) <- bInp timeout
       case mmsg of
         Nothing                     -> do
-            liftIO $ writeToLog "Timeout waiting for broadcast."
+            psiLog "Timeout waiting for broadcast."
             mainLoop sl
         Just (BbBlock isPotHead b)  -> do
            -- prune blocks belonging to future slots

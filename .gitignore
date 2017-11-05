@@ -3,3 +3,5 @@
 *.blg
 *.log
 *.pdf
+*.swp
+praos/.stack-work/
