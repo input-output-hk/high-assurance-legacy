@@ -93,6 +93,13 @@ module Main (
   , psiLog
     -- *** Examples
   , ex1
+    -- ** Reliability
+  , DeltaQ(..)
+  , miracle
+  , never
+  , mix
+  , uniformFromZero
+  , between
     -- * Algorithm independent definitions
     -- ** Protocol parameters
   , SlotNumber(..)
@@ -658,7 +665,7 @@ will receive the message after a certain time or not at all.
 %format DeltaQ = "\Delta Q"
 %endif
 \begin{code}
-newtype Seconds  = Seconds Double
+newtype Seconds  = Seconds Rational
 newtype DeltaQ   = DeltaQ (StdGen -> (Maybe Seconds, StdGen))
 \end{code}
 %if style == newcode
@@ -675,21 +682,66 @@ Type $\Delta Q$ represents an ``improper'' probability distribution, i.e.
 one whose integral can be less than 1, where the difference to 1
 represents the probability of \emph{failure}.
 
-Instantanious but unreliable communication is modelled by specifying
-the probability by which messages are delivered (in zero time):
+Deterministic |DeltaQ|'s are given by:
 \begin{code}
-nowOrFail :: Double -> DeltaQ
-nowOrFail p = DeltaQ $ \g ->
-    let  (r, g')  = randomR (0, 1) g
-         t        = if r <= p then Just 0 else Nothing
-    in   (t, g')
+dirac :: Maybe Seconds -> DeltaQ
+dirac (Just (Seconds s))
+    | s < 0 = error "seconds must not be negative"
+dirac ms = DeltaQ $ \g -> (ms, g)
 \end{code}
 
-Fully reliable comunication is a special case, modelled by specifying that messages are
-received with probability 1 and no delay:
+Total reliability without delay and total unreliability
+are special cases:
 \begin{code}
-miracle :: DeltaQ
-miracle = nowOrFail 1
+miracle, never :: DeltaQ
+miracle  = dirac $ Just 0
+never    = dirac Nothing
+\end{code}
+
+$\Delta Q$ has the structure of a \emph{monoid} under sequential composition
+with neutral element given by |miracle|:
+\begin{code}
+instance Monoid DeltaQ where
+    mempty                       = miracle
+    DeltaQ a `mappend` DeltaQ b  = DeltaQ $ \g ->
+        let  (mda, g')   = a g
+             (mdb, g'')  = b g'
+             md          = (+) <$> mda <*> mdb
+        in   (md, g'')
+\end{code}
+
+Given two |DeltaQ|'s and two weights,
+choosing one or the other with probability proportional to the given weights
+gives another |DeltaQ|:
+\begin{code}
+mix :: (DeltaQ, Rational) -> (DeltaQ, Rational) -> DeltaQ
+(DeltaQ a, wa) `mix` (DeltaQ b, wb)
+    | wa < 0 || wb < 0 || wa + wb == 0  = error "weights must not be negative, and one must be positive"
+    | otherwise                         = DeltaQ $ \g ->
+        let  pa       = fromRational $ wa / (wa + wb)
+             (r, g')  = randomR (0 :: Double, 1) g
+        in   (if r <= pa then a else b) g'
+\end{code}
+
+We will need another primitive for the construction
+of |DeltaQ|'s, which represents a uniform probability distribution
+between zero and a given upper bound:
+\begin{code}
+uniformFromZero :: Seconds -> DeltaQ
+uniformFromZero (Seconds s)
+    |  s < 0      = error "seconds must not be negative"
+    |  s == 0     = miracle
+    |  otherwise  = DeltaQ $ \g ->
+        let (d, g')  = randomR (0 :: Double, fromRational s) g
+            md       = Just $ Seconds $ min s $ max 0 $ toRational d
+        in  (md, g')
+\end{code}
+
+Combining some of these, we get, |between|,
+given by the uniform distribution between a lower and upper bound:
+\begin{code}
+between :: (Seconds, Seconds) -> DeltaQ
+between (Seconds a, Seconds b) = dirac (Just $ Seconds a) <> uniformFromZero (Seconds $ b - a)
 \end{code}
 
 \todo[inline]{For the psi-calculus model proper this would probably be
@@ -1054,11 +1106,12 @@ class Summarize a where
   default summarize :: (Generic a, All2 Summarize (Code a)) => a -> String
   summarize = gsummarize
 
-instance Summarize String  where summarize = id
-instance Summarize Int     where summarize = show
-instance Summarize Integer where summarize = show
-instance Summarize Double  where summarize = show
-instance Summarize Bool    where summarize = show
+instance Summarize String    where summarize = id
+instance Summarize Int       where summarize = show
+instance Summarize Integer   where summarize = show
+instance Summarize Double    where summarize = show
+instance Summarize Bool      where summarize = show
+instance Summarize Rational  where summarize = show
 
 gsummarize :: (Generic a, All2 Summarize (Code a)) => a -> String
 gsummarize = go . from
@@ -2594,6 +2647,31 @@ parseAlgorithm = asum [
         ]
     ]
 
+parseDeltaQ :: Opt.Parser DeltaQ
+parseDeltaQ = f
+    <$> (option auto $ mconcat [
+              long "min-latency"
+            , help "minimal broadcast latency in ms"
+            , value 0
+            ])
+    <*> (option auto $ mconcat [
+              long "max-latency"
+            , help "maximal broadcast latency in ms"
+            , value 0
+            ])
+    <*> (option auto $ mconcat [
+              long "reliability"
+            , help "broadcast reliability in %"
+            , value 100
+            ])
+  where
+    f :: Int -> Int -> Int -> DeltaQ
+    f a b r =
+        let toSeconds n  = fromIntegral n / 1000
+            dq           = between (toSeconds a, toSeconds b)
+            p            = fromIntegral r / 100
+        in  (dq, p) `mix` (never, 1 - p)
+
 parseCmdArgs :: Opt.Parser CmdArgs
 parseCmdArgs = CmdArgs
     <$> parseAlgorithm
@@ -2601,12 +2679,7 @@ parseCmdArgs = CmdArgs
             long "num-nodes"
           , help "Number of nodes (stakeholders) in the system"
           ])
-    <*> (option (nowOrFail <$> auto) $ mconcat [
-            long "delta-q"
-          , help "ΔQ of broadcast"
-          , value miracle
-          , showDefaultWith summarize
-          ])
+    <*> parseDeltaQ
     <*> (option (Seconds <$> auto) $ mconcat [
             long "slot-length"
           , help "Slot length"
