@@ -80,7 +80,20 @@ module Main (
   , verifyVrf
     -- ** Operational model
   , Psi(..)
-  , evalPsi
+  , evalPsiIO
+  , Queue(..)
+  , nullQueue
+  , emptyQueue
+  , enqueue
+  , dequeue
+  , queueToList
+  , TimeQueue(..)
+  , nullTimeQueue
+  , emptyTimeQueue
+  , enqueueTime
+  , dequeueTime
+  , LogEntry(..)
+  , SimulationState(..)
     -- *** Stateful version
   , SPsi
   , new
@@ -165,10 +178,8 @@ module Main (
   , main
   ) where
 
-import Control.Concurrent
-import Control.Concurrent.Async
-import Control.Concurrent.STM (atomically)
 import Control.Monad
+import Control.Monad.State (State, execState)
 import Control.Monad.State.Class
 import Data.Bifunctor (first, second)
 import Data.Bits (xor)
@@ -179,14 +190,12 @@ import Data.Maybe (listToMaybe, mapMaybe)
 import Data.Monoid ((<>))
 import Data.Ord (comparing)
 import Data.Set (Set, (\\))
-import Data.Time.Clock (getCurrentTime, diffUTCTime)
 import Data.Typeable (Typeable)
 import Generics.SOP hiding (shift, fn, hd, S)
-import Options.Applicative (option, auto, long, help, value, showDefaultWith, metavar, flag')
-import System.IO.Unsafe (unsafePerformIO)
+import Options.Applicative (option, auto, long, help, value, showDefault, metavar, flag')
 import System.Random hiding (getStdGen, setStdGen)
 import Test.QuickCheck
-import qualified Control.Concurrent.STM as STM
+import Text.Printf
 import qualified Data.Map.Strict        as Map
 import qualified Data.Set               as Set
 import qualified GHC.Generics           as GHC
@@ -670,7 +679,12 @@ newtype DeltaQ   = DeltaQ (StdGen -> (Maybe Seconds, StdGen))
 \end{code}
 %if style == newcode
 \begin{code}
-deriving instance Summarize Seconds
+instance Show Seconds where
+    show (Seconds s) = show (round (1000 * s) :: Int) ++ " ms"
+
+instance Summarize Seconds where
+    summarize = show
+
 deriving instance Eq Seconds
 deriving instance Ord Seconds
 
@@ -749,48 +763,7 @@ replaced with non-determinism.}
 
 %if style == newcode
 \begin{code}
-newtype Channel a = Channel (STM.TChan a)
-
-data Received a = Received
-    { recvMessage :: !(Maybe a)
-    , recvWaited  :: !Seconds
-    }
-
-send :: Channel a -> DeltaQ -> a -> IO ()
-send (Channel c) (DeltaQ dq) a = do
-    mt <- getStdRandom dq
-    case mt of
-        Nothing -> return ()
-        Just t  -> void $ forkIO $ do
-            threadDelay $ microseconds t
-            atomically $ STM.writeTChan c a
-
--- |Tries to read the next value from the @'TChan'@ before timing out.
-readTimeoutTChanIO :: Int          -- ^The timeout in microseconds.
-                   -> STM.TChan a  -- ^The channel to read from.
-                   -> IO (Maybe a) -- ^@'Just'@ the read value or @'Nothing'@ in case of a timeout.
-readTimeoutTChanIO timeout c = do
-    t <- STM.registerDelay timeout
-    atomically $
-        (Just <$> STM.readTChan c) `STM.orElse` do
-            b <- STM.readTVar t
-            STM.check b
-            return Nothing
-
-recv :: Channel a -> Seconds -> IO (Received a)
-recv (Channel c) timeout = do
-    startTime <- getCurrentTime
-    ma        <- readTimeoutTChanIO (microseconds timeout) c
-    case ma of
-        Nothing -> return Received { recvMessage = ma
-                                   , recvWaited  = timeout
-                                   }
-        Just _  -> do
-            endTime <- getCurrentTime
-            let t = fromRational $ toRational $ diffUTCTime endTime startTime
-            return Received { recvMessage = ma
-                            , recvWaited  = t
-                            }
+newtype Channel a = Channel (TimeQueue a)
 \end{code}
 %endif
 
@@ -805,7 +778,9 @@ data Unicast a
 %if style == newcode
 \begin{code}
   where
-    Unicast :: Summarize a => Channel a -> Unicast a
+    Unicast :: Summarize a => ChannelId -> Unicast a
+
+type ChannelId = Int
 \end{code}
 %endif
 \end{codegroup}
@@ -856,12 +831,168 @@ axiomatization of these principles (where not already available in the
 literature) would need to be done when considering formal psi-calculus
 definitions of our models.
 
-\todo[inline]{The use of HOAS (functions) in our embedding makes it impossible to traverse a |Psi| term, but has as advantage that it keeps things relatively simple. If traversing |Psi| terms becomes important---for example, if we wanted to decorate processes with $\Delta$Q annotations---then we could move to PHOAS instead \cite{Oliveira:2013:ASG:2426890.2426909}.}
+\todo[inline]{The use of HOAS (functions) in our embedding makes it impossible to traverse a |Psi| term,
+but has as advantage that it keeps things relatively simple. If traversing |Psi| terms becomes important---for example,
+if we wanted to decorate processes with $\Delta$Q annotations---then we could move to PHOAS instead \cite{Oliveira:2013:ASG:2426890.2426909}.}
 
-As stated, we can then define an interpreter over a set of top-level processes
+%if style == newcode
+\begin{code}
+data Queue a = Queue [a] [a] deriving Show
+
+emptyQueue :: Queue a
+emptyQueue = Queue [] []
+
+nullQueue :: Queue a -> Bool
+nullQueue (Queue [] [])  = True
+nullQueue _              = False
+
+enqueue :: a -> Queue a -> Queue a
+enqueue a (Queue xs ys) = Queue xs (a : ys)
+
+dequeue :: Queue a -> Maybe (a, Queue a)
+dequeue (Queue [] [])        = Nothing
+dequeue (Queue (x : xs) ys)  = Just (x, Queue xs ys)
+dequeue (Queue [] ys)        = dequeue $ Queue (reverse ys) []
+
+queueToList :: Queue a -> [a]
+queueToList (Queue xs ys) = xs ++ reverse ys
+
+newtype TimeQueue a = TimeQueue (Map Seconds (Queue a))
+
+emptyTimeQueue :: TimeQueue a
+emptyTimeQueue = TimeQueue Map.empty
+
+nullTimeQueue :: TimeQueue a -> Bool
+nullTimeQueue (TimeQueue m) = Map.null m
+
+enqueueTime :: forall a. Seconds -> a -> TimeQueue a -> TimeQueue a
+enqueueTime s a (TimeQueue m) = TimeQueue $ Map.alter f s m
+  where
+    f :: Maybe (Queue a) -> Maybe (Queue a)
+    f Nothing   = Just $ enqueue a emptyQueue
+    f (Just q)  = Just $ enqueue a q
+
+dequeueTime :: TimeQueue a -> Maybe (Seconds, a, TimeQueue a)
+dequeueTime (TimeQueue m) = case Map.minViewWithKey m of
+    Nothing            -> Nothing
+    Just ((s, q), m')  ->
+        let  Just (a, q')  = dequeue q
+             m''           = if nullQueue q' then m' else Map.insert s q' m'
+        in   Just (s, a, TimeQueue m'')
+
+timeQueueFromList :: [(Seconds, a)] -> TimeQueue a
+timeQueueFromList = foldl' f emptyTimeQueue
+  where
+    f :: TimeQueue a -> (Seconds, a) -> TimeQueue a
+    f t (s, a) = enqueueTime s a t
+
+timeQueueToList :: TimeQueue a -> [(Seconds, a)]
+timeQueueToList t = case dequeueTime t of
+    Nothing         -> []
+    Just (s, a, t') -> (s, a) : timeQueueToList t'
+
+data Event where
+    Active :: ProcId -> Psi bs -> Event
+
+data CHANNEL where
+    CHANNEL :: Channel a -> CHANNEL
+
+data SimulationState (bs :: [*]) = SimulationState
+    { ssTime      :: Seconds
+    , ssLogs      :: Queue LogEntry
+    , ssBroadcast :: Map ProcId (NP Channel bs)
+    , ssUnicast   :: Map ChannelId CHANNEL
+    , ssStdGen    :: StdGen
+    , ssEvents    :: TimeQueue Event
+    }
+
+initSimulationState :: SListI bs => StdGen -> [(ProcId, Psi bs)] -> SimulationState bs
+initSimulationState g ps = SimulationState
+    { ssTime      = 0
+    , ssLogs      = emptyQueue
+    , ssBroadcast = Map.fromList [(pid, hpure $ Channel emptyTimeQueue) | (pid, _) <- ps]
+    , ssUnicast   = Map.empty
+    , ssStdGen    = g
+    , ssEvents    = timeQueueFromList [(0, Active pid p) | (pid, p) <- ps]
+    }
+
+simulationStep :: Seconds -> State (SimulationState bs) (Maybe ())
+simulationStep tmax = do
+    events <- gets ssEvents
+    case dequeueTime events of
+        Nothing              -> return Nothing
+        Just (t, e, events')
+            | t >= tmax      -> return Nothing
+            | otherwise      -> do
+                modify $ \ss -> ss
+                    { ssEvents = events'
+                    , ssTime   = t
+                    }
+                case e of
+                    Active _   Done        -> return ()
+                    Active pid (Log a k)   -> do
+                        let entry = LogEntry t pid a
+                            event = Active pid k
+                        modify $ \ss -> ss
+                            { ssLogs = enqueue entry $ ssLogs ss
+                            , ssEvents = enqueueTime t event $ ssEvents ss
+                            }
+                    Active pid (Delay s k) -> do
+                        let t'    = t + s
+                            event = Active pid k
+                        modify $ \ss -> ss{ssEvents = enqueueTime t' event $ ssEvents ss}
+                return $ Just ()
+
+simulationSteps :: Seconds -> State (SimulationState bs) ()
+simulationSteps tmax = go
+  where
+    go = do
+        mu <- simulationStep tmax
+        case mu of
+            Nothing -> return ()
+            Just () -> go
+
+hello :: Psi ^[()]
+hello = flip withState () $ do
+    psiLog "starting..."
+    forever $ do
+        delay 1
+        psiLog "tick"
+
+test :: IO ()
+test = evalPsiIO
+    123456
+    (Seconds 10)
+    [("hello", hello)]
+
+\end{code}
+%endif
+
+As stated, we can then define an interpreter that simulates a set of top-level processes
 %
 \begin{code}
-evalPsi :: SListI bs => [(ProcId, Psi bs)] -> IO ()
+data LogEntry where
+    LogEntry :: (Summarize a, Typeable a) => Seconds -> ProcId -> a -> LogEntry
+
+evalPsi :: forall bs. SListI bs => StdGen -> Seconds -> [(ProcId, Psi bs)] -> ([LogEntry], StdGen)
+\end{code}
+
+%if style == newcode
+\begin{code}
+evalPsi g tmax ps =
+    let ss   = initSimulationState g ps
+        ss'  = execState (simulationSteps tmax) ss
+        logs = queueToList $ ssLogs ss'
+        g'   = ssStdGen ss'
+    in  (logs, g')
+
+instance Show LogEntry where
+    show (LogEntry s pid a) = printf "%10s: %10s: %s" (show s) pid $ summarize a
+\end{code}
+%endif
+
+\begin{code}
+evalPsiIO :: SListI bs => Int -> Seconds ->[(ProcId, Psi bs)] -> IO ()
 \end{code}
 %
 (the |SListI| singleton constraint is there for technical reasons only and is
@@ -869,70 +1000,10 @@ always satisfied).
 
 %if style == newcode
 \begin{code}
-evalPsi ps = do
-    ps' <- forM ps $ \(i, p) -> do
-        c <- hsequence' $ hpure (Comp newChannel)
-        return (i, p, c)
-    let cs = map (\(_, _, c) -> c) ps'
-    evalPar cs ps'
-  where
-    newChannel :: IO (Channel a)
-    newChannel = Channel <$> STM.newTChanIO
-
-evalPar :: forall bs. SListI bs
-        => [NP Channel bs]
-        -> [(ProcId, Psi bs, NP Channel bs)]
-        -> IO ()
-evalPar cs ps = do
-    let threads = [evalOne i cs c p | (i, p, c) <- ps]
-    waitAll threads
-
-evalOne :: forall bs.
-           ProcId
-        -> [NP Channel bs] -- ^ Write ends
-        -> NP Channel bs   -- ^ Read end
-        -> Psi bs          -- ^ Process to run
-        -> IO ()
-evalOne pid cs c = go
-  where
-    go :: Psi bs -> IO ()
-    go Done =
-        return ()
-    go (New k) = do
-        c' <- (Unicast . Channel) <$> STM.newTChanIO
-        go $ k c'
-    go (UInp (Unicast c') t k) = do
-        Received{..} <- recv c' t
-        case recvMessage of
-          Just a  -> go $ k (Just a, recvWaited)
-          Nothing -> do
-            writeToLog $ "Node " ++ pid ++ " timeout on unicast input"
-            go $ k (Nothing, t)
-    go (UOut (Unicast c') dq a k) = do
-        send c' dq a
-        go $ k
-    go (BInp (Broadcast b) t k) = do
-        Received{..} <- recv (c `at` b) t
-        case recvMessage of
-          Just a  -> go $ k (Just a, recvWaited)
-          Nothing -> do
-            writeToLog $ "Node " ++ pid ++ " timeout on broadcast input"
-            go $ k (Nothing, t)
-    go (BOut (Broadcast b) dq a k) = do
-        writeToLog (summarize a)
-        forM_ cs $ \c' -> send (c' `at` b) dq a
-        go k
-    go (Delay s k) = do
-        threadDelay $ microseconds s
-        go k
-    go (Log a k) = do
-        writeToLog $ summarize a
-        go k
-    go (Fork cfg aux k) = do
-        let cs'  = replicate (length cs) Nil
-            aux' = evalOne cfg cs' Nil aux
-            k'   = go k
-        waitAll [aux', k']
+evalPsiIO seed tmax ps = do
+    let g         = mkStdGen seed
+        (logs, _) = evalPsi g tmax ps
+    mapM_ print logs
 \end{code}
 %endif
 
@@ -1041,7 +1112,7 @@ showTicks =  forever $ do
 \end{code}
 \end{codegroup}
 
-We can execute these concurrently using |evalPsi|, providing an initial state
+We can execute these concurrently using |evalPsiIO|, providing an initial state
 for each process:
 
 \begin{code}
@@ -1076,30 +1147,9 @@ at = flip ix
 -- absurdIx i = case i of {}
 \end{code}
 
-% Async
-
-\begin{code}
-waitAll :: [IO ()] -> IO ()
-waitAll = foldl' f (return ())
-   where
-     f :: IO () -> IO () -> IO ()
-     f x y = do
-        ax <- async x
-        ay <- async y
-        void $ waitBoth ax ay
-
-\end{code}
-
 % Logging
 
 \begin{code}
-logLock :: MVar ()
-{-# NOINLINE logLock #-}
-logLock = unsafePerformIO $ newMVar ()
-
-writeToLog :: String -> IO ()
-writeToLog msg = withMVar logLock $ \() -> putStrLn msg
-
 -- | Short, human readable, string
 class Summarize a where
   summarize :: a -> String
@@ -2633,7 +2683,20 @@ data CmdArgs = CmdArgs {
 
       -- Timeout for receiving messages
     , cmdTimeout :: Seconds
+
+      -- Duration
+    , cmdDuration :: Seconds
+
+      -- Seed
+    , cmdSeed :: Int
     }
+
+readSeconds :: Opt.ReadM Seconds
+readSeconds = do
+    ms <- auto :: Opt.ReadM Int
+    if ms < 0
+        then mzero
+        else return $ Seconds $ fromIntegral ms / 1000
 
 parseAlgorithm :: Opt.Parser Algorithm
 parseAlgorithm = asum [
@@ -2649,27 +2712,32 @@ parseAlgorithm = asum [
 
 parseDeltaQ :: Opt.Parser DeltaQ
 parseDeltaQ = f
-    <$> (option auto $ mconcat [
+    <$> (option readSeconds $ mconcat [
               long "min-latency"
             , help "minimal broadcast latency in ms"
+            , metavar "MINLATENCY"
             , value 0
+            , showDefault
             ])
-    <*> (option auto $ mconcat [
+    <*> (option readSeconds $ mconcat [
               long "max-latency"
             , help "maximal broadcast latency in ms"
+            , metavar "MAXLATENCY"
             , value 0
+            , showDefault
             ])
     <*> (option auto $ mconcat [
               long "reliability"
             , help "broadcast reliability in %"
+            , metavar "RELIABILITY"
             , value 100
+            , showDefault
             ])
   where
-    f :: Int -> Int -> Int -> DeltaQ
+    f :: Seconds -> Seconds -> Int -> DeltaQ
     f a b r =
-        let toSeconds n  = fromIntegral n / 1000
-            dq           = between (toSeconds a, toSeconds b)
-            p            = fromIntegral r / 100
+        let dq = between (a, b)
+            p  = fromIntegral r / 100
         in  (dq, p) `mix` (never, 1 - p)
 
 parseCmdArgs :: Opt.Parser CmdArgs
@@ -2680,20 +2748,34 @@ parseCmdArgs = CmdArgs
           , help "Number of nodes (stakeholders) in the system"
           ])
     <*> parseDeltaQ
-    <*> (option (Seconds <$> auto) $ mconcat [
+    <*> (option readSeconds $ mconcat [
             long "slot-length"
-          , help "Slot length"
-          , metavar "SEC"
-          , value 0.5
-          , showDefaultWith summarize
+          , help "Slot length in ms"
+          , metavar "SLOTLENGTH"
+          , value $ Seconds 0.5
+          , showDefault
           ])
-    <*> (option (Seconds <$> auto) $ mconcat [
+    <*> (option readSeconds $ mconcat [
             long "timeout"
-          , help "Timeout for receiving messages"
+          , help "Timeout for receiving messages in ms"
           , metavar "TIMEOUT"
-          , value 10
-          , showDefaultWith summarize
+          , value $ Seconds 10
+          , showDefault
           ])
+    <*> (option readSeconds $ mconcat [
+           long "duration"
+         , help "Simulation duration in ms"
+         , metavar "DURATION"
+         , value (Seconds 60)
+         , showDefault
+         ])
+    <*> (option auto $ mconcat [
+           long "seed"
+         , help "Random number generator seed"
+         , metavar "SEED"
+         , value 123456
+         , showDefault
+         ])
 
 getCmdArgs :: IO CmdArgs
 getCmdArgs = Opt.execParser opts
@@ -2707,8 +2789,11 @@ main :: IO ()
 main = do
     cmdArgs <- getCmdArgs
     case cmdAlgorithm cmdArgs of
-      AlgBroadChains -> evalPsi $ bcTest cmdArgs
-      AlgBroadBlocks -> evalPsi $ bbTest cmdArgs
+      AlgBroadChains -> run cmdArgs bcTest
+      AlgBroadBlocks -> run cmdArgs bbTest
+  where
+    run :: SListI bs => CmdArgs -> (CmdArgs -> [(ProcId, Psi bs)]) -> IO ()
+    run cmdArgs f = evalPsiIO (cmdSeed cmdArgs) (cmdDuration cmdArgs) $ f cmdArgs
 \end{code}
 %endif
 

@@ -1,3 +1,6 @@
 resolver: lts-9.10
 packages:
 - .
+nix:
+    enable: false
+    shell-file: shell.nix
