@@ -891,26 +891,45 @@ timeQueueToList t = case dequeueTime t of
     Nothing         -> []
     Just (s, a, t') -> (s, a) : timeQueueToList t'
 
-data Event where
-    Active :: ProcId -> Psi bs -> Event
+data Event (bs :: [*]) where
+    Active  :: ProcId -> Psi bs -> Event bs
+    Deliver :: ProcId -> Broadcast bs a -> a -> Event bs
+    Check   :: ProcId -> Broadcast bs a -> Event bs
 
 data CHANNEL where
     CHANNEL :: Channel a -> CHANNEL
 
+data Wait bs a = Wait
+    { wWaitStart :: Seconds
+    , wWaitStop  :: Seconds
+    , wCont      :: (Maybe a, Seconds) -> Psi bs
+    }
+
+data ChannelWait bs a = ChannelWait
+    { cwChannel :: Channel a
+    , cwWait    :: Maybe (Wait bs a)
+    }
+
+emptyChannelWait :: ChannelWait bs a
+emptyChannelWait = ChannelWait
+    { cwChannel = Channel emptyTimeQueue
+    , cwWait    = Nothing
+    }
+
 data SimulationState (bs :: [*]) = SimulationState
     { ssTime      :: Seconds
     , ssLogs      :: Queue LogEntry
-    , ssBroadcast :: Map ProcId (NP Channel bs)
+    , ssBroadcast :: Map ProcId (NP (ChannelWait bs) bs)
     , ssUnicast   :: Map ChannelId CHANNEL
     , ssStdGen    :: StdGen
-    , ssEvents    :: TimeQueue Event
+    , ssEvents    :: TimeQueue (Event bs)
     }
 
 initSimulationState :: SListI bs => StdGen -> [(ProcId, Psi bs)] -> SimulationState bs
 initSimulationState g ps = SimulationState
     { ssTime      = 0
     , ssLogs      = emptyQueue
-    , ssBroadcast = Map.fromList [(pid, hpure $ Channel emptyTimeQueue) | (pid, _) <- ps]
+    , ssBroadcast = Map.fromList [(pid, hpure emptyChannelWait) | (pid, _) <- ps]
     , ssUnicast   = Map.empty
     , ssStdGen    = g
     , ssEvents    = timeQueueFromList [(0, Active pid p) | (pid, p) <- ps]
@@ -929,19 +948,50 @@ simulationStep tmax = do
                     , ssTime   = t
                     }
                 case e of
-                    Active _   Done        -> return ()
-                    Active pid (Log a k)   -> do
+                    Active _   Done                      -> return ()
+                    Active pid (Log a k)                 -> do
+                        enqueueEvent t (Active pid k)
                         let entry = LogEntry t pid a
-                            event = Active pid k
                         modify $ \ss -> ss
                             { ssLogs = enqueue entry $ ssLogs ss
-                            , ssEvents = enqueueTime t event $ ssEvents ss
                             }
-                    Active pid (Delay s k) -> do
-                        let t'    = t + s
-                            event = Active pid k
-                        modify $ \ss -> ss{ssEvents = enqueueTime t' event $ ssEvents ss}
+                    Active pid (Delay s k)               -> enqueueEvent (t + s) (Active pid k)
+                    Active pid (BOut bc (DeltaQ dq) a k) -> do
+                        pids   <- gets $ Map.keys . ssBroadcast
+                        forM_ pids $ \pid' -> do
+                            g <- gets ssStdGen
+                            let (md, g') = dq g
+                            modify $ \ss -> ss{ssStdGen = g'}
+                            case md of
+                                Nothing -> return ()
+                                Just d  -> enqueueEvent (t + d) (Deliver pid' bc a)
+                        enqueueEvent t (Active pid k)
+                    Deliver pid (Broadcast i) a          -> do
+                        m <- gets ssBroadcast
+                        case Map.lookup pid m of
+                            Nothing  -> return ()
+                            Just cws -> do
+                                let cw        = ix i cws
+                                    Channel c = cwChannel cw
+                                    c'        = enqueueTime t a c
+                                    cw'       = cw {cwChannel = Channel c'}
+                                    cws'      = set i cw' cws
+                                    m'        = Map.insert pid cws' m
+                                modify $ \ss -> ss{ssBroadcast = m'}
+                                enqueueEvent t $ Check pid $ Broadcast i
+                    Check pid (Broadcast i)              -> do
+                        m <- gets ssBroadcast
+                        case Map.lookup pid m of
+                            Nothing  -> return ()
+                            Just cws -> do
+                                let cw        = ix i cws
+                                    Channel c = cwChannel cw
+                                    mw        = cwWait cw
+                        undefined
                 return $ Just ()
+  where
+    enqueueEvent :: Seconds -> Event bs -> State (SimulationState bs) ()
+    enqueueEvent t e = modify $ \ss -> ss{ssEvents = enqueueTime t e $ ssEvents ss}
 
 simulationSteps :: Seconds -> State (SimulationState bs) ()
 simulationSteps tmax = go
@@ -1142,6 +1192,10 @@ ix (IS i) (_ :* as) = ix i as
 
 at :: NP f as -> Ix as a -> f a
 at = flip ix
+
+set :: Ix as a -> f a -> NP f as -> NP f as
+set IZ     a (_  :* as) = a  :* as
+set (IS i) a (a' :* as) = a' :* set i a as
 
 -- absurdIx :: Ix '[] a -> b
 -- absurdIx i = case i of {}
