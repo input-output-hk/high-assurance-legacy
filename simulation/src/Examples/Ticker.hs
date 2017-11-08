@@ -5,29 +5,31 @@ module Examples.Ticker
     , testFiniteTickerIO
     ) where
 
-import Control.Monad (forever)
-import Control.Monad.Trans.Class (lift)
+import Control.Monad (forever, forM_)
 import Simulation
+import System.Random
 
-ticker :: MonadThread m => (Microseconds -> m ()) -> m ()
-ticker logTime = forever $ do
+ticker :: MonadThreadPlus m => m ()
+ticker = forever $ do
     delay 1000000
-    t <- getTime
-    logTime t
+    logEntry "tick"
 
 testTickerIO :: IO ()
-testTickerIO = simulateSimple' $ ticker $ lift . print
+testTickerIO = do
+    let (logs, _) = getLogs (Just 10000000) (mkStdGen 123456) ticker
+    forM_ logs print
 
-finiteTicker :: MonadThread m => Microseconds -> (String -> m ()) -> m ()
-finiteTicker s log' = do
-    log' "start"
+finiteTicker :: MonadThreadPlus m => Microseconds -> m ()
+finiteTicker s = do
+    logEntry "start"
     tid <- fork $ forever $ do
         delay 1000000
-        t <- getTime
-        log' $ show t
+        logEntry "tick"
     delay s
-    log' "stop"
+    logEntry "stop"
     kill tid
 
 testFiniteTickerIO :: Microseconds -> IO ()
-testFiniteTickerIO s = simulateSimple' $ finiteTicker s $ lift . putStrLn
+testFiniteTickerIO s = do
+    let (logs, _) = getLogs Nothing (mkStdGen 123456) $ finiteTicker s
+    forM_ logs print
