@@ -1,6 +1,4 @@
-resolver: lts-9.10
+resolver: lts-9.12
 packages:
+- ../simulation
 - .
-nix:
-    enable: false
-    shell-file: shell.nix

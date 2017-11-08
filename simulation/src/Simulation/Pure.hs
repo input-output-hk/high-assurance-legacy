@@ -5,16 +5,14 @@ module Simulation.Pure
     ( simulate
     ) where
 
-import           Control.Monad
 import           Control.Monad.State
 import           Control.Monad.Trans.Free
 import           Data.Map.Strict           (Map)
 import qualified Data.Map.Strict           as M
-import           Data.Typeable      
+import           Data.Typeable
 import           Simulation.Queue          (Queue)
 import qualified Simulation.Queue          as Q
 import           Simulation.Thread
-import           Simulation.Thread.Class
 import           Simulation.Time
 import           Simulation.TimeQueue      (TimeQueue)
 import qualified Simulation.TimeQueue      as T
@@ -32,7 +30,7 @@ emptyCHANNEL _ = CHANNEL (Q.empty :: Queue a)
 enqueueCHANNEL :: Typeable a => a -> CHANNEL -> CHANNEL
 enqueueCHANNEL a (CHANNEL xs) =
     let Just ys = cast xs
-    in  CHANNEL $ Q.enqueue a ys 
+    in  CHANNEL $ Q.enqueue a ys
 
 dequeueCHANNEL :: Typeable a => Channel' a -> CHANNEL -> Maybe (a, CHANNEL)
 dequeueCHANNEL _ (CHANNEL q) = case Q.dequeue q of
@@ -143,7 +141,7 @@ step tid (ThreadT (FreeT t)) = do
                 { ssThreads = M.insert tid (Delayed s') $ ssThreads ss
                 , ssDelayed = T.enqueue s' (tid, ThreadT t') $ ssDelayed ss
                 }
-            
+
 simulate :: forall m. Monad m => M m () -> m ()
 simulate = go initialState $ ThreadId' 0
   where
@@ -153,29 +151,15 @@ simulate = go initialState $ ThreadId' 0
         case (Q.dequeue $ ssActive s', T.dequeue $ ssDelayed s') of
             (Just ((tid', t'), q), _)            -> do
                 let s'' = s'
-                        { ssThreads = M.delete tid' $ ssThreads s' 
+                        { ssThreads = M.delete tid' $ ssThreads s'
                         , ssActive  = q
                         }
                 go s'' tid' t'
             (Nothing, Just (ms, (tid', t'), tq)) -> do
                 let s'' = s'
-                        { ssTime    = ms 
+                        { ssTime    = ms
                         , ssThreads = M.delete tid' $ ssThreads s'
                         , ssDelayed = tq
                         }
                 go s'' tid' t'
             (Nothing, Nothing)                   -> return ()
-
-test :: M IO ()
-test = do
-    l
-    tid <- fork $ forever $ l >> delay 1000000
-    delay 10000000
-    kill tid
-    l
-  where
-    l :: M IO ()
-    l = do
-        tid <- getThreadId
-        ms  <- getTime
-        lift $ putStrLn $ show tid ++ ": " ++ show ms

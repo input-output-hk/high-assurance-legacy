@@ -3,6 +3,7 @@
 module Examples.PingPong
     ( pingPong
     , testPingPongIO
+    , testPingPong
     ) where
 
 import Control.Monad.Trans.Class (lift)
