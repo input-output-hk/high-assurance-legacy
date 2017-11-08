@@ -11,6 +11,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Examples.PingPong
                      , Examples.Ticker
+                     , Examples.Timeout
                      , Simulation
                      , Simulation.Pure
                      , Simulation.Queue
@@ -19,6 +20,7 @@ library
                      , Simulation.Thread.Class
                      , Simulation.Time
                      , Simulation.TimeQueue
+                     , Simulation.Utils
   ghc-options:         -Wall -O2
   build-depends:       base >= 4.7 && < 5
                      , containers
