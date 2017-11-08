@@ -3,6 +3,8 @@
 
 module Simulation.Pure
     ( M
+    , ThreadId'
+    , Channel'
     , simulateFor
     , simulate
     ) where

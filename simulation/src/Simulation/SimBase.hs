@@ -6,7 +6,6 @@ module Simulation.SimBase
     , MonadSim(..)
     , MonadThreadPlus
     , logEntry
-    , withStdGen
     , SimBaseT
     , getLogsT
     , getLogs
@@ -33,19 +32,18 @@ instance Show LogEntry where
     show (LogEntry ms tid a) = printf "%12s: %4s: %s" (show ms) (show tid) (show a)
 
 class Monad m => MonadSim m where
-    logEntryM   :: LogEntry -> m ()
-    withStdGenM :: (StdGen -> (a, StdGen)) -> m a
+    logEntryM  :: LogEntry -> m ()
+    withStdGen :: (StdGen -> (a, StdGen)) -> m a
 
 type MonadThreadPlus m = (MonadThread m, MonadSim m, Show (ThreadId m))
 
 instance MonadSim m => MonadSim (M m) where
-    logEntryM   = lift . logEntryM
-    withStdGenM = lift . withStdGenM
+    logEntryM  = lift . logEntryM
+    withStdGen = lift . withStdGen
 
 logEntry :: ( Show a
             , Typeable a
-            , MonadSim m
-            , MonadThread m
+            , MonadThreadPlus m
             , Show (ThreadId m)
             )
          => a -> m ()
@@ -54,12 +52,9 @@ logEntry a = do
     ms  <- getTime
     logEntryM $ LogEntry ms tid a
 
-withStdGen :: MonadSim m => (StdGen -> (a, StdGen)) -> M m a
-withStdGen f = lift $ withStdGenM f
-
 instance MonadSim IO where
-    logEntryM   = print
-    withStdGenM = getStdRandom
+    logEntryM  = print
+    withStdGen = getStdRandom
 
 data SimBaseState = SimBaseState
     { bsLogs   :: [LogEntry]
@@ -77,7 +72,7 @@ newtype SimBaseT m a = SimBaseT {runSimBaseT :: StateT SimBaseState m a}
 
 instance Monad m => MonadSim (SimBaseT m) where
     logEntryM e   = modify $ \bs -> bs {bsLogs = e : bsLogs bs}
-    withStdGenM f = do
+    withStdGen f = do
         g <- gets bsStdGen
         let (a, g') = f g
         modify $ \bs -> bs {bsStdGen = g'}

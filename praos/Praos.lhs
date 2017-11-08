@@ -80,6 +80,7 @@ module Main (
   , verifyVrf
     -- ** Operational model
   , Psi(..)
+  , toThread
   , evalPsi
     -- *** Stateful version
   , SPsi
@@ -106,6 +107,7 @@ module Main (
   , EpochNumber(..)
   , Seconds(..)
   , microseconds
+  , seconds
   , epochLength
   , activeSlotCoefficient
   , probLeader
@@ -165,9 +167,6 @@ module Main (
   , main
   ) where
 
-import Control.Concurrent
-import Control.Concurrent.Async
-import Control.Concurrent.STM (atomically)
 import Control.Monad
 import Control.Monad.State.Class
 import Data.Bifunctor (first, second)
@@ -179,14 +178,12 @@ import Data.Maybe (listToMaybe, mapMaybe)
 import Data.Monoid ((<>))
 import Data.Ord (comparing)
 import Data.Set (Set, (\\))
-import Data.Time.Clock (getCurrentTime, diffUTCTime)
 import Data.Typeable (Typeable)
 import Generics.SOP hiding (shift, fn, hd, S)
 import Options.Applicative (option, auto, long, help, value, showDefaultWith, metavar, flag')
-import System.IO.Unsafe (unsafePerformIO)
+import qualified Simulation as SIM
 import System.Random hiding (getStdGen, setStdGen)
 import Test.QuickCheck
-import qualified Control.Concurrent.STM as STM
 import qualified Data.Map.Strict        as Map
 import qualified Data.Set               as Set
 import qualified GHC.Generics           as GHC
@@ -322,7 +319,7 @@ evalRandomFn = withGen' . go
 
 deriving instance Show (RandomFn a)
 
-instance Summarize (RandomFn a) where
+instance Typeable a => Summarize (RandomFn a) where
   summarize (IsLeader distr key) = summarize (distr, key)
   summarize (IsLeader' relStake) = summarize relStake
   summarize Random               = summarize ()
@@ -379,7 +376,7 @@ newtype Hash a
   = Hash a
   deriving (Show, Eq, Ord)
 
-instance Summarize (Hash a) where
+instance Typeable a => Summarize (Hash a) where
   summarize _ = "<hash>"
 \end{code}
 %endif
@@ -539,7 +536,7 @@ We will model a VRF as a function that produces a random value $a$ given a seed 
 %
 \begin{codegroup}
 \begin{code}
-vrf :: PrivateKey -> Seed -> RandomFn a -> (a, VrfProof)
+vrf :: Typeable a => PrivateKey -> Seed -> RandomFn a -> (a, VrfProof)
 \end{code}
 %if style == newcode
 \begin{code}
@@ -560,10 +557,9 @@ data VrfProof
 \end{code}
 %if style == newcode
 \begin{code}
-  = forall a. VrfProof PrivateKey Seed (RandomFn a)
+  = forall a. Typeable a => VrfProof PrivateKey Seed (RandomFn a)
 
 deriving instance Show VrfProof
-
 
 instance Eq VrfProof where
   VrfProof key seed fn == VrfProof key' seed' fn' = and [
@@ -670,7 +666,13 @@ newtype DeltaQ   = DeltaQ (StdGen -> (Maybe Seconds, StdGen))
 \end{code}
 %if style == newcode
 \begin{code}
-deriving instance Summarize Seconds
+
+instance Show Seconds where
+    show = show . microseconds
+
+instance Summarize Seconds where
+    summarize = show
+
 deriving instance Eq Seconds
 deriving instance Ord Seconds
 
@@ -749,48 +751,35 @@ replaced with non-determinism.}
 
 %if style == newcode
 \begin{code}
-newtype Channel a = Channel (STM.TChan a)
+type Channel = SIM.Channel'
 
-data Received a = Received
-    { recvMessage :: !(Maybe a)
-    , recvWaited  :: !Seconds
-    }
-
-send :: Channel a -> DeltaQ -> a -> IO ()
-send (Channel c) (DeltaQ dq) a = do
-    mt <- getStdRandom dq
-    case mt of
+send :: ( SIM.MonadThreadPlus m
+        , SIM.Channel m ~ Channel
+        , Typeable a
+        ) 
+     => Channel a 
+     -> DeltaQ 
+     -> a 
+     -> m ()
+send c (DeltaQ dq) a = do
+    ms <- SIM.withStdGen dq
+    case ms of
         Nothing -> return ()
-        Just t  -> void $ forkIO $ do
-            threadDelay $ microseconds t
-            atomically $ STM.writeTChan c a
+        Just s  -> do
+            SIM.delay $ microseconds s
+            SIM.send a c
 
--- |Tries to read the next value from the @'TChan'@ before timing out.
-readTimeoutTChanIO :: Int          -- ^The timeout in microseconds.
-                   -> STM.TChan a  -- ^The channel to read from.
-                   -> IO (Maybe a) -- ^@'Just'@ the read value or @'Nothing'@ in case of a timeout.
-readTimeoutTChanIO timeout c = do
-    t <- STM.registerDelay timeout
-    atomically $
-        (Just <$> STM.readTChan c) `STM.orElse` do
-            b <- STM.readTVar t
-            STM.check b
-            return Nothing
-
-recv :: Channel a -> Seconds -> IO (Received a)
-recv (Channel c) timeout = do
-    startTime <- getCurrentTime
-    ma        <- readTimeoutTChanIO (microseconds timeout) c
-    case ma of
-        Nothing -> return Received { recvMessage = ma
-                                   , recvWaited  = timeout
-                                   }
-        Just _  -> do
-            endTime <- getCurrentTime
-            let t = fromRational $ toRational $ diffUTCTime endTime startTime
-            return Received { recvMessage = ma
-                            , recvWaited  = t
-                            }
+receive :: ( SIM.MonadThreadPlus m
+           , SIM.Channel m ~ Channel
+           , Typeable a
+           ) 
+        => Channel a
+        -> Seconds
+        -> m (Maybe a, Seconds)
+receive c s = do
+    (ma, ms) <- SIM.expectTimeout c $ microseconds s
+    return (ma, seconds ms)
+    
 \end{code}
 %endif
 
@@ -843,7 +832,7 @@ data Psi :: [Type] -> Type where
   BOut  :: Broadcast bs a -> DeltaQ -> a -> Psi bs -> Psi bs                      -- broadcast output
   Fork  :: ProcId -> Psi ^[] -> Psi bs -> Psi bs                                  -- fork new process
   Delay :: Seconds -> Psi bs -> Psi bs                                            -- delay
-  Log   :: (Summarize a, Typeable a) => a -> Psi bs -> Psi bs                     -- logging
+  Log   :: (Show a, Typeable a) => a -> Psi bs -> Psi bs                          -- logging
 \end{code}
 
 For unicast- and broadcast input, a \emph{timeout} is specified (as second
@@ -861,7 +850,7 @@ definitions of our models.
 As stated, we can then define an interpreter over a set of top-level processes
 %
 \begin{code}
-evalPsi :: SListI bs => [(ProcId, Psi bs)] -> IO ()
+evalPsi :: forall bs. (SListI bs, All Typeable bs) => Seconds -> [(ProcId, Psi bs)] -> IO ()
 \end{code}
 %
 (the |SListI| singleton constraint is there for technical reasons only and is
@@ -869,70 +858,61 @@ always satisfied).
 
 %if style == newcode
 \begin{code}
-evalPsi ps = do
+evalPsi s ps = SIM.getLogsIO (Just $ microseconds s) (toThread ps)
+
+toThread :: forall bs m. 
+            ( SListI bs
+            , All Typeable bs
+            , SIM.MonadThreadPlus m
+            , SIM.Channel m ~ Channel
+            ) 
+         => [(ProcId, Psi bs)] 
+         -> m ()
+toThread ps = do
     ps' <- forM ps $ \(i, p) -> do
-        c <- hsequence' $ hpure (Comp newChannel)
+        c <- hsequence' $ hcpure (Proxy :: Proxy Typeable) (Comp SIM.newChannel)
         return (i, p, c)
     let cs = map (\(_, _, c) -> c) ps'
     evalPar cs ps'
-  where
-    newChannel :: IO (Channel a)
-    newChannel = Channel <$> STM.newTChanIO
 
-evalPar :: forall bs. SListI bs
+evalPar :: forall bs m. 
+           ( SListI bs
+           , All Typeable bs
+           , SIM.MonadThreadPlus m
+           , SIM.Channel m ~ Channel
+           )
         => [NP Channel bs]
         -> [(ProcId, Psi bs, NP Channel bs)]
-        -> IO ()
+        -> m ()
 evalPar cs ps = do
-    let threads = [evalOne i cs c p | (i, p, c) <- ps]
-    waitAll threads
+    let threads = [evalOne pid cs c psi | (pid, psi, c) <- ps]
+    forM_ threads SIM.fork
 
-evalOne :: forall bs.
-           ProcId
+evalOne :: forall bs m. 
+           ( SIM.MonadThreadPlus m
+           , SIM.Channel m ~ Channel
+           )
+        => ProcId
         -> [NP Channel bs] -- ^ Write ends
         -> NP Channel bs   -- ^ Read end
         -> Psi bs          -- ^ Process to run
-        -> IO ()
+        -> m ()
 evalOne pid cs c = go
   where
-    go :: Psi bs -> IO ()
-    go Done =
-        return ()
-    go (New k) = do
-        c' <- (Unicast . Channel) <$> STM.newTChanIO
-        go $ k c'
-    go (UInp (Unicast c') t k) = do
-        Received{..} <- recv c' t
-        case recvMessage of
-          Just a  -> go $ k (Just a, recvWaited)
-          Nothing -> do
-            writeToLog $ "Node " ++ pid ++ " timeout on unicast input"
-            go $ k (Nothing, t)
-    go (UOut (Unicast c') dq a k) = do
-        send c' dq a
-        go $ k
-    go (BInp (Broadcast b) t k) = do
-        Received{..} <- recv (c `at` b) t
-        case recvMessage of
-          Just a  -> go $ k (Just a, recvWaited)
-          Nothing -> do
-            writeToLog $ "Node " ++ pid ++ " timeout on broadcast input"
-            go $ k (Nothing, t)
-    go (BOut (Broadcast b) dq a k) = do
-        writeToLog (summarize a)
-        forM_ cs $ \c' -> send (c' `at` b) dq a
-        go k
-    go (Delay s k) = do
-        threadDelay $ microseconds s
-        go k
-    go (Log a k) = do
-        writeToLog $ summarize a
-        go k
-    go (Fork cfg aux k) = do
+    go :: Psi bs -> m ()
+    go Done = return ()
+    go (New k)                     = Unicast <$> SIM.newChannel >>= go . k
+    go (UInp (Unicast c') t k)     = receive c' t >>= go . k
+    go (UOut (Unicast c') dq a k)  = send c' dq a >> go k
+    go (BInp (Broadcast b) t k)    = receive (c `at` b) t >>= go . k
+    go (BOut (Broadcast b) dq a k) = forM_ cs (\c' -> send (c' `at` b) dq a) >> go k
+    go (Delay s k)                 = SIM.delay (microseconds s) >> go k
+    go (Log a k)                   = SIM.logEntry (pid, a) >> go k
+    go (Fork pid' psi' k)          = do
         let cs'  = replicate (length cs) Nil
-            aux' = evalOne cfg cs' Nil aux
-            k'   = go k
-        waitAll [aux', k']
+            aux' = evalOne pid' cs' Nil psi'
+        _ <- SIM.fork aux'
+        go k
 \end{code}
 %endif
 
@@ -968,7 +948,7 @@ bInp    :: Summarize b => Seconds -> SPsi s b (Maybe b, Seconds)
 bOut    :: Summarize b => DeltaQ -> b -> SPsi s b ()
 fork    :: ProcId -> Psi ^[] -> SPsi s b ()
 delay   :: Seconds -> SPsi s b ()
-psiLog  :: (Summarize a, Typeable a) => a -> SPsi s b ()
+psiLog  :: (Show a, Typeable a) => a -> SPsi s b ()
 \end{code}
 %if style == newcode
 \begin{code}
@@ -1045,10 +1025,10 @@ We can execute these concurrently using |evalPsi|, providing an initial state
 for each process:
 
 \begin{code}
-ex1 :: [Psi ^[ExampleBroadcastMsg]]
-ex1 =  [  every 1 ExTick  `withState` ()
-       ,  every 5 ExShow  `withState` ()
-       ,  showTicks       `withState` 0
+ex1 :: [(ProcId, Psi ^[ExampleBroadcastMsg])]
+ex1 =  [  ("tick1",  every 1 ExTick  `withState` ())
+       ,  ("tick5",  every 5 ExShow  `withState` ())
+       ,  ("show",   showTicks       `withState` 0)
        ]
 \end{code}
 
@@ -1076,32 +1056,11 @@ at = flip ix
 -- absurdIx i = case i of {}
 \end{code}
 
-% Async
-
-\begin{code}
-waitAll :: [IO ()] -> IO ()
-waitAll = foldl' f (return ())
-   where
-     f :: IO () -> IO () -> IO ()
-     f x y = do
-        ax <- async x
-        ay <- async y
-        void $ waitBoth ax ay
-
-\end{code}
-
 % Logging
 
 \begin{code}
-logLock :: MVar ()
-{-# NOINLINE logLock #-}
-logLock = unsafePerformIO $ newMVar ()
-
-writeToLog :: String -> IO ()
-writeToLog msg = withMVar logLock $ \() -> putStrLn msg
-
 -- | Short, human readable, string
-class Summarize a where
+class Typeable a => Summarize a where
   summarize :: a -> String
   default summarize :: (Generic a, All2 Summarize (Code a)) => a -> String
   summarize = gsummarize
@@ -1210,8 +1169,11 @@ deriving instance Summarize SlotNumber
 deriving instance Num        Seconds
 deriving instance Fractional Seconds
 
-microseconds :: Seconds -> Int
+microseconds :: Seconds -> SIM.Microseconds
 microseconds (Seconds n) = round (n * 1000000)
+
+seconds :: SIM.Microseconds -> Seconds
+seconds ms = Seconds $ fromIntegral ms / 1000000
 \end{code}
 %endif
 
@@ -2158,7 +2120,9 @@ bcStakeholder dq timeout =
         Just (BcChain c)           -> do
           isValid <- gets $ verifyAndPrune sl c
           case isValid of
-            Right c'      -> modify $ \s -> s { bcRecvChains = c' : bcRecvChains s }
+            Right c'      -> do
+                psiLog $ "received chain: " ++ summarize c'
+                modify $ \s -> s { bcRecvChains = c' : bcRecvChains s }
             Left failure  -> psiLog $ "Received invalid chain: " ++ summarize failure
           mainLoop sl
         Just (BcEndSlot nextSlot)  -> do
@@ -2172,6 +2136,7 @@ bcEmit dq sl isLeader = do
     transactions  <- randomTransactions
     newBlock      <- gets $ makeBlock sl isLeader transactions
     newChain      <- gets $ \s -> bcChain s ++ [newBlock]
+    psiLog $ "sending chain: " ++ summarize newChain
     bOut dq $ BcChain newChain
     modify $ \s -> s { bcChain = newChain, bcState = Just (hash newBlock) }
 \end{code}
@@ -2550,13 +2515,14 @@ bbStakeholder dq timeout =
             psiLog "Timeout waiting for broadcast."
             mainLoop sl
         Just (BbBlock isPotHead b)  -> do
+           psiLog $ "received block: " ++ summarize b
            -- prune blocks belonging to future slots
            when (sblockSlot b <= sl) $
              modify $ \s -> s { bbBlocks = insertBlock isPotHead b (bbBlocks s) }
            -- request predecessor, if not known
            knownBlocks <- gets $ blocksMap . bbBlocks
            case sblockState b of
-             Just h | not (Map.member h knownBlocks)  -> bOut dq $ BbRequest h
+             Just h | not (Map.member h knownBlocks)  -> psiLog ("requesting block: " ++ summarize h) >> (bOut dq $ BbRequest h)
              _otherwise                               -> return ()
            -- continue waiting for messages
            mainLoop sl
@@ -2575,6 +2541,7 @@ emitBlock dq sl isLeader = do
      transactions  <- randomTransactions
      newBlock      <- gets $ makeBlock sl isLeader transactions
      newChain      <- gets $ \s -> bbChain s ++ [newBlock]
+     psiLog $ "sending block: " ++ summarize newBlock
      bOut dq $ BbBlock IsPotentialHead newBlock
      modify $ \s -> s { bbChain = newChain, bbState = Just (hash newBlock) }
 \end{code}
@@ -2633,6 +2600,9 @@ data CmdArgs = CmdArgs {
 
       -- Timeout for receiving messages
     , cmdTimeout :: Seconds
+
+      -- Simulation duration
+    , cmdDuration :: Seconds
     }
 
 parseAlgorithm :: Opt.Parser Algorithm
@@ -2649,14 +2619,14 @@ parseAlgorithm = asum [
 
 parseDeltaQ :: Opt.Parser DeltaQ
 parseDeltaQ = f
-    <$> (option auto $ mconcat [
+    <$> (option readSeconds $ mconcat [
               long "min-latency"
-            , help "minimal broadcast latency in ms"
+            , help "minimal broadcast latency in μs"
             , value 0
             ])
-    <*> (option auto $ mconcat [
+    <*> (option readSeconds $ mconcat [
               long "max-latency"
-            , help "maximal broadcast latency in ms"
+            , help "maximal broadcast latency in μs"
             , value 0
             ])
     <*> (option auto $ mconcat [
@@ -2665,12 +2635,19 @@ parseDeltaQ = f
             , value 100
             ])
   where
-    f :: Int -> Int -> Int -> DeltaQ
+    f :: Seconds -> Seconds -> Int -> DeltaQ
     f a b r =
-        let toSeconds n  = fromIntegral n / 1000
-            dq           = between (toSeconds a, toSeconds b)
-            p            = fromIntegral r / 100
+        let dq = between (a, b)
+            p  = fromIntegral r / 100
         in  (dq, p) `mix` (never, 1 - p)
+
+readSeconds :: Opt.ReadM Seconds
+readSeconds = do
+    n <- auto :: Opt.ReadM Int
+    let ms = fromIntegral n :: SIM.Microseconds
+    if ms < 0
+        then mzero
+        else return $ seconds ms
 
 parseCmdArgs :: Opt.Parser CmdArgs
 parseCmdArgs = CmdArgs
@@ -2680,18 +2657,25 @@ parseCmdArgs = CmdArgs
           , help "Number of nodes (stakeholders) in the system"
           ])
     <*> parseDeltaQ
-    <*> (option (Seconds <$> auto) $ mconcat [
+    <*> (option readSeconds $ mconcat [
             long "slot-length"
           , help "Slot length"
           , metavar "SEC"
           , value 0.5
           , showDefaultWith summarize
           ])
-    <*> (option (Seconds <$> auto) $ mconcat [
+    <*> (option readSeconds $ mconcat [
             long "timeout"
-          , help "Timeout for receiving messages"
+          , help "Timeout for receiving messages in μs"
           , metavar "TIMEOUT"
           , value 10
+          , showDefaultWith summarize
+          ])
+    <*> (option readSeconds $ mconcat [
+            long "duration"
+          , help "Simulation duration in μs"
+          , metavar "DURATION"
+          , value 60
           , showDefaultWith summarize
           ])
 
@@ -2707,8 +2691,8 @@ main :: IO ()
 main = do
     cmdArgs <- getCmdArgs
     case cmdAlgorithm cmdArgs of
-      AlgBroadChains -> evalPsi $ bcTest cmdArgs
-      AlgBroadBlocks -> evalPsi $ bbTest cmdArgs
+      AlgBroadChains -> evalPsi (cmdDuration cmdArgs) $ bcTest cmdArgs
+      AlgBroadBlocks -> evalPsi (cmdDuration cmdArgs) $ bbTest cmdArgs
 \end{code}
 %endif
 
