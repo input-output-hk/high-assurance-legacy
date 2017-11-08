@@ -2,7 +2,9 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Simulation.Pure
-    ( simulate
+    ( M
+    , simulateFor
+    , simulate
     ) where
 
 import           Control.Monad.State
@@ -142,11 +144,11 @@ step tid (ThreadT (FreeT t)) = do
                 , ssDelayed = T.enqueue s' (tid, ThreadT t') $ ssDelayed ss
                 }
 
-simulate :: forall m. Monad m => M m () -> m ()
-simulate = go initialState $ ThreadId' 0
+simulateFor :: forall m. Monad m => Maybe Microseconds -> M m () -> m ()
+simulateFor mms = go initialState $ ThreadId' 0
   where
     go :: SimState m -> ThreadId' -> M m () -> m ()
-    go s tid t = do
+    go s tid t = when (((>= ssTime s) <$> mms) /= Just False) $ do
         s' <- execStateT (step tid t) s
         case (Q.dequeue $ ssActive s', T.dequeue $ ssDelayed s') of
             (Just ((tid', t'), q), _)            -> do
@@ -163,3 +165,6 @@ simulate = go initialState $ ThreadId' 0
                         }
                 go s'' tid' t'
             (Nothing, Nothing)                   -> return ()
+
+simulate :: forall m. Monad m => M m () -> m ()
+simulate = simulateFor Nothing
