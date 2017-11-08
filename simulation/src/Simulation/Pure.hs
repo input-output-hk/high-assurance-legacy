@@ -19,7 +19,10 @@ import           Simulation.Time
 import           Simulation.TimeQueue      (TimeQueue)
 import qualified Simulation.TimeQueue      as T
 
-newtype ThreadId' = ThreadId' Int deriving (Show, Eq, Ord)
+newtype ThreadId' = ThreadId' Int deriving (Eq, Ord)
+
+instance Show ThreadId' where
+    show (ThreadId' n) = '#' : show n
 
 newtype Channel' a = Channel' {channelId :: Int} deriving Show
 

@@ -10,6 +10,7 @@ module Simulation.SimBase
     , SimBaseT
     , getLogsT
     , getLogs
+    , getLogsIO
     ) where
 
 import Control.Monad.State
@@ -19,6 +20,7 @@ import Simulation.Pure
 import Simulation.Thread.Class
 import Simulation.Time
 import System.Random
+import Text.Printf
 
 data LogEntry where
     LogEntry :: ( Show threadId
@@ -28,7 +30,7 @@ data LogEntry where
              => Microseconds -> threadId -> a -> LogEntry
 
 instance Show LogEntry where
-    show (LogEntry ms tid a) = show ms ++ ": " ++ show tid ++ ": " ++ show a
+    show (LogEntry ms tid a) = printf "%12s: %4s: %s" (show ms) (show tid) (show a)
 
 class Monad m => MonadSim m where
     logEntryM   :: LogEntry -> m ()
@@ -45,7 +47,7 @@ logEntry :: ( Show a
             , MonadSim m
             , MonadThread m
             , Show (ThreadId m)
-            ) 
+            )
          => a -> m ()
 logEntry a = do
     tid <- getThreadId
@@ -90,3 +92,9 @@ getLogsT mms g t = do
 
 getLogs :: Maybe Microseconds -> StdGen -> M SimBase () -> ([LogEntry], StdGen)
 getLogs mms g = runIdentity . getLogsT mms g
+
+getLogsIO :: Maybe Microseconds -> M SimBase () -> IO ()
+getLogsIO mms t = do
+    g <- getStdGen
+    let (logs, _) = getLogs mms g t
+    forM_ logs print
