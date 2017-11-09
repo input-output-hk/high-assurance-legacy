@@ -2475,18 +2475,16 @@ bbStakeholder dq timeout =
     mainLoop sl = do
       (mmsg, _) <- bInp timeout
       case mmsg of
-        Nothing                     -> do
-            psiLog "Timeout waiting for broadcast."
-            mainLoop sl
+        Nothing                     -> psiLog Timeout >> mainLoop sl
         Just (BbBlock isPotHead b)  -> do
-           psiLog $ "received block: " ++ summarize b
+           psiLog $ ReceivedBlock b
            -- prune blocks belonging to future slots
            when (sblockSlot b <= sl) $
              modify $ \s -> s { bbBlocks = insertBlock isPotHead b (bbBlocks s) }
            -- request predecessor, if not known
            knownBlocks <- gets $ blocksMap . bbBlocks
            case sblockState b of
-             Just h | not (Map.member h knownBlocks)  -> psiLog ("requesting block: " ++ summarize h) >> (bOut dq $ BbRequest h)
+             Just h | not (Map.member h knownBlocks)  -> psiLog (RequestingBlock h) >> bOut dq (BbRequest h)
              _otherwise                               -> return ()
            -- continue waiting for messages
            mainLoop sl
@@ -2496,8 +2494,11 @@ bbStakeholder dq timeout =
             modify $ updateGenesis (epochNumber nextSlot)
           startOfSlot (slotNumber nextSlot)
         Just (BbRequest h)          -> do
+          psiLog $ ReceivedRequest h
           mBlock <- gets $ Map.lookup h . blocksMap . bbBlocks
-          whenJust mBlock $ bOut dq . BbBlock NotPotentialHead
+          whenJust mBlock $ \b -> do
+            psiLog $ AnsweringRequest h
+            bOut dq $ BbBlock NotPotentialHead b
           mainLoop sl
 
 emitBlock :: DeltaQ -> SlotNumber -> VrfProof -> SPsi BbState BbMsg ()
@@ -2505,9 +2506,25 @@ emitBlock dq sl isLeader = do
      transactions  <- randomTransactions
      newBlock      <- gets $ makeBlock sl isLeader transactions
      newChain      <- gets $ \s -> bbChain s ++ [newBlock]
-     psiLog $ "sending block: " ++ summarize newBlock
+     psiLog $ EmittingBlock newBlock
      bOut dq $ BbBlock IsPotentialHead newBlock
      modify $ \s -> s { bbChain = newChain, bbState = Just (hash newBlock) }
+
+data LogEntry =
+      Timeout
+    | EmittingBlock    !Block
+    | ReceivedBlock    !Block
+    | RequestingBlock  !(Hash Block)
+    | ReceivedRequest  !(Hash Block)
+    | AnsweringRequest !(Hash Block)
+
+instance Show LogEntry where
+    show Timeout              = "timeout"
+    show (EmittingBlock b)    = "emitting block (" ++ summarize b ++ ")"
+    show (ReceivedBlock b)    = "received block (" ++ summarize b ++ ")"
+    show (RequestingBlock h)  = "requesting block (" ++ summarize h ++ ")"
+    show (AnsweringRequest h) = "answering request (" ++ summarize h ++ ")"
+    show (ReceivedRequest h) = "received request (" ++ summarize h ++ ")"
 \end{code}
 \hrule
 \caption{\label{fig:StakeholderBlocks}Stakeholder}
