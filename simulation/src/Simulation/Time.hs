@@ -13,7 +13,7 @@ fromMicroseconds :: Integer -> Seconds
 fromMicroseconds = (/ 1000000) . fromIntegral
 
 instance Show Seconds where
-    show s = show (toMicroseconds s) ++ "μs"
+    show s = show (fromRational $ toRational s :: Double) ++ "s"
 
 instance Read Seconds where
-    readsPrec n s = [(fromMicroseconds ms, t) | (ms, t) <- readsPrec n s]
+    readsPrec n s = [(fromRational $ toRational d, t) | (d :: Double, t) <- readsPrec n s]

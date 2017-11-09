@@ -23,7 +23,7 @@ data LogEntry where
              -> LogEntry
 
 instance Show LogEntry where
-    show (LogEntry s tid a sh) = printf "%12s: %4s: %s" (show s) (show tid) (sh a)
+    show (LogEntry s tid a sh) = printf "%12.6fs: %4s: %s" (fromRational $ toRational s :: Double) (show tid) (sh a)
 
 class Monad m => MonadThread m where
 

@@ -2602,12 +2602,12 @@ parseDeltaQ :: Opt.Parser DeltaQ
 parseDeltaQ = f
     <$> (option readSeconds $ mconcat [
               long "min-latency"
-            , help "minimal broadcast latency in μs"
+            , help "minimal broadcast latency in seconds"
             , value 0
             ])
     <*> (option readSeconds $ mconcat [
               long "max-latency"
-            , help "maximal broadcast latency in μs"
+            , help "maximal broadcast latency in seconds"
             , value 0
             ])
     <*> (option auto $ mconcat [
@@ -2642,21 +2642,21 @@ parseCmdArgs = CmdArgs
           , help "Slot length"
           , metavar "SEC"
           , value 0.5
-          , showDefaultWith summarize
+          , showDefault
           ])
     <*> (option readSeconds $ mconcat [
             long "timeout"
-          , help "Timeout for receiving messages in μs"
+          , help "Timeout for receiving messages in seconds"
           , metavar "TIMEOUT"
           , value 10
-          , showDefaultWith summarize
+          , showDefault
           ])
     <*> (option readSeconds $ mconcat [
             long "duration"
-          , help "Simulation duration in μs"
+          , help "Simulation duration in s"
           , metavar "DURATION"
           , value 60
-          , showDefaultWith summarize
+          , showDefault
           ])
 
 getCmdArgs :: IO CmdArgs
