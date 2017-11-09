@@ -9,7 +9,8 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Examples.PingPong
+  exposed-modules:     Examples
+                     , Examples.PingPong
                      , Examples.Ticker
                      , Examples.Timeout
                      , Simulation

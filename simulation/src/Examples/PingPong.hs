@@ -15,7 +15,7 @@ pingPong = do
     t1 <- fork $ thread a b
     t2 <- fork $ thread b a
     send "PING" a
-    delay 10000000
+    delay 10
     kill t1
     kill t2
     logEntryShow "stop"
@@ -24,9 +24,9 @@ pingPong = do
     thread i o = do
         s <- expect i
         case s of
-            "PING" -> logEntryShow "received PING, sending PONG" >> delay 1000000 >> send "PONG" o >> thread i o
-            "PONG" -> logEntryShow "received PONG, sending PING" >> delay 1000000 >> send "PING" o >> thread i o
+            "PING" -> logEntryShow "received PING, sending PONG" >> delay 1 >> send "PONG" o >> thread i o
+            "PONG" -> logEntryShow "received PONG, sending PING" >> delay 1 >> send "PING" o >> thread i o
             _      -> logEntryShow ("received " ++ s)
 
 testPingPong :: IO ()
-testPingPong = simulateForIO (Just 10000001) pingPong
+testPingPong = simulateForIO (Just 10.001) pingPong

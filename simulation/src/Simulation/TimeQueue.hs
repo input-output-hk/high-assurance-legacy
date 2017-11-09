@@ -17,7 +17,7 @@ import           Simulation.Queue (Queue)
 import qualified Simulation.Queue as Q
 import           Simulation.Time
 
-newtype TimeQueue a = TimeQueue (Map Microseconds (Queue a))
+newtype TimeQueue a = TimeQueue (Map Seconds (Queue a))
 
 empty :: TimeQueue a
 empty = TimeQueue M.empty
@@ -25,14 +25,14 @@ empty = TimeQueue M.empty
 null :: TimeQueue a -> Bool
 null (TimeQueue m) = M.null m
 
-enqueue :: forall a. Microseconds -> a -> TimeQueue a -> TimeQueue a
+enqueue :: forall a. Seconds -> a -> TimeQueue a -> TimeQueue a
 enqueue s a (TimeQueue m) = TimeQueue $ M.alter f s m
   where
     f :: Maybe (Queue a) -> Maybe (Queue a)
     f Nothing   = Just $ Q.enqueue a Q.empty
     f (Just q)  = Just $ Q.enqueue a q
 
-dequeue :: TimeQueue a -> Maybe (Microseconds, a, TimeQueue a)
+dequeue :: TimeQueue a -> Maybe (Seconds, a, TimeQueue a)
 dequeue (TimeQueue m) = case M.minViewWithKey m of
     Nothing            -> Nothing
     Just ((s, q), m')  ->
@@ -40,18 +40,18 @@ dequeue (TimeQueue m) = case M.minViewWithKey m of
              m''           = if Q.null q' then m' else M.insert s q' m'
         in   Just (s, a, TimeQueue m'')
 
-fromList :: [(Microseconds, a)] -> TimeQueue a
+fromList :: [(Seconds, a)] -> TimeQueue a
 fromList = foldl' f empty
   where
-    f :: TimeQueue a -> (Microseconds, a) -> TimeQueue a
+    f :: TimeQueue a -> (Seconds, a) -> TimeQueue a
     f t (s, a) = enqueue s a t
 
-toList :: TimeQueue a -> [(Microseconds, a)]
+toList :: TimeQueue a -> [(Seconds, a)]
 toList t = case dequeue t of
     Nothing         -> []
     Just (s, a, t') -> (s, a) : toList t'
 
-delete' :: forall a. Microseconds -> (a -> Bool) -> TimeQueue a -> TimeQueue a
+delete' :: forall a. Seconds -> (a -> Bool) -> TimeQueue a -> TimeQueue a
 delete' s p (TimeQueue m) = TimeQueue $ M.alter f s m
   where
     f :: Maybe (Queue a) -> Maybe (Queue a)

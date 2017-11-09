@@ -10,21 +10,21 @@ import Simulation
 
 ticker :: Thread ()
 ticker = forever $ do
-    delay 1000000
+    delay 1
     logEntryShow "tick"
 
 testTicker :: IO ()
-testTicker = simulateForIO (Just 10000000) ticker
+testTicker = simulateForIO (Just 10) ticker
 
-finiteTicker :: Microseconds -> Thread ()
+finiteTicker :: Seconds -> Thread ()
 finiteTicker s = do
     logEntryShow "start"
     tid <- fork $ forever $ do
-        delay 1000000
+        delay 1
         logEntryShow "tick"
     delay s
     logEntryShow "stop"
     kill tid
 
-testFiniteTicker :: Microseconds -> IO ()
+testFiniteTicker :: Seconds -> IO ()
 testFiniteTicker = simulateIO . finiteTicker

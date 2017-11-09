@@ -105,9 +105,6 @@ module Main (
     -- ** Protocol parameters
   , SlotNumber(..)
   , EpochNumber(..)
-  , Seconds(..)
-  , microseconds
-  , seconds
   , epochLength
   , activeSlotCoefficient
   , probLeader
@@ -167,27 +164,28 @@ module Main (
   , main
   ) where
 
-import Control.Monad
-import Control.Monad.State.Class
-import Data.Bifunctor (first, second)
-import Data.Bits (xor)
-import Data.Foldable (fold, asum)
-import Data.List (maximumBy, intercalate, foldl', inits)
-import Data.Map.Strict (Map)
-import Data.Maybe (listToMaybe, mapMaybe)
-import Data.Monoid ((<>))
-import Data.Ord (comparing)
-import Data.Set (Set, (\\))
-import Data.Typeable (Typeable)
-import Generics.SOP hiding (shift, fn, hd, S)
-import Options.Applicative (option, auto, long, help, value, showDefaultWith, metavar, flag')
-import qualified Simulation as SIM
-import System.Random hiding (getStdGen, setStdGen)
-import Test.QuickCheck
-import qualified Data.Map.Strict        as Map
-import qualified Data.Set               as Set
-import qualified GHC.Generics           as GHC
-import qualified Options.Applicative    as Opt
+import           Control.Monad
+import           Control.Monad.State.Class
+import           Data.Bifunctor            (first, second)
+import           Data.Bits                 (xor)
+import           Data.Foldable             (fold, asum)
+import           Data.List                 (maximumBy, intercalate, foldl', inits)
+import           Data.Map.Strict           (Map)
+import           Data.Maybe                (listToMaybe, mapMaybe)
+import           Data.Monoid               ((<>))
+import           Data.Ord                  (comparing)
+import           Data.Set                  (Set, (\\))
+import           Data.Typeable             (Typeable)
+import           Generics.SOP              hiding (shift, fn, hd, S)
+import           Options.Applicative       (option, auto, long, help, value, showDefaultWith, metavar, flag')
+import qualified Simulation                as SIM
+import           Simulation                (Seconds)
+import           System.Random             hiding (getStdGen, setStdGen)
+import           Test.QuickCheck
+import qualified Data.Map.Strict           as Map
+import qualified Data.Set                  as Set
+import qualified GHC.Generics              as GHC
+import qualified Options.Applicative       as Opt
 
 \end{code}
 %endif
@@ -661,20 +659,13 @@ will receive the message after a certain time or not at all.
 %format DeltaQ = "\Delta Q"
 %endif
 \begin{code}
-newtype Seconds  = Seconds Rational
-newtype DeltaQ   = DeltaQ (StdGen -> (Maybe Seconds, StdGen))
+newtype DeltaQ = DeltaQ (StdGen -> (Maybe Seconds, StdGen))
 \end{code}
 %if style == newcode
 \begin{code}
 
-instance Show Seconds where
-    show = show . microseconds
-
 instance Summarize Seconds where
     summarize = show
-
-deriving instance Eq Seconds
-deriving instance Ord Seconds
 
 instance Summarize DeltaQ where
     summarize = const "ΔQ"
@@ -687,9 +678,9 @@ represents the probability of \emph{failure}.
 Deterministic |DeltaQ|'s are given by:
 \begin{code}
 dirac :: Maybe Seconds -> DeltaQ
-dirac (Just (Seconds s))
+dirac (Just s)
     | s < 0 = error "seconds must not be negative"
-dirac ms = DeltaQ $ \g -> (ms, g)
+dirac s = DeltaQ $ \g -> (s, g)
 \end{code}
 
 Total reliability without delay and total unreliability
@@ -730,12 +721,12 @@ of |DeltaQ|'s, which represents a uniform probability distribution
 between zero and a given upper bound:
 \begin{code}
 uniformFromZero :: Seconds -> DeltaQ
-uniformFromZero (Seconds s)
+uniformFromZero s
     |  s < 0      = error "seconds must not be negative"
     |  s == 0     = miracle
     |  otherwise  = DeltaQ $ \g ->
-        let (d, g')  = randomR (0 :: Double, fromRational s) g
-            md       = Just $ Seconds $ min s $ max 0 $ toRational d
+        let (d, g')  = randomR (0 :: Double, fromRational $ toRational s) g
+            md       = Just $ min s $ max 0 $ fromRational $ toRational d
         in  (md, g')
 \end{code}
 
@@ -743,7 +734,7 @@ Combining some of these, we get, |between|,
 given by the uniform distribution between a lower and upper bound:
 \begin{code}
 between :: (Seconds, Seconds) -> DeltaQ
-between (Seconds a, Seconds b) = dirac (Just $ Seconds a) <> uniformFromZero (Seconds $ b - a)
+between (a, b) = dirac (Just a) <> uniformFromZero (b - a)
 \end{code}
 
 \todo[inline]{For the psi-calculus model proper this would probably be
@@ -759,15 +750,15 @@ send c (DeltaQ dq) a = do
     case ms of
         Nothing -> return ()
         Just s  -> do
-            SIM.delay $ microseconds s
+            SIM.delay s
             SIM.send a c
 
 receive :: Typeable a => Channel a -> Seconds -> SIM.Thread (Maybe a, Seconds)
 receive c s = do
     start <- SIM.getTime
-    ma    <- SIM.expectTimeout c $ microseconds s
+    ma    <- SIM.expectTimeout c s
     end   <- SIM.getTime
-    return (ma, seconds (end - start))
+    return (ma, end - start)
 
 \end{code}
 %endif
@@ -847,7 +838,7 @@ always satisfied).
 
 %if style == newcode
 \begin{code}
-evalPsi s ps = SIM.simulateForIO (Just $ microseconds s) (toThread ps)
+evalPsi s ps = SIM.simulateForIO (Just s) (toThread ps)
 
 toThread :: forall bs.
             ( SListI bs
@@ -888,7 +879,7 @@ evalOne pid cs c = go
     go (UOut (Unicast c') dq a k)  = send c' dq a >> go k
     go (BInp (Broadcast b) t k)    = receive (c `at` b) t >>= go . k
     go (BOut (Broadcast b) dq a k) = forM_ cs (\c' -> send (c' `at` b) dq a) >> go k
-    go (Delay s k)                 = SIM.delay (microseconds s) >> go k
+    go (Delay s k)                 = SIM.delay s >> go k
     go (Log a k)                   = SIM.logEntryShow (pid, a) >> go k
     go (Fork pid' psi' k)          = do
         let cs'  = replicate (length cs) Nil
@@ -1147,15 +1138,6 @@ deriving instance Ord       SlotNumber
 deriving instance Num       SlotNumber
 deriving instance Enum      SlotNumber
 deriving instance Summarize SlotNumber
-
-deriving instance Num        Seconds
-deriving instance Fractional Seconds
-
-microseconds :: Seconds -> SIM.Microseconds
-microseconds (Seconds n) = round (n * 1000000)
-
-seconds :: SIM.Microseconds -> Seconds
-seconds ms = Seconds $ fromIntegral ms / 1000000
 \end{code}
 %endif
 
@@ -2625,11 +2607,10 @@ parseDeltaQ = f
 
 readSeconds :: Opt.ReadM Seconds
 readSeconds = do
-    n <- auto :: Opt.ReadM Int
-    let ms = fromIntegral n :: SIM.Microseconds
-    if ms < 0
+    s <- auto
+    if s < 0
         then mzero
-        else return $ seconds ms
+        else return s
 
 parseCmdArgs :: Opt.Parser CmdArgs
 parseCmdArgs = CmdArgs

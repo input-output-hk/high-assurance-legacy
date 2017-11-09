@@ -16,14 +16,14 @@ data LogEntry where
     LogEntry :: ( Show threadId
                 , Typeable a
                 )
-             => !Microseconds
+             => !Seconds
              -> !threadId
              -> !a
              -> !(a -> String)
              -> LogEntry
 
 instance Show LogEntry where
-    show (LogEntry ms tid a sh) = printf "%12s: %4s: %s" (show ms) (show tid) (sh a)
+    show (LogEntry s tid a sh) = printf "%12s: %4s: %s" (show s) (show tid) (sh a)
 
 class Monad m => MonadThread m where
 
@@ -36,8 +36,8 @@ class Monad m => MonadThread m where
     newChannel  :: Typeable a => m (ChannelT m a)
     send        :: Typeable a => a -> ChannelT m a -> m ()
     expect      :: Typeable a => ChannelT m a -> m a
-    getTime     :: m Microseconds
-    delay       :: Microseconds -> m ()
+    getTime     :: m Seconds
+    delay       :: Seconds -> m ()
     logEntryT   :: LogEntry -> m ()
     withStdGen  :: (StdGen -> (a, StdGen)) -> m a
 
@@ -52,8 +52,8 @@ instance MonadThread IO where
     newChannel  = STM.newTChanIO
     send a c    = STM.atomically $ STM.writeTChan c a
     expect      = STM.atomically . STM.readTChan
-    getTime     = round . (* 1000000) <$> getPOSIXTime
-    delay       = C.threadDelay . fromIntegral
+    getTime     = fromRational . toRational <$> getPOSIXTime
+    delay       = C.threadDelay . fromIntegral . toMicroseconds
     logEntryT   = print
     withStdGen  = getStdRandom
 

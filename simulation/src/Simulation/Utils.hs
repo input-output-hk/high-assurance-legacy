@@ -8,7 +8,7 @@ import Data.Typeable
 import Simulation.Thread.Class
 import Simulation.Time
 
-expectTimeout :: (MonadThread m, Typeable a) => ChannelT m a -> Microseconds -> m (Maybe a)
+expectTimeout :: (MonadThread m, Typeable a) => ChannelT m a -> Seconds -> m (Maybe a)
 expectTimeout c timeout = do
     c' <- newChannel
     e  <- fork $ expect c >>= \a -> send (Just a) c'

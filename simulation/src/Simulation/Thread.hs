@@ -29,8 +29,8 @@ data ThreadF (m :: * -> *) :: * -> * where
     NewChannel  :: Typeable b => (Channel b -> a) -> ThreadF m a
     Send        :: Typeable b => b -> Channel b -> a -> ThreadF m a
     Expect      :: Typeable b => Channel b -> (b -> a) -> ThreadF m a
-    GetTime     :: (Microseconds -> a) -> ThreadF m a
-    Delay       :: Microseconds -> a -> ThreadF m a
+    GetTime     :: (Seconds -> a) -> ThreadF m a
+    Delay       :: Seconds -> a -> ThreadF m a
     Log         :: LogEntry -> a -> ThreadF m a
     WithStdGen  :: (StdGen -> (b, StdGen)) -> (b -> a) -> ThreadF m a
 

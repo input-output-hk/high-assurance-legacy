@@ -49,7 +49,7 @@ dequeueCHANNEL _ (CHANNEL q) = case Q.dequeue q of
 data ThreadState =
       Active
     | Expecting Int
-    | Delayed Microseconds
+    | Delayed Seconds
     deriving Show
 
 data Continuation m where
@@ -61,7 +61,7 @@ callContinuation (Continuation _ k) a =
     in  k b
 
 data SimState m = SimState
-    { ssTime          :: Microseconds
+    { ssTime          :: Seconds
     , ssNextThreadId  :: ThreadId
     , ssNextChannelId :: Int
     , ssThreads       :: Map ThreadId ThreadState
@@ -159,11 +159,11 @@ step tid (ThreadT (FreeT t)) = do
             modify $ \ss -> ss {ssStdGen = g'}
             step tid $ ThreadT $ k a
 
-simulateForT :: forall m. Monad m => Maybe Microseconds -> StdGen -> ThreadT m () -> m ([LogEntry], StdGen)
+simulateForT :: forall m. Monad m => Maybe Seconds -> StdGen -> ThreadT m () -> m ([LogEntry], StdGen)
 simulateForT mms g = go (initialState g) $ ThreadId 0
   where
     go :: SimState m -> ThreadId -> ThreadT m () -> m ([LogEntry], StdGen)
-    go s tid t = if ((>= ssTime s) <$> mms) /= Just False 
+    go s tid t = if ((>= ssTime s) <$> mms) /= Just False
         then do
             s' <- execStateT (step tid t) s
             case (Q.dequeue $ ssActive s', T.dequeue $ ssDelayed s') of
@@ -189,13 +189,13 @@ simulateForT mms g = go (initialState g) $ ThreadId 0
 simulateT :: forall m. Monad m => StdGen -> ThreadT m () -> m ([LogEntry], StdGen)
 simulateT = simulateForT Nothing
 
-simulateFor :: Maybe Microseconds -> StdGen -> Thread () -> ([LogEntry], StdGen)
+simulateFor :: Maybe Seconds -> StdGen -> Thread () -> ([LogEntry], StdGen)
 simulateFor mms g t = runIdentity $ simulateForT mms g t
 
 simulate :: StdGen -> Thread () -> ([LogEntry], StdGen)
 simulate = simulateFor Nothing
 
-simulateForIO :: Maybe Microseconds -> Thread () -> IO ()
+simulateForIO :: Maybe Seconds -> Thread () -> IO ()
 simulateForIO mms t = do
     g <- getStdGen
     let (logs, _) = simulateFor mms g t

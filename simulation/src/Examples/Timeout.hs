@@ -5,7 +5,7 @@ module Examples.Timeout
 
 import Simulation
 
-timeoutT :: Microseconds -> Microseconds -> Thread ()
+timeoutT :: Seconds -> Seconds -> Thread ()
 timeoutT delay' timeout = do
     c <- newChannel
     _ <- fork $ do
@@ -14,5 +14,5 @@ timeoutT delay' timeout = do
     delay delay'
     send "TEST" c
 
-testTimeout :: Microseconds -> Microseconds -> IO ()
+testTimeout :: Seconds -> Seconds -> IO ()
 testTimeout delay' = simulateIO . timeoutT delay'

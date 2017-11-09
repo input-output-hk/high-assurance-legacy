@@ -1,11 +1,19 @@
 module Simulation.Time
-    ( Microseconds
+    ( Seconds
+    , toMicroseconds
+    , fromMicroseconds
     ) where
 
-newtype Microseconds = Microseconds Int deriving (Eq, Ord, Num, Enum, Integral, Real)
+newtype Seconds = Seconds Rational deriving (Eq, Ord, Num, Real, Fractional, RealFrac)
 
-instance Show Microseconds where
-    show (Microseconds ms) = show ms ++ "μs"
+toMicroseconds :: Seconds -> Integer
+toMicroseconds = round . (* 1000000) . toRational
 
-instance Read Microseconds where
-    readsPrec n s = [(Microseconds ms, t) | (ms, t) <- readsPrec n s]
+fromMicroseconds :: Integer -> Seconds
+fromMicroseconds = (/ 1000000) . fromIntegral
+
+instance Show Seconds where
+    show s = show (toMicroseconds s) ++ "μs"
+
+instance Read Seconds where
+    readsPrec n s = [(fromMicroseconds ms, t) | (ms, t) <- readsPrec n s]
