@@ -2,8 +2,11 @@ module Simulation.Utils
     ( expectTimeout
     , logEntry
     , logEntryShow
+    , match
+    , matches
     ) where
 
+import Data.Maybe
 import Data.Typeable
 import Simulation.Thread.Class
 import Simulation.Time
@@ -38,3 +41,9 @@ logEntryShow :: ( Show a
              => a
              -> m ()
 logEntryShow = logEntry show
+
+match :: Typeable a => LogEntry -> Maybe (Seconds, a)
+match (LogEntry s _ b _) = (\a -> (s, a)) <$> cast b
+
+matches :: Typeable a => [LogEntry] -> [(Seconds, a)]
+matches = mapMaybe match
