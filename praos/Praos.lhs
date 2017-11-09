@@ -181,6 +181,7 @@ import           Options.Applicative       (option, auto, long, help, value, sho
 import qualified Simulation                as SIM
 import           Simulation                (Seconds)
 import           System.Random             hiding (getStdGen, setStdGen)
+import qualified System.Random             as RND
 import           Test.QuickCheck
 import qualified Data.Map.Strict           as Map
 import qualified Data.Set                  as Set
@@ -830,7 +831,7 @@ definitions of our models.
 As stated, we can then define an interpreter over a set of top-level processes
 %
 \begin{code}
-evalPsi :: forall bs. (SListI bs, All Typeable bs) => Seconds -> [(ProcId, Psi bs)] -> IO ()
+evalPsi :: forall bs. (SListI bs, All Typeable bs) => Seconds -> StdGen -> [(ProcId, Psi bs)] -> [SIM.LogEntry]
 \end{code}
 %
 (the |SListI| singleton constraint is there for technical reasons only and is
@@ -838,7 +839,7 @@ always satisfied).
 
 %if style == newcode
 \begin{code}
-evalPsi s ps = SIM.simulateForIO (Just s) (toThread ps)
+evalPsi s g ps = fst $ SIM.simulateFor (Just s) g $ toThread ps
 
 toThread :: forall bs.
             ( SListI bs
@@ -886,6 +887,12 @@ evalOne pid cs c = go
             aux' = evalOne pid' cs' Nil psi'
         _ <- SIM.fork aux'
         go k
+
+evalPsiIO :: forall bs. (SListI bs, All Typeable bs) => Seconds -> Int -> [(ProcId, Psi bs)] -> IO ()
+evalPsiIO duration seed ps = do
+    g <- if seed /= 0 then return (mkStdGen seed) else RND.getStdGen 
+    let logs = evalPsi duration g ps
+    forM_ logs print
 \end{code}
 %endif
 
@@ -2584,6 +2591,9 @@ data CmdArgs = CmdArgs {
 
       -- Simulation duration
     , cmdDuration :: Seconds
+
+      -- Random seed
+    , cmdSeed :: Int
     }
 
 parseAlgorithm :: Opt.Parser Algorithm
@@ -2658,6 +2668,13 @@ parseCmdArgs = CmdArgs
           , value 60
           , showDefault
           ])
+    <*> (option auto $ mconcat [
+            long "seed"
+          , help "Random seed"
+          , metavar "SEED"
+          , value 0
+          , showDefault
+          ])
 
 getCmdArgs :: IO CmdArgs
 getCmdArgs = Opt.execParser opts
@@ -2671,8 +2688,8 @@ main :: IO ()
 main = do
     cmdArgs <- getCmdArgs
     case cmdAlgorithm cmdArgs of
-      AlgBroadChains -> evalPsi (cmdDuration cmdArgs) $ bcTest cmdArgs
-      AlgBroadBlocks -> evalPsi (cmdDuration cmdArgs) $ bbTest cmdArgs
+      AlgBroadChains -> evalPsiIO (cmdDuration cmdArgs) (cmdSeed cmdArgs) $ bcTest cmdArgs
+      AlgBroadBlocks -> evalPsiIO (cmdDuration cmdArgs) (cmdSeed cmdArgs) $ bbTest cmdArgs
 \end{code}
 %endif
 
