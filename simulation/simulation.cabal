@@ -16,7 +16,6 @@ library
                      , Simulation.Pure
                      , Simulation.Queue
                      , Simulation.SimBase
-                     , Simulation.Simple
                      , Simulation.Thread
                      , Simulation.Thread.Class
                      , Simulation.Time
