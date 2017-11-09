@@ -15,6 +15,7 @@ library
                      , Examples.Timeout
                      , Simulation
   other-modules:       Simulation.Channel
+                     , Simulation.HMap
                      , Simulation.Pure
                      , Simulation.Queue
                      , Simulation.Thread
