@@ -1,6 +1,5 @@
 module Simulation
-    ( module Simulation.HMap
-    , module Simulation.Pure
+    ( module Simulation.Pure
     , module Simulation.Thread
     , module Simulation.Thread.Class
     , module Simulation.Time
@@ -10,7 +9,6 @@ module Simulation
     ) where
 
 import Simulation.Channel      (Channel)
-import Simulation.HMap
 import Simulation.Pure
 import Simulation.Thread
 import Simulation.Thread.Class

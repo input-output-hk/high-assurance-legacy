@@ -43,9 +43,7 @@ singleton :: (IsKey f, Typeable g, Typeable a) => f a -> g a -> HMap f g
 singleton fa ga = insert fa ga empty
 
 lookup :: (IsKey f, Typeable a) => f a -> HMap f g -> Maybe (g a)
-lookup fa (HMap m) = do
-    v <- M.lookup (key fa) m
-    value fa v
+lookup fa (HMap m) = M.lookup (key fa) m >>= value fa
 
 delete :: IsKey f => f a -> HMap f g -> HMap f g
 delete fa (HMap m) = HMap $ M.delete (key fa) m

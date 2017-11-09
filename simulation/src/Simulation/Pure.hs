@@ -17,7 +17,10 @@ import           Data.Functor.Identity
 import           Data.Map.Strict           (Map)
 import qualified Data.Map.Strict           as M
 import           Data.Typeable
-import           Simulation.Channel
+import           Simulation.Channel        (Channel(..), Channels)
+import qualified Simulation.Channel        as C
+import           Simulation.HMap           (HMap)
+import qualified Simulation.HMap           as H
 import           Simulation.Queue          (Queue)
 import qualified Simulation.Queue          as Q
 import           Simulation.Thread
@@ -28,37 +31,15 @@ import           Simulation.TimeQueue      (TimeQueue)
 import qualified Simulation.TimeQueue      as T
 import           System.Random
 
-data CHANNEL where
-    CHANNEL :: Typeable a => Queue a -> CHANNEL
+data ThreadState where
+    Active    :: ThreadState
+    Expecting :: !(Channel a) -> ThreadState
+    Delayed   :: !Seconds -> ThreadState
 
-emptyCHANNEL :: forall a. Typeable a => Channel a -> CHANNEL
-emptyCHANNEL _ = CHANNEL (Q.empty :: Queue a)
+data Continuation m a = Continuation !ThreadId !(a -> ThreadT m ())
 
-enqueueCHANNEL :: Typeable a => a -> CHANNEL -> CHANNEL
-enqueueCHANNEL a (CHANNEL xs) =
-    let Just ys = cast xs
-    in  CHANNEL $ Q.enqueue a ys
-
-dequeueCHANNEL :: Typeable a => Channel a -> CHANNEL -> Maybe (a, CHANNEL)
-dequeueCHANNEL _ (CHANNEL q) = case Q.dequeue q of
-    Nothing      -> Nothing
-    Just (b, q') ->
-        let Just a = cast b
-        in  Just (a, CHANNEL q')
-
-data ThreadState =
-      Active
-    | Expecting Int
-    | Delayed Seconds
-    deriving Show
-
-data Continuation m where
-    Continuation :: Typeable a => ThreadId -> (a -> ThreadT m ()) -> Continuation m
-
-callContinuation :: Typeable a => Continuation m -> a -> ThreadT m ()
-callContinuation (Continuation _ k) a =
-    let Just b = cast a
-    in  k b
+callContinuation :: Continuation m a -> a -> ThreadT m ()
+callContinuation (Continuation _ k) = k
 
 data SimState m = SimState
     { ssTime          :: Seconds
@@ -66,9 +47,9 @@ data SimState m = SimState
     , ssNextChannelId :: Int
     , ssThreads       :: Map ThreadId ThreadState
     , ssActive        :: Queue (ThreadId, ThreadT m ())
-    , ssExpecting     :: Map Int (Continuation m)
+    , ssExpecting     :: HMap Channel (Continuation m)
     , ssDelayed       :: TimeQueue (ThreadId, ThreadT m ())
-    , ssChannels      :: Map Int CHANNEL
+    , ssChannels      :: Channels
     , ssLogs          :: Queue LogEntry
     , ssStdGen        :: StdGen
     }
@@ -80,16 +61,16 @@ initialState g = SimState
     , ssNextChannelId = 0
     , ssThreads       = M.empty
     , ssActive        = Q.empty
-    , ssExpecting     = M.empty
+    , ssExpecting     = H.empty
     , ssDelayed       = T.empty
-    , ssChannels      = M.empty
+    , ssChannels      = C.empty
     , ssLogs          = Q.empty
     , ssStdGen        = g
     }
 
 type S m a = StateT (SimState m) m a
 
-step :: forall m. Monad m => ThreadId -> ThreadT m () -> S m ()
+step :: forall m. (Monad m, Typeable m) => ThreadId -> ThreadT m () -> S m ()
 step tid (ThreadT (FreeT t)) = do
     f <- lift t
     case f of
@@ -110,38 +91,31 @@ step tid (ThreadT (FreeT t)) = do
                 Just st -> do
                     modify $ \ss -> ss {ssThreads = M.delete tid' ts}
                     modify $ \ss -> case st of
-                        Active        -> ss {ssActive = Q.delete' ((== tid') . fst) $ ssActive ss}
-                        Expecting cid -> ss {ssExpecting = M.delete cid $ ssExpecting ss}
-                        Delayed s     -> ss {ssDelayed = T.delete' s ((== tid') . fst) $ ssDelayed ss}
+                        Active      -> ss {ssActive = Q.delete' ((== tid') . fst) $ ssActive ss}
+                        Expecting c -> ss {ssExpecting = H.delete c $ ssExpecting ss}
+                        Delayed s   -> ss {ssDelayed = T.delete' s ((== tid') . fst) $ ssDelayed ss}
             step tid $ ThreadT t'
         Free (NewChannel k)   -> do
             n <- gets ssNextChannelId
-            let c = Channel n
-            modify $ \ss -> ss
-                { ssNextChannelId = n + 1
-                , ssChannels      = M.insert n (emptyCHANNEL c) $ ssChannels ss
-                }
-            step tid $ ThreadT $ k c
+            modify $ \ss -> ss {ssNextChannelId = n + 1}
+            step tid $ ThreadT $ k $ Channel n
         Free (Send a c t')    -> do
             e <- gets ssExpecting
-            let Channel n = c
-            case M.lookup n e of
-                Nothing                      -> modify $ \ss -> ss {ssChannels = M.adjust (enqueueCHANNEL a) n $ ssChannels ss}
+            case H.lookup c e of
+                Nothing                      -> modify $ \ss -> ss {ssChannels = C.enqueue c a $ ssChannels ss}
                 Just k@(Continuation tid' _) -> modify $ \ss -> ss
                     { ssThreads   = M.insert tid' Active $ ssThreads ss
                     , ssActive    = Q.enqueue (tid', callContinuation k a) $ ssActive ss
-                    , ssExpecting = M.delete n e
+                    , ssExpecting = H.delete c e
                     }
             step tid $ ThreadT t'
         Free (Expect c k)     -> do
             cs <- gets ssChannels
-            let Channel n = c
-            let h = cs M.! n
-            case dequeueCHANNEL c h of
-                Just (a, h') -> do
-                    modify $ \ss -> ss {ssChannels = M.insert n h' $ ssChannels ss}
+            case C.dequeue c cs of
+                Nothing       -> modify $ \ss -> ss {ssExpecting = H.insert c (Continuation tid $ ThreadT . k) $ ssExpecting ss}
+                Just (a, cs') -> do
+                    modify $ \ss -> ss {ssChannels = cs'}
                     step tid $ ThreadT $ k a
-                Nothing      -> modify $ \ss -> ss {ssExpecting = M.insert n (Continuation tid $ ThreadT . k) $ ssExpecting ss}
         Free (GetTime k)      -> gets ssTime >>= step tid . ThreadT . k
         Free (Delay d t')     -> do
             s <- gets ssTime
@@ -159,7 +133,7 @@ step tid (ThreadT (FreeT t)) = do
             modify $ \ss -> ss {ssStdGen = g'}
             step tid $ ThreadT $ k a
 
-simulateForT :: forall m. Monad m => Maybe Seconds -> StdGen -> ThreadT m () -> m ([LogEntry], StdGen)
+simulateForT :: forall m. (Monad m, Typeable m) => Maybe Seconds -> StdGen -> ThreadT m () -> m ([LogEntry], StdGen)
 simulateForT mms g = go (initialState g) $ ThreadId 0
   where
     go :: SimState m -> ThreadId -> ThreadT m () -> m ([LogEntry], StdGen)
@@ -186,7 +160,7 @@ simulateForT mms g = go (initialState g) $ ThreadId 0
     result :: SimState m -> ([LogEntry], StdGen)
     result s = (toList $ ssLogs s, ssStdGen s)
 
-simulateT :: forall m. Monad m => StdGen -> ThreadT m () -> m ([LogEntry], StdGen)
+simulateT :: forall m. (Monad m, Typeable m) => StdGen -> ThreadT m () -> m ([LogEntry], StdGen)
 simulateT = simulateForT Nothing
 
 simulateFor :: Maybe Seconds -> StdGen -> Thread () -> ([LogEntry], StdGen)
