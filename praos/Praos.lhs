@@ -177,7 +177,7 @@ import           Data.Ord                  (comparing)
 import           Data.Set                  (Set, (\\))
 import           Data.Typeable             (Typeable)
 import           Generics.SOP              hiding (shift, fn, hd, S)
-import           Options.Applicative       (option, auto, long, help, value, showDefaultWith, metavar, flag')
+import           Options.Applicative       (option, auto, long, help, value, showDefault, metavar, flag')
 import qualified Simulation                as SIM
 import           Simulation                (Seconds)
 import           System.Random             hiding (getStdGen, setStdGen)
