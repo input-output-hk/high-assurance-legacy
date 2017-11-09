@@ -1,5 +1,6 @@
 module Simulation.Thread.Class
-    ( MonadThread(..)
+    ( LogEntry(..)
+    , MonadThread(..)
     ) where
 
 import qualified Control.Concurrent           as C
@@ -8,25 +9,42 @@ import           Control.Monad.Trans.Identity
 import           Data.Time.Clock.POSIX        (getPOSIXTime)
 import           Data.Typeable                (Typeable)
 import           Simulation.Time
+import           System.Random
+import           Text.Printf                  (printf)
+
+data LogEntry where
+    LogEntry :: ( Show threadId
+                , Typeable a
+                )
+             => !Microseconds
+             -> !threadId
+             -> !a
+             -> !(a -> String)
+             -> LogEntry
+
+instance Show LogEntry where
+    show (LogEntry ms tid a sh) = printf "%12s: %4s: %s" (show ms) (show tid) (sh a)
 
 class Monad m => MonadThread m where
 
-    type ThreadId m :: *
-    type Channel m :: * -> *
+    type ThreadIdT m :: *
+    type ChannelT m :: * -> *
 
-    getThreadId :: m (ThreadId m)
-    fork        :: m () -> m (ThreadId m)
-    kill        :: ThreadId m -> m ()
-    newChannel  :: Typeable a => m (Channel m a)
-    send        :: Typeable a => a -> Channel m a -> m ()
-    expect      :: Typeable a => Channel m a -> m a
+    getThreadId :: m (ThreadIdT m)
+    fork        :: m () -> m (ThreadIdT m)
+    kill        :: ThreadIdT m -> m ()
+    newChannel  :: Typeable a => m (ChannelT m a)
+    send        :: Typeable a => a -> ChannelT m a -> m ()
+    expect      :: Typeable a => ChannelT m a -> m a
     getTime     :: m Microseconds
     delay       :: Microseconds -> m ()
+    logEntryT   :: LogEntry -> m ()
+    withStdGen  :: (StdGen -> (a, StdGen)) -> m a
 
 instance MonadThread IO where
 
-    type ThreadId IO = C.ThreadId
-    type Channel IO = STM.TChan
+    type ThreadIdT IO = C.ThreadId
+    type ChannelT IO = STM.TChan
 
     getThreadId = C.myThreadId
     fork        = C.forkIO
@@ -36,11 +54,13 @@ instance MonadThread IO where
     expect      = STM.atomically . STM.readTChan
     getTime     = round . (* 1000000) <$> getPOSIXTime
     delay       = C.threadDelay . fromIntegral
+    logEntryT   = print
+    withStdGen  = getStdRandom
 
 instance MonadThread m => MonadThread (IdentityT m) where
 
-    type ThreadId (IdentityT m) = ThreadId m
-    type Channel (IdentityT m) = Channel m
+    type ThreadIdT (IdentityT m) = ThreadIdT m
+    type ChannelT (IdentityT m) = ChannelT m
 
     getThreadId = IdentityT getThreadId
     fork        = IdentityT . fork . runIdentityT
@@ -50,3 +70,5 @@ instance MonadThread m => MonadThread (IdentityT m) where
     expect      = IdentityT . expect
     getTime     = IdentityT getTime
     delay       = IdentityT . delay
+    logEntryT   = IdentityT . logEntryT
+    withStdGen  = IdentityT . withStdGen

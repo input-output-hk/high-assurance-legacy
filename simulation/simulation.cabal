@@ -13,11 +13,12 @@ library
                      , Examples.Ticker
                      , Examples.Timeout
                      , Simulation
+  other-modules:       Simulation.Channel
                      , Simulation.Pure
                      , Simulation.Queue
-                     , Simulation.SimBase
                      , Simulation.Thread
                      , Simulation.Thread.Class
+                     , Simulation.ThreadId
                      , Simulation.Time
                      , Simulation.TimeQueue
                      , Simulation.Utils

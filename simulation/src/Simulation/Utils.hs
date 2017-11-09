@@ -1,23 +1,40 @@
 module Simulation.Utils
     ( expectTimeout
+    , logEntry
+    , logEntryShow
     ) where
 
 import Data.Typeable
 import Simulation.Thread.Class
 import Simulation.Time
 
-expectTimeout :: (MonadThread m, Typeable a) => Channel m a -> Microseconds -> m (Maybe a, Microseconds)
+expectTimeout :: (MonadThread m, Typeable a) => ChannelT m a -> Microseconds -> m (Maybe a)
 expectTimeout c timeout = do
-    c'    <- newChannel
-    start <- getTime
-    e     <- fork $ do
-        a <- expect c
-        send (Just a) c'
-    t     <- fork $ do
-        delay timeout
-        send Nothing c'
-    ma    <- expect c'
-    end   <- getTime
+    c' <- newChannel
+    e  <- fork $ expect c >>= \a -> send (Just a) c'
+    t  <- fork $ delay timeout >> send Nothing c'
+    ma <- expect c'
     kill e
     kill t
-    return (ma, end - start)
+    return ma
+
+logEntry :: ( Typeable a
+            , MonadThread m
+            , Show (ThreadIdT m)
+            )
+         => (a -> String)
+         -> a
+         -> m ()
+logEntry sh a = do
+    tid <- getThreadId
+    ms  <- getTime
+    logEntryT $ LogEntry ms tid a sh
+
+logEntryShow :: ( Show a
+                , Typeable a
+                , MonadThread m
+                , Show (ThreadIdT m)
+                )
+             => a
+             -> m ()
+logEntryShow = logEntry show

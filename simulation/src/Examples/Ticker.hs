@@ -8,23 +8,23 @@ module Examples.Ticker
 import Control.Monad (forever)
 import Simulation
 
-ticker :: MonadThreadPlus m => m ()
+ticker :: Thread ()
 ticker = forever $ do
     delay 1000000
-    logEntry "tick"
+    logEntryShow "tick"
 
 testTicker :: IO ()
-testTicker = getLogsIO (Just 10000000) ticker
+testTicker = simulateForIO (Just 10000000) ticker
 
-finiteTicker :: MonadThreadPlus m => Microseconds -> m ()
+finiteTicker :: Microseconds -> Thread ()
 finiteTicker s = do
-    logEntry "start"
+    logEntryShow "start"
     tid <- fork $ forever $ do
         delay 1000000
-        logEntry "tick"
+        logEntryShow "tick"
     delay s
-    logEntry "stop"
+    logEntryShow "stop"
     kill tid
 
 testFiniteTicker :: Microseconds -> IO ()
-testFiniteTicker = getLogsIO Nothing . finiteTicker
+testFiniteTicker = simulateIO . finiteTicker

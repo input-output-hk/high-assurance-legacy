@@ -7,9 +7,9 @@ module Examples.PingPong
 
 import Simulation
 
-pingPong :: forall m. MonadThreadPlus m => m ()
+pingPong :: Thread ()
 pingPong = do
-    logEntry "start"
+    logEntryShow "start"
     a  <- newChannel
     b  <- newChannel
     t1 <- fork $ thread a b
@@ -18,15 +18,15 @@ pingPong = do
     delay 10000000
     kill t1
     kill t2
-    logEntry "stop"
+    logEntryShow "stop"
   where
-    thread :: Channel m String -> Channel m String -> m ()
+    thread :: Channel String -> Channel String -> Thread ()
     thread i o = do
         s <- expect i
         case s of
-            "PING" -> logEntry "received PING, sending PONG" >> delay 1000000 >> send "PONG" o >> thread i o
-            "PONG" -> logEntry "received PONG, sending PING" >> delay 1000000 >> send "PING" o >> thread i o
-            _      -> logEntry ("received " ++ s)
+            "PING" -> logEntryShow "received PING, sending PONG" >> delay 1000000 >> send "PONG" o >> thread i o
+            "PONG" -> logEntryShow "received PONG, sending PING" >> delay 1000000 >> send "PING" o >> thread i o
+            _      -> logEntryShow ("received " ++ s)
 
 testPingPong :: IO ()
-testPingPong = getLogsIO (Just 10000001) pingPong
+testPingPong = simulateForIO (Just 10000001) pingPong

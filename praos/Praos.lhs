@@ -751,16 +751,9 @@ replaced with non-determinism.}
 
 %if style == newcode
 \begin{code}
-type Channel = SIM.Channel'
+type Channel = SIM.Channel
 
-send :: ( SIM.MonadThreadPlus m
-        , SIM.Channel m ~ Channel
-        , Typeable a
-        ) 
-     => Channel a 
-     -> DeltaQ 
-     -> a 
-     -> m ()
+send :: Typeable a => Channel a -> DeltaQ -> a -> SIM.Thread ()
 send c (DeltaQ dq) a = do
     ms <- SIM.withStdGen dq
     case ms of
@@ -769,17 +762,13 @@ send c (DeltaQ dq) a = do
             SIM.delay $ microseconds s
             SIM.send a c
 
-receive :: ( SIM.MonadThreadPlus m
-           , SIM.Channel m ~ Channel
-           , Typeable a
-           ) 
-        => Channel a
-        -> Seconds
-        -> m (Maybe a, Seconds)
+receive :: Typeable a => Channel a -> Seconds -> SIM.Thread (Maybe a, Seconds)
 receive c s = do
-    (ma, ms) <- SIM.expectTimeout c $ microseconds s
-    return (ma, seconds ms)
-    
+    start <- SIM.getTime
+    ma    <- SIM.expectTimeout c $ microseconds s
+    end   <- SIM.getTime
+    return (ma, seconds (end - start))
+
 \end{code}
 %endif
 
@@ -858,16 +847,14 @@ always satisfied).
 
 %if style == newcode
 \begin{code}
-evalPsi s ps = SIM.getLogsIO (Just $ microseconds s) (toThread ps)
+evalPsi s ps = SIM.simulateForIO (Just $ microseconds s) (toThread ps)
 
-toThread :: forall bs m. 
+toThread :: forall bs.
             ( SListI bs
             , All Typeable bs
-            , SIM.MonadThreadPlus m
-            , SIM.Channel m ~ Channel
-            ) 
-         => [(ProcId, Psi bs)] 
-         -> m ()
+            )
+         => [(ProcId, Psi bs)]
+         -> SIM.Thread ()
 toThread ps = do
     ps' <- forM ps $ \(i, p) -> do
         c <- hsequence' $ hcpure (Proxy :: Proxy Typeable) (Comp SIM.newChannel)
@@ -875,31 +862,26 @@ toThread ps = do
     let cs = map (\(_, _, c) -> c) ps'
     evalPar cs ps'
 
-evalPar :: forall bs m. 
+evalPar :: forall bs.
            ( SListI bs
            , All Typeable bs
-           , SIM.MonadThreadPlus m
-           , SIM.Channel m ~ Channel
            )
         => [NP Channel bs]
         -> [(ProcId, Psi bs, NP Channel bs)]
-        -> m ()
+        -> SIM.Thread ()
 evalPar cs ps = do
     let threads = [evalOne pid cs c psi | (pid, psi, c) <- ps]
     forM_ threads SIM.fork
 
-evalOne :: forall bs m. 
-           ( SIM.MonadThreadPlus m
-           , SIM.Channel m ~ Channel
-           )
-        => ProcId
+evalOne :: forall bs.
+           ProcId
         -> [NP Channel bs] -- ^ Write ends
         -> NP Channel bs   -- ^ Read end
         -> Psi bs          -- ^ Process to run
-        -> m ()
+        -> SIM.Thread ()
 evalOne pid cs c = go
   where
-    go :: Psi bs -> m ()
+    go :: Psi bs -> SIM.Thread ()
     go Done = return ()
     go (New k)                     = Unicast <$> SIM.newChannel >>= go . k
     go (UInp (Unicast c') t k)     = receive c' t >>= go . k
@@ -907,7 +889,7 @@ evalOne pid cs c = go
     go (BInp (Broadcast b) t k)    = receive (c `at` b) t >>= go . k
     go (BOut (Broadcast b) dq a k) = forM_ cs (\c' -> send (c' `at` b) dq a) >> go k
     go (Delay s k)                 = SIM.delay (microseconds s) >> go k
-    go (Log a k)                   = SIM.logEntry (pid, a) >> go k
+    go (Log a k)                   = SIM.logEntryShow (pid, a) >> go k
     go (Fork pid' psi' k)          = do
         let cs'  = replicate (length cs) Nil
             aux' = evalOne pid' cs' Nil psi'

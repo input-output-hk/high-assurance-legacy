@@ -3,17 +3,16 @@ module Examples.Timeout
     , testTimeout
     ) where
 
-import Control.Monad.Trans.Class
 import Simulation
 
-timeoutT :: Microseconds -> Microseconds -> M IO ()
+timeoutT :: Microseconds -> Microseconds -> Thread ()
 timeoutT delay' timeout = do
     c <- newChannel
     _ <- fork $ do
         mst <- expectTimeout c timeout
-        lift $ print mst
+        logEntryShow mst
     delay delay'
     send "TEST" c
 
 testTimeout :: Microseconds -> Microseconds -> IO ()
-testTimeout delay' = simulate . timeoutT delay'
+testTimeout delay' = simulateIO . timeoutT delay'
