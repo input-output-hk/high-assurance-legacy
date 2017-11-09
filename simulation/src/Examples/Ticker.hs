@@ -18,7 +18,7 @@ testTicker = simulateForIO (Just 10) ticker
 
 finiteTicker :: Seconds -> Thread ()
 finiteTicker s = do
-    logEntryShow "start"
+    logEntryShow $ "start (" ++ show s ++ ")"
     tid <- fork $ forever $ do
         delay 1
         logEntryShow "tick"
