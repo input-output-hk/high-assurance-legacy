@@ -4,6 +4,6 @@ with nixpkgs;
 
 haskell.lib.buildStackProject {
   name = "datastructures";
-  buildInputs = [pkgconfig zlib ncurses5];
+  buildInputs = [pkgconfig zlib ncurses5 cairo];
   inherit ghc;
 }

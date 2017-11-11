@@ -9,12 +9,14 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Examples
+  exposed-modules:     DeltaQ
+                     , Examples
                      , Examples.PingPong
                      , Examples.Ticker
                      , Examples.Timeout
                      , Simulation
-  other-modules:       Simulation.Channel
+  other-modules:       DeltaQ.Chart
+                     , Simulation.Channel
                      , Simulation.HMap
                      , Simulation.Pure
                      , Simulation.Queue
@@ -26,6 +28,8 @@ library
                      , Simulation.Utils
   ghc-options:         -Wall -O2
   build-depends:       base >= 4.7 && < 5
+                     , Chart
+                     , Chart-cairo
                      , containers
                      , free
                      , mtl
