@@ -16,6 +16,8 @@ library
                      , Examples.Timeout
                      , Simulation
   other-modules:       DeltaQ.Chart
+                     , DeltaQ.Core
+                     , DeltaQ.Stats
                      , Simulation.Channel
                      , Simulation.HMap
                      , Simulation.Pure
@@ -30,10 +32,12 @@ library
   build-depends:       base >= 4.7 && < 5
                      , Chart
                      , Chart-cairo
+                     , colour
                      , containers
                      , free
                      , mtl
                      , random
+                     , semigroups
                      , stm
                      , time
                      , transformers
