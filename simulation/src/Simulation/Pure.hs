@@ -50,7 +50,7 @@ data SimState m = SimState
     , ssExpecting     :: HMap Channel (Continuation m)
     , ssDelayed       :: TimeQueue (ThreadId, ThreadT m ())
     , ssChannels      :: Channels
-    , ssLogs          :: Queue LogEntry
+    , ssLogs          :: Queue (LogEntry ThreadId)
     , ssStdGen        :: StdGen
     }
 
@@ -133,10 +133,10 @@ step tid (ThreadT (FreeT t)) = do
             modify $ \ss -> ss {ssStdGen = g'}
             step tid $ ThreadT $ k a
 
-simulateForT :: forall m. (Monad m, Typeable m) => Maybe Seconds -> StdGen -> ThreadT m () -> m ([LogEntry], StdGen)
+simulateForT :: forall m. (Monad m, Typeable m) => Maybe Seconds -> StdGen -> ThreadT m () -> m ([LogEntry ThreadId], StdGen)
 simulateForT mms g = go (initialState g) $ ThreadId 0
   where
-    go :: SimState m -> ThreadId -> ThreadT m () -> m ([LogEntry], StdGen)
+    go :: SimState m -> ThreadId -> ThreadT m () -> m ([LogEntry ThreadId], StdGen)
     go s tid t = if ((>= ssTime s) <$> mms) /= Just False
         then do
             s' <- execStateT (step tid t) s
@@ -157,16 +157,16 @@ simulateForT mms g = go (initialState g) $ ThreadId 0
                 (Nothing, Nothing)                   -> return $ result s'
         else return $ result s
 
-    result :: SimState m -> ([LogEntry], StdGen)
+    result :: SimState m -> ([LogEntry ThreadId], StdGen)
     result s = (toList $ ssLogs s, ssStdGen s)
 
-simulateT :: forall m. (Monad m, Typeable m) => StdGen -> ThreadT m () -> m ([LogEntry], StdGen)
+simulateT :: forall m. (Monad m, Typeable m) => StdGen -> ThreadT m () -> m ([LogEntry ThreadId], StdGen)
 simulateT = simulateForT Nothing
 
-simulateFor :: Maybe Seconds -> StdGen -> Thread () -> ([LogEntry], StdGen)
+simulateFor :: Maybe Seconds -> StdGen -> Thread () -> ([LogEntry ThreadId], StdGen)
 simulateFor mms g t = runIdentity $ simulateForT mms g t
 
-simulate :: StdGen -> Thread () -> ([LogEntry], StdGen)
+simulate :: StdGen -> Thread () -> ([LogEntry ThreadId], StdGen)
 simulate = simulateFor Nothing
 
 simulateForIO :: Maybe Seconds -> Thread () -> IO ()

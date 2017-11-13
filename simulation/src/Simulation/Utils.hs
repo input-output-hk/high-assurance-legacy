@@ -1,7 +1,8 @@
 module Simulation.Utils
     ( expectTimeout
-    , logEntry
-    , logEntryShow
+    , logMessage
+    , logMessageShow
+    , observe
     , match
     , matches
     ) where
@@ -21,29 +22,24 @@ expectTimeout c timeout = do
     kill t
     return ma
 
-logEntry :: ( Typeable a
-            , MonadThread m
-            , Show (ThreadIdT m)
-            )
-         => (a -> String)
-         -> a
-         -> m ()
-logEntry sh a = do
+logMessage :: MonadThread m => String -> m ()
+logMessage = log' LogMessage
+
+observe :: (Typeable a, MonadThread m) => a -> m ()
+observe = log' Observation
+
+log' :: MonadThread m => (Seconds -> ThreadIdT m -> a -> LogEntry (ThreadIdT m)) -> a -> m ()
+log' f a = do
+    s <- getTime
     tid <- getThreadId
-    ms  <- getTime
-    logEntryT $ LogEntry ms tid a sh
+    logEntryT $ f s tid a
 
-logEntryShow :: ( Show a
-                , Typeable a
-                , MonadThread m
-                , Show (ThreadIdT m)
-                )
-             => a
-             -> m ()
-logEntryShow = logEntry show
+logMessageShow :: (Show a, MonadThread m) => a -> m ()
+logMessageShow = logMessage . show
 
-match :: Typeable a => LogEntry -> Maybe (Seconds, a)
-match (LogEntry s _ b _) = (\a -> (s, a)) <$> cast b
+match :: Typeable a => LogEntry threadId -> Maybe (Seconds, a)
+match LogMessage{}        = Nothing
+match (Observation s _ b) = (\a -> (s, a)) <$> cast b
 
-matches :: Typeable a => [LogEntry] -> [(Seconds, a)]
+matches :: Typeable a => [LogEntry threadId] -> [(Seconds, a)]
 matches = mapMaybe match

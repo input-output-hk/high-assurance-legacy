@@ -92,6 +92,8 @@ module Main (
   , fork
   , delay
   , psiLog
+  , psiLogShow
+  , observe
     -- *** Examples
   , ex1
     -- ** Reliability
@@ -805,15 +807,16 @@ The Haskell embedding of the psi-calculus is then given by
 type ProcId = String
 
 data Psi :: [Type] -> Type where
-  Done  :: Psi bs                                                                 -- completed process
-  New   :: Summarize a => (Unicast a -> Psi bs) -> Psi bs                         -- create new unicast channel
-  UInp  :: Unicast a -> Seconds -> ((Maybe a, Seconds) -> Psi bs) -> Psi bs       -- unicast input
-  UOut  :: Unicast a -> DeltaQ -> a -> Psi bs -> Psi bs                           -- unicast output
-  BInp  :: Broadcast bs a -> Seconds -> ((Maybe a ,Seconds) -> Psi bs) -> Psi bs  -- broadcast input
-  BOut  :: Broadcast bs a -> DeltaQ -> a -> Psi bs -> Psi bs                      -- broadcast output
-  Fork  :: ProcId -> Psi ^[] -> Psi bs -> Psi bs                                  -- fork new process
-  Delay :: Seconds -> Psi bs -> Psi bs                                            -- delay
-  Log   :: (Show a, Typeable a) => a -> Psi bs -> Psi bs                          -- logging
+  Done    :: Psi bs                                                                 -- completed process
+  New     :: Summarize a => (Unicast a -> Psi bs) -> Psi bs                         -- create new unicast channel
+  UInp    :: Unicast a -> Seconds -> ((Maybe a, Seconds) -> Psi bs) -> Psi bs       -- unicast input
+  UOut    :: Unicast a -> DeltaQ -> a -> Psi bs -> Psi bs                           -- unicast output
+  BInp    :: Broadcast bs a -> Seconds -> ((Maybe a ,Seconds) -> Psi bs) -> Psi bs  -- broadcast input
+  BOut    :: Broadcast bs a -> DeltaQ -> a -> Psi bs -> Psi bs                      -- broadcast output
+  Fork    :: ProcId -> Psi ^[] -> Psi bs -> Psi bs                                  -- fork new process
+  Delay   :: Seconds -> Psi bs -> Psi bs                                            -- delay
+  Observe :: Typeable a => a -> Psi bs -> Psi bs                                    -- observing
+  Log     :: String -> Psi bs -> Psi bs                                             -- logging
 \end{code}
 
 For unicast- and broadcast input, a \emph{timeout} is specified (as second
@@ -831,7 +834,7 @@ definitions of our models.
 As stated, we can then define an interpreter over a set of top-level processes
 %
 \begin{code}
-evalPsi :: forall bs. (SListI bs, All Typeable bs) => Seconds -> StdGen -> [(ProcId, Psi bs)] -> [SIM.LogEntry]
+evalPsi :: forall bs. (SListI bs, All Typeable bs) => Seconds -> StdGen -> [(ProcId, Psi bs)] -> [SIM.LogEntry SIM.ThreadId]
 \end{code}
 %
 (the |SListI| singleton constraint is there for technical reasons only and is
@@ -881,7 +884,8 @@ evalOne pid cs c = go
     go (BInp (Broadcast b) t k)    = receive (c `at` b) t >>= go . k
     go (BOut (Broadcast b) dq a k) = forM_ cs (\c' -> send (c' `at` b) dq a) >> go k
     go (Delay s k)                 = SIM.delay s >> go k
-    go (Log a k)                   = SIM.logEntryShow (pid, a) >> go k
+    go (Observe a k)               = SIM.observe (pid, a) >> go k
+    go (Log m k)                   = SIM.logMessage m >> go k
     go (Fork pid' psi' k)          = do
         let cs'  = replicate (length cs) Nil
             aux' = evalOne pid' cs' Nil psi'
@@ -921,25 +925,29 @@ The advantage of using CPS is that we can now make |SPsi| an instance of a numbe
 %
 \begin{codegroup}
 \begin{code}
-new     :: Summarize a => SPsi s b (Unicast a)
-uInp    :: Unicast a -> Seconds -> SPsi s b (Maybe a, Seconds)
-uOut    :: Unicast a -> DeltaQ -> a -> SPsi s b ()
-bInp    :: Summarize b => Seconds -> SPsi s b (Maybe b, Seconds)
-bOut    :: Summarize b => DeltaQ -> b -> SPsi s b ()
-fork    :: ProcId -> Psi ^[] -> SPsi s b ()
-delay   :: Seconds -> SPsi s b ()
-psiLog  :: (Show a, Typeable a) => a -> SPsi s b ()
+new         :: Summarize a => SPsi s b (Unicast a)
+uInp        :: Unicast a -> Seconds -> SPsi s b (Maybe a, Seconds)
+uOut        :: Unicast a -> DeltaQ -> a -> SPsi s b ()
+bInp        :: Summarize b => Seconds -> SPsi s b (Maybe b, Seconds)
+bOut        :: Summarize b => DeltaQ -> b -> SPsi s b ()
+fork        :: ProcId -> Psi ^[] -> SPsi s b ()
+delay       :: Seconds -> SPsi s b ()
+psiLog      :: String -> SPsi s b ()
+psiLogShow  :: Show a => a -> SPsi s b ()
+observe     :: Typeable a => a -> SPsi s b ()
 \end{code}
 %if style == newcode
 \begin{code}
-new          = SPsi $ \s k -> New                       (k s)
-uInp c t     = SPsi $ \s k -> UInp c t                  (k s)
-uOut c dq a  = SPsi $ \s k -> UOut c dq a               (k s ())
-bInp t       = SPsi $ \s k -> BInp (Broadcast IZ) t     (k s)
-bOut dq b    = SPsi $ \s k -> BOut (Broadcast IZ) dq b  (k s ())
-fork cfg p   = SPsi $ \s k -> Fork cfg p                (k s ())
-delay n      = SPsi $ \s k -> Delay n                   (k s ())
-psiLog a     = SPsi $ \s k -> Log a                     (k s ())
+new           = SPsi $ \s k -> New                       (k s)
+uInp c t      = SPsi $ \s k -> UInp c t                  (k s)
+uOut c dq a   = SPsi $ \s k -> UOut c dq a               (k s ())
+bInp t        = SPsi $ \s k -> BInp (Broadcast IZ) t     (k s)
+bOut dq b     = SPsi $ \s k -> BOut (Broadcast IZ) dq b  (k s ())
+fork cfg p    = SPsi $ \s k -> Fork cfg p                (k s ())
+delay n       = SPsi $ \s k -> Delay n                   (k s ())
+psiLog m      = SPsi $ \s k -> Log m                     (k s ())
+psiLogShow    = psiLog . show
+observe a     = SPsi $ \s k -> Observe a                 (k s ())
 
 instance Functor (SPsi s b) where
   fmap = liftM
@@ -997,7 +1005,7 @@ showTicks =  forever $ do
                case mmsg of
                  Nothing      -> psiLog "timeout!"
                  Just ExTick  -> modify (+ 1)
-                 Just ExShow  -> get >>= psiLog
+                 Just ExShow  -> get >>= psiLog . show
 \end{code}
 \end{codegroup}
 
@@ -2482,16 +2490,16 @@ bbStakeholder dq timeout =
     mainLoop sl = do
       (mmsg, _) <- bInp timeout
       case mmsg of
-        Nothing                     -> psiLog Timeout >> mainLoop sl
+        Nothing                     -> psiLogShow Timeout >> mainLoop sl
         Just (BbBlock isPotHead b)  -> do
-           psiLog $ ReceivedBlock b
+           psiLogShow $ ReceivedBlock b
            -- prune blocks belonging to future slots
            when (sblockSlot b <= sl) $
              modify $ \s -> s { bbBlocks = insertBlock isPotHead b (bbBlocks s) }
            -- request predecessor, if not known
            knownBlocks <- gets $ blocksMap . bbBlocks
            case sblockState b of
-             Just h | not (Map.member h knownBlocks)  -> psiLog (RequestingBlock h) >> bOut dq (BbRequest h)
+             Just h | not (Map.member h knownBlocks)  -> psiLogShow (RequestingBlock h) >> bOut dq (BbRequest h)
              _otherwise                               -> return ()
            -- continue waiting for messages
            mainLoop sl
@@ -2501,10 +2509,10 @@ bbStakeholder dq timeout =
             modify $ updateGenesis (epochNumber nextSlot)
           startOfSlot (slotNumber nextSlot)
         Just (BbRequest h)          -> do
-          psiLog $ ReceivedRequest h
+          psiLogShow $ ReceivedRequest h
           mBlock <- gets $ Map.lookup h . blocksMap . bbBlocks
           whenJust mBlock $ \b -> do
-            psiLog $ AnsweringRequest h
+            psiLogShow $ AnsweringRequest h
             bOut dq $ BbBlock NotPotentialHead b
           mainLoop sl
 
@@ -2513,7 +2521,7 @@ emitBlock dq sl isLeader = do
      transactions  <- randomTransactions
      newBlock      <- gets $ makeBlock sl isLeader transactions
      newChain      <- gets $ \s -> bbChain s ++ [newBlock]
-     psiLog $ EmittingBlock newBlock
+     psiLogShow $ EmittingBlock newBlock
      bOut dq $ BbBlock IsPotentialHead newBlock
      modify $ \s -> s { bbChain = newChain, bbState = Just (hash newBlock) }
 

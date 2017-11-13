@@ -11,19 +11,19 @@ import Simulation
 ticker :: Thread ()
 ticker = forever $ do
     delay 1
-    logEntryShow "tick"
+    logMessage "tick"
 
 testTicker :: IO ()
 testTicker = simulateForIO (Just 10) ticker
 
 finiteTicker :: Seconds -> Thread ()
 finiteTicker s = do
-    logEntryShow $ "start (" ++ show s ++ ")"
+    logMessage $ "start (" ++ show s ++ ")"
     tid <- fork $ forever $ do
         delay 1
-        logEntryShow "tick"
+        logMessage "tick"
     delay s
-    logEntryShow "stop"
+    logMessage "stop"
     kill tid
 
 testFiniteTicker :: Seconds -> IO ()

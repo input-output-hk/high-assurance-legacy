@@ -12,18 +12,16 @@ import           Simulation.Time
 import           System.Random
 import           Text.Printf                  (printf)
 
-data LogEntry where
-    LogEntry :: ( Show threadId
-                , Typeable a
-                )
-             => !Seconds
-             -> !threadId
-             -> !a
-             -> !(a -> String)
-             -> LogEntry
+data LogEntry threadId where
+    LogMessage  :: !Seconds -> !threadId -> !String -> LogEntry threadId
+    Observation :: Typeable a => !Seconds -> !threadId -> a -> LogEntry threadId
 
-instance Show LogEntry where
-    show (LogEntry s tid a sh) = printf "%12.6fs: %4s: %s" (fromRational $ toRational s :: Double) (show tid) (sh a)
+instance Show threadId => Show (LogEntry threadId) where
+    show (LogMessage s tid msg) = printf "%12.6fs: %4s: %s" (toDouble s) (show tid) msg
+    show (Observation s tid _)  = printf "%12.6fs: %4s: <Observation>" (toDouble s) (show tid)
+
+toDouble :: Seconds -> Double
+toDouble = fromRational . toRational
 
 class Monad m => MonadThread m where
 
@@ -38,7 +36,7 @@ class Monad m => MonadThread m where
     expect      :: Typeable a => ChannelT m a -> m a
     getTime     :: m Seconds
     delay       :: Seconds -> m ()
-    logEntryT   :: LogEntry -> m ()
+    logEntryT   :: LogEntry (ThreadIdT m) -> m ()
     withStdGen  :: (StdGen -> (a, StdGen)) -> m a
 
 instance MonadThread IO where

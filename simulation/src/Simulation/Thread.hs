@@ -31,7 +31,7 @@ data ThreadF (m :: * -> *) :: * -> * where
     Expect      :: Typeable b => Channel b -> (b -> a) -> ThreadF m a
     GetTime     :: (Seconds -> a) -> ThreadF m a
     Delay       :: Seconds -> a -> ThreadF m a
-    Log         :: LogEntry -> a -> ThreadF m a
+    Log         :: LogEntry ThreadId -> a -> ThreadF m a
     WithStdGen  :: (StdGen -> (b, StdGen)) -> (b -> a) -> ThreadF m a
 
 deriving instance Functor (ThreadF m)
