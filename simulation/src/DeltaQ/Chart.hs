@@ -67,7 +67,7 @@ plots tangible st = [ toPlot graph
             style = line_color .~ opaque (sRGB 1 0 0)
                   $ line_width .~ 2
                   $ def
-        in  vlinePlot (printf "mean (%.4f)" mean') style mean'
+        in  vlinePlot (printf "mean (%.4fs)" mean') style mean'
 
     sigmaLines :: [Plot Double Double]
     sigmaLines = case stVar st of
@@ -81,8 +81,8 @@ plots tangible st = [ toPlot graph
                       $ line_width .~ 2
                       $ line_dashes .~ [6, 6]
                       $ def
-                l1    = vlinePlot (printf "mean - sigma (%.4f)" m1) style m1
-                l2    = vlinePlot (printf "mean + sigma (%.4f)" m2) style m2
+                l1    = vlinePlot (printf "mean - sigma (%.4fs)" m1) style m1
+                l2    = vlinePlot (printf "mean + sigma (%.4fs)" m2) style m2
             in  [l1, l2]
 
     vs :: [(Double, Double)]
