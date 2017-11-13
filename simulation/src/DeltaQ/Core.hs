@@ -1,5 +1,5 @@
 module DeltaQ.Core
-    ( DeltaQ (runDeltaQ)
+    ( DeltaQ (..)
     , dirac
     , perfection
     , bottom

@@ -12,6 +12,7 @@ library
   exposed-modules:     DeltaQ
                      , Examples
                      , Examples.PingPong
+                     , Examples.Ring
                      , Examples.Ticker
                      , Examples.Timeout
                      , Simulation
@@ -20,6 +21,7 @@ library
                      , DeltaQ.Stats
                      , Simulation.Channel
                      , Simulation.HMap
+                     , Simulation.Observable
                      , Simulation.Pure
                      , Simulation.Queue
                      , Simulation.Thread

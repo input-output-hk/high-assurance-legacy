@@ -1,11 +1,13 @@
 module Examples
     ( module Examples.PingPong
+    , module Examples.Ring
     , module Examples.Ticker
     , module Examples.Timeout
     , testAll
     ) where
 
 import Examples.PingPong
+import Examples.Ring
 import Examples.Ticker
 import Examples.Timeout
 
@@ -23,9 +25,13 @@ testAll = do
     testPingPong
     putStrLn ""
 
-    putStrLn "test timeout (in time):"
+    putStrLn "timeout (in time):"
     testTimeout 2 5
     putStrLn ""
 
-    putStrLn "test timeout (timing out):"
+    putStrLn "timeout (timing out):"
     testTimeout 5 2
+    putStrLn ""
+
+    putStrLn "ring"
+    testRing
