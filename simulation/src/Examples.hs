@@ -6,14 +6,18 @@ module Examples
     , module Examples.Ticker
     , module Examples.Timeout
     , testAll
+    , ringComparison
     ) where
 
+import Data.Colour.Names
+import DeltaQ
 import Examples.GlobalRetry
 import Examples.HopByHop
 import Examples.PingPong
 import Examples.Ring
 import Examples.Ticker
 import Examples.Timeout
+import System.Random
 
 testAll :: IO ()
 testAll = do
@@ -47,3 +51,14 @@ testAll = do
 
     putStrLn "global recovery"
     testGlobalRetry
+
+ringComparison :: Int -> FilePath -> Rational -> Int -> IO ()
+ringComparison samples file tangible n = do
+    let dqRing   = ringDeltaQ tangible n
+        dqHop    = hopByHopDeltaQ tangible n
+        dqGlobal = globalRetryDeltaQ tangible n
+    g <- newStdGen
+    deltaQsToPNG samples g file "Ring Comparison" [ ("no recovery", blue, dqRing)
+                                                  , ("global recovery", green, dqGlobal)
+                                                  , ("hop-by-hop recovery", red, dqHop)
+                                                  ]

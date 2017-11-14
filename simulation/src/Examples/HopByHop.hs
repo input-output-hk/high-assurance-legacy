@@ -1,6 +1,7 @@
 module Examples.HopByHop
     ( hopByHop
     , testHopByHop
+    , hopByHopDeltaQ
     , hopByHopPNG
     ) where
 

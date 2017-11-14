@@ -1,11 +1,14 @@
 module DeltaQ.Chart
     ( layoutStats
+    , layoutManyStats
     , toPNG
     , deltaQToPNG
+    , deltaQsToPNG
     ) where
 
 import Control.Monad                          (void)
 import Data.Colour.SRGB
+import Data.Maybe                             (isJust, fromJust)
 import DeltaQ.Core
 import DeltaQ.Stats
 import Graphics.Rendering.Chart.Easy
@@ -34,15 +37,15 @@ plots tangible st = [ toPlot graph
                     ] ++ sigmaLines
   where
     graph :: PlotFillBetween Double Double
-    graph = plot_fillbetween_style .~ solidFillStyle (opaque $ sRGB 0.5 1 0.5)
+    graph = plot_fillbetween_style  .~ solidFillStyle (opaque $ sRGB 0.5 1 0.5)
           $ plot_fillbetween_values .~ [(x, (0, y)) | (x, y) <- vs]
           $ def
 
     minLine :: Plot Double Double
     minLine =
         let tMin' = toDouble $ stMin st
-            style = line_color .~ opaque (sRGB 0 0 1)
-                  $ line_width .~ 2
+            style = line_color  .~ opaque (sRGB 0 0 1)
+                  $ line_width  .~ 2
                   $ line_dashes .~ [6, 6]
                   $ def
         in  vlinePlot (printf "min (%.4fs)" tMin') style tMin'
@@ -50,8 +53,8 @@ plots tangible st = [ toPlot graph
     maxLine :: Plot Double Double
     maxLine =
         let tMax' = toDouble $ stMax st
-            style = line_color .~ opaque (sRGB 0 0 1)
-                  $ line_width .~ 2
+            style = line_color  .~ opaque (sRGB 0 0 1)
+                  $ line_width  .~ 2
                   $ line_dashes .~ [6, 6]
                   $ def
         in  vlinePlot (printf "max (%.4fs)" tMax') style tMax'
@@ -77,8 +80,8 @@ plots tangible st = [ toPlot graph
                 m     = toDouble $ stMean st
                 m1    = m - s
                 m2    = m + s
-                style = line_color .~ opaque (sRGB 1 0 0)
-                      $ line_width .~ 2
+                style = line_color  .~ opaque (sRGB 1 0 0)
+                      $ line_width  .~ 2
                       $ line_dashes .~ [6, 6]
                       $ def
                 l1    = vlinePlot (printf "mean - sigma (%.4fs)" m1) style m1
@@ -88,11 +91,36 @@ plots tangible st = [ toPlot graph
     vs :: [(Double, Double)]
     vs = [(toDouble x, fromRational y) | (x, y) <- stCDF st]
 
-    toDouble :: Seconds -> Double
-    toDouble = fromRational . toRational
+layoutManyStats :: String -> [(String, Colour Double, DeltaQStats)] -> Layout Double Double
+layoutManyStats title xs = layout_title     .~ title
+                         $ layout_grid_last .~ True
+                         $ layout_plots     .~ [ toPlot $ graph x c dqst | (x, c, dqst) <- xs']
+                         $ def
+  where
+    xs' :: [(String, Colour Double, DeltaQStats)]
+    xs' = [(x, c, dqst) | (x, c, dqst) <- xs, isJust (dqstStats dqst)]
+
+    tMaxMax = toDouble $ maximum [stMax $ fromJust $ dqstStats dqst | (_, _, dqst) <- xs']
+
+    graph :: String -> Colour Double -> DeltaQStats -> PlotLines Double Double
+    graph x c dqst = plot_lines_style . line_color .~ opaque c
+                   $ plot_lines_values             .~ [vs (fromJust $ dqstStats dqst) ++ [(tMaxMax, fromRational $ dqstTangible dqst)]]
+                   $ plot_lines_title              .~ x
+                   $ def
+
+    vs :: Stats -> [(Double, Double)]
+    vs st = [(toDouble x, fromRational y) | (x, y) <- stCDF st]
+
+toDouble :: Seconds -> Double
+toDouble = fromRational . toRational
 
 toPNG :: FilePath -> Layout Double Double -> IO ()
 toPNG file layout = void $ renderableToFile def file $ toRenderable layout
 
 deltaQToPNG :: Int -> StdGen -> FilePath -> String -> DeltaQ -> IO ()
 deltaQToPNG n g file title = toPNG file . layoutStats title . stats n g
+
+deltaQsToPNG :: Int -> StdGen -> FilePath -> String -> [(String, Colour Double, DeltaQ)] -> IO ()
+deltaQsToPNG n g file title dqs =
+    let xs = [(x, c, stats n g dqst) | (x, c, dqst) <- dqs]
+    in  toPNG file $ layoutManyStats title xs

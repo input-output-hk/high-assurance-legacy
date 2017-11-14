@@ -1,6 +1,7 @@
 module Examples.Ring
     ( ring
     , testRing
+    , ringDeltaQ
     , ringPNG
     ) where
 

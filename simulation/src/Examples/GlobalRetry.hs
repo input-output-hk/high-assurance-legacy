@@ -1,6 +1,7 @@
 module Examples.GlobalRetry
     ( globalRetry
     , testGlobalRetry
+    , globalRetryDeltaQ
     , globalRetryPNG
     ) where
 
