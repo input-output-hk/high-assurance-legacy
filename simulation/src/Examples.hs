@@ -1,11 +1,13 @@
 module Examples
-    ( module Examples.PingPong
+    ( module Examples.HopByHop
+    , module Examples.PingPong
     , module Examples.Ring
     , module Examples.Ticker
     , module Examples.Timeout
     , testAll
     ) where
 
+import Examples.HopByHop
 import Examples.PingPong
 import Examples.Ring
 import Examples.Ticker
@@ -35,3 +37,7 @@ testAll = do
 
     putStrLn "ring"
     testRing
+    putStrLn ""
+
+    putStrLn "hop by hop recovery"
+    testHopByHop

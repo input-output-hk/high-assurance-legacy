@@ -13,6 +13,7 @@ library
                      , Examples
                      , Examples.PingPong
                      , Examples.Ring
+                     , Examples.HopByHop
                      , Examples.Ticker
                      , Examples.Timeout
                      , Simulation
