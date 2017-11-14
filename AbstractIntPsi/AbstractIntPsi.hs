@@ -1,5 +1,5 @@
 {-------------------------------------------------------------------------------
-  Prototype development: PHOAS representation of the psi calculus with various
+  Proof of concept: PHOAS representation of the psi calculus with various
   interpreters: execution, pretty-printing, and abstract interpretation using
   a simple cost model domain.
 -------------------------------------------------------------------------------}
@@ -306,8 +306,8 @@ updState' f k = Int $ updState f (int k)
   Running a stateful program
 
   We cannot give an instance of 'HasState' for 'Identity/Execute' because
-  we need access to the state; so we define a new interpretation. A pure
-  interpretation should also be possible (exercise for the reader :-).
+  we need access to the state; so we define a new interpretation. Of course,
+  a pure interpretation should also be possible (exercise for the reader :-).
 -------------------------------------------------------------------------------}
 
 newtype Stateful s a = Stateful { stateful :: IORef s -> IO () }
@@ -510,8 +510,8 @@ tryGetEven' i o = boundedRec'
                     reachedLimit
                     (\r -> In i $ \a ->
                         choice' (isEven a)
-                        (Out o a $ Done)
-                        (updState' tick $ r)
+                          (Out o a $ Done)
+                          (updState' tick $ r)
                       )
                     Done
 
