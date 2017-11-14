@@ -18,9 +18,11 @@ import System.Random                          (StdGen)
 import Text.Printf                            (printf)
 
 layoutStats :: String -> DeltaQStats -> Layout Double Double
-layoutStats title dqst = layout_title     .~ title
-                       $ layout_grid_last .~ True
-                       $ layout_plots     .~ ps
+layoutStats title dqst = layout_title                .~ title
+                       $ layout_grid_last            .~ True
+                       $ layout_x_axis . laxis_title .~ "seconds"
+                       $ layout_y_axis . laxis_title .~ "probability"
+                       $ layout_plots                .~ ps
                        $ def
   where
     ps :: [Plot Double Double]
@@ -92,9 +94,11 @@ plots tangible st = [ toPlot graph
     vs = [(toDouble x, fromRational y) | (x, y) <- stCDF st]
 
 layoutManyStats :: String -> [(String, Colour Double, DeltaQStats)] -> Layout Double Double
-layoutManyStats title xs = layout_title     .~ title
-                         $ layout_grid_last .~ True
-                         $ layout_plots     .~ [ toPlot $ graph x c dqst | (x, c, dqst) <- xs']
+layoutManyStats title xs = layout_title                .~ title
+                         $ layout_grid_last            .~ True
+                         $ layout_x_axis . laxis_title .~ "seconds"
+                         $ layout_y_axis . laxis_title .~ "probability"
+                         $ layout_plots                .~ [ toPlot $ graph x c dqst | (x, c, dqst) <- xs']
                          $ def
   where
     xs' :: [(String, Colour Double, DeltaQStats)]
