@@ -1,5 +1,6 @@
 module Examples
-    ( module Examples.HopByHop
+    ( module Examples.GlobalRetry
+    , module Examples.HopByHop
     , module Examples.PingPong
     , module Examples.Ring
     , module Examples.Ticker
@@ -7,6 +8,7 @@ module Examples
     , testAll
     ) where
 
+import Examples.GlobalRetry
 import Examples.HopByHop
 import Examples.PingPong
 import Examples.Ring
@@ -41,3 +43,7 @@ testAll = do
 
     putStrLn "hop by hop recovery"
     testHopByHop
+    putStrLn ""
+
+    putStrLn "global recovery"
+    testGlobalRetry

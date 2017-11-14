@@ -11,9 +11,10 @@ library
   hs-source-dirs:      src
   exposed-modules:     DeltaQ
                      , Examples
+                     , Examples.GlobalRetry
+                     , Examples.HopByHop
                      , Examples.PingPong
                      , Examples.Ring
-                     , Examples.HopByHop
                      , Examples.Ticker
                      , Examples.Timeout
                      , Simulation
