@@ -4,6 +4,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{todonotes}
 \usepackage{amsmath}
+\usepackage{mathtools}
 
 %include polycode.fmt
 
@@ -25,6 +26,10 @@
   {\endjoincode\ignorespacesafterend}
 
 \newtheorem{property}{Property}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+
+\DeclareMathOperator{\chain}{chain}
 
 %if style == newcode
 \begin{code}
@@ -2545,6 +2550,68 @@ bbTest CmdArgs{..} =
 %endif
 \end{codegroup}
 
+\pagebreak
+\section{Proof of Correctness}
+
+\todo[inline]{This is just a rough sketch at the moment, and only discusses the \emph{property} we may wish to prove.}
+
+\subsection{Refinement}
+
+\newcommand{\refinedBy}{\precsim}
+
+(It is not entirely obvious to me that we can state some sort of ``equivalence'' between the broadcasting-chains version and the broadcasting-blocks version in terms of standard process algebraic definitions. After all, the two processes take rather different actions.)
+The key observable that we are interested is the current chain of a process, which suggests the following definition of refinement:
+%
+\begin{definition}[Refinement]
+We say that process $Q$ refines process $P$, written $P \refinedBy Q$, iff
+\begin{equation*}
+\forall P', c, as \cdot \text{If } P \xRightarrow{as} P' \text{ and } \chain(P') = c
+\text{ then } \exists as', Q' \cdot Q \xRightarrow{as'} Q'
+\text{, } \chain(Q') = c
+\text{ and } P' \refinedBy Q'
+\end{equation*}
+\end{definition}
+%
+where $P \xRightarrow{as} P'$ denotes that process $P$ takes labelled actions $as$ becoming $P'$ (i.e., with respect to the LTS semantics).
+Note that this allows $Q$ to take \emph{different} actions to $P$, so this is not a simulation, although of course it does have a similar flavour. So then we'd prove something like
+%
+\begin{lemma}[Blocks refinement]
+$\forall c. |bcStakeholder c| \refinedBy |bbStakeholder c|$
+\end{lemma}
+%
+where |bcStakeholder c| is the broadcasting-chains stake holder with internal chain |c|, and |bbStakeholder| is the broadcasting-blocks stakeholder with internal chain |c|.
+
+\todo[inline]{There is detail missing here; the stakeholders certainly have more internal state than just the chain.}
+
+\subsection{Recovery from message loss}
+
+Merely proving refinement however does not suffice, because the definition of refinement talks about the existance of traces; thus, in the proof we can carefully avoid any traces in which messages get lost. However, I think we can state and prove recovery from message loss separately.
+Unfortunately, it seems we cannot talk about recovery from message loss for process without talking about its environment; after all, message loss is the property that a message sent by the process \emph{was not received} by the environment (or the other way around). This suggests the following definition:
+
+\newcommand{\Recover}[2]{\mathit{Recover}(#1,#2)}
+\newcommand{\Par}{\mid}
+
+%
+\begin{definition}[Recovery]
+We say that process $P$ can recover from message loss in environment $E$, written $\Recover{P}{E}$, iff
+
+\begin{enumerate}
+\item $\exists P', E', as \cdot P \Par E \xRightarrow{as} P' \Par E' \text{ and } \chain(P') = \chain(E')$
+\item $\forall P', E', m \cdot \text{If } P \xrightarrow{!m} P' \text{ and } E \xrightarrow{?m} E' \text{ then } \Recover{P'}{E}$
+\item $\forall P', E', m \cdot \text{If } P \xrightarrow{?m} P' \text{ and } E \xrightarrow{!m} E' \text{ then } \Recover{P}{E'}$
+\end{enumerate}
+
+\end{definition}
+
+This coinductive definition states that the process can always evolve to get the same chain as the environment, no matter how many messages back and forth get lost.
+
+\todo[inline]{This definition will need to be tweaked in a number of ways. First, it may not make sense to talk about ``the'' chain of the environment.}
+
+This definition is not sufficient, as we will need to pick a particular environment. This is a thorny problem: when we pick the environment to suit the proof, then condition (3), recovery from loss of messages sent by the environment, is not particularly meaningful. If we do want (3) to be meaningful however then we need to be very careful in how we model the environment; it's some sort of summary of the behaviour of the other processes. That said, one intriguing possibility is to simply consider two stakeholders in parallel (albeit with different internal states), rather than trying to abstract awy from what the environment is, exactly. After all, the environment \emph{is} the other stakeholders.  If we do go with that option, we'd prove something like
+
+\begin{lemma}[Recovery]
+$\forall c, c' \cdot \text{If } c' \text{ is an extension of } c \text{ then } \Recover{|bbStakeholder c|}{|bbStakeholder c'|}$
+\end{lemma}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2636,6 +2703,6 @@ main = do
 \bibliography{references}
 
 -- TODO: Compare to https://github.com/leithaus/casper/blob/master/casper/docs/CasperInteraction.pdf
--- TODO: Compare to https://github.com/input-output-hk/ouroboros-spec
+-- TODO: Move to finally-tagless representation \cite{Carette:2009:FTP:1630623.1630626}; see the \texttt{AbstractIntPsi} directory.
 
 \end{document}
