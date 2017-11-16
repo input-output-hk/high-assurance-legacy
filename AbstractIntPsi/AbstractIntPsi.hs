@@ -49,11 +49,11 @@ import qualified Data.Set         as Set
   * interpretation functor |g| over processes
 -------------------------------------------------------------------------------}
 
-type family Chan (g :: * -> *) :: * -> *
+type family Chan (g :: *) :: * -> *
 
 data Psi f g where
   Done :: Psi f g
-  Int  :: g (Psi f g) -> Psi f g
+  Int  :: g -> Psi f g
   In   :: Chan g a -> (f a -> Psi f g) -> Psi f g
   Out  :: Chan g a -> f a -> Psi f g -> Psi f g
 
@@ -72,7 +72,7 @@ simple i o = In i $ \a -> In i $ \a' -> Out o a' $ Out o a $ Done
 -------------------------------------------------------------------------------}
 
 -- | General form of an interpreter
-type Interpreter f g = Psi f g -> g (Psi f g)
+type Interpreter f g = Psi f g -> g
 
 class Interpret f g | g -> f where
   int :: Interpreter f g
@@ -85,7 +85,7 @@ class Interpret f g | g -> f where
   current demonstration however.
 -------------------------------------------------------------------------------}
 
-newtype Execute a = Execute { execute :: IO () }
+newtype Execute = Execute { execute :: IO () }
 
 type instance Chan Execute = Queue
 
@@ -100,6 +100,7 @@ instance Interpret Identity Execute where
 
 execute' :: Psi Identity Execute -> IO ()
 execute' = execute . int
+
 
 {-------------------------------------------------------------------------------
   Pretty-printing domain
@@ -125,18 +126,18 @@ scope prefix f = Pretty $ do
   Pretty-printer proper
 -------------------------------------------------------------------------------}
 
-type instance Chan Pretty = Pretty
+type instance Chan (Pretty ()) = Pretty
 
-instance Interpret Pretty Pretty where
+instance Interpret Pretty (Pretty ()) where
   int = go
     where
-      go :: Psi Pretty Pretty -> Pretty (Psi Pretty Pretty)
+      go :: Psi Pretty (Pretty ()) -> Pretty ()
       go Done        = "done"
       go (Int r)     = r
       go (Out c a k) = "output " <> c <> " " <> a <> " $ " <> go k
       go (In  c   k) = scope "x" $ \x -> "input " <> c <> " $ \\" <> x <> " -> " <> go (k x)
 
-pretty' :: Psi Pretty Pretty -> String
+pretty' :: Psi Pretty (Pretty ()) -> String
 pretty' = (`evalState` 0) . pretty . int
 
 {-------------------------------------------------------------------------------
@@ -193,7 +194,7 @@ data AbsValue a where
     -- | Condition with a certain probability
     Condition :: Condition -> Probability -> AbsValue a
 
-newtype AbsProc a = AbsProc { absProc :: CondCost }
+newtype AbsProc = AbsProc { absProc :: CondCost }
 
 type instance Chan AbsProc = Const ()
 
@@ -240,15 +241,16 @@ instance IsEven AbsValue where
 -------------------------------------------------------------------------------}
 
 class Interpret f g => Choice f g where
-  choice :: f Bool -> g a -> g a -> g a
+  choice :: f Bool -> g -> g -> g
 
 choice' :: Choice f g => f Bool -> Psi f g -> Psi f g -> Psi f g
 choice' b t f = Int (choice b (int t) (int f))
 
+
 instance Interpret Identity g => Choice Identity g where
   choice (Identity b) t f = if b then t else f
 
-instance Choice Pretty Pretty where
+instance Choice Pretty (Pretty ()) where
   choice b t f = "if " <> b <> " then " <> t <> " else " <> f
 
 -- | We could instead (or additionally) do something with the probability here
@@ -261,7 +263,7 @@ instance Choice AbsValue AbsProc where
 -------------------------------------------------------------------------------}
 
 class Interpret f g => Recurse f g where
-  recurse :: (g a -> g a) -> g a
+  recurse :: (g -> g) -> g
 
 recurse' :: Recurse f g => (Psi f g -> Psi f g) -> Psi f g
 recurse' f = Int $ recurse (int . f . Int)
@@ -269,7 +271,7 @@ recurse' f = Int $ recurse (int . f . Int)
 instance Recurse Identity Execute where
   recurse = fix
 
-instance Recurse Pretty Pretty where
+instance Recurse Pretty (Pretty ()) where
   recurse f = scope "r" $ \r -> "rec $ \\" <> r <> " -> " <> f r
 
 -- | For the cost modelling, we specify an unknown cost for any recursive
@@ -292,9 +294,9 @@ echoOdd i o = recurse' $ \r -> In i $ \x -> choice' (isEven x) Done (Out o x $ r
   recursion.
 -------------------------------------------------------------------------------}
 
-class Interpret f g => HasState (s :: *) (f :: * -> *) (g :: * -> *) where
-  getState :: (f s -> g a) -> g a
-  updState :: (f s -> f s) -> g a -> g a
+class Interpret f g => HasState s f g where
+  getState :: (f s -> g) -> g
+  updState :: (f s -> f s) -> g -> g
 
 getState' :: HasState s f g => (f s -> Psi f g) -> Psi f g
 getState' k = Int $ getState (int . k)
@@ -310,7 +312,7 @@ updState' f k = Int $ updState f (int k)
   a pure interpretation should also be possible (exercise for the reader :-).
 -------------------------------------------------------------------------------}
 
-newtype Stateful s a = Stateful { stateful :: IORef s -> IO () }
+newtype Stateful s = Stateful { stateful :: IORef s -> IO () }
 
 stateful' :: s -> Psi Identity (Stateful s) -> IO ()
 stateful' s p = f =<< newIORef s
@@ -351,7 +353,7 @@ instance HasState s Identity (Stateful s) where
   abstract interpretation we simply regard the state as an unknown value.
 -------------------------------------------------------------------------------}
 
-instance HasState s Pretty Pretty where
+instance HasState s Pretty (Pretty ()) where
   getState   k = scope "s" $ \s -> "getState $ \\" <> s <> " -> " <> k s
   updState f k = "updState (\\s -> " <> f "s" <> "). " <> k
 
@@ -438,7 +440,7 @@ tryGetEven i o = recurse' $ \r ->
 -------------------------------------------------------------------------------}
 
 class HasState s f g => BoundedRec s f g where
-  boundedRec :: (f s -> f Bool) -> (g a -> g a) -> g a -> g a
+  boundedRec :: (f s -> f Bool) -> (g -> g) -> g -> g
 
 boundedRec' :: BoundedRec s f g
             => (f s -> f Bool) -> (Psi f g -> Psi f g) -> Psi f g -> Psi f g
@@ -456,7 +458,7 @@ instance BoundedRec s Identity (Stateful s) where
         if b then stateful (body go) r
              else stateful k r
 
-instance BoundedRec s Pretty Pretty where
+instance BoundedRec s Pretty (Pretty ()) where
   boundedRec guard body k = scope "r" $ \r -> scope "s" $ \s ->
        "rec $ \\" <> r <> " -> "
     <> "getState $ \\" <> s <> " -> "
@@ -474,17 +476,16 @@ avgNumIters :: Double -> Int
 avgNumIters p = round ((1 - p) / p)
 
 instance BoundedRec s AbsValue AbsProc where
-  boundedRec :: forall a.
-                (AbsValue s -> AbsValue Bool)
-             -> (AbsProc a -> AbsProc a)
-             -> AbsProc a
-             -> AbsProc a
+  boundedRec :: (AbsValue s -> AbsValue Bool)
+             -> (AbsProc -> AbsProc)
+             -> AbsProc
+             -> AbsProc
   boundedRec guard body k =
       case guard UnknownValue of
         Condition _ (Prob p) -> go (avgNumIters p)
         _otherwise           -> AbsProc unknownCost
     where
-      go :: Int -> AbsProc a
+      go :: Int -> AbsProc
       go 0 = k
       go n = body (go (n - 1))
 
