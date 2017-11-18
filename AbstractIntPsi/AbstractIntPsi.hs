@@ -45,19 +45,18 @@ import qualified Data.Set         as Set
 {-------------------------------------------------------------------------------
   Core finally-tagless definition of the psi calculus.
 
-  * The |f :: * -> *| argument is the interpretation of values
   * The |g :: *| argument is the interpretation of processes
     (it has kind |*| since we don't have different types of processes).
 
   Extensions will be added in separate type classes to improve compositionality.
 -------------------------------------------------------------------------------}
 
-type family Chan (g :: *) :: * -> *
-
-class Psi f g | g -> f where
+class Psi g where
+  type Chan g  :: * -> *
+  type Value g :: * -> *
   done :: g
-  inp  :: Chan g a -> (f a -> g) -> g
-  out  :: Chan g a -> f a -> g -> g
+  inp  :: Chan g a -> (Value g a -> g) -> g
+  out  :: Chan g a -> Value g a -> g -> g
 
 {-------------------------------------------------------------------------------
   Simple examples
@@ -66,8 +65,8 @@ class Psi f g | g -> f where
   they can only denote terms in the bare abstract syntax.
 -------------------------------------------------------------------------------}
 
-simple :: Psi f g => Chan g a -> Chan g a -> g
-simple i o = inp i $ \a -> inp i $ \a' -> out o a' $ out o a $ done
+simple :: Psi g => Chan g a -> Chan g a -> g
+simple i o = inp i $ \a -> inp i $ \a' -> out o a' $ out o a done
 
 {-------------------------------------------------------------------------------
   Running
@@ -79,9 +78,9 @@ simple i o = inp i $ \a -> inp i $ \a' -> out o a' $ out o a $ done
 
 newtype Execute = Execute { execute :: IO () }
 
-type instance Chan Execute = Queue
-
-instance Psi Identity Execute where
+instance Psi Execute where
+  type Chan Execute  = Queue
+  type Value Execute = Identity
   done      = Execute $ return ()
   inp c   k = Execute $ do a <- dequeue c ; execute (k (Identity a))
   out c a k = Execute $ do enqueue c (runIdentity a) ; execute k
@@ -113,9 +112,9 @@ scope prefix f = Pretty $ do
   Pretty-printer proper
 -------------------------------------------------------------------------------}
 
-type instance Chan (Pretty ()) = Pretty
-
-instance Psi Pretty (Pretty ()) where
+instance Psi (Pretty ()) where
+  type Chan (Pretty ())  = Pretty
+  type Value (Pretty ()) = Pretty
   done      = "done"
   inp c   k = scope "x" $ \x -> "inp " <> c <> " $ \\" <> x <> " -> " <> k x
   out c a k = "out " <> c <> " " <> a <> " $ " <> k
@@ -176,10 +175,10 @@ data AbsValue a where
 
 newtype AbsProc = AbsProc { absProc :: CondCost }
 
-type instance Chan AbsProc = Const ()
-
-instance Psi AbsValue AbsProc where
-  done      = AbsProc $ zero
+instance Psi AbsProc where
+  type Chan AbsProc  = Const ()
+  type Value AbsProc = AbsValue
+  done      = AbsProc zero
   inp _   k = AbsProc $ unconditional (Cost (Upper 1) (Upper 0)) `plus` absProc (k UnknownValue)
   out _ _ k = AbsProc $ unconditional (Cost (Upper 0) (Upper 1)) `plus` absProc k
 
@@ -213,17 +212,17 @@ instance IsEven AbsValue where
   We may wish to introduce conditionals.
 -------------------------------------------------------------------------------}
 
-class Psi f g => Choice f g where
-  choice :: f Bool -> g -> g -> g
+class Psi g => Choice g where
+  choice :: Value g Bool -> g -> g -> g
 
-instance Psi Identity g => Choice Identity g where
+instance {-# OVERLAPPABLE #-} (Psi g, Value g ~ Identity) => Choice g where
   choice (Identity b) t f = if b then t else f
 
-instance Choice Pretty (Pretty ()) where
+instance Choice (Pretty ()) where
   choice b t f = "if " <> b <> " then " <> t <> " else " <> f
 
 -- | We could instead (or additionally) do something with the probability here
-instance Choice AbsValue AbsProc where
+instance Choice AbsProc where
   choice UnknownValue    (AbsProc t) (AbsProc f) = AbsProc (max t f)
   choice (Condition c _) (AbsProc t) (AbsProc f) = AbsProc (conditional c t f)
 
@@ -231,26 +230,26 @@ instance Choice AbsValue AbsProc where
   We can also introduce recursion in this manner
 -------------------------------------------------------------------------------}
 
-class Psi f g => Recurse f g where
+class Psi g => Recurse g where
   recurse :: (g -> g) -> g
 
-instance Recurse Identity Execute where
+instance Recurse Execute where
   recurse = fix
 
-instance Recurse Pretty (Pretty ()) where
+instance Recurse (Pretty ()) where
   recurse f = scope "r" $ \r -> "rec $ \\" <> r <> " -> " <> f r
 
 -- | For the cost modelling, we specify an unknown cost for any recursive
 -- occurrences of the process. This boils down to unrolling the process once.
-instance Recurse AbsValue AbsProc where
+instance Recurse AbsProc where
   recurse f = f (AbsProc unknownCost)
 
 {-------------------------------------------------------------------------------
   Example process with more interesting internal structure
 -------------------------------------------------------------------------------}
 
-echoOdd :: (IsEven f, Recurse f g, Choice f g) => Chan g Int -> Chan g Int -> g
-echoOdd i o = recurse $ \r -> inp i $ \x -> choice (isEven x) done (out o x $ r)
+echoOdd :: (IsEven (Value g), Recurse g, Choice g) => Chan g Int -> Chan g Int -> g
+echoOdd i o = recurse $ \r -> inp i $ \x -> choice (isEven x) done (out o x r)
 
 {-------------------------------------------------------------------------------
   Dealing with state
@@ -260,9 +259,9 @@ echoOdd i o = recurse $ \r -> inp i $ \x -> choice (isEven x) done (out o x $ r)
   recursion.
 -------------------------------------------------------------------------------}
 
-class Psi f g => HasState s f g where
-  getState :: (f s -> g) -> g
-  updState :: (f s -> f s) -> g -> g
+class Psi g => HasState s g where
+  getState :: (Value g s -> g) -> g
+  updState :: (Value g s -> Value g s) -> g -> g
 
 {-------------------------------------------------------------------------------
   Running a stateful program
@@ -274,8 +273,6 @@ class Psi f g => HasState s f g where
 
 newtype Stateful s = Stateful { stateful :: IORef s -> IO () }
 
-type instance Chan (Stateful s) = Queue
-
 execState :: s -> Stateful s -> IO ()
 execState s (Stateful f) = do r <- newIORef s ; f r
 
@@ -284,15 +281,17 @@ execState s (Stateful f) = do r <- newIORef s ; f r
   above, as well as our new 'HasState' type class.
 -------------------------------------------------------------------------------}
 
-instance Psi Identity (Stateful s) where
+instance Psi (Stateful s) where
+  type Chan (Stateful s)  = Queue
+  type Value (Stateful s) = Identity
   done      = Stateful $ \_ -> return ()
   inp c   k = Stateful $ \r -> do a <- dequeue c ; stateful (k (Identity a)) r
   out c a k = Stateful $ \r -> do enqueue c (runIdentity a) ; stateful k r
 
-instance Recurse Identity (Stateful s) where
+instance Recurse (Stateful s) where
   recurse = fix
 
-instance HasState s Identity (Stateful s) where
+instance HasState s (Stateful s) where
   getState   k = Stateful $ \r -> do
                    s <- readIORef r
                    stateful (k (Identity s)) r
@@ -307,11 +306,11 @@ instance HasState s Identity (Stateful s) where
   abstract interpretation we simply regard the state as an unknown value.
 -------------------------------------------------------------------------------}
 
-instance HasState s Pretty (Pretty ()) where
+instance HasState s (Pretty ()) where
   getState   k = scope "s" $ \s -> "getState $ \\" <> s <> " -> " <> k s
   updState f k = "updState (\\s -> " <> f "s" <> "). " <> k
 
-instance HasState s AbsValue AbsProc where
+instance HasState s AbsProc where
   getState   k = k UnknownValue
   updState _ k = k
 
@@ -357,7 +356,7 @@ instance ReachedLimit Int AbsValue where
   reachedLimit _ = Condition "ReachedLimit" (Prob 0.2)
   tick = id
 
-tryGetEven :: (HasState s f g, ReachedLimit s f, Choice f g, IsEven f, Recurse f g)
+tryGetEven :: (HasState s g, ReachedLimit s (Value g), Choice g, IsEven (Value g), Recurse g)
            => Chan g Int -> Chan g Int -> g
 tryGetEven i o = recurse $ \r ->
     getState $ \s ->
@@ -365,8 +364,8 @@ tryGetEven i o = recurse $ \r ->
       done
       (inp i $ \a ->
        choice (isEven a)
-         (out o a $ done)
-         (updState tick $ r))
+         (out o a done)
+         (updState tick r))
 
 {-------------------------------------------------------------------------------
   Guarded recursion
@@ -393,14 +392,14 @@ tryGetEven i o = recurse $ \r ->
   an explicit base case.
 -------------------------------------------------------------------------------}
 
-class HasState s f g => BoundedRec s f g where
-  boundedRec :: (f s -> f Bool) -> (g -> g) -> g -> g
+class HasState s g => BoundedRec s g where
+  boundedRec :: (Value g s -> Value g Bool) -> (g -> g) -> g -> g
 
 {-------------------------------------------------------------------------------
   Of course we then have the usual instances for execution and pretty-printing
 -------------------------------------------------------------------------------}
 
-instance BoundedRec s Identity (Stateful s) where
+instance BoundedRec s (Stateful s) where
   boundedRec guard body k = go
     where
       go = Stateful $ \r -> do
@@ -408,7 +407,7 @@ instance BoundedRec s Identity (Stateful s) where
         if b then stateful k r
              else stateful (body go) r
 
-instance BoundedRec s Pretty (Pretty ()) where
+instance BoundedRec s (Pretty ()) where
   boundedRec guard body k = scope "r" $ \r -> scope "s" $ \s ->
        "rec $ \\" <> r <> " -> "
     <> "getState $ \\" <> s <> " -> "
@@ -425,7 +424,7 @@ instance BoundedRec s Pretty (Pretty ()) where
 avgNumIters :: Double -> Int
 avgNumIters p = round ((1 - p) / p)
 
-instance BoundedRec s AbsValue AbsProc where
+instance BoundedRec s AbsProc where
   boundedRec :: (AbsValue s -> AbsValue Bool)
              -> (AbsProc -> AbsProc)
              -> AbsProc
@@ -455,14 +454,14 @@ instance BoundedRec s AbsValue AbsProc where
   > }
 -------------------------------------------------------------------------------}
 
-tryGetEven' :: (BoundedRec s f g, ReachedLimit s f, Choice f g, IsEven f)
+tryGetEven' :: (BoundedRec s g, ReachedLimit s (Value g), Choice g, IsEven (Value g))
             => Chan g Int -> Chan g Int -> g
 tryGetEven' i o = boundedRec
                     reachedLimit
                     (\r -> inp i $ \a ->
                         choice (isEven a)
-                          (out o a $ done)
-                          (updState tick $ r)
+                          (out o a done)
+                          (updState tick r)
                       )
                     done
 
