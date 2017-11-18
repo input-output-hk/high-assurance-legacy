@@ -1,0 +1,57 @@
+name:                simulation
+version:             0.1.0.0
+license:             MIT
+license-file:        LICENSE
+author:              Lars Bruenjes
+maintainer:          lars.bruenjes@iohk.io
+build-type:          Simple
+cabal-version:       >=1.10
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     DeltaQ
+                     , Examples
+                     , Examples.GlobalRetry
+                     , Examples.HopByHop
+                     , Examples.PingPong
+                     , Examples.Ring
+                     , Examples.Ticker
+                     , Examples.Timeout
+                     , Simulation
+  other-modules:       DeltaQ.Chart
+                     , DeltaQ.Core
+                     , DeltaQ.Stats
+                     , Simulation.Channel
+                     , Simulation.HMap
+                     , Simulation.Observable
+                     , Simulation.Pure
+                     , Simulation.Queue
+                     , Simulation.Thread
+                     , Simulation.Thread.Class
+                     , Simulation.ThreadId
+                     , Simulation.Time
+                     , Simulation.TimeQueue
+                     , Simulation.Utils
+  ghc-options:         -Wall -O2
+  build-depends:       base >= 4.7 && < 5
+                     , Chart
+                     , Chart-cairo
+                     , colour
+                     , containers
+                     , free
+                     , mtl
+                     , random
+                     , semigroups
+                     , stm
+                     , time
+                     , transformers
+  default-language:    Haskell2010
+  default-extensions:  ConstraintKinds
+                     , DeriveFunctor
+                     , FlexibleContexts
+                     , GADTs
+                     , GeneralizedNewtypeDeriving
+                     , RankNTypes
+                     , ScopedTypeVariables
+                     , StandaloneDeriving
+                     , TypeFamilies
