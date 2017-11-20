@@ -9,7 +9,10 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Psi
+  exposed-modules:     Initial
+                     , Psi
   build-depends:       base >=4.7 && <5
+                     , fgl
+                     , graphviz
   default-language:    Haskell2010
   ghc-options:         -Wall
