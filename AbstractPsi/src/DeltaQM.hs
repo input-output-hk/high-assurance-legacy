@@ -1,4 +1,4 @@
-module DeltaQ
+module DeltaQM
     ( DeltaQM (..)
     , DeltaQ
     , runDeltaQ

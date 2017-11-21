@@ -9,7 +9,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     DeltaQ
+  exposed-modules:     DeltaQM
                      , Examples
                      , Graph
                      , Initial
