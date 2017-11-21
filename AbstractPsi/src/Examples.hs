@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeFamilies #-}
-
 module Examples
     ( pingPong
     , problem

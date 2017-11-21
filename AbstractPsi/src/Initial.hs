@@ -1,8 +1,3 @@
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE RankNTypes #-}
-
 module Initial
     ( IPsi (..)
     , toInitial

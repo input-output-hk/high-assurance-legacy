@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeFamilies #-}
-
 module Psi
     ( Psi (..)
     ) where
