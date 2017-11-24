@@ -35,7 +35,7 @@ instance Monad DeltaQM where
 -- and parallel composition is /First-to-Finish (FTF) synchronization/.
 instance Alternative DeltaQM where
     empty = DeltaQM $ \g -> (Nothing, g)
-    (<|>) = defaultPar
+    (<|>) = ftf
 
 instance MonadPlus DeltaQM
 
