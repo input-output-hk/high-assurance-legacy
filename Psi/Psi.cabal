@@ -9,10 +9,12 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     DeltaQ
+  exposed-modules:     WeightedChoice
+                     , DeltaQ
                      , DeltaQM
                      , Distribution
                      , MonadDeltaQ
+                     , Probability
                      , Psi
                      , Time
   build-depends:       base >=4.7 && <5
@@ -20,6 +22,7 @@ library
                      , free
                      , mtl
                      , random
+                     , semigroups
   default-language:    Haskell2010
   ghc-options:         -Wall
   default-extensions:  DeriveFunctor
