@@ -25,4 +25,3 @@ instance Distribution a => Distribution (DeltaQ a) where
                                                 weighted [(p * a, x), ((1 - p) * b, y)]
     dirac                              = DeltaQ 1 . dirac
     uniform                            = DeltaQ 1 . uniform
-    ftf      (DeltaQ a x) (DeltaQ b y) = DeltaQ (1 - (1 - a) * (1 - b)) (ftf x y)
