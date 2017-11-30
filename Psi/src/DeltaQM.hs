@@ -2,6 +2,8 @@ module DeltaQM
     ( DeltaQM (..)
     , tangible
     , compact
+    , toDist
+    , toPNG
     ) where
 
 import           Control.Applicative
@@ -10,7 +12,7 @@ import           Data.List           (foldl')
 import           Data.List.NonEmpty  (NonEmpty (..), toList)
 import           Data.Map.Strict     (Map)
 import qualified Data.Map.Strict     as M
-import           Data.Maybe          (catMaybes)
+import           Data.Maybe          (catMaybes, fromMaybe)
 import           Data.Monoid
 import           Distribution
 import           MonadDeltaQ
@@ -31,7 +33,18 @@ compact (DeltaQM xs) = DeltaQM [(a, p, d) | (a, (p, d)) <- M.toList $ foldl' f M
     f m (a, p, d) = M.insertWith g a (p, d) m
 
     g :: (Probability, Dist) -> (Probability, Dist) -> (Probability, Dist)
-    g (p, d) (p', d') = let p'' = p + p' in (p'', weightedChoice (p / p'') d d')
+    g (p, d) (p', d') = let p'' = p + p' in (p'', weightedChoice (probability $ fromProbability p / fromProbability p'') d d')
+
+toDist :: DeltaQM () -> Maybe (Probability, Dist)
+toDist m = case compact m of
+    DeltaQM []           -> Nothing
+    DeltaQM [((), p, d)] -> Just (p, d)
+    _                    -> error "impossible branch"
+
+toPNG :: DeltaQM () -> FilePath -> IO ()
+toPNG m f = do
+    let (p, d) = fromMaybe (0, dirac 0) $ toDist m
+    distToPNG p d f
 
 instance WeightedChoice (DeltaQM a) where
     neutral                                    = empty
@@ -69,7 +82,9 @@ instance MonadDeltaQ DeltaQM where
         g (a, p, d) = [(Just (a, t), p * q) | (t, q) <- toList $ diracs d]
 
         h :: (Maybe (c, Dist), Probability) -> Maybe (c, Probability, Dist)
-        h (m, p) = maybe Nothing (\(c, d) -> Just (c, p, d)) m
+        h (m, p)
+            | p == 0    = Nothing
+            | otherwise = maybe Nothing (\(c, d) -> Just (c, p, d)) m
 
         i :: Maybe (a, Natural) -> Maybe (b, Natural) -> Maybe (Either (a, DeltaQM b) (b, DeltaQM a), Dist)
         i Nothing       Nothing       = Nothing

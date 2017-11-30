@@ -12,9 +12,12 @@ library
   exposed-modules:     WeightedChoice
                      , DeltaQM
                      , Distribution
+                     , Examples
                      , MonadDeltaQ
                      , Probability
   build-depends:       base >=4.7 && <5
+                     , Chart
+                     , Chart-cairo
                      , containers
                      , mtl
                      , random
