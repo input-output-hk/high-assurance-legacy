@@ -19,3 +19,7 @@ instance Num Probability where
     signum (Probability 0) = 0
     signum (Probability _) = 1
     fromInteger = probability . fromInteger
+
+instance Fractional Probability where
+    fromRational          = probability
+    recip (Probability p) = probability $ recip p

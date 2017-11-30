@@ -14,11 +14,8 @@ library
                      , Distribution
                      , MonadDeltaQ
                      , Probability
-                     , Psi
-                     , Time
   build-depends:       base >=4.7 && <5
                      , containers
-                     , free
                      , mtl
                      , random
                      , semigroups

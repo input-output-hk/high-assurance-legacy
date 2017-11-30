@@ -1,22 +1,40 @@
 module DeltaQM
     ( DeltaQM (..)
     , tangible
+    , compact
     ) where
 
-import Control.Applicative
-import Control.Monad
-import Distribution
-import MonadDeltaQ
-import Probability
-import WeightedChoice
+import           Control.Applicative
+import           Control.Monad
+import           Data.List           (foldl')
+import           Data.List.NonEmpty  (NonEmpty (..), toList)
+import           Data.Map.Strict     (Map)
+import qualified Data.Map.Strict     as M
+import           Data.Maybe          (catMaybes)
+import           Data.Monoid
+import           Distribution
+import           MonadDeltaQ
+import           Numeric.Natural
+import           Probability
+import           WeightedChoice
 
-newtype DeltaQM d a = DeltaQM [(a, Probability, d)]
+newtype DeltaQM a = DeltaQM [(a, Probability, Dist)]
     deriving Show
 
-tangible :: DeltaQM d a -> Probability
+tangible :: DeltaQM a -> Probability
 tangible (DeltaQM xs) = sum [p | (_, p, _) <- xs]
 
-instance WeightedChoice (DeltaQM d a) where
+compact :: forall a. Ord a => DeltaQM a -> DeltaQM a
+compact (DeltaQM xs) = DeltaQM [(a, p, d) | (a, (p, d)) <- M.toList $ foldl' f M.empty xs]
+  where
+    f :: Map a (Probability, Dist) -> (a, Probability, Dist) -> Map a (Probability, Dist)
+    f m (a, p, d) = M.insertWith g a (p, d) m
+
+    g :: (Probability, Dist) -> (Probability, Dist) -> (Probability, Dist)
+    g (p, d) (p', d') = let p'' = p + p' in (p'', weightedChoice (p / p'') d d')
+
+instance WeightedChoice (DeltaQM a) where
+    neutral                                    = empty
     weightedChoice 0 _            x            = x
     weightedChoice 1 x            _            = x
     weightedChoice p (DeltaQM xs) (DeltaQM ys) =
@@ -24,22 +42,45 @@ instance WeightedChoice (DeltaQM d a) where
             ys' = [(a, q * (1 - p), d) | (a, q, d) <- ys]
         in  DeltaQM $ xs' ++ ys'
 
-instance Distribution d => Functor (DeltaQM d) where
+instance Functor DeltaQM where
     fmap = liftM
 
-instance Distribution d => Applicative (DeltaQM d) where
+instance Applicative DeltaQM where
     pure  = return
     (<*>) = ap
 
-instance Distribution d => Monad (DeltaQM d) where
+instance Monad DeltaQM where
     return a         = DeltaQM [(a, 1, dirac 0)]
-    DeltaQM xs >>= f = undefined
+    DeltaQM xs >>= f = DeltaQM $ concatMap (g f) xs
+      where
+        g :: (a -> DeltaQM b) -> (a, Probability, Dist) -> [(b, Probability, Dist)]
+        g f' (a, p, d) =
+            let DeltaQM ys = f' a
+            in  [(b, p * q, d <> e) | (b, q, e) <- ys]
 
-instance Distribution d => MonadDeltaQ (DeltaQM d) d where
+instance MonadDeltaQ DeltaQM where
     vitiate d = DeltaQM [((), 1, d)]
+    sync x y  = DeltaQM $ catMaybes [h (i m n, p * q) | (m, p) <- toList (f x), (n, q) <- toList (f y)]
+      where
+        f :: DeltaQM a -> NonEmpty (Maybe (a, Natural), Probability)
+        f m@(DeltaQM xs) = (Nothing, 1 - tangible m) :| concatMap g xs
 
-instance Distribution d => Alternative (DeltaQM d) where
+        g :: (a, Probability, Dist) -> [(Maybe (a, Natural), Probability)]
+        g (a, p, d) = [(Just (a, t), p * q) | (t, q) <- toList $ diracs d]
+
+        h :: (Maybe (c, Dist), Probability) -> Maybe (c, Probability, Dist)
+        h (m, p) = maybe Nothing (\(c, d) -> Just (c, p, d)) m
+
+        i :: Maybe (a, Natural) -> Maybe (b, Natural) -> Maybe (Either (a, DeltaQM b) (b, DeltaQM a), Dist)
+        i Nothing       Nothing       = Nothing
+        i (Just (a, m)) Nothing       = Just (Left (a, empty), dirac m)
+        i Nothing       (Just (b, n)) = Just (Right (b, empty), dirac n)
+        i (Just (a, m)) (Just (b, n))
+            | m <= n                  = Just (Left (a, DeltaQM [(b, 1, dirac $ n - m)]), dirac m)
+            | otherwise               = Just (Right (b, DeltaQM [(a, 1, dirac $ m - n)]), dirac n)
+
+instance Alternative DeltaQM where
     empty = DeltaQM []
     (<|>) = ftf
 
-instance Distribution d => MonadPlus (DeltaQM d)
+instance MonadPlus DeltaQM

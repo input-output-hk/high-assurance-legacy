@@ -1,88 +1,44 @@
 module Distribution
-    ( Distribution (..)
+    ( Dist
+    , dirac
     , miracle
-    , between
-    , weighted'
-    , DSample (..)
-    , DAbstract (..)
-    , toAbstract
-    , fromAbstract
-    , sampleIO
+    , diracs
     ) where
 
-import Control.Monad.State
-import Data.List.NonEmpty  (NonEmpty (..))
-import Data.Monoid
-import Probability
-import System.Random
-import Time
-import WeightedChoice
+import           Data.List           (foldl')
+import           Data.List.NonEmpty  (NonEmpty (..), fromList)
+import           Data.Map.Strict     (Map)
+import qualified Data.Map.Strict     as M
+import           Numeric.Natural
+import           Probability
+import           WeightedChoice
 
-class (Monoid a, WeightedChoice a) => Distribution a where
-    dirac    :: Seconds -> a
-    uniform  :: Seconds -> a
+newtype Dist = Dist (Map Natural Probability)
+    deriving (Show, Eq, Ord)
 
-miracle :: Distribution a => a
+dirac :: Natural -> Dist
+dirac n = Dist $ M.singleton n 1
+
+miracle :: Dist
 miracle = dirac 0
 
-between :: Distribution a => Seconds -> Seconds -> a
-between s t
-    | s > t     = error "between: second argument greater than first argument"
-    | s == t    = dirac s
-    | otherwise = dirac s <> uniform (t - s)
+instance Monoid Dist where
+    mempty                   = miracle
+    Dist m `mappend` Dist m' = Dist $ foldl' f M.empty
+        [ (n + n', p * p') 
+        | (n, p)   <- M.toList m
+        , (n', p') <- M.toList m'
+        ]
+      where
+        f :: Map Natural Probability -> (Natural, Probability) -> Map Natural Probability
+        f m'' (n, p) = M.insertWith (+) n p m''
 
-weighted' :: Distribution a => [(Rational, a)] -> a
-weighted' []            = miracle
-weighted' ((a, x) : xs) = weighted $ (a, x) :| xs
+instance WeightedChoice Dist where
+    neutral              = miracle
+    weightedChoice 0 _        x         = x
+    weightedChoice 1 x        _         = x
+    weightedChoice p (Dist m) (Dist m') = Dist $
+        M.unionWith (+) (M.map (* p) m) (M.map (* (1 - p)) m')
 
-newtype DSample = DSample {sample :: State StdGen Seconds}
-
-instance Monoid DSample where
-    mempty      = dirac 0
-    mappend x y = DSample $ (+) <$> sample x <*> sample y
-
-instance WeightedChoice DSample where
-    weightedChoice p x y = DSample $ do
-        r <- rr
-        if probability r <= p then sample x else sample y
-
-instance Distribution DSample where
-    dirac s = DSample $ return s
-    uniform s = DSample $ (fromRational . (* toRational s)) <$> rr
-
-rr :: State StdGen Rational
-rr = do
-    g <- get
-    let (x, g') = randomR (0, 1) g :: (Double, StdGen)
-    put g'
-    return $ toRational x
-
-data DAbstract =
-      Convolve DAbstract DAbstract
-    | Choice Probability DAbstract DAbstract
-    | Dirac Seconds
-    | Uniform Seconds
-    deriving Show
-
-instance Monoid DAbstract where
-    mempty  = Dirac 0
-    mappend = Convolve
-
-instance WeightedChoice DAbstract where
-    weightedChoice = Choice
-
-instance Distribution DAbstract where
-    dirac = Dirac
-    uniform = Uniform
-
-toAbstract :: (forall a. Distribution a => a) -> DAbstract
-toAbstract = id
-
-fromAbstract :: Distribution a => DAbstract -> a
-fromAbstract (Convolve x y) = fromAbstract x <> fromAbstract y
-fromAbstract (Choice p x y) = weightedChoice p (fromAbstract x) (fromAbstract y)
-fromAbstract (Dirac s)      = dirac s
-fromAbstract (Uniform s)    = uniform s
-
-sampleIO :: (forall a. Distribution a => a) -> IO Seconds
-sampleIO = getStdRandom . runState . sample
+diracs :: Dist -> NonEmpty (Natural, Probability)
+diracs (Dist m) = fromList $ M.toList m
