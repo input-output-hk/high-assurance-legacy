@@ -3,22 +3,23 @@ module WeightedChoice
     , weighted
     ) where
 
+import Data.List          (foldl')
+import Data.List.NonEmpty (NonEmpty (..))
 import Probability
 
 class WeightedChoice a where
-    neutral        :: a
     weightedChoice :: Probability -> a -> a -> a
 
-weighted :: WeightedChoice a => [(Rational, a)] -> a
-weighted []                          = neutral
-weighted [(w, a)]
-    | w < 0                          = error "weighted: negative weight"
-    | w == 0                         = neutral
-    | otherwise                      = a
-weighted ((w, a) : xs)
-    | w < 0                          = error "weighted: negative weight"
-    | otherwise                      =
-        let ws = w + sum (fst <$> xs)
-            b  = weighted xs
-            p  = probability $ w / ws
-        in  weightedChoice p a b
+weighted :: forall a. WeightedChoice a => NonEmpty (Rational, a) -> a
+weighted ((w, a) :| [])
+    | w <= 0            = error "weighted: non-positive weight with one option"
+    | otherwise         = a
+weighted ((w, a) :| xs) = snd $ foldl' f (w, a) xs
+  where
+    f :: (Rational, a) -> (Rational, a) -> (Rational, a)
+    f (w', a') (w'', a'')
+        | w'' < 0    = error "weighted: negative weight"
+        | otherwise =
+            let !w''' = w' + w''
+                !p    = probability $ w' / w'''
+            in  (w''', weightedChoice p a' a'')

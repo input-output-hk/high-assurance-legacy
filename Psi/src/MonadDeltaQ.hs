@@ -14,7 +14,7 @@ import Distribution
 import Numeric.Natural
 
 class MonadPlus m => MonadDeltaQ m where
-    vitiate :: Dist -> m ()
+    vitiate :: DTime -> m ()
     sync    :: m a -> m b -> m (Either (a, m b) (b, m a))
 
 ftf :: MonadDeltaQ m => m a -> m a -> m a
@@ -33,10 +33,10 @@ retryForever ma timeout = f' empty
             Left (a, _)      -> return a
             Right ((), ma'') -> f' ma''
 
-retryMany :: forall a m. MonadDeltaQ m => m a -> [Dist] -> m a
+retryMany :: forall a m. MonadDeltaQ m => m a -> [DTime] -> m a
 retryMany ma timeouts = f' timeouts empty
   where
-    f' :: [Dist] -> m a -> m a
+    f' :: [DTime] -> m a -> m a
     f' []       _   = empty
     f' (t : ts) ma' = do
         e <- sync (ftf ma ma') $ vitiate t
@@ -51,5 +51,5 @@ ltf x y = do
         Left (a, mb)  -> mb >>= \b -> return (a, b)
         Right (b, ma) -> ma >>= \a -> return (a, b)
 
-waitAtLeast :: MonadDeltaQ m => Dist -> m a -> m a
+waitAtLeast :: MonadDeltaQ m => DTime -> m a -> m a
 waitAtLeast s = fmap snd . ltf (vitiate s)

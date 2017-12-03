@@ -6,13 +6,14 @@ module Examples
 
 import Control.Applicative
 import Control.Monad
+import Data.List.NonEmpty  (NonEmpty (..))
 import DeltaQM
 import Distribution
 import MonadDeltaQ
 import WeightedChoice
 
-latency :: Dist
-latency = weighted [(1, dirac 1), (1, dirac 2), (1, dirac 3)]
+latency :: DTime
+latency = weighted $ (1, dirac 1) :| [(1, dirac 2), (1, dirac 3)]
 
 step :: DeltaQM ()
 step = weightedChoice 0.9 (vitiate latency) empty

@@ -26,8 +26,8 @@ fromProbability :: Probability -> Rational
 fromProbability (Probability p) = p
 
 instance Fractional Probability where
-    fromRational          = probability
-    recip (Probability p) = probability $ recip p
+    fromRational                      = probability
+    (Probability p) / (Probability q) = probability $ p / q
 
 probToDouble :: Probability -> Double
 probToDouble = fromRational . fromProbability
