@@ -21,4 +21,4 @@ instance Show a => Psi (PsiIO a) where
     out c v p   = PsiIO $ putMVar c (runIdentity v) >> runPsiIO p
     fork p q    = PsiIO $ forkIO (runPsiIO p) >> runPsiIO q
     observe a p = PsiIO $ print a >> runPsiIO p
-    delay n p   = PsiIO $ threadDelay (1000000 * fromIntegral n) >> runPsiIO p
+    --delay n p   = PsiIO $ threadDelay (1000000 * fromIntegral n) >> runPsiIO p

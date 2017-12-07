@@ -11,20 +11,24 @@ library
   hs-source-dirs:      src
   exposed-modules:     WeightedChoice
                      , DeltaQM
+                     , DeltaQT
                      , Distribution
                      , Examples
                      , MonadDeltaQ
                      , Probability
                      , Psi.Core
+                     , Psi.DeltaQ
                      , Psi.Examples
                      , Psi.IO
   build-depends:       base >=4.7 && <5
                      , Chart
                      , Chart-cairo
                      , containers
+                     , free
                      , mtl
                      , random
                      , semigroups
+                     , transformers
   default-language:    Haskell2010
   ghc-options:         -Wall
   default-extensions:  BangPatterns

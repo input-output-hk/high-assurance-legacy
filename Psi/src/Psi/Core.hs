@@ -2,7 +2,7 @@ module Psi.Core
     ( Psi (..)
     ) where
 
-import Numeric.Natural
+import Distribution
 
 class Psi p where
     type Chan p :: * -> *
@@ -14,4 +14,4 @@ class Psi p where
     out     :: Chan p a -> Value p a -> p -> p
     fork    :: p -> p -> p
     observe :: Observation p -> p -> p 
-    delay   :: Natural -> p -> p
+    delay   :: DTime -> p -> p

@@ -8,6 +8,7 @@ module Distribution
     , defaultMempty
     , defaultMappend
     , Dist (..)
+    , NDist (..)
     , DTime
     , distToPNG
     ) where

@@ -14,14 +14,14 @@ import Distribution
 import Numeric.Natural
 
 class MonadPlus m => MonadDeltaQ m where
-    vitiate :: DTime -> m ()
+    vitiate :: DTime -> m () -- only tangible mass
     sync    :: m a -> m b -> m (Either (a, m b) (b, m a))
 
 ftf :: MonadDeltaQ m => m a -> m a -> m a
 ftf x y = either fst fst <$> sync x y
 
 giveUpAfter :: MonadDeltaQ m => Natural -> m a -> m (Maybe a)
-giveUpAfter s ma = ftf (const Nothing <$> vitiate (dirac s)) (Just <$> ma)
+giveUpAfter s ma = ftf (Just <$> ma) (const Nothing <$> vitiate (dirac s))
 
 retryForever :: forall a m. MonadDeltaQ m => m a -> Natural -> m a
 retryForever ma timeout = f' empty
@@ -32,6 +32,8 @@ retryForever ma timeout = f' empty
         case e of
             Left (a, _)      -> return a
             Right ((), ma'') -> f' ma''
+
+-- retryForever s m = retryMany m $ repeat (dirac s)
 
 retryMany :: forall a m. MonadDeltaQ m => m a -> [DTime] -> m a
 retryMany ma timeouts = f' timeouts empty
