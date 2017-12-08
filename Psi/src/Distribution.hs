@@ -1,4 +1,18 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# OPTIONS_HADDOCK show-extensions #-}
+
+{-|
+Module      : Distribution
+Description : (discrete) probability distributions
+Copyright   : (c) Lars Brünjes, 2017
+License     : MIT
+Maintainer  : lars.bruenjes@iohk.io
+Stability   : experimental
+Portability : portable
+
+This module contains a class and two implementations
+for (discrete) probability distributions.
+-}
 
 module Distribution
     ( Time
@@ -27,25 +41,40 @@ import           Numeric.Natural
 import           Probability
 import           WeightedChoice
 
+-- | Time is simply represented by a natural number,
+-- so we only consider /discrete/ time.
 type Time = Natural
 
 instance Monoid Time where
     mempty  = 0
     mappend = (+)
 
+-- | A class for probability distributions @d@ of values of type @a@.
 class WeightedChoice d => Distribution d a | d -> a where
+
+    -- | Converts a distribution into a non-empty list of value-probability
+    -- pairs. The probabilities are all non-zero, and their sum is one.
     toDiracs   :: d -> NonEmpty (a, Probability)
+
+    -- | Takes a non-empty list of value-probability pairs (non-zero
+    -- probabilities with sum one) and converts it into a distribution.
     fromDiracs :: NonEmpty (a, Probability) -> d
 
+-- | @'dirac' a@ is the distribution of value @a@ with probability one.
 dirac :: Distribution d a => a -> d
 dirac a = fromDiracs $ (a, 1) :| []
 
+-- | The time-distribution with time zero and probability one.
 miracle :: Distribution d Time => d
 miracle = dirac 0
 
+-- | A helper function to implement @'mempty'@ for a @'Monoid'@-instance for
+-- distributions of monoidal values.
 defaultMempty :: (Distribution d a, Monoid a) => d
 defaultMempty = dirac mempty
 
+-- | A helper function to implement @'mappend'@ for a @'Monoid'@-instance for
+-- distributions of monoidal values.
 defaultMappend :: forall a d. (Distribution d a, Monoid a) => d -> d -> d
 defaultMappend d e =
     let x :| xs         = toDiracs d
@@ -56,6 +85,9 @@ defaultMappend d e =
     f :: (a, Probability) -> (a, Probability) -> (a, Probability)
     f (a, p) (b, q) = (a <> b, p * q)
 
+-- | Represents distributions as non-empty lists of value-probability
+-- pairs (with non-zero probabilities that sum to one).
+-- This can be used for any Haskell type.
 newtype Dist a = Dist (NonEmpty (a, Probability))
     deriving Show
 
@@ -77,6 +109,10 @@ instance Monoid a => Monoid (Dist a) where
     mempty  = defaultMempty
     mappend = defaultMappend
 
+-- | Represents distributions as non-empty maps from values
+-- to (non-zero) probabilities (that sum to one).
+-- This can only be used for Haskell types that have an
+-- @'Ord'@-instance.
 newtype NDist a = NDist (Map a Probability)
     deriving (Show, Eq, Ord)
 
@@ -105,6 +141,7 @@ instance (Ord a, Monoid a) => Monoid (NDist a) where
     mempty  = defaultMempty
     mappend = defaultMappend
 
+-- | Distributions of @'Time'@.
 type DTime = NDist Time
 
 plotDist :: Probability -> DTime -> Plot Double Double
@@ -123,9 +160,14 @@ layoutDist p d = layout_plots                .~ [plotDist p d]
                $ layout_y_axis . laxis_title .~ "probability"
                $ def
 
-distToPNG :: Probability -> DTime -> FilePath -> IO ()
+-- | Creates a PNG-image of a (possibly intangible) time-distribution.
+distToPNG :: Probability -- ^ tangible mass
+          -> DTime       -- ^ (tangible) time-distribution
+          -> FilePath    -- ^ target file
+          -> IO ()
 distToPNG p d f = void $ renderableToFile def f $ toRenderable $ layoutDist p d
 
+-- | Samples from a distribution.
 sampleDist :: forall m d a. (MonadRandom m, Distribution d a) => d -> m a
 sampleDist d = do
     x <- getRandomR (0, 1)
