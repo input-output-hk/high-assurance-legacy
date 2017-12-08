@@ -1,3 +1,19 @@
+{-# OPTIONS_HADDOCK show-extensions #-}
+
+{-|
+Module      : MonadDeltaQ
+Description : computations that take time and can fail
+Copyright   : (c) Lars Brünjes, 2017
+License     : MIT
+Maintainer  : lars.bruenjes@iohk.io
+Stability   : experimental
+Portability : portable
+
+This module defines a type-class for probabilistic computations
+that take (probabilistic) time and can possibly fail.
+It also defines various useful combinators in terms of that class.
+-}
+
 module MonadDeltaQ
     ( MonadDeltaQ (..)
     , ftf
@@ -13,8 +29,17 @@ import Control.Monad
 import Distribution
 import Numeric.Natural
 
+-- | Computations in a monad implementing @'MonadDeltaQ'@
+-- are probabilistic, take time and can fail.
 class MonadPlus m => MonadDeltaQ m where
+
+    -- | Delay a computation with /tangible/ mass.
+    -- The delay can be probabilistic, but it will eventually end.
     vitiate :: DTime -> m () -- only tangible mass
+
+    -- | Synchronize to parallel computations, giving
+    -- the result of the computation that finished first
+    -- and a handle on the rest of the other computation.
     sync    :: m a -> m b -> m (Either (a, m b) (b, m a))
 
 ftf :: MonadDeltaQ m => m a -> m a -> m a
