@@ -11,9 +11,11 @@ module Distribution
     , NDist (..)
     , DTime
     , distToPNG
+    , sampleDist
     ) where
 
 import           Control.Monad                          (void)
+import           Control.Monad.Random                   (MonadRandom (..))
 import           Data.List                              (foldl')
 import           Data.List.NonEmpty                     (NonEmpty (..), fromList, toList)
 import           Data.Map.Strict                        (Map)
@@ -123,3 +125,15 @@ layoutDist p d = layout_plots                .~ [plotDist p d]
 
 distToPNG :: Probability -> DTime -> FilePath -> IO ()
 distToPNG p d f = void $ renderableToFile def f $ toRenderable $ layoutDist p d
+
+sampleDist :: forall m d a. (MonadRandom m, Distribution d a) => d -> m a
+sampleDist d = do
+    x <- getRandomR (0, 1)
+    go x $ toDiracs d
+  where
+    go :: Double -> NonEmpty (a, Probability) -> m a
+    go _  ((a, _) :| [])       = return a
+    go !x ((a, p) :| (y : ys)) =
+        let p' = probToDouble p
+        in  if x <= p' then return a
+                       else go (x - p') $ y :| ys

@@ -25,6 +25,7 @@ library
                      , Chart-cairo
                      , containers
                      , free
+                     , MonadRandom
                      , mtl
                      , random
                      , semigroups

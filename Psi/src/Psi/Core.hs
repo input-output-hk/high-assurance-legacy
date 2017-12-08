@@ -3,6 +3,7 @@ module Psi.Core
     ) where
 
 import Distribution
+import Probability
 
 class Psi p where
     type Chan p :: * -> *
@@ -15,3 +16,4 @@ class Psi p where
     fork    :: p -> p -> p
     observe :: Observation p -> p -> p 
     delay   :: DTime -> p -> p
+    choice  :: Probability -> p -> p -> p
