@@ -1,3 +1,18 @@
+{-# OPTIONS_HADDOCK show-extensions #-}
+
+{-|
+Module      : DeltaQM
+Description : simple implementation of the @MonadDeltaQ@ interface
+Copyright   : (c) Lars Brünjes, 2017
+License     : MIT
+Maintainer  : lars.bruenjes@iohk.io
+Stability   : experimental
+Portability : portable
+
+This module provides a simple implementation of the @'MonadDeltaQ'@
+interface.
+-}
+
 module DeltaQM
     ( DeltaQM (..)
     , tangible
@@ -20,12 +35,26 @@ import           Numeric.Natural
 import           Probability
 import           WeightedChoice
 
+-- | A monad implementing the @'MonadDeltaQ'@ interface.
+-- A computation is a non-empty list of triples,
+-- consisting of the result of the computation,
+-- its probability and the (probabilistic) time
+-- the computation takes. All probabilities are non-zero,
+-- and their sum is at most one. The difference to one
+-- represents the /intangible mass/, the probability
+-- that the computation fails.
 newtype DeltaQM a = DeltaQM [(a, Probability, DTime)]
     deriving Show
 
+-- | The /tangible mass/ of the given computation,
+-- i.e. the probability that the computation
+-- will eventually return a result.
 tangible :: DeltaQM a -> Probability
 tangible (DeltaQM xs) = sum [p | (_, p, _) <- xs]
 
+-- | Tries to find a more compact representation of the given computation by
+-- collecting triples containing the same result and combining them into a
+-- single triple.
 compact :: forall a. Ord a => DeltaQM a -> DeltaQM a
 compact (DeltaQM xs) = DeltaQM [(a, p, d) | (a, (p, d)) <- M.toList $ foldl' f M.empty xs]
   where
@@ -35,13 +64,20 @@ compact (DeltaQM xs) = DeltaQM [(a, p, d) | (a, (p, d)) <- M.toList $ foldl' f M
     g :: (Probability, DTime) -> (Probability, DTime) -> (Probability, DTime)
     g (p, d) (p', d') = let p'' = p + p' in (p'', weightedChoice (probability $ fromProbability p / fromProbability p'') d d')
 
-toDTime :: DeltaQM () -> Maybe (Probability, DTime)
-toDTime m = case compact m of
+-- | Computes the time the given computation takes to return a result.
+-- If the computation always fails, @'Nothing'@ is returned;
+-- otherwise the result is @'Just'@ a pair
+-- consisting of the probability of success and the (probabilistic) time
+-- to return a result.
+toDTime :: DeltaQM a -> Maybe (Probability, DTime)
+toDTime m = case compact $ void m of
     DeltaQM []           -> Nothing
     DeltaQM [((), p, d)] -> Just (p, d)
     _                    -> error "impossible branch"
 
-toPNG :: DeltaQM () -> FilePath -> IO ()
+-- | Creates a diagram of the (probabilistic) time the specified computation takes,
+-- and saves it as a PNG-file.
+toPNG :: DeltaQM a -> FilePath -> IO ()
 toPNG m f = do
     let (p, d) = fromMaybe (0, dirac 0) $ toDTime m
     distToPNG p d f
@@ -74,7 +110,7 @@ instance MonadDeltaQ DeltaQM where
 
     vitiate d = DeltaQM [((), 1, d)]
 
-    sync x y = DeltaQM $ catMaybes [ h (i m n, p * q) 
+    sync x y = DeltaQM $ catMaybes [ h (i m n, p * q)
                                    | (m, p) <- toList (atomize x)
                                    , (n, q) <- toList (atomize y)
                                    ]
@@ -98,7 +134,6 @@ atomize m@(DeltaQM xs) =
   where
     f :: (a, Probability, DTime) -> [(Maybe (a, Natural), Probability)]
     f (a, p, d) = [(Just (a, t), p * q) | (t, q) <- toList $ toDiracs d]
-
 
 
 instance Alternative DeltaQM where
