@@ -2,7 +2,7 @@
 
 {-|
 Module      : Examples
-Description : example MonadDeltaQ-computations
+Description : example @MonadDeltaQ@-computations
 Copyright   : (c) Lars Brünjes, 2017
 License     : MIT
 Maintainer  : lars.bruenjes@iohk.io

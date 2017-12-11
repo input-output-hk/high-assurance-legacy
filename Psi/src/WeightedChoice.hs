@@ -22,6 +22,7 @@ import Data.List          (foldl')
 import Data.List.NonEmpty (NonEmpty (..))
 import Probability
 
+-- | A class for types that admit probabilistic choice.
 class WeightedChoice a where
 
     -- | @'weightedChoice' p x y@ chooses between two options

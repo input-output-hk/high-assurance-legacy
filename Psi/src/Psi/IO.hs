@@ -1,3 +1,17 @@
+{-# OPTIONS_HADDOCK show-extensions #-}
+
+{-|
+Module      : Psi.IO
+Description : interpretation of @Psi@ in @IO@.
+Copyright   : (c) Lars Brünjes, 2017
+License     : MIT
+Maintainer  : lars.bruenjes@iohk.io
+Stability   : experimental
+Portability : portable
+
+This module defines an interpretation of @'Psi'@ in @'IO'@.
+-}
+
 module Psi.IO
     ( PsiIO (..)
     ) where
@@ -10,6 +24,7 @@ import Distribution
 import Probability
 import Psi.Core
 
+-- | A simple wrapper around @'IO'@-actions (of type @'IO' ()@).
 newtype PsiIO a = PsiIO {runPsiIO :: IO ()}
 
 instance Show a => Psi (PsiIO a) where
