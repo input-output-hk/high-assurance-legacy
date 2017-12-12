@@ -1,6 +1,23 @@
+{-# OPTIONS_HADDOCK show-extensions #-}
+
+{-|
+Module      : Psi.DeltaQ
+Description : interpretation of @Psi@ in @DeltaQTS@.
+Copyright   : (c) Lars Brünjes, 2017
+License     : MIT
+Maintainer  : lars.bruenjes@iohk.io
+Stability   : experimental
+Portability : portable
+
+This module defines a (pure) interpretation of @'Psi'@ in @'DeltaQTS'@.
+-}
+
 module Psi.DeltaQ
-    ( Obs
-    , PsiDeltaQ
+    ( ChanState (..)
+    , CHANSTATE (..)
+    , Obs
+    , S (..)
+    , PsiDeltaQ (..)
     , observations
     ) where
 
@@ -20,14 +37,18 @@ import           Psi.Core
 import           Unsafe.Coerce
 import           WeightedChoice
 
+-- | The state of a channel with message type @b@.
 data ChanState a b =
-    Empty
-    | Sending !(NonEmpty (b, PsiDeltaQ a))
-    | Receiving !(NonEmpty (b -> PsiDeltaQ a))
+      Empty                                    -- ^ neither senders nor receivers
+    | Sending !(NonEmpty (b, PsiDeltaQ a))     -- ^ at least one queued sender
+    | Receiving !(NonEmpty (b -> PsiDeltaQ a)) -- ^ at least one queued receiver
 
+-- | Wrapper around @'ChanState'@ to hide the message type.
 data CHANSTATE a where
     CHANSTATE :: ChanState a b -> CHANSTATE a
 
+-- | Represents a collection of observations. The value at a given time is the
+-- set of all obervations made at that time.
 type Obs a = Map Time (Set a)
 
 observe' :: forall a. Ord a => Time -> a -> Obs a -> Obs a
@@ -37,11 +58,12 @@ observe' t a = M.alter f t
     f Nothing = Just $ S.singleton a
     f (Just xs) = Just $ S.insert a xs
 
+-- | State of an abstract psi-calculus computation.
 data S a = S
-    { sNextChannel  :: !Int
-    , sTime         :: !Time
-    , sChannels     :: !(Map Int (CHANSTATE a))
-    , sObservations :: !(Obs a)
+    { sNextChannel  :: !Int                     -- ^ number of the next unused channel
+    , sTime         :: !Time                    -- ^ current time
+    , sChannels     :: !(Map Int (CHANSTATE a)) -- ^ state of all used channels
+    , sObservations :: !(Obs a)                 -- ^ all observations
     }
 
 initS :: S a
@@ -52,6 +74,8 @@ initS = S
     , sObservations = M.empty
     }
 
+-- | Interpretation of an abstract psi-calculus process as a @'MonadDeltaQ'@
+-- computation.
 newtype PsiDeltaQ a = PsiDeltaQ {runPsiDeltaQ :: DeltaQTS (S a) Identity ()}
 
 getChanState :: Const Int b -> DeltaQTS (S a) Identity (ChanState a b)
@@ -118,5 +142,9 @@ instance Ord a => Psi (PsiDeltaQ a) where
 
     choice r p q = PsiDeltaQ $ weightedChoice r (runPsiDeltaQ p) (runPsiDeltaQ q)
 
-observations :: Time -> PsiDeltaQ a -> DeltaQ (Obs a)
+-- | All observations of an abstract psi-calculus process, represented as a
+-- @'DeltaQ'@ computation.
+observations :: Time           -- ^ timeout
+             -> PsiDeltaQ a    -- ^ psi-calculus process
+             -> DeltaQ (Obs a)
 observations timeout p = sObservations <$> execDeltaQTS (giveUpAfter timeout $ runPsiDeltaQ p) initS
