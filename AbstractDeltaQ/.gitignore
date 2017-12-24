@@ -1,0 +1,4 @@
+.ghc.environment.*
+*.ptb
+*.tex
+dist-newstyle/
