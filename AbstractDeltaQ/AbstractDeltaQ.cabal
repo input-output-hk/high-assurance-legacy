@@ -11,7 +11,7 @@ cabal-version:       >=1.10
 library
   exposed-modules:     AbstractDeltaQ
   other-modules:       Util
-  build-depends:       base >=4.10 && <4.11
+  build-depends:       base >=4.9 && <4.11
                      , generics-sop
                      , mtl
                      , pretty-show
