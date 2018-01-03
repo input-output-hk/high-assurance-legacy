@@ -332,8 +332,8 @@ simplify (Var x)        = Var x
 simplify (PChoice dqs)  = PChoice $ map (second simplify) dqs
 
 simplify (a :> b) =
-    let dqs   = map simplify $ concatMap collect [a, b]
-        dqs'  = filter (/= Exact 0) dqs
+    let  dqs   = map simplify $ concatMap collect [a, b]
+         dqs'  = filter (/= Exact 0) dqs
     in foldr1 (:>) dqs'
   where
     collect :: DeltaQ -> [DeltaQ]
@@ -508,8 +508,8 @@ where $P$ is the \DeltaQ{} of the continuation.
 \subsubsection{External Choice}
 \label{sec:oneOf}
 
-Similarly, a product of only singleton inner products corresponds to external
-choice of the inputs:
+Similarly, a outer product of only singleton inner products corresponds to
+external choice of the inputs:
 %
 \begin{code}
 oneOf :: (Psi p, SListI xs) => NP (Chan p) xs -> (NS (Value p) xs -> p) -> p
@@ -984,7 +984,7 @@ where |Equation| is just a wrapper around a string such that |Show|ing an
 variables. The details of the pretty-printer are a bit hairy, in particular
 because it needs to translate |sync| to \psicalculus{} primitives, but they are
 not particular interesting. Of course, the pretty-printer \emph{is} an example
-of an abstract interpreter (that does not actually run the code) and so we
+of an abstract interpreter (one that does not actually run the code) and so we
 instantiate |FirstOrder| and |HigherOrder| differently:
 
 \begin{code}
