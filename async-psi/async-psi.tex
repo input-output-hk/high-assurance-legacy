@@ -1,0 +1,263 @@
+\documentclass{article}
+\usepackage[margin=2.5cm]{geometry}
+
+\usepackage{kpfonts}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{todonotes}
+
+\newcommand{\pOut}{{!}}
+\newcommand{\bOut}{{!\!!}}
+\newcommand{\pInp}{{?}}
+\newcommand{\bInp}{{?\!?}}
+\newcommand{\new}[2]{(\nu\!#1) #2}
+\newcommand{\freshFor}{\mathrel{\#}}
+\newcommand{\rec}{\mathtt{rec}}
+\DeclareMathOperator{\bn}{bn}
+\DeclareMathOperator{\n}{n}
+
+\begin{document}
+
+\title{Simplified Semantics}
+\author{Edsko de Vries}
+\maketitle
+
+\cite{Borgström2015}
+stays close to ``Broadcast Psi-calculi with an Application to Wireless Protocols''
+
+\cite{AmanPohjola:2016:BUT:2854065.2854080} up-to
+
+\section*{Operational Semantics}
+
+Let $P, Q$ range over processes; $\mathcal{F}$ range over equivariant functions
+from values to processes; $c, a, b$ over channels; $V$ over values.
+
+\begin{itemize}
+
+\item Point-to-point communication
+
+\begin{equation*}
+%
+% PIn
+%
+\frac{
+}{
+c \pInp \mathcal{F} \xrightarrow{c \pInp V} \mathcal{F}(V)
+}
+\mathtt{In}
+%
+\qquad
+%
+% POut
+%
+\frac{
+}{
+c \pOut V. P \xrightarrow{c \pOut V} P
+}
+\mathtt{Out}
+%
+\qquad
+%
+\frac{
+P \xrightarrow{\new{\bar{a}}{c \pOut V}} P' \qquad
+Q \xrightarrow{c \pInp V} Q' \qquad
+\bar{a} \freshFor Q
+}{
+P \parallel Q \xrightarrow{\tau} \new{\bar{a}}{(P' \parallel Q')}
+}
+\mathtt{Com}
+%
+\end{equation*}
+%
+\begin{equation*}
+\frac{
+P \xrightarrow{\new{\bar{a}}{c \pOut V}} P' \qquad
+b \freshFor \bar{a}, c \qquad
+b \in \n(V)
+}{
+\new{b}{P} \xrightarrow{\new{\bar{a},b}{c \pOut V}} P'
+}
+\mathtt{Open}
+\end{equation*}
+%
+where
+%
+\begin{itemize}
+\item Symmetric version of $\mathtt{Com}$ elided.
+\item Rule $\mathtt{Com}$ doubles as a closing rule.
+\end{itemize}
+
+\todo[inline]{The psi calculus paper states some additional assumptions here,
+but I \emph{think} they online pertain to frames, which we make no use of. But
+we may need an additional freshness requirement somewhere.}
+
+\item Broadcast communication
+
+\begin{equation*}
+%
+% BOut
+%
+\frac{
+}{
+\bOut V. P \xrightarrow{\bOut V} P
+}
+\mathtt{BrOut}
+%
+\qquad
+%
+% BrIn
+%
+\frac{
+}{
+\bInp \mathcal{F} \xrightarrow{\bInp V} \mathcal{F}(V)
+}
+\mathtt{BrIn}
+%
+\qquad
+%
+% BCom
+%
+\frac{
+P \xrightarrow{\new{\bar{a}}{\bOut V}} P' \qquad
+Q \xrightarrow{\bInp V} Q' \qquad
+\bar{a} \freshFor Q
+}{
+P \parallel Q \xrightarrow{\new{\bar{a}}{\bOut V}} P' \parallel Q'
+}
+\mathtt{BrCom}
+\end{equation*}
+%
+\begin{equation*}
+%
+% BrOpen
+%
+\frac{
+P \xrightarrow{\new{\bar{a}}{\bOut V}} P' \qquad
+b \freshFor \bar{a} \qquad
+b \in \n(V)
+}{
+\new{b}{P} \xrightarrow{\new{\bar{a},b}{\bOut V}} P'
+}
+\mathtt{BrOpen}
+%
+\qquad
+%
+% Close
+%
+\frac{
+P \xrightarrow{\new{\bar{a}}{\bOut V}} P'
+}{
+P \xrightarrow{\tau} \new{\bar{a}}{P'}
+}
+\mathtt{BrClose}
+\end{equation*}
+%
+\begin{equation*}
+%
+% BrMerge
+%
+\frac{
+P \xrightarrow{\bInp V} P' \qquad
+Q \xrightarrow{\bInp V} Q'
+}{
+P \parallel Q \xrightarrow{\bInp V} P' \parallel Q'
+}
+\mathtt{BrMerge}
+\end{equation*}
+%
+where
+%
+\begin{itemize}
+\item Symmetric version of rule $\mathtt{BrCom}$ is elided; note that the psi
+calculus paper also elides rule $\mathtt{BrOpen}$ (we stated it explicitly).
+\item Rule $\mathtt{BrMerge}$ would not be necessary if we had an explicit rule
+\begin{math}
+\displaystyle
+\frac{
+P \equiv P' \xrightarrow{\alpha} Q' \equiv Q
+}{
+P \xrightarrow{\alpha} Q'
+}
+\end{math}
+if we want such a rule to be \emph{derivable} instead (which makes the semantics
+easier to use) rule $\mathtt{BrMerge}$ is needed.
+\item Rule $\mathtt{BrClose}$ is slightly more permissive than its equivalent in
+the psi calculus presentation, where it only applies at the point where the
+channel is bound. I'm not entirely sure why that restriction is in place; it
+is unusual (the closing rule for point-to-point communication has no similar
+restriction).
+\item The broadcast rules together basically means that when a process is ready
+to broadcast, the semantics allow it to couple with any number (zero or more)
+of input processes, the communication happens in one step, and then the output
+is no longer available after that; hence, this already models unreliable
+delivery.
+\item Since we assume the existance of a single, global, broadcast channel,
+restriction does not apply to broadcast channels. However, it \emph{is} possible
+to extrude a point-to-point communication channel through a broadcast communication.
+\end{itemize}
+
+\item Congruence rules
+
+\begin{equation*}
+%
+% Par
+%
+\frac{
+P \xrightarrow{\alpha} P' \qquad
+\bn(\alpha) \freshFor Q
+}{
+P \parallel Q \xrightarrow{\alpha} P' \parallel Q
+}
+\mathtt{Par}
+%
+\qquad
+%
+% Scope
+%
+\frac{
+P \xrightarrow{\alpha} P' \qquad
+a \freshFor \alpha
+}{
+\new{a}{P} \xrightarrow{\alpha} \new{a}{P'}
+}
+\mathtt{Scope}
+%
+\qquad
+%
+% Rec
+%
+\frac{
+\mathcal{F}(\rec \; \mathcal{F}) \xrightarrow{\alpha} P'
+}{
+\rec \; \mathcal{F} \xrightarrow{\alpha} P'
+}
+\mathtt{Rec}
+\end{equation*}
+
+Symmetric version of $\mathtt{Par}$ elided.
+
+\item{Network Limitations}
+
+TODO
+
+\end{itemize}
+
+\section*{Differences from the Psi Calculus}
+
+\begin{itemize}
+\item Asynchronous? --- implies unordered
+\item no assertions
+\item single broadcast channel
+\item single kind of broadcast -- explain how it can be encoded (refer to the paper)
+\item explicitly allow for arbitrary functions after input; this is how we want to use it \emph{anyway}
+\item no up-to techniques available for the broadcast extension
+\end{itemize}
+
+\section*{References}
+
+pi-calculus in nominal logic: \url{https://arxiv.org/pdf/0809.3960.pdf}
+
+\bibliographystyle{acm}
+\bibliography{references}
+
+\end{document}
