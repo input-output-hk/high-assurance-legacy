@@ -1,8 +1,11 @@
+PDFLATEX=pdflatex -halt-on-error
+BIBTEX=bibtex
+
 async-psi.pdf: async-psi.tex
-	pdflatex async-psi.tex
-	bibtex async-psi
-	pdflatex async-psi.tex
-	pdflatex async-psi.tex
+	${PDFLATEX} async-psi.tex
+	${BIBTEX}   async-psi
+	${PDFLATEX} async-psi.tex
+	${PDFLATEX} async-psi.tex
 
 .PHONY: watch
 watch:

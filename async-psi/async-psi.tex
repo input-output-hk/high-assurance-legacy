@@ -3,31 +3,192 @@
 
 \usepackage{kpfonts}
 \usepackage{amsmath}
+\usepackage{mathtools}
 \usepackage{hyperref}
 \usepackage{todonotes}
+\usepackage{xspace}
+\usepackage{listings}
 
 \newcommand{\pOut}{{!}}
 \newcommand{\bOut}{{!\!!}}
-\newcommand{\pInp}{{?}}
-\newcommand{\bInp}{{?\!?}}
+\newcommand{\pIn}{{?}}
+\newcommand{\bIn}{{?\!?}}
 \newcommand{\new}[2]{(\nu\!#1) #2}
 \newcommand{\freshFor}{\mathrel{\#}}
 \newcommand{\rec}{\mathtt{rec}}
+\newcommand{\nil}{\mathbf{0}}
+\newcommand{\invoke}[1]{\langle #1 \rangle}
+
+\newcommand{\psicalculus}{psi-calculus\xspace}
+
+\newtheorem{lemma}{Lemma}
+
+\lstset{basicstyle=\ttfamily\small}
+\lstdefinelanguage{Coq}{
+  morekeywords={Require,Import,Open,Scope,Section,Context,Inductive,forall,Fixpoint,match,with,end,End,Arguments,return,Definition,Fact,Qed}
+  }
+
 \DeclareMathOperator{\bn}{bn}
 \DeclareMathOperator{\n}{n}
+\DeclareMathOperator{\len}{len}
+\DeclareMathOperator{\chain}{chain}
 
 \begin{document}
 
-\title{Simplified Semantics}
+\title{Asynchronous Embedded Psi-Calculus}
 \author{Edsko de Vries}
 \maketitle
 
-\cite{Borgström2015}
-stays close to ``Broadcast Psi-calculi with an Application to Wireless Protocols''
+\section{Motivation}
 
-\cite{AmanPohjola:2016:BUT:2854065.2854080} up-to
+The \psicalculus \cite{DBLP:journals/corr/abs-1101-3262} is a parametric process
+calculus with support for broadcast communication \cite{Borgström2015} and
+equipped with a formally verified metatheory. Its parameterization allows for
+modelling of various cryptographic and other primitives, and its definition of
+broadcast communication is very general. As such, it is a suitable candidate for
+modelling the Proas algorithm and proving some of its properties. Its metatheory
+includes a definition of bisimularity, along with a formal proof that
+bisimularity is ``sound'', in the sense two bisimilar processes are
+interchangeable in any context (sound with respect to a high-level observational
+equivalence).
 
-\section*{Operational Semantics}
+Unfortunately, such soundness comes at a cost. The relation between processes
+(bisimilarity) must be detailed and is often complex; the definition of
+bisimilarity for the \psicalculus in particular is non-trivial. Consequently,
+proving bisimilarity between processes is often difficult and must be supported
+by additional formal infrastructure. Although such infrastructure exists for the
+\psicalculus in the form of up-to techniques, it currently does not support the
+broadcast extension \cite{AmanPohjola:2016:BUT:2854065.2854080}.
+
+Secondly, in order to be able to use \emph{any} kind of sound theory (one that
+would allow us to conclude that we can replace a process by another in an
+arbitrary context), we would have to fully characterize the behaviour of those
+processes. This is a proof obligation which we currently don't have the
+resources to take on, and instead we will only give partial specification.
+
+On the positive side giving up on full specifications allows us to be more
+flexible in what kind of calculus we use. When we use the \psicalculus directly,
+every additional operation (such as encryption) that isn't explicitly supported
+in the calculus must be encoded using the \psicalculus parameters. If however we
+don't intend to use the existing \psicalculus metatheory, and don't intend to do
+any metatheoretical reasoning ourselves (and instead only intend to reason about
+concrete processes), we can define a process calculus that reuses infrastructure
+from the host language (such as Isabelle) to give us additional power. For
+example, in the Verdi project \cite{Wilcox:2015:VFI:2737924.2737958} processes
+are simply host-language functions from inputs to outputs.
+
+Embedding host-language functions in a calculus is known as higher order
+abstract syntax (HOAS), and is typically associated with three problems in
+formal verification. First, for a higher order abstract syntax the use of HOAS
+is problematic as it requires a non-positive datatype. Since the psi-calculus is
+first order, this is not an issue. Second, HOAS introduces ``exotic'' terms that
+extend the power of the calculus; often these terms are undesirable but in our
+case this is precisely the reason for introducing HOAS. We do have to be careful
+that processes cannot distinguish one ``fresh'' name from another; it suffices
+to require that the functions are equivariant. Finally, HOAS makes it difficult
+or impossible to do induction over the syntax of the calculus (although there
+are workarounds \cite{Röckl2001}). Since we don't intend to do metatheoretical
+reasoning, but only plan to reason about concrete processes, I don't think that
+this will be an issue.
+
+Having said all that, it \emph{is} useful to stay as close to the \psicalculus
+as possible, so that if in the future we do want to take advantage of the
+\psicalculus metatheory the transition is not more difficult than it needs to
+be. For this reason in this document we introduce an embedded process calculus
+(``embedded'' in the sense that it is embedded in a host language with a
+function space), which is closely modelled after the \psicalculus as it is
+defined in \cite{Borgström2015}. The embedded nature of the calculus however
+means that we can simplify the \psicalculus in various ways; this is documented
+in detail in Section~\ref{sec:deviations}.
+
+\section{Deviations from the \psicalculus}
+\label{sec:deviations}
+
+Since we want to work with a semantics in which we can model network
+limitations, we work in an asynchronous process calculus (i.e., the output
+process does not have a continuation). In an asynchronous process calculus there
+is no guaranteed message delivery and no guaranteed message ordering. It
+\emph{does} guarantee that messages don't get duplicated, but this is also
+straight-forward to guard against in ``real'' code and moreover likely less
+of a problem. The translation from an asynchronous calculus to the corresponding
+synchronous calculus is trivial.
+
+The \psicalculus as defined in
+\cite{DBLP:journals/corr/abs-1101-3262,Borgström2015} uses the classical
+``replication'' operator $!P$, modelling an unbounded number of instances of $P$
+in parallel. This operator is convenient for modelling but less convenient for
+interpretation. The \psicalculus workbench
+\cite{Borgstrom:2015:PWG:2724585.2682570} uses named processes, effectively
+introducing general recursion; we do the same. It is important that these named
+processes are actually (host language) \emph{functions} from values to
+processes, so that we can model things like process state.
+Appendix~\ref{app:namedproc} shows one way in which we might model this formally
+(the example uses Coq); I experimented also with using PHOAS for this purpose
+but it turned out to be non-trivial (\emph{cf}.
+\cite{Chlipala:2010:VCI:1706299.1706312}).
+
+The rules for point-to-point communication in the \psicalculus rely on a
+name-matching predicate $\xleftrightarrow{.}$; this is used for instance to
+express that $\mathtt{fst}(c,d)$ and $c$ denote the same channel. Our use of
+HOAS means that $\mathtt{fst}(c,d)$ will simply \emph{evaluate} to $c$ and hence
+we don't need the name matching construct. Formally, we instantiate
+$\xleftrightarrow{.}$ to be diagonal relation on the set of names (name
+equality).
+
+Similarly, the rules for broadcast connectivity use two predicates
+$\overset{.}{\prec}$ and $\overset{.}{\succ}$, denoting ``output connectivity''
+and ``input connectivity'' respectively. We simplify this to the trivial case:
+we only use a single broadcast channel, that all processes can send to and
+receive from. Formally, if $b$ is the single broadcast channel, we instantiate
+both $\overset{.}{\prec}$ and $\overset{.}{\succ}$ to be trivial diagonal
+relation on the set $\{b\}$.
+
+In the \psicalculus the relations $\xleftrightarrow{.}$, $\overset{.}{\prec}$
+and $\overset{.}{\succ}$ are all parameterized by the ``frame'' of the process;
+a set of formulas that are asserted to be true at any point during the process'
+lifecycle. Frames are also used to determine the branch to take in a case
+statement. Since our instantiations of $\xleftrightarrow{.}$,
+$\overset{.}{\prec}$ and $\overset{.}{\succ}$ are all trivial, and pattern
+matching is taken care of by evaluation, we have no use for frames and omit them
+from the calculus. Formally, we instantiate $\mathbf{A} = \{\top\}$, containing
+only the trivial assertion, let $\mathbf{1} = \top$ and $\top \otimes \top =
+\top$.
+
+We follow the presentation of the psi-calculus from \cite{Borgström2015}
+closely. In particular, we use nominal logic to deal with name binding
+\cite{Pitts2001,DBLP:journals/corr/abs-0809-3960}. As stated, however, we use
+HOAS for the input prefix, so that we can take advantage of the expressive power
+of the host language to express processes. We do insist that these functions are
+equivariant, to ensure that fresh names cannot be distinguished from each other.
+
+The resulting calculus closely follows the \psicalculus, although the
+resemblance is somewhat misleading: the introduction of HOAS significantly
+extends the expressive power of the calculus. If and when we decide to use the
+\psicalculus as stated in the literature, along with its metatheory, we need to
+find ways to model all the primitives that we use in our processes.
+
+\section{Formal Definition}
+
+\subsection{Syntax}
+
+\begin{tabular}{llll}
+$P, Q$ & $::=$ && Process \\
+  && $\nil$               & Nil                \\
+  && $c \pOut V$          & Output             \\
+  && $c \pIn \mathcal{F}$ & Input              \\
+  && $\new{a}{P}$         & Restriction        \\
+  && $P \parallel Q$      & Parallel           \\
+  && $\bOut V$            & Broadcast output   \\
+  && $\bIn \mathcal{F}$   & Broadcast input    \\
+  && $\invoke{A} V$       & Process invocation \\
+\\
+\end{tabular}
+
+We let $a, b, c$ range over channels, $V$ ranges over values, and $\mathcal{F}$
+ranges over equivariant functions from values to processes, and $\alpha$ over
+arbitrary actions. We allow arbitrary values in the host language.
+
+\subsection{Operational Semantics}
 
 Let $P, Q$ range over processes; $\mathcal{F}$ range over equivariant functions
 from values to processes; $c, a, b$ over channels; $V$ over values.
@@ -42,7 +203,7 @@ from values to processes; $c, a, b$ over channels; $V$ over values.
 %
 \frac{
 }{
-c \pInp \mathcal{F} \xrightarrow{c \pInp V} \mathcal{F}(V)
+c \pIn \mathcal{F} \xrightarrow{c \pIn V} \mathcal{F}(V)
 }
 \mathtt{In}
 %
@@ -60,7 +221,7 @@ c \pOut V. P \xrightarrow{c \pOut V} P
 %
 \frac{
 P \xrightarrow{\new{\bar{a}}{c \pOut V}} P' \qquad
-Q \xrightarrow{c \pInp V} Q' \qquad
+Q \xrightarrow{c \pIn V} Q' \qquad
 \bar{a} \freshFor Q
 }{
 P \parallel Q \xrightarrow{\tau} \new{\bar{a}}{(P' \parallel Q')}
@@ -109,7 +270,7 @@ we may need an additional freshness requirement somewhere.}
 %
 \frac{
 }{
-\bInp \mathcal{F} \xrightarrow{\bInp V} \mathcal{F}(V)
+\bIn \mathcal{F} \xrightarrow{\bIn V} \mathcal{F}(V)
 }
 \mathtt{BrIn}
 %
@@ -119,7 +280,7 @@ we may need an additional freshness requirement somewhere.}
 %
 \frac{
 P \xrightarrow{\new{\bar{a}}{\bOut V}} P' \qquad
-Q \xrightarrow{\bInp V} Q' \qquad
+Q \xrightarrow{\bIn V} Q' \qquad
 \bar{a} \freshFor Q
 }{
 P \parallel Q \xrightarrow{\new{\bar{a}}{\bOut V}} P' \parallel Q'
@@ -157,10 +318,10 @@ P \xrightarrow{\tau} \new{\bar{a}}{P'}
 % BrMerge
 %
 \frac{
-P \xrightarrow{\bInp V} P' \qquad
-Q \xrightarrow{\bInp V} Q'
+P \xrightarrow{\bIn V} P' \qquad
+Q \xrightarrow{\bIn V} Q'
 }{
-P \parallel Q \xrightarrow{\bInp V} P' \parallel Q'
+P \parallel Q \xrightarrow{\bIn V} P' \parallel Q'
 }
 \mathtt{BrMerge}
 \end{equation*}
@@ -178,22 +339,24 @@ P \equiv P' \xrightarrow{\alpha} Q' \equiv Q
 }{
 P \xrightarrow{\alpha} Q'
 }
-\end{math}
-if we want such a rule to be \emph{derivable} instead (which makes the semantics
+\end{math}.
+If we want such a rule to be \emph{derivable} instead (which makes the semantics
 easier to use) rule $\mathtt{BrMerge}$ is needed.
 \item Rule $\mathtt{BrClose}$ is slightly more permissive than its equivalent in
 the psi calculus presentation, where it only applies at the point where the
 channel is bound. I'm not entirely sure why that restriction is in place; it
 is unusual (the closing rule for point-to-point communication has no similar
 restriction).
-\item The broadcast rules together basically means that when a process is ready
-to broadcast, the semantics allow it to couple with any number (zero or more)
-of input processes, the communication happens in one step, and then the output
-is no longer available after that; hence, this already models unreliable
-delivery.
 \item Since we assume the existance of a single, global, broadcast channel,
 restriction does not apply to broadcast channels. However, it \emph{is} possible
 to extrude a point-to-point communication channel through a broadcast communication.
+\item The rules for broadcast communication together mean that a single
+broadcast output can be paired with any number (zero or more) inputs, and once
+paired  (i.e., after the action) the output is no longer available. No
+assumptions can be made about who will receive the message, and so broadcast
+communication is ``unreliable'' in the sense that message may be ``lost''.
+Moreover, since broadcast output, like regular output, is asynchronous,
+broadcast communication is unordered.
 \end{itemize}
 
 \item Congruence rules
@@ -223,39 +386,152 @@ a \freshFor \alpha
 \mathtt{Scope}
 %
 \qquad
-%
-% Rec
-%
-\frac{
-\mathcal{F}(\rec \; \mathcal{F}) \xrightarrow{\alpha} P'
-}{
-\rec \; \mathcal{F} \xrightarrow{\alpha} P'
-}
-\mathtt{Rec}
 \end{equation*}
 
 Symmetric version of $\mathtt{Par}$ elided.
 
-\item{Network Limitations}
-
-TODO
-
 \end{itemize}
 
-\section*{Differences from the Psi Calculus}
+\section{Stating properties}
 
-\begin{itemize}
-\item Asynchronous? --- implies unordered
-\item no assertions
-\item single broadcast channel
-\item single kind of broadcast -- explain how it can be encoded (refer to the paper)
-\item explicitly allow for arbitrary functions after input; this is how we want to use it \emph{anyway}
-\item no up-to techniques available for the broadcast extension
-\end{itemize}
+\todo[inline]{This section serves as a rough sketch only on how we might state
+properties.}
+\newcommand{\node}{\mathtt{Node}}
 
-\section*{References}
+One of the main properties we want to state and prove is that a node can always
+evolve to a state where its internal chain matches the chain of the environment
+(given some compatibility conditions). If $\node$ is the function from a node's
+internal state to the corresponding \psicalculus process, for the published
+Praos algorithm we can state this simply as:
 
-pi-calculus in nominal logic: \url{https://arxiv.org/pdf/0809.3960.pdf}
+\begin{lemma}[Praos]
+In any state $s$ and for any chain $c$ such that $\len(c) > \len(\chain(s))$,
+there exists state $s'$ such that $$\node(s) \xrightarrow{\bIn c} \node(s')$$
+and $\chain(s') = c$.
+\end{lemma}
+
+For the ``block Proas'' algorithm, the property is somewhat more complicated
+since the node might be missing blocks.
+
+\begin{lemma}[Block Praos]
+In any state $s$ and for any block $b$ such that $b$ is a valid successor of
+$\chain(s)$ (though perhaps not the \emph{immediate} successor), there exists
+$s', s'', \mu^*$ such that
+$$\node(s) \xrightarrow{\bIn b} \node(s') \xRightarrow{\mu^*} \node(s'')$$
+and $b \in \chain(s'')$.
+\end{lemma}
+
+\appendix
+
+\section{Appendix: Named Processes}
+\label{app:namedproc}
+
+Example Coq development of defining a process calculus with named
+process invocation. Relies on some supporting definitions for vectors and
+dependent vectors, shown in Appendix~\ref{app:coqaux}.
+
+\begin{lstlisting}[language=Coq]
+Section Syntax.
+
+  Context {n   : nat}.
+  Context {typ : Vec Set n}.
+
+  Inductive Proc : Type :=
+      Done : Proc
+    | Out  : nat -> Proc -> Proc
+    | Inv  : forall (i : Fin n), nth i typ -> Proc.
+
+  Definition Env := DepVec (fun a => a -> Proc) typ.
+
+End Syntax.
+
+Arguments Proc {n} typ.
+Arguments Env  {n} typ.
+Arguments Inv  {n} typ.
+
+Section Semantics.
+
+  Context {n   : nat}.
+  Context {typ : Vec Set n}.
+  Context {env : Env typ}.
+
+  Inductive HasTrace : Proc typ -> list nat -> Prop :=
+      TNil  : forall P, HasTrace P nil
+    | TOut  : forall n P t, HasTrace P t ->  HasTrace (Out n P) (cons n t)
+    | TInv  : forall i x t, HasTrace (dnth i env x) t -> HasTrace (Inv _ i x) t.
+
+End Semantics.
+
+Arguments HasTrace {n} {typ} env.
+
+Section Example.
+
+  Definition typ : Vec Set 2 := (nat, (nat, tt)).
+
+  Definition left  (n : nat) : Proc typ := Out n (Inv typ (FS FZ) (n + 1)).
+  Definition right (n : nat) : Proc typ := Out n (Inv typ     FZ  (n + 1)).
+
+  Definition env : Env typ := (left, (right, tt)).
+
+  Fact trace123 : HasTrace env (left 1) (1 :: 2 :: 3 :: nil).
+    repeat constructor.
+  Qed.
+
+End Example.
+\end{lstlisting}
+
+\section{Appendix: Supporting definitions}
+\label{app:coqaux}
+
+Some supporting Coq infrastructure for the development in Appendix~\ref{app:namedproc}.
+
+\begin{lstlisting}[language=coq]
+Section Vec.
+
+  Context (A : Type).
+
+  Inductive Fin : nat -> Set :=
+      FZ : forall {n}, Fin (S n)
+    | FS : forall {n}, Fin n -> Fin (S n).
+
+  Fixpoint Vec (n : nat) : Type :=
+    match n with
+      O    => unit
+    | S n' => A * Vec n'
+    end.
+
+  Fixpoint nth {n : nat} (i : Fin n) : Vec n -> A :=
+    match i with
+      FZ    => fun xs => match xs with (x, xs') => x          end
+    | FS i' => fun xs => match xs with (x, xs') => nth i' xs' end
+    end.
+
+End Vec.
+Arguments nth {A} {n} i.
+
+Section DepVec.
+
+  Fixpoint DepVec (f : Set -> Set) {n : nat} : Vec Set n -> Set :=
+    match n return Vec Set n -> Set with
+      0    => fun _  => unit
+    | S n' => fun As => match As with (A, As') => (f A * DepVec f As')%type end
+    end.
+
+  Fixpoint dnth {n : nat} {f : Set -> Set} (i : Fin n) :
+     forall {xs : Vec Set n}, DepVec f xs -> f (nth i xs) :=
+    match i in Fin n return forall (xs : Vec Set n), DepVec f xs -> f (nth i xs) with
+      FZ    => fun As =>
+                 match As with (A, As') => fun xs =>
+                   match xs with (x, xs') => x end
+                 end
+    | FS i' => fun As =>
+                 match As with (A, As') => fun xs =>
+                   match xs with (x, xs') => dnth i' xs' end
+                 end
+    end.
+
+End DepVec.
+\end{lstlisting}
 
 \bibliographystyle{acm}
 \bibliography{references}
