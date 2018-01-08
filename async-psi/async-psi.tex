@@ -21,7 +21,10 @@
 
 \newcommand{\psicalculus}{psi-calculus\xspace}
 
+\newcommand{\refinedBy}{\precsim}
+
 \newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
 
 \lstset{basicstyle=\ttfamily\small}
 \lstdefinelanguage{Coq}{
@@ -403,23 +406,64 @@ evolve to a state where its internal chain matches the chain of the environment
 (given some compatibility conditions). If $\node$ is the function from a node's
 internal state to the corresponding \psicalculus process, for the published
 Praos algorithm we can state this simply as:
-
+%
 \begin{lemma}[Praos]
 In any state $s$ and for any chain $c$ such that $\len(c) > \len(\chain(s))$,
-there exists state $s'$ such that $$\node(s) \xrightarrow{\bIn c} \node(s')$$
+there exists state $s'$ such that
+\begin{equation*}
+\node_P(s) \xrightarrow{\bIn c} \node_P(s')
+\end{equation*}
 and $\chain(s') = c$.
 \end{lemma}
-
+%
 For the ``block Proas'' algorithm, the property is somewhat more complicated
 since the node might be missing blocks.
-
+%
 \begin{lemma}[Block Praos]
+\label{lem:blockpraos}
 In any state $s$ and for any block $b$ such that $b$ is a valid successor of
 $\chain(s)$ (though perhaps not the \emph{immediate} successor), there exists
 $s', s'', \mu^*$ such that
-$$\node(s) \xrightarrow{\bIn b} \node(s') \xRightarrow{\mu^*} \node(s'')$$
+\begin{equation*}
+\node_B(s) \xrightarrow{\bIn b} \node(s') \xRightarrow{\mu^*} \node_B(s'')
+\end{equation*}
 and $b \in \chain(s'')$.
 \end{lemma}
+%
+We can also try to relate the two implementations more directly. For example,
+we could state that whenever the Praos node broadcasts a chain, the Block Praos
+nodes will broadcast a series of blocks using the following coinductive
+definition:
+%
+\begin{definition}[Simulation]
+We say that $\node_B(s_B)$ can simulate $\node_P(s_P)$, written
+$\node_P(s_P) \refinedBy \node_B(s_B)$, iff for all $s_P', c$ such that
+\begin{equation*}
+\node_P(s_P) \xrightarrow{\bOut c} \node_P(s_P')
+\end{equation*}
+there exists $s_B'$ and blocks $b^*$, a suffix of $c$, such that
+\begin{equation*}
+\node_B(s_B) \xRightarrow{\bOut b^*} \node_B(s_B')
+\end{equation*}
+and $\node_P(s_P') \refinedBy \node_B(s_B')$.
+\end{definition}
+%
+We would then prove that
+%
+\begin{lemma}[Block Praos simulates Praos]
+\label{lem:BlockSimPraos}
+For all $s_P, s_C$ such that $\chain(s_P) = \chain(s_B)$,
+\begin{equation*}
+\node_P(s_P) \refinedBy \node_B(s_B)
+\end{equation*}
+\end{lemma}
+%
+We may of course also wish to prove something about how the other actions
+relate, or prove something in the other direction too (bisimulation rather than
+simulation). Note that such a (bi)simulation doesn't necessarily obsolete the
+need for additional lemmas such as Lemma~\ref{lem:blockpraos}, since in the
+proof of Lemma~\ref{lem:BlockSimPraos} we can pick paths in which no messages
+get lost.
 
 \appendix
 
