@@ -188,13 +188,16 @@ $P, Q$ & $::=$ && Process \\
 \end{tabular}
 
 We let $a, b, c$ range over channels, $V$ ranges over values, and $\mathcal{F}$
-ranges over equivariant functions from values to processes, and $\alpha$ over
-arbitrary actions. We allow arbitrary values in the host language.
+ranges over equivariant functions from values to processes, $\alpha$ over
+arbitrary actions, and $A$ over process names. We allow arbitrary values in the
+host language.
 
 \subsection{Operational Semantics}
 
-Let $P, Q$ range over processes; $\mathcal{F}$ range over equivariant functions
-from values to processes; $c, a, b$ over channels; $V$ over values.
+In the semantics below we do not give a rule for process invocation. Ideally,
+all rules should be extended with an environment $\Gamma$ and an additional rule
+should be added that $\invoke{A}(V)$ can take whatever step that $\Gamma(A)(V)$
+can.
 
 \begin{itemize}
 
@@ -216,7 +219,7 @@ c \pIn \mathcal{F} \xrightarrow{c \pIn V} \mathcal{F}(V)
 %
 \frac{
 }{
-c \pOut V. P \xrightarrow{c \pOut V} P
+c \pOut V \xrightarrow{c \pOut V} \nil
 }
 \mathtt{Out}
 %
@@ -263,7 +266,7 @@ we may need an additional freshness requirement somewhere.}
 %
 \frac{
 }{
-\bOut V. P \xrightarrow{\bOut V} P
+\bOut V \xrightarrow{\bOut V} \nil
 }
 \mathtt{BrOut}
 %
