@@ -1,0 +1,9 @@
+chapter Cardano
+
+session Chi_Calculus = HOL +
+  options [document = pdf, document_output = "output"]
+  theories
+    Processes
+    Transition_System
+  document_files
+    "root.tex"

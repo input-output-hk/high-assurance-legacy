@@ -1,0 +1,60 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{typearea}
+
+\usepackage{isabelle,isabellesym}
+
+\usepackage{latexsym}
+
+\usepackage{pdfsetup}
+
+\urlstyle{rm}
+\isabellestyle{it}
+
+\begin{document}
+
+\title{The $\chi$-Calculus}
+\author{Wolfgang Jeltsch}
+
+\maketitle
+
+\tableofcontents
+
+\parindent 0pt\parskip 0.5ex
+
+\section{Introduction}
+
+The $\chi$-calculus is a process calculus with the following features:
+\begin{itemize}
+
+\item
+
+Communication is always asynchronous. This is ensured by disallowing sequential composition of an
+output operation and some follow-up process.
+
+\item
+
+There are two kinds of communication: unicast and broadcast. Unicast communication takes place over
+channels, of which they are arbitrary many to choose from. All broadcast communication, on the other
+hand, takes place over a single, separate medium, which we call the ether\footnote{Our ether has
+nothing to do with the famous cryptocurrency of the same name.} and denote by~$\star$.
+
+\item
+
+Execution of a process takes place in a context, which maps names to process functions. A process
+can invoke process functions by name, which allows for recursion. Replication of processes (provided
+by the $!$-operator in the $\pi$- and the $\psi$-calculus) is not provided by the $\chi$-calculus,
+since the availability of recursion makes it unnecessary.
+
+\item
+
+Processes can work with arbitrary data. The $\chi$-calculus uses higher-order abstract syntax (HOAS)
+to make the full computational power of the host language available inside the process calculus. It
+also uses HOAS for dealing with locally created channels. Through the consequent use of HOAS, all
+naming issues are handled by the host language.
+
+\end{itemize}
+
+\input{session}
+
+\end{document}
