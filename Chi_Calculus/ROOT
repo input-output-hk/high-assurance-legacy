@@ -1,10 +1,11 @@
 chapter Cardano
 
-session Chi_Calculus = "HOL-Eisbach" +
+session Chi_Calculus = "HOL-Library" +
   options [document = pdf, document_output = "output"]
   theories
     Processes
-    Transition_System
-    Bisimulation
+    Transition_Systems
+    Basic_Transition_System
+    Proper_Transition_System
   document_files
     "root.tex"
