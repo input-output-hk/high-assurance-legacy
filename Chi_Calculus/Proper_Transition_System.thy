@@ -495,7 +495,8 @@ lemma basic_bisimilarity_is_proper_bisimulation: "bisim\<^sub>\<sharp> op \<sim>
   by (fact proper.symmetric_simulation)
 
 lemma basic_bisimilarity_in_proper_bisimilarity: "op \<sim>\<^sub>\<flat> \<le> op \<sim>\<^sub>\<sharp>"
-  using basic_bisimilarity_is_proper_bisimulation by (intro proper.bisimulation_in_bisimilarity)
+  using basic_bisimilarity_is_proper_bisimulation
+  by (fact proper.bisimulation_in_bisimilarity)
 
 subsection \<open>Conclusion\<close>
 
