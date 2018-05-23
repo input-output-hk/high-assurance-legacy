@@ -25,7 +25,7 @@ fun basic_action_of :: "('chan, 'val) proper_action \<Rightarrow> ('chan, 'val) 
   "basic_action_of (\<star> \<triangleright> V) = \<star> \<triangleright> V" |
   "basic_action_of \<tau> = \<tau>"
 
-subsection \<open>Communication mediums\<close>
+subsection \<open>Sinks\<close>
 
 text \<open>
   A sink is the target of an output. Any communication medium, that is, any channel as well as the
