@@ -427,7 +427,75 @@ where
 
 subsection \<open>Bisimilarities\<close>
 
-(* TODO *)
+lemma basic_bisimilarity_is_proper_simulation: "sim\<^sub>\<sharp> op \<sim>\<^sub>\<flat>"
+proof (intro predicate2I, intro allI, intro impI)
+  fix P and Q and \<Gamma> and C
+  assume "\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<sharp>C" and "P \<sim>\<^sub>\<flat> Q"
+  then show "\<exists>D. \<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<sharp>D \<and> proper_lift op \<sim>\<^sub>\<flat> C D"
+  proof (induction arbitrary: Q)
+    case (simple P \<delta> P' Q)
+    from `P \<sim>\<^sub>\<flat> Q` and `\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> P'`
+    obtain Q' where "\<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> Q'" and "P' \<sim>\<^sub>\<flat> Q'"
+      using
+        basic.bisimilarity_is_simulation and
+        predicate2D and
+        basic_lift.cases and
+        basic_residual.inject(1) and
+        basic_residual.distinct(2)
+      by smt
+    then show ?case
+      by (blast intro: proper_transition.simple simple_lift)
+  next
+    case (output_without_opening P \<sigma> V P' Q)
+    from `P \<sim>\<^sub>\<flat> Q` and `\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>basic_output_action \<sigma> V\<rbrace> P'`
+    obtain Q' where "\<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<flat>\<lbrace>basic_output_action \<sigma> V\<rbrace> Q'" and "P' \<sim>\<^sub>\<flat> Q'"
+      using
+        basic.bisimilarity_is_simulation and
+        predicate2D and
+        basic_lift.cases and
+        basic_residual.inject(1) and
+        basic_residual.distinct(2)
+      by smt
+    then show ?case
+      by (blast intro: proper_transition.output_without_opening without_opening_lift output_lift)
+  next
+    case (output_with_opening P \<P> \<sigma> \<K> Q)
+    from `P \<sim>\<^sub>\<flat> Q` and `\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a`
+    obtain \<Q> where "\<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a" and "\<And>a. \<P> a \<sim>\<^sub>\<flat> \<Q> a"
+      using
+        basic.bisimilarity_is_simulation and
+        predicate2D and
+        basic_lift.cases and
+        basic_residual.distinct(1) and
+        basic_residual.inject(2)
+      by smt
+    obtain \<L> where "\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<L> a" and "\<And>a. output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) (\<L> a)"
+    proof -
+      from output_with_opening.IH and `\<And>a. \<P> a \<sim>\<^sub>\<flat> \<Q> a`
+      have "\<forall>a. \<exists>L. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> L \<and> output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) L"
+        using
+          proper_lift.cases and
+          proper_residual.distinct(1) and
+          proper_residual.inject(2)
+        by smt
+      then have "\<exists>\<L>. \<forall>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<L> a \<and> output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) (\<L> a)"
+        by (fact choice)
+      with that show ?thesis by blast
+    qed
+    from `\<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` and `\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<L> a` have "\<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<nu> a. \<L> a"
+      by (fact proper_transition.output_with_opening)
+    with `\<And>a. output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) (\<L> a)` show ?case
+      using with_opening_lift and output_lift
+      by blast
+  qed
+qed
+
+lemma basic_bisimilarity_is_proper_bisimulation: "bisim\<^sub>\<sharp> op \<sim>\<^sub>\<flat>"
+  using basic.bisimilarity_symmetry and basic_bisimilarity_is_proper_simulation
+  by (fact proper.symmetric_simulation)
+
+lemma basic_bisimilarity_in_proper_bisimilarity: "op \<sim>\<^sub>\<flat> \<le> op \<sim>\<^sub>\<sharp>"
+  using basic_bisimilarity_is_proper_bisimulation by (intro proper.bisimulation_in_bisimilarity)
 
 subsection \<open>Conclusion\<close>
 
