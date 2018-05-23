@@ -1,3 +1,5 @@
+section \<open>Transition Systems\<close>
+
 theory Transition_Systems
   imports Main "HOL-Library.Lattice_Syntax" "HOL-Eisbach.Eisbach"
 begin
