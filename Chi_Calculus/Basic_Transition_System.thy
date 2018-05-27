@@ -503,9 +503,7 @@ proof (basic.bisimilarity_standard parallel_preservation_aux)
   then show ?case by (fact parallel_preservation_aux.without_new_channel)
 next
   case sym
-  then show ?case by
-    (induction rule: parallel_preservation_aux.induct)
-    (simp_all add: parallel_preservation_aux.intros)
+  then show ?case by induction (simp_all add: parallel_preservation_aux.intros)
 next
   case (sim S T \<Gamma> C)
   then show ?case
@@ -631,9 +629,7 @@ proof (basic.bisimilarity_standard new_channel_preservation_aux)
   then show ?case by (simp add: new_channel_preservation_aux.intros)
 next
   case sym
-  then show ?case by
-    (induction rule: new_channel_preservation_aux.induct)
-    (simp_all add: new_channel_preservation_aux.intros)
+  then show ?case by induction (simp_all add: new_channel_preservation_aux.intros)
 next
   case (sim S T \<Gamma> C)
   from this and `\<Gamma> \<turnstile> S \<longmapsto>\<^sub>\<flat>C` show ?case
@@ -820,9 +816,7 @@ proof (basic.bisimilarity_standard parallel_scope_extension_aux)
       parallel_scope_extension_aux.without_new_channel_ltr)
 next
   case sym
-  then show ?case by
-    (induction rule: parallel_scope_extension_aux.induct)
-    (simp_all add: parallel_scope_extension_aux.intros)
+  then show ?case by induction (simp_all add: parallel_scope_extension_aux.intros)
 next
   case (sim S T \<Gamma> C)
   then show ?case
@@ -1125,10 +1119,7 @@ proof (basic.bisimilarity_standard parallel_unit_aux)
   show ?case by (fact parallel_unit_aux.without_new_channel_ltr)
 next
   case sym
-  then show ?case
-  by
-    (induction rule: parallel_unit_aux.induct)
-    (simp_all add: parallel_unit_aux.intros)
+  then show ?case by induction (simp_all add: parallel_unit_aux.intros)
 next
   case (sim S T \<Gamma> C)
   from this and `\<Gamma> \<turnstile> S \<longmapsto>\<^sub>\<flat>C` show ?case
@@ -1328,9 +1319,7 @@ proof (basic.bisimilarity_standard nested_parallel_commutativity_aux)
       nested_parallel_commutativity_aux.without_new_channel_ltr)
 next
   case sym
-  then show ?case by
-    (induction rule: nested_parallel_commutativity_aux.induct)
-    (simp_all add: nested_parallel_commutativity_aux.intros)
+  then show ?case by induction (simp_all add: nested_parallel_commutativity_aux.intros)
 next
   case (sim S T \<Gamma> C)
   then show ?case
