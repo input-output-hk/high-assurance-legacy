@@ -305,31 +305,80 @@ proof
 qed
 
 text \<open>
+  Only certain transitions are possible from input and output processes.
+\<close>
+
+lemma transitions_from_unicast_input:
+  assumes "\<Gamma> \<turnstile> c \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>C"
+  obtains V where "C = \<lbrace>c \<triangleright> V\<rbrace> \<P> V"
+using assms proof (induction "c \<triangleright> x. \<P> x" C)
+  case unicast_input
+  then show ?case by simp
+next
+  case scoped_acting
+  then show ?case by blast
+next
+  case scoped_opening
+  then show ?case by blast
+qed
+lemma transitions_from_unicast_output: "\<Gamma> \<turnstile> c \<triangleleft> V \<longmapsto>\<^sub>\<flat>C \<Longrightarrow> C = \<lbrace>c \<triangleleft> V\<rbrace> \<zero>"
+proof -
+  fix \<Gamma> and c and V and C :: "('name, 'chan, 'val) basic_residual"
+  assume "\<Gamma> \<turnstile> c \<triangleleft> V \<longmapsto>\<^sub>\<flat>C"
+  then show "C = \<lbrace>c \<triangleleft> V\<rbrace> \<zero>"
+  proof (induction "c \<triangleleft> V :: ('name, 'chan, 'val) process" C)
+    case unicast_output
+    show ?case by (fact refl)
+  next
+    case scoped_acting
+    then show ?case by simp
+  next
+    case scoped_opening
+    then show ?case by simp
+  qed
+qed
+lemma transitions_from_broadcast_input:
+  assumes "\<Gamma> \<turnstile> \<star> \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>C"
+  obtains V where "C = \<lbrace>\<star> \<triangleright> V\<rbrace> \<P> V"
+using assms proof (induction "\<star> \<triangleright> x. \<P> x" C)
+  case broadcast_input
+  then show ?case by simp
+next
+  case scoped_acting
+  then show ?case by blast
+next
+  case scoped_opening
+  then show ?case by blast
+qed
+lemma transitions_from_broadcast_output: "\<Gamma> \<turnstile> \<star> \<triangleleft> V \<longmapsto>\<^sub>\<flat>C \<Longrightarrow> C = \<lbrace>\<star> \<triangleleft> V\<rbrace> \<star> \<triangleleft> V"
+proof -
+  fix \<Gamma> and V and C :: "('name, 'chan, 'val) basic_residual"
+  assume "\<Gamma> \<turnstile> \<star> \<triangleleft> V \<longmapsto>\<^sub>\<flat>C"
+  then show "C = \<lbrace>\<star> \<triangleleft> V\<rbrace> \<star> \<triangleleft> V"
+  proof (induction "\<star> \<triangleleft> V :: ('name, 'chan, 'val) process" C)
+    case broadcast_output
+    show ?case by (fact refl)
+  next
+    case scoped_acting
+    then show ?case by simp
+  next
+    case scoped_opening
+    then show ?case by simp
+  qed
+qed
+
+text \<open>
   No opening transitions are possible from input and output processes.
 \<close>
 
 lemma no_opening_transitions_from_unicast_input: "\<not> \<Gamma> \<turnstile> c \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-proof
-  assume "\<Gamma> \<turnstile> c \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-  then show False by (induction "c \<triangleright> x. \<P> x" "\<lbrace>\<nu> a\<rbrace> \<Q> a" arbitrary: \<Q>)
-qed
+  using transitions_from_unicast_input by fastforce
 lemma no_opening_transitions_from_unicast_output: "\<not> \<Gamma> \<turnstile> c \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-proof
-  fix \<Gamma> and c and V and \<Q> :: "'chan \<Rightarrow> ('name, 'chan, 'val) process"
-  assume "\<Gamma> \<turnstile> c \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-  then show False by (induction "c \<triangleleft> V :: ('name, 'chan, 'val) process" "\<lbrace>\<nu> a\<rbrace> \<Q> a" arbitrary: \<Q>)
-qed
+  using transitions_from_unicast_output by fastforce
 lemma no_opening_transitions_from_broadcast_input: "\<not> \<Gamma> \<turnstile> \<star> \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-proof
-  assume "\<Gamma> \<turnstile> \<star> \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-  then show False by (induction "\<star> \<triangleright> x. \<P> x" "\<lbrace>\<nu> a\<rbrace> \<Q> a" arbitrary: \<Q>)
-qed
+  using transitions_from_broadcast_input by fastforce
 lemma no_opening_transitions_from_broadcast_output: "\<not> \<Gamma> \<turnstile> \<star> \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-proof
-  fix \<Gamma> and V and \<Q> :: "'chan \<Rightarrow> ('name, 'chan, 'val) process"
-  assume "\<Gamma> \<turnstile> \<star> \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-  then show False by (induction "\<star> \<triangleleft> V :: ('name, 'chan, 'val) process" "\<lbrace>\<nu> a\<rbrace> \<Q> a" arbitrary: \<Q>)
-qed
+  using transitions_from_broadcast_output by fastforce
 
 subsection \<open>Bisimilarities\<close>
 
