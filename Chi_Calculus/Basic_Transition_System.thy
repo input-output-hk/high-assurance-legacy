@@ -297,7 +297,7 @@ text \<open>
   \<open>scoped_acting\<close> and \<open>scoped_opening\<close> have to be taken into account.
 \<close>
 
-lemma no_transitions_from_stop: "\<not> \<Gamma> \<turnstile> \<zero> \<longmapsto>\<^sub>\<flat>C"
+lemma no_basic_transitions_from_stop: "\<not> \<Gamma> \<turnstile> \<zero> \<longmapsto>\<^sub>\<flat>C"
 proof
   fix \<Gamma> and C :: "('name, 'chan, 'val) basic_residual"
   assume "\<Gamma> \<turnstile> \<zero> \<longmapsto>\<^sub>\<flat>C"
@@ -1145,7 +1145,7 @@ next
     proof cases
       case without_new_channel_ltr
       with communication.hyps show ?thesis
-        by (simp add: no_transitions_from_stop)
+        by (simp add: no_basic_transitions_from_stop)
     qed parallel_unit_aux_trivial_conveyance
   next
     case opening
@@ -1166,7 +1166,7 @@ next
     proof cases
       case without_new_channel_ltr
       with acting_left.hyps show ?thesis
-        by (simp add: no_transitions_from_stop)
+        by (simp add: no_basic_transitions_from_stop)
     qed parallel_unit_aux_trivial_conveyance
   next
     case acting_right
@@ -1183,7 +1183,7 @@ next
     proof cases
       case without_new_channel_ltr
       with opening_left.hyps show ?thesis
-        by (simp add: no_transitions_from_stop)
+        by (simp add: no_basic_transitions_from_stop)
     qed parallel_unit_aux_trivial_conveyance
   next
     case opening_right
