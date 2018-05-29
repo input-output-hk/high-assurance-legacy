@@ -178,14 +178,12 @@ text \<open>
 \<close>
 
 interpretation output_rest: residual output_rest_lift
-  by
-    unfold_locales
-    (
-      fact output_rest_lift_monotonicity,
-      fact output_rest_lift_equality_preservation,
-      fact output_rest_lift_composition_preservation,
-      fact output_rest_lift_conversion_preservation
-    )
+  by unfold_locales (
+    fact output_rest_lift_monotonicity,
+    fact output_rest_lift_equality_preservation,
+    fact output_rest_lift_composition_preservation,
+    fact output_rest_lift_conversion_preservation
+  )
 
 subsection \<open>Residuals\<close>
 
@@ -361,14 +359,12 @@ text \<open>
 \<close>
 
 interpretation proper: residual proper_lift
-  by
-    unfold_locales
-    (
-      fact proper_lift_monotonicity,
-      fact proper_lift_equality_preservation,
-      fact proper_lift_composition_preservation,
-      fact proper_lift_conversion_preservation
-    )
+  by unfold_locales (
+    fact proper_lift_monotonicity,
+    fact proper_lift_equality_preservation,
+    fact proper_lift_composition_preservation,
+    fact proper_lift_conversion_preservation
+  )
 
 subsection \<open>Transition System\<close>
 

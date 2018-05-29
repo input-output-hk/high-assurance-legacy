@@ -150,14 +150,12 @@ text \<open>
 \<close>
 
 interpretation basic: residual basic_lift
-  by
-    unfold_locales
-    (
-      fact basic_lift_monotonicity,
-      fact basic_lift_equality_preservation,
-      fact basic_lift_composition_preservation,
-      fact basic_lift_conversion_preservation
-    )
+  by unfold_locales (
+    fact basic_lift_monotonicity,
+    fact basic_lift_equality_preservation,
+    fact basic_lift_composition_preservation,
+    fact basic_lift_conversion_preservation
+  )
 
 subsection \<open>Communication\<close>
 
