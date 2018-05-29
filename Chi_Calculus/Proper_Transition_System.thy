@@ -505,6 +505,120 @@ lemma basic_bisimilarity_in_proper_bisimilarity: "op \<sim>\<^sub>\<flat> \<le> 
   using basic_bisimilarity_is_proper_bisimulation
   by (fact proper.bisimulation_in_bisimilarity)
 
+context begin
+
+private lemma pre_unicast_input_scope_extension_ltr: "c \<triangleright> x. \<nu> a. \<P> x a \<preceq>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. \<P> x a"
+proof (standard, intro allI, intro impI)
+  fix \<Gamma> and C
+  assume "\<Gamma> \<turnstile> c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
+  then show "\<exists>D. \<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>D \<and> proper_lift op \<sim>\<^sub>\<sharp> C D"
+  proof cases
+    case (simple \<delta> Q)
+    from `\<Gamma> \<turnstile> c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> Q`
+    obtain V where "basic_action_of \<delta> = c \<triangleright> V" and "Q = \<nu> a. \<P> V a"
+      by (blast elim: transitions_from_unicast_input)
+    from `basic_action_of \<delta> = c \<triangleright> V` have "\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. \<P> V a"
+      using unicast_input and acting_scope
+      by smt
+    with `C = \<lparr>\<delta>\<rparr> Q` and `Q = \<nu> a. \<P> V a` have "\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
+      by (blast intro: proper_transition.simple)
+    then show ?thesis
+      using proper.bisimilarity_reflexivity and proper.lift_reflexivity_propagation and reflpD
+      by smt
+  next
+    case (output_without_opening \<sigma> V Q)
+    then obtain V' where "c \<triangleright> V' = basic_output_action \<sigma> V"
+      using transitions_from_unicast_input and basic_residual.inject(1)
+      by metis
+    then show ?thesis by (cases \<sigma>) simp_all
+  next
+    case output_with_opening
+    then show ?thesis by (simp add: no_opening_transitions_from_unicast_input)
+  qed
+qed
+
+private lemma opening_transitions_from_new_channel_unicast_input:
+  "\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a \<Longrightarrow> \<Q> a = c \<triangleright> x . \<P> x a"
+proof (induction "\<nu> a. c \<triangleright> x. \<P> x a" "\<lbrace>\<nu> a\<rbrace> \<Q> a" arbitrary: \<Q> rule: basic_transition.induct)
+  case opening
+  show ?case by (fact refl)
+next
+  case scoped_opening
+  then show ?case using no_opening_transitions_from_unicast_input by metis
+qed
+
+private lemma pre_unicast_input_scope_extension_rtl: "\<nu> a. c \<triangleright> x. \<P> x a \<preceq>\<^sub>\<sharp> c \<triangleright> x. \<nu> a. \<P> x a"
+proof (standard, intro allI, intro impI)
+  fix \<Gamma> and C
+  assume "\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
+  then show "\<exists>D. \<Gamma> \<turnstile> c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>D \<and> proper_lift op \<sim>\<^sub>\<sharp> C D"
+  proof cases
+    case (simple \<delta> R)
+    from `\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> R` show ?thesis
+    proof cases
+      case (scoped_acting \<Q> \<R>)
+      from `\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = c \<triangleright> x . \<P> x a"
+        by (fact opening_transitions_from_new_channel_unicast_input)
+      with `\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<R> a`
+      obtain V where "basic_action_of \<delta> = c \<triangleright> V" and "\<And>a. \<R> a = \<P> V a"
+        using
+          transitions_from_unicast_input and
+          basic_residual.inject(1) and
+          basic_action.inject(1) and
+          io_action.inject(1)
+        by smt
+      from `basic_action_of \<delta> = c \<triangleright> V` have "\<Gamma> \<turnstile> c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. \<P> V a"
+        using unicast_input
+        by fastforce
+      moreover from `C = \<lparr>\<delta>\<rparr> R` and `R = \<nu> a. \<R> a` and `\<And>a. \<R> a = \<P> V a` have "C = \<lparr>\<delta>\<rparr> \<nu> a. \<P> V a"
+        by simp
+      ultimately have "\<Gamma> \<turnstile> c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
+        by (blast intro: proper_transition.simple)
+      then show ?thesis
+        using proper.bisimilarity_reflexivity and proper.lift_reflexivity_propagation and reflpD
+        by smt
+    qed
+  next
+    case (output_without_opening \<sigma> V R)
+    from `\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_output_action \<sigma> V\<rbrace> R` show ?thesis
+    proof cases
+      case (scoped_acting \<Q> \<R>)
+      from `\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = c \<triangleright> x. \<P> x a"
+        by (fact opening_transitions_from_new_channel_unicast_input)
+      with `\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_output_action \<sigma> V\<rbrace> \<R> a`
+      obtain V' where "c \<triangleright> V' = basic_output_action \<sigma> V"
+        using transitions_from_unicast_input and basic_residual.inject(1)
+        by metis
+      then show ?thesis by (cases \<sigma>) simp_all
+    qed
+  next
+    case (output_with_opening \<Q> \<sigma> \<K>)
+    from `\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = c \<triangleright> x. \<P> x a"
+      by (fact opening_transitions_from_new_channel_unicast_input)
+    with `\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<K> a` have "\<Gamma> \<turnstile> c \<triangleright> x. \<P> x c \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<K> c"
+      by simp
+    then show ?thesis
+    proof cases
+      case (output_without_opening V Q)
+      then obtain V' where "c \<triangleright> V' = basic_output_action \<sigma> V"
+        using transitions_from_unicast_input and basic_residual.inject(1)
+        by metis
+      then show ?thesis by (cases \<sigma>) simp_all
+    next
+      case output_with_opening
+      then show ?thesis by (simp add: no_opening_transitions_from_unicast_input)
+    qed
+  qed
+qed
+
+lemma unicast_input_scope_extension: "c \<triangleright> x. \<nu> a. \<P> x a \<sim>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. \<P> x a"
+  by standard (
+    fact pre_unicast_input_scope_extension_ltr,
+    fact pre_unicast_input_scope_extension_rtl
+  )
+
+end
+
 subsection \<open>Conclusion\<close>
 
 text \<open>
