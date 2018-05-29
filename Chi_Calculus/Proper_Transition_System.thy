@@ -510,6 +510,18 @@ lemma basic_bisimilarity_in_proper_bisimilarity_rule: "P \<sim>\<^sub>\<flat> Q 
 
 subsection \<open>Concrete Bisimilarities\<close>
 
+lemma proper_unicast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<sharp> \<Q> x) \<Longrightarrow> c \<triangleright> x. \<P> x \<sim>\<^sub>\<sharp> c \<triangleright> x. \<Q> x"
+  sorry
+
+lemma proper_broadcast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<sharp> \<Q> x) \<Longrightarrow> \<star> \<triangleright> x. \<P> x \<sim>\<^sub>\<sharp> \<star> \<triangleright> x. \<Q> x"
+  sorry
+
+lemma proper_parallel_preservation: "P \<sim>\<^sub>\<sharp> Q \<Longrightarrow> P \<parallel> R \<sim>\<^sub>\<sharp> Q \<parallel> R"
+  sorry
+
+lemma proper_new_channel_preservation: "(\<And>a. \<P> a \<sim>\<^sub>\<sharp> \<Q> a) \<Longrightarrow> \<nu> a. \<P> a \<sim>\<^sub>\<sharp> \<nu> a. \<Q> a"
+  sorry
+
 context begin
 
 private lemma proper_pre_unicast_input_scope_extension_ltr: "c \<triangleright> x. \<nu> a. \<P> x a \<preceq>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. \<P> x a"

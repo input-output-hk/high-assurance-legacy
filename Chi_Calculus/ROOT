@@ -5,7 +5,7 @@ session Chi_Calculus = HOL +
   sessions
     "HOL-Eisbach"
     "HOL-Library"
-  theories
+  theories [quick_and_dirty = true]
     Processes
     Transition_Systems
     Basic_Transition_System
