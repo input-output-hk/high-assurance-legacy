@@ -507,7 +507,7 @@ lemma basic_bisimilarity_in_proper_bisimilarity: "op \<sim>\<^sub>\<flat> \<le> 
 
 context begin
 
-private lemma pre_unicast_input_scope_extension_ltr: "c \<triangleright> x. \<nu> a. \<P> x a \<preceq>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. \<P> x a"
+private lemma proper_pre_unicast_input_scope_extension_ltr: "c \<triangleright> x. \<nu> a. \<P> x a \<preceq>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. \<P> x a"
 proof (standard, intro allI, intro impI)
   fix \<Gamma> and C
   assume "\<Gamma> \<turnstile> c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
@@ -547,7 +547,7 @@ next
   then show ?case using no_opening_transitions_from_unicast_input by metis
 qed
 
-private lemma pre_unicast_input_scope_extension_rtl: "\<nu> a. c \<triangleright> x. \<P> x a \<preceq>\<^sub>\<sharp> c \<triangleright> x. \<nu> a. \<P> x a"
+private lemma proper_pre_unicast_input_scope_extension_rtl: "\<nu> a. c \<triangleright> x. \<P> x a \<preceq>\<^sub>\<sharp> c \<triangleright> x. \<nu> a. \<P> x a"
 proof (standard, intro allI, intro impI)
   fix \<Gamma> and C
   assume "\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
@@ -611,10 +611,10 @@ proof (standard, intro allI, intro impI)
   qed
 qed
 
-lemma unicast_input_scope_extension: "c \<triangleright> x. \<nu> a. \<P> x a \<sim>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. \<P> x a"
+lemma proper_unicast_input_scope_extension: "c \<triangleright> x. \<nu> a. \<P> x a \<sim>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. \<P> x a"
   by standard (
-    fact pre_unicast_input_scope_extension_ltr,
-    fact pre_unicast_input_scope_extension_rtl
+    fact proper_pre_unicast_input_scope_extension_ltr,
+    fact proper_pre_unicast_input_scope_extension_rtl
   )
 
 end

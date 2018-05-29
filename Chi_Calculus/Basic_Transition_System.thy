@@ -490,7 +490,7 @@ end
 
 context begin
 
-private lemma pre_unicast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> c \<triangleright> x. \<P> x \<preceq>\<^sub>\<flat> c \<triangleright> x. \<Q> x"
+private lemma basic_pre_unicast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> c \<triangleright> x. \<P> x \<preceq>\<^sub>\<flat> c \<triangleright> x. \<Q> x"
 proof (standard, intro allI, intro impI)
   assume "\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x"
   fix \<Gamma> and C
@@ -504,14 +504,14 @@ proof (standard, intro allI, intro impI)
   qed (simp_all add: no_opening_transitions_from_unicast_input)
 qed
 
-lemma unicast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> c \<triangleright> x. \<P> x \<sim>\<^sub>\<flat> c \<triangleright> x. \<Q> x"
-  by (simp add: pre_unicast_input_preservation)
+lemma basic_unicast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> c \<triangleright> x. \<P> x \<sim>\<^sub>\<flat> c \<triangleright> x. \<Q> x"
+  by (simp add: basic_pre_unicast_input_preservation)
 
 end
 
 context begin
 
-private lemma pre_broadcast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> \<star> \<triangleright> x. \<P> x \<preceq>\<^sub>\<flat> \<star> \<triangleright> x. \<Q> x"
+private lemma basic_pre_broadcast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> \<star> \<triangleright> x. \<P> x \<preceq>\<^sub>\<flat> \<star> \<triangleright> x. \<Q> x"
 proof (standard, intro allI, intro impI)
   assume "\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x"
   fix \<Gamma> and C
@@ -525,8 +525,8 @@ proof (standard, intro allI, intro impI)
   qed (simp_all add: no_opening_transitions_from_broadcast_input)
 qed
 
-lemma broadcast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> \<star> \<triangleright> x. \<P> x \<sim>\<^sub>\<flat> \<star> \<triangleright> x. \<Q> x"
-  by (simp add: pre_broadcast_input_preservation)
+lemma basic_broadcast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> \<star> \<triangleright> x. \<P> x \<sim>\<^sub>\<flat> \<star> \<triangleright> x. \<Q> x"
+  by (simp add: basic_pre_broadcast_input_preservation)
 
 end
 
@@ -544,7 +544,7 @@ where
     (\<And>a. parallel_preservation_aux (\<S> a) (\<T> a)) \<Longrightarrow>
     parallel_preservation_aux (\<nu> a. \<S> a) (\<nu> a. \<T> a)"
 
-lemma parallel_preservation: "P \<sim>\<^sub>\<flat> Q \<Longrightarrow> P \<parallel> R \<sim>\<^sub>\<flat> Q \<parallel> R"
+lemma basic_parallel_preservation: "P \<sim>\<^sub>\<flat> Q \<Longrightarrow> P \<parallel> R \<sim>\<^sub>\<flat> Q \<parallel> R"
 proof (basic.bisimilarity_standard parallel_preservation_aux)
   case related
   then show ?case by (fact parallel_preservation_aux.without_new_channel)
@@ -670,7 +670,7 @@ private method new_channel_preservation_aux_trivial_conveyance =
     predicate2I
     predicate2D)
 
-lemma new_channel_preservation: "(\<And>a. \<P> a \<sim>\<^sub>\<flat> \<Q> a) \<Longrightarrow> \<nu> a. \<P> a \<sim>\<^sub>\<flat> \<nu> a. \<Q> a"
+lemma basic_new_channel_preservation: "(\<And>a. \<P> a \<sim>\<^sub>\<flat> \<Q> a) \<Longrightarrow> \<nu> a. \<P> a \<sim>\<^sub>\<flat> \<nu> a. \<Q> a"
 proof (basic.bisimilarity_standard new_channel_preservation_aux)
   case related
   then show ?case by (simp add: new_channel_preservation_aux.intros)
@@ -854,7 +854,7 @@ next
     by blast
 qed
 
-lemma parallel_scope_extension: "\<nu> a. \<P> a \<parallel> Q \<sim>\<^sub>\<flat> \<nu> a. (\<P> a \<parallel> Q)"
+lemma basic_parallel_scope_extension: "\<nu> a. \<P> a \<parallel> Q \<sim>\<^sub>\<flat> \<nu> a. (\<P> a \<parallel> Q)"
 proof (basic.bisimilarity_standard parallel_scope_extension_aux)
   case related
   show ?case
@@ -1112,7 +1112,7 @@ end
 
 context begin
 
-private lemma pre_new_channel_scope_extension: "\<nu> b. \<nu> a. \<P> a b \<preceq>\<^sub>\<flat> \<nu> a. \<nu> b. \<P> a b"
+private lemma basic_pre_new_channel_scope_extension: "\<nu> b. \<nu> a. \<P> a b \<preceq>\<^sub>\<flat> \<nu> a. \<nu> b. \<P> a b"
 proof (standard, intro allI, intro impI)
   fix \<Gamma> and C
   assume "\<Gamma> \<turnstile> \<nu> b. \<nu> a. \<P> a b \<longmapsto>\<^sub>\<flat>C"
@@ -1132,8 +1132,8 @@ proof (standard, intro allI, intro impI)
     by smt
 qed
 
-lemma new_channel_scope_extension: "\<nu> b. \<nu> a. \<P> a b \<sim>\<^sub>\<flat> \<nu> a. \<nu> b. \<P> a b"
-  by (simp add: pre_new_channel_scope_extension)
+lemma basic_new_channel_scope_extension: "\<nu> b. \<nu> a. \<P> a b \<sim>\<^sub>\<flat> \<nu> a. \<nu> b. \<P> a b"
+  by (simp add: basic_pre_new_channel_scope_extension)
 
 end
 
@@ -1160,7 +1160,7 @@ private method parallel_unit_aux_trivial_conveyance =
     parallel_unit_aux.without_new_channel_rtl
     basic_lift.intros)
 
-lemma parallel_unit: "\<zero> \<parallel> P \<sim>\<^sub>\<flat> P"
+lemma basic_parallel_unit: "\<zero> \<parallel> P \<sim>\<^sub>\<flat> P"
 proof (basic.bisimilarity_standard parallel_unit_aux)
   case related
   show ?case by (fact parallel_unit_aux.without_new_channel_ltr)
@@ -1357,7 +1357,7 @@ next
     by blast
 qed
 
-private lemma nested_parallel_commutativity: "(P \<parallel> Q) \<parallel> R \<sim>\<^sub>\<flat> (P \<parallel> R) \<parallel> Q"
+private lemma basic_nested_parallel_commutativity: "(P \<parallel> Q) \<parallel> R \<sim>\<^sub>\<flat> (P \<parallel> R) \<parallel> Q"
 proof (basic.bisimilarity_standard nested_parallel_commutativity_aux)
   case related
   show ?case
@@ -1603,19 +1603,25 @@ next
     nested_parallel_commutativity_aux.cases)+
 qed
 
-lemma parallel_commutativity: "P \<parallel> Q \<sim>\<^sub>\<flat> Q \<parallel> P"
+lemma basic_parallel_commutativity: "P \<parallel> Q \<sim>\<^sub>\<flat> Q \<parallel> P"
 proof -
-  have "P \<parallel> Q \<sim>\<^sub>\<flat> (\<zero> \<parallel> P) \<parallel> Q" using parallel_unit and parallel_preservation by blast
-  also have "(\<zero> \<parallel> P) \<parallel> Q \<sim>\<^sub>\<flat> (\<zero> \<parallel> Q) \<parallel> P" by (fact nested_parallel_commutativity)
-  also have "(\<zero> \<parallel> Q) \<parallel> P \<sim>\<^sub>\<flat> Q \<parallel> P" using parallel_unit and parallel_preservation by blast
+  have "P \<parallel> Q \<sim>\<^sub>\<flat> (\<zero> \<parallel> P) \<parallel> Q"
+    using basic_parallel_unit and basic_parallel_preservation by blast
+  also have "(\<zero> \<parallel> P) \<parallel> Q \<sim>\<^sub>\<flat> (\<zero> \<parallel> Q) \<parallel> P"
+    by (fact basic_nested_parallel_commutativity)
+  also have "(\<zero> \<parallel> Q) \<parallel> P \<sim>\<^sub>\<flat> Q \<parallel> P"
+    using basic_parallel_unit and basic_parallel_preservation by blast
   finally show ?thesis .
 qed
 
-lemma parallel_associativity: "(P \<parallel> Q) \<parallel> R \<sim>\<^sub>\<flat> P \<parallel> (Q \<parallel> R)"
+lemma basic_parallel_associativity: "(P \<parallel> Q) \<parallel> R \<sim>\<^sub>\<flat> P \<parallel> (Q \<parallel> R)"
 proof -
-  have "(P \<parallel> Q) \<parallel> R \<sim>\<^sub>\<flat> (Q \<parallel> P) \<parallel> R" using parallel_commutativity and parallel_preservation by blast
-  also have "(Q \<parallel> P) \<parallel> R \<sim>\<^sub>\<flat> (Q \<parallel> R) \<parallel> P" by (fact nested_parallel_commutativity)
-  also have "(Q \<parallel> R) \<parallel> P \<sim>\<^sub>\<flat> P \<parallel> (Q \<parallel> R)" by (fact parallel_commutativity)
+  have "(P \<parallel> Q) \<parallel> R \<sim>\<^sub>\<flat> (Q \<parallel> P) \<parallel> R"
+    using basic_parallel_commutativity and basic_parallel_preservation by blast
+  also have "(Q \<parallel> P) \<parallel> R \<sim>\<^sub>\<flat> (Q \<parallel> R) \<parallel> P"
+    by (fact basic_nested_parallel_commutativity)
+  also have "(Q \<parallel> R) \<parallel> P \<sim>\<^sub>\<flat> P \<parallel> (Q \<parallel> R)"
+    by (fact basic_parallel_commutativity)
   finally show ?thesis .
 qed
 
