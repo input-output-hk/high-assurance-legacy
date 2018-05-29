@@ -656,6 +656,76 @@ lemma proper_parallel_associativity: "(P \<parallel> Q) \<parallel> R \<sim>\<^s
   using basic_parallel_associativity
   by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
 
+context begin
+
+private lemma opening_transitions_from_new_channel_stop: "\<Gamma> \<turnstile> \<nu> a. \<zero> \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a \<Longrightarrow> \<P> a = \<zero>"
+proof -
+  fix \<Gamma> and \<P> :: "'chan \<Rightarrow> ('name, 'chan, 'val) process" and a
+  assume "\<Gamma> \<turnstile> \<nu> a. \<zero> \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a"
+  then show "\<P> a = \<zero>"
+  proof (induction "\<nu> a. \<zero> :: ('name, 'chan, 'val) process" "\<lbrace>\<nu> a\<rbrace> \<P> a" arbitrary: \<P>)
+    case opening
+    show ?case by (fact refl)
+  next
+    case scoped_opening
+    then show ?case using no_basic_transitions_from_stop by metis
+  qed
+qed
+
+private lemma no_acting_transitions_from_new_channel_stop: "\<not> \<Gamma> \<turnstile> \<nu> a. \<zero> \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> P"
+proof
+  fix \<Gamma> and \<alpha> and P :: "('name, 'chan, 'val) process"
+  assume "\<Gamma> \<turnstile> \<nu> a. \<zero> \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> P"
+  then show False
+  proof cases
+    case (scoped_acting \<Q>\<^sub>1 \<Q>\<^sub>2)
+    from `\<Gamma> \<turnstile> \<nu> a. \<zero> \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q>\<^sub>1 a` have "\<And>a. \<Q>\<^sub>1 a = \<zero>"
+      by (fact opening_transitions_from_new_channel_stop)
+    with `\<And>a. \<Gamma> \<turnstile> \<Q>\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<Q>\<^sub>2 a` show ?thesis
+      by (simp add: no_basic_transitions_from_stop)
+  qed
+qed
+
+private lemma no_proper_transitions_from_new_channel_stop: "\<not> \<Gamma> \<turnstile> \<nu> a. \<zero> \<longmapsto>\<^sub>\<sharp>C"
+proof
+  fix \<Gamma> and C :: "('name, 'chan, 'val) proper_residual"
+  assume "\<Gamma> \<turnstile> \<nu> a. \<zero> \<longmapsto>\<^sub>\<sharp>C"
+  then show False
+  proof cases
+    case (output_with_opening \<P> \<sigma> \<K>)
+    from `\<Gamma> \<turnstile> \<nu> a. \<zero> \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a` have "\<And>a. \<P> a = \<zero>"
+      by (fact opening_transitions_from_new_channel_stop)
+    with `\<And>a. \<Gamma> \<turnstile> \<P> a \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<K> a` show ?thesis
+      by (simp add: no_proper_transitions_from_stop)
+  qed (simp_all add: no_acting_transitions_from_new_channel_stop)
+qed
+
+private lemma proper_stop_scope_redundancy: "\<zero> \<sim>\<^sub>\<sharp> \<nu> a. \<zero>"
+proof
+  show "\<zero> \<preceq>\<^sub>\<sharp> \<nu> a. \<zero>"
+    using no_proper_transitions_from_stop
+    by (blast intro: proper.pre_bisimilarity.intros)
+next
+  show "\<nu> a. \<zero> \<preceq>\<^sub>\<sharp> \<zero>"
+    using no_proper_transitions_from_new_channel_stop
+    by (blast intro: proper.pre_bisimilarity.intros)
+qed
+
+lemma proper_scope_redundancy: "P \<sim>\<^sub>\<sharp> \<nu> a. P"
+proof -
+  have "P \<sim>\<^sub>\<sharp> \<zero> \<parallel> P"
+    by (rule proper.bisimilarity_symmetry_rule) (fact proper_parallel_unit)
+  also have "\<zero> \<parallel> P \<sim>\<^sub>\<sharp> \<nu> a. \<zero> \<parallel> P"
+    using proper_stop_scope_redundancy and proper_parallel_preservation by blast
+  also have "\<nu> a. \<zero> \<parallel> P \<sim>\<^sub>\<sharp> \<nu> a. (\<zero> \<parallel> P)"
+    by (fact proper_parallel_scope_extension)
+  also have "\<nu> a. (\<zero> \<parallel> P) \<sim>\<^sub>\<sharp> \<nu> a. P"
+    using proper_parallel_unit and proper_new_channel_preservation by metis
+  finally show ?thesis .
+qed
+
+end
+
 subsection \<open>Conclusion\<close>
 
 text \<open>
