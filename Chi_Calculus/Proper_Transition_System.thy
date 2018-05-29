@@ -421,6 +421,17 @@ abbreviation
 where
   "op \<sim>\<^sub>\<sharp> \<equiv> proper.bisimilarity"
 
+subsection \<open>Fundamental Properties of the Transition System\<close>
+
+lemma no_proper_transitions_from_stop: "\<not> \<Gamma> \<turnstile> \<zero> \<longmapsto>\<^sub>\<sharp>C"
+proof
+  fix \<Gamma> and C :: "('name, 'chan, 'val) proper_residual"
+  assume "\<Gamma> \<turnstile> \<zero> \<longmapsto>\<^sub>\<sharp>C"
+  then show False by
+    (induction "\<zero> :: ('name, 'chan, 'val) process" C)
+    (simp_all add: no_basic_transitions_from_stop)
+qed
+
 subsection \<open>Bisimilarities\<close>
 
 lemma basic_bisimilarity_is_proper_simulation: "sim\<^sub>\<sharp> op \<sim>\<^sub>\<flat>"
