@@ -516,7 +516,7 @@ proof (standard, intro allI, intro impI)
     case (simple \<delta> Q)
     from `\<Gamma> \<turnstile> c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> Q`
     obtain V where "basic_action_of \<delta> = c \<triangleright> V" and "Q = \<nu> a. \<P> V a"
-      by (blast elim: transitions_from_unicast_input)
+      by (blast elim: basic_transitions_from_unicast_input)
     from `basic_action_of \<delta> = c \<triangleright> V` have "\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. \<P> V a"
       using unicast_input and acting_scope
       by smt
@@ -528,7 +528,7 @@ proof (standard, intro allI, intro impI)
   next
     case (output_without_opening \<sigma> V Q)
     then obtain V' where "c \<triangleright> V' = basic_output_action \<sigma> V"
-      using transitions_from_unicast_input and basic_residual.inject(1)
+      using basic_transitions_from_unicast_input and basic_residual.inject(1)
       by metis
     then show ?thesis by (cases \<sigma>) simp_all
   next
@@ -562,7 +562,7 @@ proof (standard, intro allI, intro impI)
       with `\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<R> a`
       obtain V where "basic_action_of \<delta> = c \<triangleright> V" and "\<And>a. \<R> a = \<P> V a"
         using
-          transitions_from_unicast_input and
+          basic_transitions_from_unicast_input and
           basic_residual.inject(1) and
           basic_action.inject(1) and
           io_action.inject(1)
@@ -587,7 +587,7 @@ proof (standard, intro allI, intro impI)
         by (fact opening_transitions_from_new_channel_unicast_input)
       with `\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_output_action \<sigma> V\<rbrace> \<R> a`
       obtain V' where "c \<triangleright> V' = basic_output_action \<sigma> V"
-        using transitions_from_unicast_input and basic_residual.inject(1)
+        using basic_transitions_from_unicast_input and basic_residual.inject(1)
         by metis
       then show ?thesis by (cases \<sigma>) simp_all
     qed
@@ -601,7 +601,7 @@ proof (standard, intro allI, intro impI)
     proof cases
       case (output_without_opening V Q)
       then obtain V' where "c \<triangleright> V' = basic_output_action \<sigma> V"
-        using transitions_from_unicast_input and basic_residual.inject(1)
+        using basic_transitions_from_unicast_input and basic_residual.inject(1)
         by metis
       then show ?thesis by (cases \<sigma>) simp_all
     next

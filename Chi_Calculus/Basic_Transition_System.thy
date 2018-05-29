@@ -306,7 +306,7 @@ text \<open>
   Only certain transitions are possible from input and output processes.
 \<close>
 
-lemma transitions_from_unicast_input:
+lemma basic_transitions_from_unicast_input:
   assumes "\<Gamma> \<turnstile> c \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>C"
   obtains V where "C = \<lbrace>c \<triangleright> V\<rbrace> \<P> V"
 using assms proof (induction "c \<triangleright> x. \<P> x" C)
@@ -319,7 +319,7 @@ next
   case scoped_opening
   then show ?case by blast
 qed
-lemma transitions_from_unicast_output: "\<Gamma> \<turnstile> c \<triangleleft> V \<longmapsto>\<^sub>\<flat>C \<Longrightarrow> C = \<lbrace>c \<triangleleft> V\<rbrace> \<zero>"
+lemma basic_transitions_from_unicast_output: "\<Gamma> \<turnstile> c \<triangleleft> V \<longmapsto>\<^sub>\<flat>C \<Longrightarrow> C = \<lbrace>c \<triangleleft> V\<rbrace> \<zero>"
 proof -
   fix \<Gamma> and c and V and C :: "('name, 'chan, 'val) basic_residual"
   assume "\<Gamma> \<turnstile> c \<triangleleft> V \<longmapsto>\<^sub>\<flat>C"
@@ -335,7 +335,7 @@ proof -
     then show ?case by simp
   qed
 qed
-lemma transitions_from_broadcast_input:
+lemma basic_transitions_from_broadcast_input:
   assumes "\<Gamma> \<turnstile> \<star> \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>C"
   obtains V where "C = \<lbrace>\<star> \<triangleright> V\<rbrace> \<P> V"
 using assms proof (induction "\<star> \<triangleright> x. \<P> x" C)
@@ -348,7 +348,7 @@ next
   case scoped_opening
   then show ?case by blast
 qed
-lemma transitions_from_broadcast_output: "\<Gamma> \<turnstile> \<star> \<triangleleft> V \<longmapsto>\<^sub>\<flat>C \<Longrightarrow> C = \<lbrace>\<star> \<triangleleft> V\<rbrace> \<star> \<triangleleft> V"
+lemma basic_transitions_from_broadcast_output: "\<Gamma> \<turnstile> \<star> \<triangleleft> V \<longmapsto>\<^sub>\<flat>C \<Longrightarrow> C = \<lbrace>\<star> \<triangleleft> V\<rbrace> \<star> \<triangleleft> V"
 proof -
   fix \<Gamma> and V and C :: "('name, 'chan, 'val) basic_residual"
   assume "\<Gamma> \<turnstile> \<star> \<triangleleft> V \<longmapsto>\<^sub>\<flat>C"
@@ -370,13 +370,13 @@ text \<open>
 \<close>
 
 lemma no_opening_transitions_from_unicast_input: "\<not> \<Gamma> \<turnstile> c \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-  using transitions_from_unicast_input by fastforce
+  using basic_transitions_from_unicast_input by fastforce
 lemma no_opening_transitions_from_unicast_output: "\<not> \<Gamma> \<turnstile> c \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-  using transitions_from_unicast_output by fastforce
+  using basic_transitions_from_unicast_output by fastforce
 lemma no_opening_transitions_from_broadcast_input: "\<not> \<Gamma> \<turnstile> \<star> \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-  using transitions_from_broadcast_input by fastforce
+  using basic_transitions_from_broadcast_input by fastforce
 lemma no_opening_transitions_from_broadcast_output: "\<not> \<Gamma> \<turnstile> \<star> \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-  using transitions_from_broadcast_output by fastforce
+  using basic_transitions_from_broadcast_output by fastforce
 
 subsection \<open>Bisimilarities\<close>
 
