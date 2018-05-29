@@ -505,6 +505,9 @@ lemma basic_bisimilarity_in_proper_bisimilarity: "op \<sim>\<^sub>\<flat> \<le> 
   using basic_bisimilarity_is_proper_bisimulation
   by (fact proper.bisimulation_in_bisimilarity)
 
+lemma basic_bisimilarity_in_proper_bisimilarity_rule: "P \<sim>\<^sub>\<flat> Q \<Longrightarrow> P \<sim>\<^sub>\<sharp> Q"
+  using basic_bisimilarity_in_proper_bisimilarity ..
+
 subsection \<open>Concrete Bisimilarities\<close>
 
 context begin
@@ -620,6 +623,26 @@ lemma proper_unicast_input_scope_extension: "c \<triangleright> x. \<nu> a. \<P>
   )
 
 end
+
+lemma proper_parallel_scope_extension: "\<nu> a. \<P> a \<parallel> Q \<sim>\<^sub>\<sharp> \<nu> a. (\<P> a \<parallel> Q)"
+  using basic_parallel_scope_extension
+  by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
+
+lemma proper_new_channel_scope_extension: "\<nu> b. \<nu> a. \<P> a b \<sim>\<^sub>\<sharp> \<nu> a. \<nu> b. \<P> a b"
+  using basic_new_channel_scope_extension
+  by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
+
+lemma proper_parallel_unit: "\<zero> \<parallel> P \<sim>\<^sub>\<sharp> P"
+  using basic_parallel_unit
+  by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
+
+lemma proper_parallel_commutativity: "P \<parallel> Q \<sim>\<^sub>\<sharp> Q \<parallel> P"
+  using basic_parallel_commutativity
+  by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
+
+lemma proper_parallel_associativity: "(P \<parallel> Q) \<parallel> R \<sim>\<^sub>\<sharp> P \<parallel> (Q \<parallel> R)"
+  using basic_parallel_associativity
+  by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
 
 subsection \<open>Conclusion\<close>
 
