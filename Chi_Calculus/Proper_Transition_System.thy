@@ -432,7 +432,7 @@ proof
     (simp_all add: no_basic_transitions_from_stop)
 qed
 
-subsection \<open>Bisimilarities\<close>
+subsection \<open>Relationships between Basic and Proper Bisimilarity\<close>
 
 lemma basic_bisimilarity_is_proper_simulation: "sim\<^sub>\<sharp> op \<sim>\<^sub>\<flat>"
 proof (intro predicate2I, intro allI, intro impI)
@@ -504,6 +504,8 @@ lemma basic_bisimilarity_is_proper_bisimulation: "bisim\<^sub>\<sharp> op \<sim>
 lemma basic_bisimilarity_in_proper_bisimilarity: "op \<sim>\<^sub>\<flat> \<le> op \<sim>\<^sub>\<sharp>"
   using basic_bisimilarity_is_proper_bisimulation
   by (fact proper.bisimulation_in_bisimilarity)
+
+subsection \<open>Concrete Bisimilarities\<close>
 
 context begin
 

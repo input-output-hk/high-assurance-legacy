@@ -378,7 +378,7 @@ lemma no_opening_transitions_from_broadcast_input: "\<not> \<Gamma> \<turnstile>
 lemma no_opening_transitions_from_broadcast_output: "\<not> \<Gamma> \<turnstile> \<star> \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
   using basic_transitions_from_broadcast_output by fastforce
 
-subsection \<open>Bisimilarities\<close>
+subsection \<open>Concrete Bisimilarities\<close>
 
 context begin
 
