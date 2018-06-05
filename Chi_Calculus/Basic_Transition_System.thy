@@ -191,7 +191,7 @@ text \<open>
 lemma communication_symmetry_rule [sym]: "\<eta> \<bowtie> \<mu> \<Longrightarrow> \<mu> \<bowtie> \<eta>"
   using communication.simps by metis
 lemma communication_symmetry: "symp op \<bowtie>"
-  using communication_symmetry_rule by (fact sympI)
+  using communication_symmetry_rule ..
 
 subsection \<open>Transition System\<close>
 
