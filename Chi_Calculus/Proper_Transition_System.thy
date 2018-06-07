@@ -11,9 +11,8 @@ text \<open>
 \<close>
 
 datatype ('chan, 'val) proper_action =
-  UnicastIn 'chan 'val ("_ \<triangleright> _") |
-  BroadcastIn 'val ("\<star> \<triangleright> _") |
-  Silent ("\<tau>")
+  ProperIn "('chan medium)" 'val (infix "\<triangleright>" 100) |
+  ProperSilent ("\<tau>")
 
 text \<open>
   Each action in the proper transition system corresponds to an action in the basic transition
@@ -21,28 +20,8 @@ text \<open>
 \<close>
 
 fun basic_action_of :: "('chan, 'val) proper_action \<Rightarrow> ('chan, 'val) basic_action" where
-  "basic_action_of (c \<triangleright> V) = c \<triangleright> V" |
-  "basic_action_of (\<star> \<triangleright> V) = \<star> \<triangleright> V" |
+  "basic_action_of (m \<triangleright> V) = m \<triangleright> V" |
   "basic_action_of \<tau> = \<tau>"
-
-subsection \<open>Sinks\<close>
-
-text \<open>
-  A sink is the target of an output. Any communication medium, that is, any channel as well as the
-  ether~(\<open>\<star>\<close>), can serve as a sink.
-\<close>
-
-datatype 'chan sink =
-  UnicastSink 'chan |
-  BroadcastSink
-
-text \<open>
-  Each pair of a sink and a value corresponds to an output action in the basic transition system.
-\<close>
-
-fun basic_output_action :: "'chan sink \<Rightarrow> 'val \<Rightarrow> ('chan, 'val) basic_action" where
-  "basic_output_action (UnicastSink c) V = c \<triangleleft> V" |
-  "basic_output_action BroadcastSink V = \<star> \<triangleleft> V"
 
 subsection \<open>Output Rests\<close>
 
@@ -190,61 +169,13 @@ subsection \<open>Residuals\<close>
 text \<open>
   There are two kinds of residuals in the proper transition system: simple residuals, written
   \<open>\<lparr>\<delta>\<rparr> Q\<close> where \<open>\<delta>\<close> is an action, and output residuals, written
-  \<open>\<lparr>\<xi> \<triangleleft> \<nu> a\<^sub>1 \<dots> a\<^sub>n. \<V> a\<^sub>1 \<dots> a\<^sub>n\<rparr> \<Q> a\<^sub>1 \<dots> a\<^sub>n\<close> where \<open>\<xi>\<close> is a communication medium and the \<open>a\<^sub>i\<close> are
+  \<open>\<lparr>m \<triangleleft> \<nu> a\<^sub>1 \<dots> a\<^sub>n. \<V> a\<^sub>1 \<dots> a\<^sub>n\<rparr> \<Q> a\<^sub>1 \<dots> a\<^sub>n\<close> where \<open>m\<close> is a communication medium and the \<open>a\<^sub>i\<close> are
   channel variables.
 \<close>
 
 datatype ('name, 'chan, 'val) proper_residual =
   Simple "(('chan, 'val) proper_action)" "(('name, 'chan, 'val) process)" ("\<lparr>_\<rparr> _" [0, 51] 51) |
-  Output "('chan sink)" "(('name, 'chan, 'val) output_rest)" ("\<lparr>\<lfloor>_\<rfloor> \<triangleleft> _" [0, 51] 51)
-
-text \<open>
-  We use the notation \<open>\<lfloor>\<sigma>\<rfloor>\<close> to refer to the communication medium denoted by~\<open>\<sigma>\<close>, which is~\<open>c\<close> if
-  \<open>\<sigma> = UnicastSink c\<close> and \<open>\<star>\<close> if \<open>\<sigma> = BroadcastSink\<close>.
-
-  Note that \<open>\<lfloor>\<sigma>\<rfloor>\<close> does not denote any first-class value. There is no type of communication mediums,
-  which contains all channels and the ether. There is the \<open>sink\<close> type, which is isomorphic to such a
-  hypothetical type of communication mediums. The problem with sinks is that the notation for
-  unicast sinks is necessarily different from the notation for channels, since a unicast sink and
-  its underlying channel are two different things.
-
-  We define notation for output residuals that avoids the \<open>\<lfloor>_\<rfloor>\<close>-construct for the two specific kinds
-  of sinks, so that the notation with \<open>\<lfloor>_\<rfloor>\<close> is only needed when talking about arbitrary sinks.
-\<close>
-
-abbreviation
-  UnicastOutResidual :: "
-    'chan \<Rightarrow>
-    'val \<Rightarrow>
-    ('name, 'chan, 'val) process \<Rightarrow>
-    ('name, 'chan, 'val) proper_residual"
-  ("\<lparr>_ \<triangleleft> _\<rparr> _" [0, 0, 51] 51)
-where
-  "\<lparr>c \<triangleleft> V\<rparr> P \<equiv> \<lparr>\<lfloor>UnicastSink c\<rfloor> \<triangleleft> V\<rparr> P"
-abbreviation
-  BroadcastOutResidual :: "
-    'val \<Rightarrow>
-    ('name, 'chan, 'val) process \<Rightarrow>
-    ('name, 'chan, 'val) proper_residual"
-  ("\<lparr>\<star> \<triangleleft> _\<rparr> _" [0, 51] 51)
-where
-  "\<lparr>\<star> \<triangleleft> V\<rparr> P \<equiv> \<lparr>\<lfloor>BroadcastSink\<rfloor> \<triangleleft> V\<rparr> P"
-
-text \<open>
-  A residual for broadcast input cannot be written \<open>\<lparr>\<star> \<triangleright> V\<rparr> P\<close>, since \<open>\<lparr>\<star>\<close> would be considered a
-  single token.\footnote{Interestingly, \<open>\<lbrace>\<star>\<close> is not considered a single token, so that such an issue
-  does not occur in the basic transition system.} As a solution, we define the desired notation for
-  broadcast input residuals explicitly.
-\<close>
-
-abbreviation
-  BroadcastInResidual :: "
-    'val \<Rightarrow>
-    ('name, 'chan, 'val) process \<Rightarrow>
-    ('name, 'chan, 'val) proper_residual"
-  ("\<lparr>\<star> \<triangleright> _\<rparr> _" [0, 51] 51)
-where
-  "\<lparr>\<star> \<triangleright> V\<rparr> P \<equiv> \<lparr> \<star> \<triangleright> V\<rparr> P"
+  Output "('chan medium)" "(('name, 'chan, 'val) output_rest)" ("\<lparr>_ \<triangleleft> _" [0, 51] 51)
 
 text \<open>
   Residual lifting is defined in the obvious way.
@@ -259,7 +190,7 @@ where
   simple_lift:
     "\<X> P Q \<Longrightarrow> proper_lift \<X> (\<lparr>\<alpha>\<rparr> P) (\<lparr>\<alpha>\<rparr> Q)" |
   output_lift:
-    "output_rest_lift \<X> K L \<Longrightarrow> proper_lift \<X> (\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> K) (\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> L)"
+    "output_rest_lift \<X> K L \<Longrightarrow> proper_lift \<X> (\<lparr>m \<triangleleft> K) (\<lparr>m \<triangleleft> L)"
 
 text \<open>
   The \<^const>\<open>proper_lift\<close> operator has the properties of a residual lifting operator.
@@ -305,7 +236,7 @@ proof (intro ext)+
       then obtain Q where "\<X> P Q" and "\<Y> Q R" by (elim relcomppE)
       then show ?case by (blast intro: proper_lift.simple_lift)
     next
-      case (output_lift K M \<sigma>)
+      case (output_lift K M m)
       then obtain L where "output_rest_lift \<X> K L" and "output_rest_lift \<Y> L M"
         using output_rest_lift_composition_preservation and relcomppE by metis
       then show ?case by (blast intro: proper_lift.output_lift)
@@ -385,9 +316,9 @@ where
   simple:
     "\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> Q \<Longrightarrow> \<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> Q" |
   output_without_opening:
-    "\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>basic_output_action \<sigma> V\<rbrace> Q \<Longrightarrow> \<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> V\<rparr> Q" |
+    "\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>m \<triangleleft> V\<rbrace> Q \<Longrightarrow> \<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> V\<rparr> Q" |
   output_with_opening:
-    "\<lbrakk> \<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a; \<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<K> a \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<nu> a. \<K> a"
+    "\<lbrakk> \<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a; \<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<K> a \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<nu> a. \<K> a"
 
 text \<open>
   The residual structure and \<^const>\<open>basic_transition\<close> together form a transition system.
@@ -453,9 +384,9 @@ proof (intro predicate2I, intro allI, intro impI)
     then show ?case
       by (blast intro: proper_transition.simple simple_lift)
   next
-    case (output_without_opening P \<sigma> V P' Q)
-    from `P \<sim>\<^sub>\<flat> Q` and `\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>basic_output_action \<sigma> V\<rbrace> P'`
-    obtain Q' where "\<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<flat>\<lbrace>basic_output_action \<sigma> V\<rbrace> Q'" and "P' \<sim>\<^sub>\<flat> Q'"
+    case (output_without_opening P m V P' Q)
+    from `P \<sim>\<^sub>\<flat> Q` and `\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>m \<triangleleft> V\<rbrace> P'`
+    obtain Q' where "\<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<flat>\<lbrace>m \<triangleleft> V\<rbrace> Q'" and "P' \<sim>\<^sub>\<flat> Q'"
       using
         basic.bisimilarity_is_simulation and
         predicate2D and
@@ -466,7 +397,7 @@ proof (intro predicate2I, intro allI, intro impI)
     then show ?case
       by (blast intro: proper_transition.output_without_opening without_opening_lift output_lift)
   next
-    case (output_with_opening P \<P> \<sigma> \<K> Q)
+    case (output_with_opening P \<P> m \<K> Q)
     from `P \<sim>\<^sub>\<flat> Q` and `\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a`
     obtain \<Q> where "\<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a" and "\<And>a. \<P> a \<sim>\<^sub>\<flat> \<Q> a"
       using
@@ -476,20 +407,20 @@ proof (intro predicate2I, intro allI, intro impI)
         basic_residual.distinct(1) and
         basic_residual.inject(2)
       by smt
-    obtain \<L> where "\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<L> a" and "\<And>a. output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) (\<L> a)"
+    obtain \<L> where "\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<L> a" and "\<And>a. output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) (\<L> a)"
     proof -
       from output_with_opening.IH and `\<And>a. \<P> a \<sim>\<^sub>\<flat> \<Q> a`
-      have "\<forall>a. \<exists>L. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> L \<and> output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) L"
+      have "\<forall>a. \<exists>L. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> L \<and> output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) L"
         using
           proper_lift.cases and
           proper_residual.distinct(1) and
           proper_residual.inject(2)
         by smt
-      then have "\<exists>\<L>. \<forall>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<L> a \<and> output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) (\<L> a)"
+      then have "\<exists>\<L>. \<forall>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<L> a \<and> output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) (\<L> a)"
         by (fact choice)
       with that show ?thesis by blast
     qed
-    from `\<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` and `\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<L> a` have "\<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<nu> a. \<L> a"
+    from `\<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` and `\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<L> a` have "\<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<nu> a. \<L> a"
       by (fact proper_transition.output_with_opening)
     with `\<And>a. output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) (\<L> a)` show ?case
       using with_opening_lift and output_lift
@@ -510,10 +441,7 @@ lemma basic_bisimilarity_in_proper_bisimilarity_rule: "P \<sim>\<^sub>\<flat> Q 
 
 subsection \<open>Concrete Bisimilarities\<close>
 
-lemma proper_unicast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<sharp> \<Q> x) \<Longrightarrow> c \<triangleright> x. \<P> x \<sim>\<^sub>\<sharp> c \<triangleright> x. \<Q> x"
-  sorry
-
-lemma proper_broadcast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<sharp> \<Q> x) \<Longrightarrow> \<star> \<triangleright> x. \<P> x \<sim>\<^sub>\<sharp> \<star> \<triangleright> x. \<Q> x"
+lemma proper_receive_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<sharp> \<Q> x) \<Longrightarrow> m \<triangleright> x. \<P> x \<sim>\<^sub>\<sharp> m \<triangleright> x. \<Q> x"
   sorry
 
 lemma proper_parallel_preservation: "P \<sim>\<^sub>\<sharp> Q \<Longrightarrow> P \<parallel> R \<sim>\<^sub>\<sharp> Q \<parallel> R"
@@ -524,114 +452,114 @@ lemma proper_new_channel_preservation: "(\<And>a. \<P> a \<sim>\<^sub>\<sharp> \
 
 context begin
 
-private lemma proper_pre_unicast_input_scope_extension_ltr: "c \<triangleright> x. \<nu> a. \<P> x a \<preceq>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. \<P> x a"
+private lemma proper_pre_receive_scope_extension_ltr: "m \<triangleright> x. \<nu> a. \<P> x a \<preceq>\<^sub>\<sharp> \<nu> a. m \<triangleright> x. \<P> x a"
 proof (standard, intro allI, intro impI)
   fix \<Gamma> and C
-  assume "\<Gamma> \<turnstile> c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
-  then show "\<exists>D. \<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>D \<and> proper_lift op \<sim>\<^sub>\<sharp> C D"
+  assume "\<Gamma> \<turnstile> m \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
+  then show "\<exists>D. \<Gamma> \<turnstile> \<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>D \<and> proper_lift op \<sim>\<^sub>\<sharp> C D"
   proof cases
     case (simple \<delta> Q)
-    from `\<Gamma> \<turnstile> c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> Q`
-    obtain V where "basic_action_of \<delta> = c \<triangleright> V" and "Q = \<nu> a. \<P> V a"
-      by (blast elim: basic_transitions_from_unicast_input)
-    from `basic_action_of \<delta> = c \<triangleright> V` have "\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. \<P> V a"
-      using unicast_input and acting_scope
+    from `\<Gamma> \<turnstile> m \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> Q`
+    obtain V where "basic_action_of \<delta> = m \<triangleright> V" and "Q = \<nu> a. \<P> V a"
+      by (blast elim: basic_transitions_from_receive)
+    from `basic_action_of \<delta> = m \<triangleright> V` have "\<Gamma> \<turnstile> \<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. \<P> V a"
+      using receiving and acting_scope
       by smt
-    with `C = \<lparr>\<delta>\<rparr> Q` and `Q = \<nu> a. \<P> V a` have "\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
+    with `C = \<lparr>\<delta>\<rparr> Q` and `Q = \<nu> a. \<P> V a` have "\<Gamma> \<turnstile> \<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
       by (blast intro: proper_transition.simple)
     then show ?thesis
       using proper.bisimilarity_reflexivity and proper.lift_reflexivity_propagation and reflpD
       by smt
   next
-    case (output_without_opening \<sigma> V Q)
-    then obtain V' where "c \<triangleright> V' = basic_output_action \<sigma> V"
-      using basic_transitions_from_unicast_input and basic_residual.inject(1)
-      by metis
-    then show ?thesis by (cases \<sigma>) simp_all
+    case (output_without_opening m V Q)
+    then obtain V' where "m \<triangleright> V' = m \<triangleleft> V"
+      using basic_transitions_from_receive
+      by blast
+    then show ?thesis by (cases m) simp_all
   next
     case output_with_opening
-    then show ?thesis by (simp add: no_opening_transitions_from_unicast_input)
+    then show ?thesis by (simp add: no_opening_transitions_from_receive)
   qed
 qed
 
-private lemma opening_transitions_from_new_channel_unicast_input:
-  "\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a \<Longrightarrow> \<Q> a = c \<triangleright> x . \<P> x a"
-proof (induction "\<nu> a. c \<triangleright> x. \<P> x a" "\<lbrace>\<nu> a\<rbrace> \<Q> a" arbitrary: \<Q> rule: basic_transition.induct)
+private lemma opening_transitions_from_new_channel_receive:
+  "\<Gamma> \<turnstile> \<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a \<Longrightarrow> \<Q> a = m \<triangleright> x . \<P> x a"
+proof (induction "\<nu> a. m \<triangleright> x. \<P> x a" "\<lbrace>\<nu> a\<rbrace> \<Q> a" arbitrary: \<Q> rule: basic_transition.induct)
   case opening
   show ?case by (fact refl)
 next
   case scoped_opening
-  then show ?case using no_opening_transitions_from_unicast_input by metis
+  then show ?case using no_opening_transitions_from_receive by metis
 qed
 
-private lemma proper_pre_unicast_input_scope_extension_rtl: "\<nu> a. c \<triangleright> x. \<P> x a \<preceq>\<^sub>\<sharp> c \<triangleright> x. \<nu> a. \<P> x a"
+private lemma proper_pre_receive_scope_extension_rtl: "\<nu> a. m \<triangleright> x. \<P> x a \<preceq>\<^sub>\<sharp> m \<triangleright> x. \<nu> a. \<P> x a"
 proof (standard, intro allI, intro impI)
   fix \<Gamma> and C
-  assume "\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
-  then show "\<exists>D. \<Gamma> \<turnstile> c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>D \<and> proper_lift op \<sim>\<^sub>\<sharp> C D"
+  assume "\<Gamma> \<turnstile> \<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
+  then show "\<exists>D. \<Gamma> \<turnstile> m \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>D \<and> proper_lift op \<sim>\<^sub>\<sharp> C D"
   proof cases
     case (simple \<delta> R)
-    from `\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> R` show ?thesis
+    from `\<Gamma> \<turnstile> \<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> R` show ?thesis
     proof cases
       case (scoped_acting \<Q> \<R>)
-      from `\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = c \<triangleright> x . \<P> x a"
-        by (fact opening_transitions_from_new_channel_unicast_input)
+      from `\<Gamma> \<turnstile> \<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = m \<triangleright> x . \<P> x a"
+        by (fact opening_transitions_from_new_channel_receive)
       with `\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<R> a`
-      obtain V where "basic_action_of \<delta> = c \<triangleright> V" and "\<And>a. \<R> a = \<P> V a"
+      obtain V where "basic_action_of \<delta> = m \<triangleright> V" and "\<And>a. \<R> a = \<P> V a"
         using
-          basic_transitions_from_unicast_input and
+          basic_transitions_from_receive and
           basic_residual.inject(1) and
           basic_action.inject(1) and
           io_action.inject(1)
         by smt
-      from `basic_action_of \<delta> = c \<triangleright> V` have "\<Gamma> \<turnstile> c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. \<P> V a"
-        using unicast_input
+      from `basic_action_of \<delta> = m \<triangleright> V` have "\<Gamma> \<turnstile> m \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. \<P> V a"
+        using receiving
         by fastforce
       moreover from `C = \<lparr>\<delta>\<rparr> R` and `R = \<nu> a. \<R> a` and `\<And>a. \<R> a = \<P> V a` have "C = \<lparr>\<delta>\<rparr> \<nu> a. \<P> V a"
         by simp
-      ultimately have "\<Gamma> \<turnstile> c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
+      ultimately have "\<Gamma> \<turnstile> m \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
         by (blast intro: proper_transition.simple)
       then show ?thesis
         using proper.bisimilarity_reflexivity and proper.lift_reflexivity_propagation and reflpD
         by smt
     qed
   next
-    case (output_without_opening \<sigma> V R)
-    from `\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_output_action \<sigma> V\<rbrace> R` show ?thesis
+    case (output_without_opening m' V R)
+    from `\<Gamma> \<turnstile> \<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>m' \<triangleleft> V\<rbrace> R` show ?thesis
     proof cases
       case (scoped_acting \<Q> \<R>)
-      from `\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = c \<triangleright> x. \<P> x a"
-        by (fact opening_transitions_from_new_channel_unicast_input)
-      with `\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_output_action \<sigma> V\<rbrace> \<R> a`
-      obtain V' where "c \<triangleright> V' = basic_output_action \<sigma> V"
-        using basic_transitions_from_unicast_input and basic_residual.inject(1)
+      from `\<Gamma> \<turnstile> \<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = m \<triangleright> x. \<P> x a"
+        by (fact opening_transitions_from_new_channel_receive)
+      with `\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<flat>\<lbrace>m' \<triangleleft> V\<rbrace> \<R> a`
+      obtain V' where "m \<triangleright> V' = m' \<triangleleft> V"
+        using basic_transitions_from_receive and basic_residual.inject(1)
         by metis
-      then show ?thesis by (cases \<sigma>) simp_all
+      then show ?thesis by (cases m) simp_all
     qed
   next
-    case (output_with_opening \<Q> \<sigma> \<K>)
-    from `\<Gamma> \<turnstile> \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = c \<triangleright> x. \<P> x a"
-      by (fact opening_transitions_from_new_channel_unicast_input)
-    with `\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<K> a` have "\<Gamma> \<turnstile> c \<triangleright> x. \<P> x c \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<K> c"
+    case (output_with_opening \<Q> m' \<K>)
+    from `\<Gamma> \<turnstile> \<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = m \<triangleright> x. \<P> x a"
+      by (fact opening_transitions_from_new_channel_receive)
+    with `\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>m' \<triangleleft> \<K> a` have "\<Gamma> \<turnstile> m \<triangleright> x. \<P> x (SOME _. True) \<longmapsto>\<^sub>\<sharp>\<lparr>m' \<triangleleft> \<K> (SOME _. True)"
       by simp
     then show ?thesis
     proof cases
       case (output_without_opening V Q)
-      then obtain V' where "c \<triangleright> V' = basic_output_action \<sigma> V"
-        using basic_transitions_from_unicast_input and basic_residual.inject(1)
-        by metis
-      then show ?thesis by (cases \<sigma>) simp_all
+      then obtain V' where "m \<triangleright> V' = m' \<triangleleft> V"
+        using basic_transitions_from_receive
+        by blast
+      then show ?thesis by (cases m) simp_all
     next
       case output_with_opening
-      then show ?thesis by (simp add: no_opening_transitions_from_unicast_input)
+      then show ?thesis by (simp add: no_opening_transitions_from_receive)
     qed
   qed
 qed
 
-lemma proper_unicast_input_scope_extension: "c \<triangleright> x. \<nu> a. \<P> x a \<sim>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. \<P> x a"
+lemma proper_unicast_input_scope_extension: "m \<triangleright> x. \<nu> a. \<P> x a \<sim>\<^sub>\<sharp> \<nu> a. m \<triangleright> x. \<P> x a"
   by standard (
-    fact proper_pre_unicast_input_scope_extension_ltr,
-    fact proper_pre_unicast_input_scope_extension_rtl
+    fact proper_pre_receive_scope_extension_ltr,
+    fact proper_pre_receive_scope_extension_rtl
   )
 
 end
@@ -692,10 +620,10 @@ proof
   assume "\<Gamma> \<turnstile> \<nu> a. \<zero> \<longmapsto>\<^sub>\<sharp>C"
   then show False
   proof cases
-    case (output_with_opening \<P> \<sigma> \<K>)
+    case (output_with_opening \<P> m \<K>)
     from `\<Gamma> \<turnstile> \<nu> a. \<zero> \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a` have "\<And>a. \<P> a = \<zero>"
       by (fact opening_transitions_from_new_channel_stop)
-    with `\<And>a. \<Gamma> \<turnstile> \<P> a \<longmapsto>\<^sub>\<sharp>\<lparr>\<lfloor>\<sigma>\<rfloor> \<triangleleft> \<K> a` show ?thesis
+    with `\<And>a. \<Gamma> \<turnstile> \<P> a \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<K> a` show ?thesis
       by (simp add: no_proper_transitions_from_stop)
   qed (simp_all add: no_acting_transitions_from_new_channel_stop)
 qed

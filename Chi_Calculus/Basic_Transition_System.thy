@@ -7,25 +7,23 @@ begin
 subsection \<open>Actions\<close>
 
 text \<open>
-  Actions include various I/O actions and the silent action.
+  Actions include I/O actions and the silent action.
 \<close>
 
 datatype ('chan, 'val) io_action =
-  UnicastIn 'chan 'val |
-  UnicastOut 'chan 'val |
-  BroadcastIn 'val |
-  BroadcastOut 'val
+  BasicIn "('chan medium)" 'val |
+  BasicOut "('chan medium)" 'val
 datatype ('chan, 'val) basic_action =
   IO "(('chan, 'val) io_action)" |
-  Silent ("\<tau>")
-abbreviation UnicastInAction :: "'chan \<Rightarrow> 'val \<Rightarrow> ('chan, 'val) basic_action" ("_ \<triangleright> _") where
-  "c \<triangleright> V \<equiv> IO (UnicastIn c V)"
-abbreviation UnicastOutAction :: "'chan \<Rightarrow> 'val \<Rightarrow> ('chan, 'val) basic_action" ("_ \<triangleleft> _") where
-  "c \<triangleleft> V \<equiv> IO (UnicastOut c V)"
-abbreviation BroadcastInAction :: "'val \<Rightarrow> ('chan, 'val) basic_action" ("\<star> \<triangleright> _") where
-  "\<star> \<triangleright> V \<equiv> IO (BroadcastIn V)"
-abbreviation BroadcastOutAction :: "'val \<Rightarrow> ('chan, 'val) basic_action" ("\<star> \<triangleleft> _") where
-  "\<star> \<triangleleft> V \<equiv> IO (BroadcastOut V)"
+  BasicSilent ("\<tau>")
+abbreviation
+  BasicInAction :: "'chan medium \<Rightarrow> 'val \<Rightarrow> ('chan, 'val) basic_action" (infix "\<triangleright>" 100)
+where
+  "m \<triangleright> V \<equiv> IO (BasicIn m V)"
+abbreviation
+  BasicOutAction :: "'chan medium \<Rightarrow> 'val \<Rightarrow> ('chan, 'val) basic_action" (infix "\<triangleleft>" 100)
+where
+  "m \<triangleleft> V \<equiv> IO (BasicOut m V)"
 
 subsection \<open>Residuals\<close>
 
@@ -160,12 +158,11 @@ interpretation basic: residual basic_lift
 subsection \<open>Communication\<close>
 
 text \<open>
-  There is unicast communication and broadcast communication, and communication can be from left to
-  right (output on the left, input on the right) and from right to left (input on the left, output
-  on the right). This results in four different ways to communicate. We do not want to have four
-  communication rules, which are all analogous, and later have to handle these four rules separately
-  in proofs. Therefore, we define a relation that tells which I/O action can pair with which other
-  I/O action in a communication and have a single communication rule that uses this relation.
+  Communication can be from left to right (output on the left, input on the right) and from right to
+  left (input on the left, output on the right). We do not want to have two communication rules,
+  which are analogous, and later have to handle these two rules separately in proofs. Therefore, we
+  define a relation that tells which I/O action can pair with which other I/O action in a
+  communication and have a single communication rule that uses this relation.
 \<close>
 
 inductive
@@ -176,13 +173,9 @@ inductive
   (infix "\<bowtie>" 50)
 where
   unicast_ltr:
-    "UnicastOut c V \<bowtie> UnicastIn c V" |
+    "BasicOut m V \<bowtie> BasicIn m V" |
   unicast_rtl:
-    "UnicastIn c V \<bowtie> UnicastOut c V" |
-  broadcast_ltr:
-    "BroadcastOut V \<bowtie> BroadcastIn V" |
-  broadcast_rtl:
-    "BroadcastIn V \<bowtie> BroadcastOut V"
+    "BasicIn m V \<bowtie> BasicOut m V"
 
 text \<open>
   The communication relation is symmetric.
@@ -194,6 +187,16 @@ lemma communication_symmetry: "symp op \<bowtie>"
   using communication_symmetry_rule ..
 
 subsection \<open>Transition System\<close>
+
+text \<open>
+  A send continuation is the target process of a sending transition. For unicast communication, it
+  is \<open>\<zero>\<close>, because the value in question should be sent only once; for broadcast communication, it is
+  the source process of the transition, because the sending should be repeated indefinitely.
+\<close>
+
+fun send_cont :: "'chan medium \<Rightarrow> 'val \<Rightarrow> ('name, 'chan, 'val) process" where
+  "send_cont \<cdot>_ _ = \<zero>" |
+  "send_cont \<star> V = \<star> \<triangleleft> V"
 
 text \<open>
   The following definition of the transition relation captures the set of rules that define the
@@ -209,14 +212,10 @@ inductive
   ("_ \<turnstile> _ \<longmapsto>\<^sub>\<flat>_" [51, 0, 51] 50)
   for \<Gamma>
 where
-  unicast_input:
-    "\<Gamma> \<turnstile> c \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>c \<triangleright> V\<rbrace> \<P> V" |
-  unicast_output:
-    "\<Gamma> \<turnstile> c \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>c \<triangleleft> V\<rbrace> \<zero>" |
-  broadcast_input:
-    "\<Gamma> \<turnstile> \<star> \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>\<star> \<triangleright> V\<rbrace> \<P> V" |
-  broadcast_output:
-    "\<Gamma> \<turnstile> \<star> \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>\<star> \<triangleleft> V\<rbrace> \<star> \<triangleleft> V" |
+  sending:
+    "\<Gamma> \<turnstile> m \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>m \<triangleleft> V\<rbrace> send_cont m V" |
+  receiving:
+    "\<Gamma> \<turnstile> m \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>m \<triangleright> V\<rbrace> \<P> V" |
   communication:
     "\<lbrakk> \<eta> \<bowtie> \<mu>; \<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> P'; \<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> Q' \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<parallel> Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> P' \<parallel> Q'" |
   opening:
@@ -303,29 +302,16 @@ proof
 qed
 
 text \<open>
-  Only certain transitions are possible from input and output processes.
+  Only certain transitions are possible from send and receive processes.
 \<close>
 
-lemma basic_transitions_from_unicast_input:
-  assumes "\<Gamma> \<turnstile> c \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>C"
-  obtains V where "C = \<lbrace>c \<triangleright> V\<rbrace> \<P> V"
-using assms proof (induction "c \<triangleright> x. \<P> x" C)
-  case unicast_input
-  then show ?case by simp
-next
-  case scoped_acting
-  then show ?case by blast
-next
-  case scoped_opening
-  then show ?case by blast
-qed
-lemma basic_transitions_from_unicast_output: "\<Gamma> \<turnstile> c \<triangleleft> V \<longmapsto>\<^sub>\<flat>C \<Longrightarrow> C = \<lbrace>c \<triangleleft> V\<rbrace> \<zero>"
+lemma basic_transitions_from_send: "\<Gamma> \<turnstile> m \<triangleleft> V \<longmapsto>\<^sub>\<flat>C \<Longrightarrow> C = \<lbrace>m \<triangleleft> V\<rbrace> send_cont m V"
 proof -
-  fix \<Gamma> and c and V and C :: "('name, 'chan, 'val) basic_residual"
-  assume "\<Gamma> \<turnstile> c \<triangleleft> V \<longmapsto>\<^sub>\<flat>C"
-  then show "C = \<lbrace>c \<triangleleft> V\<rbrace> \<zero>"
-  proof (induction "c \<triangleleft> V :: ('name, 'chan, 'val) process" C)
-    case unicast_output
+  fix \<Gamma> and m and V and C :: "('name, 'chan, 'val) basic_residual"
+  assume "\<Gamma> \<turnstile> m \<triangleleft> V \<longmapsto>\<^sub>\<flat>C"
+  then show "C = \<lbrace>m \<triangleleft> V\<rbrace> send_cont m V"
+  proof (induction "m \<triangleleft> V :: ('name, 'chan, 'val) process" C)
+    case sending
     show ?case by (fact refl)
   next
     case scoped_acting
@@ -335,11 +321,11 @@ proof -
     then show ?case by simp
   qed
 qed
-lemma basic_transitions_from_broadcast_input:
-  assumes "\<Gamma> \<turnstile> \<star> \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>C"
-  obtains V where "C = \<lbrace>\<star> \<triangleright> V\<rbrace> \<P> V"
-using assms proof (induction "\<star> \<triangleright> x. \<P> x" C)
-  case broadcast_input
+lemma basic_transitions_from_receive:
+  assumes "\<Gamma> \<turnstile> m \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>C"
+  obtains V where "C = \<lbrace>m \<triangleright> V\<rbrace> \<P> V"
+using assms proof (induction "m \<triangleright> x. \<P> x" C)
+  case receiving
   then show ?case by simp
 next
   case scoped_acting
@@ -347,36 +333,16 @@ next
 next
   case scoped_opening
   then show ?case by blast
-qed
-lemma basic_transitions_from_broadcast_output: "\<Gamma> \<turnstile> \<star> \<triangleleft> V \<longmapsto>\<^sub>\<flat>C \<Longrightarrow> C = \<lbrace>\<star> \<triangleleft> V\<rbrace> \<star> \<triangleleft> V"
-proof -
-  fix \<Gamma> and V and C :: "('name, 'chan, 'val) basic_residual"
-  assume "\<Gamma> \<turnstile> \<star> \<triangleleft> V \<longmapsto>\<^sub>\<flat>C"
-  then show "C = \<lbrace>\<star> \<triangleleft> V\<rbrace> \<star> \<triangleleft> V"
-  proof (induction "\<star> \<triangleleft> V :: ('name, 'chan, 'val) process" C)
-    case broadcast_output
-    show ?case by (fact refl)
-  next
-    case scoped_acting
-    then show ?case by simp
-  next
-    case scoped_opening
-    then show ?case by simp
-  qed
 qed
 
 text \<open>
-  No opening transitions are possible from input and output processes.
+  No opening transitions are possible from send and receive processes.
 \<close>
 
-lemma no_opening_transitions_from_unicast_input: "\<not> \<Gamma> \<turnstile> c \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-  using basic_transitions_from_unicast_input by fastforce
-lemma no_opening_transitions_from_unicast_output: "\<not> \<Gamma> \<turnstile> c \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-  using basic_transitions_from_unicast_output by fastforce
-lemma no_opening_transitions_from_broadcast_input: "\<not> \<Gamma> \<turnstile> \<star> \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-  using basic_transitions_from_broadcast_input by fastforce
-lemma no_opening_transitions_from_broadcast_output: "\<not> \<Gamma> \<turnstile> \<star> \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-  using basic_transitions_from_broadcast_output by fastforce
+lemma no_opening_transitions_from_send: "\<not> \<Gamma> \<turnstile> m \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
+  using basic_transitions_from_send by fastforce
+lemma no_opening_transitions_from_receive: "\<not> \<Gamma> \<turnstile> m \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
+  using basic_transitions_from_receive by fastforce
 
 subsection \<open>Concrete Bisimilarities\<close>
 
@@ -490,43 +456,22 @@ end
 
 context begin
 
-private lemma basic_pre_unicast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> c \<triangleright> x. \<P> x \<preceq>\<^sub>\<flat> c \<triangleright> x. \<Q> x"
+private lemma basic_pre_receive_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> m \<triangleright> x. \<P> x \<preceq>\<^sub>\<flat> m \<triangleright> x. \<Q> x"
 proof (standard, intro allI, intro impI)
   assume "\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x"
   fix \<Gamma> and C
-  assume "\<Gamma> \<turnstile> c \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>C"
-  then show "\<exists>D. \<Gamma> \<turnstile> c \<triangleright> x. \<Q> x \<longmapsto>\<^sub>\<flat>D \<and> basic_lift op \<sim>\<^sub>\<flat> C D"
+  assume "\<Gamma> \<turnstile> m \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>C"
+  then show "\<exists>D. \<Gamma> \<turnstile> m \<triangleright> x. \<Q> x \<longmapsto>\<^sub>\<flat>D \<and> basic_lift op \<sim>\<^sub>\<flat> C D"
   proof cases
-    case unicast_input
+    case receiving
     with `\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x` show ?thesis
-      using basic_transition.unicast_input and acting_lift
+      using basic_transition.receiving and acting_lift
       by (metis (no_types, lifting))
-  qed (simp_all add: no_opening_transitions_from_unicast_input)
+  qed (simp_all add: no_opening_transitions_from_receive)
 qed
 
-lemma basic_unicast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> c \<triangleright> x. \<P> x \<sim>\<^sub>\<flat> c \<triangleright> x. \<Q> x"
-  by (simp add: basic_pre_unicast_input_preservation)
-
-end
-
-context begin
-
-private lemma basic_pre_broadcast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> \<star> \<triangleright> x. \<P> x \<preceq>\<^sub>\<flat> \<star> \<triangleright> x. \<Q> x"
-proof (standard, intro allI, intro impI)
-  assume "\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x"
-  fix \<Gamma> and C
-  assume "\<Gamma> \<turnstile> \<star> \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>C"
-  then show "\<exists>D. \<Gamma> \<turnstile> \<star> \<triangleright> x. \<Q> x \<longmapsto>\<^sub>\<flat>D \<and> basic_lift op \<sim>\<^sub>\<flat> C D"
-  proof cases
-    case broadcast_input
-    with `\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x` show ?thesis
-      using basic_transition.broadcast_input and acting_lift
-      by (metis (no_types, lifting))
-  qed (simp_all add: no_opening_transitions_from_broadcast_input)
-qed
-
-lemma basic_broadcast_input_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> \<star> \<triangleright> x. \<P> x \<sim>\<^sub>\<flat> \<star> \<triangleright> x. \<Q> x"
-  by (simp add: basic_pre_broadcast_input_preservation)
+lemma basic_receive_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> m \<triangleright> x. \<P> x \<sim>\<^sub>\<flat> m \<triangleright> x. \<Q> x"
+  by (simp add: basic_pre_receive_preservation)
 
 end
 
@@ -681,20 +626,12 @@ next
   case (sim S T \<Gamma> C)
   from this and `\<Gamma> \<turnstile> S \<longmapsto>\<^sub>\<flat>C` show ?case
   proof (basic_sim_induction T with_new_channel: new_channel_preservation_aux.with_new_channel)
-    case unicast_input
-    from unicast_input.prems show ?case
+    case sending
+    from sending.prems show ?case
       by cases new_channel_preservation_aux_trivial_conveyance
   next
-    case unicast_output
-    from unicast_output.prems show ?case
-      by cases new_channel_preservation_aux_trivial_conveyance
-  next
-    case broadcast_input
-    from broadcast_input.prems show ?case
-      by cases new_channel_preservation_aux_trivial_conveyance
-  next
-    case broadcast_output
-    from broadcast_output.prems show ?case
+    case receiving
+    from receiving.prems show ?case
       by cases new_channel_preservation_aux_trivial_conveyance
   next
     case communication
@@ -874,20 +811,12 @@ next
     from `\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> P'` and this and communication.hyps
     have "\<exists>T'. \<Gamma> \<turnstile> T \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T' \<and> parallel_scope_extension_subaux Q' P' T'"
     proof (induction (no_simp) P "\<lbrace>IO \<eta>\<rbrace> P'" arbitrary: P' T)
-      case unicast_input
-      from unicast_input.prems show ?case
+      case sending
+      from sending.prems show ?case
         by cases parallel_scope_extension_subaux_communication_conveyance
     next
-      case unicast_output
-      from unicast_output.prems show ?case
-        by cases parallel_scope_extension_subaux_communication_conveyance
-    next
-      case broadcast_input
-      from broadcast_input.prems show ?case
-        by cases parallel_scope_extension_subaux_communication_conveyance
-    next
-      case broadcast_output
-      from broadcast_output.prems show ?case
+      case receiving
+      from receiving.prems show ?case
         by cases parallel_scope_extension_subaux_communication_conveyance
     next
       case invocation
@@ -968,20 +897,12 @@ next
     from `\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> P'` and this and acting_left.hyps
     have "\<exists>T'. \<Gamma> \<turnstile> T \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T' \<and> parallel_scope_extension_subaux Q P' T'"
     proof (induction (no_simp) P "\<lbrace>\<alpha>\<rbrace> P'" arbitrary: P' T)
-      case unicast_input
-      from unicast_input.prems show ?case
+      case sending
+      from sending.prems show ?case
         by cases parallel_scope_extension_subaux_acting_left_conveyance
     next
-      case unicast_output
-      from unicast_output.prems show ?case
-        by cases parallel_scope_extension_subaux_acting_left_conveyance
-    next
-      case broadcast_input
-      from broadcast_input.prems show ?case
-        by cases parallel_scope_extension_subaux_acting_left_conveyance
-    next
-      case broadcast_output
-      from broadcast_output.prems show ?case
+      case receiving
+      from receiving.prems show ?case
         by cases parallel_scope_extension_subaux_acting_left_conveyance
     next
       case communication
@@ -1171,20 +1092,12 @@ next
   case (sim S T \<Gamma> C)
   from this and `\<Gamma> \<turnstile> S \<longmapsto>\<^sub>\<flat>C` show ?case
   proof (basic_sim_induction T with_new_channel: parallel_unit_aux.with_new_channel)
-    case unicast_input
-    from unicast_input.prems show ?case
+    case sending
+    from sending.prems show ?case
       by cases parallel_unit_aux_trivial_conveyance
   next
-    case unicast_output
-    from unicast_output.prems show ?case
-      by cases parallel_unit_aux_trivial_conveyance
-  next
-    case broadcast_input
-    from broadcast_input.prems show ?case
-      by cases parallel_unit_aux_trivial_conveyance
-  next
-    case broadcast_output
-    from broadcast_output.prems show ?case
+    case receiving
+    from receiving.prems show ?case
       by cases parallel_unit_aux_trivial_conveyance
   next
     case communication
