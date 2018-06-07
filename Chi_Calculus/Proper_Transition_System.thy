@@ -540,7 +540,7 @@ proof (standard, intro allI, intro impI)
     case (output_with_opening \<Q> m' \<K>)
     from `\<Gamma> \<turnstile> \<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = m \<triangleright> x. \<P> x a"
       by (fact opening_transitions_from_new_channel_receive)
-    with `\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>m' \<triangleleft> \<K> a` have "\<Gamma> \<turnstile> m \<triangleright> x. \<P> x (SOME _. True) \<longmapsto>\<^sub>\<sharp>\<lparr>m' \<triangleleft> \<K> (SOME _. True)"
+    with `\<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>m' \<triangleleft> \<K> a` have "\<Gamma> \<turnstile> m \<triangleright> x. \<P> x undefined \<longmapsto>\<^sub>\<sharp>\<lparr>m' \<triangleleft> \<K> undefined"
       by simp
     then show ?thesis
     proof cases
