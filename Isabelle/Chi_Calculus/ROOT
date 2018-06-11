@@ -1,13 +1,11 @@
 chapter Cardano
 
-session Chi_Calculus = HOL +
+session Chi_Calculus = Transition_Systems +
   description \<open>Formalization of the \<chi>-calculus.\<close>
   sessions
     "HOL-Eisbach"
-    "HOL-Library"
   theories
     Processes
-    Transition_Systems
     Basic_Transition_System
     Proper_Transition_System
   document_files

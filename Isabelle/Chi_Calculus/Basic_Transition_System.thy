@@ -1,7 +1,7 @@
 section \<open>Basic Transition System\<close>
 
 theory Basic_Transition_System
-  imports Transition_Systems Processes
+  imports Transition_Systems.Transition_Systems Processes
 begin
 
 subsection \<open>Actions\<close>
