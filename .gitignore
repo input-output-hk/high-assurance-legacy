@@ -4,6 +4,4 @@
 *.log
 *.pdf
 *.swp
-praos/.stack-work/
-simulation/.stack-work/
-unversioned/
+.stack-work/
