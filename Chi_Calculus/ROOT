@@ -2,7 +2,7 @@ chapter Cardano
 
 session Chi_Calculus = HOL +
   description \<open>Formalization of the \<chi>-calculus.\<close>
-  options [document = pdf, document_output = "output"]
+  options [document = pdf]
   sessions
     "HOL-Eisbach"
     "HOL-Library"
