@@ -18,3 +18,7 @@ sessions (“packages”) and places them in
 `$ISABELLE_BROWSER_INFO` by running the following command:
 
     isabelle getenv ISABELLE_BROWSER_INFO
+
+The makefile specifies two targets: `properly`, which is the default,
+and `qnd`. With `properly`, fake proofs (`sorry`) are not accepted; with
+`qnd`, quick-and-dirty mode is used and thus fake proofs are accepted.
