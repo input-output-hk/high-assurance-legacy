@@ -103,7 +103,7 @@ and
 where
   "transfer op \<sim> P Q \<Longrightarrow> P \<preceq> Q" |
   "P \<sim> Q \<equiv> P \<preceq> Q \<and> Q \<preceq> P"
-monos lift_monotonicity
+monos transfer_monotonicity
 
 lemma bisimilarity_symmetry_rule [sym]: "P \<sim> Q \<Longrightarrow> Q \<sim> P"
   by simp
