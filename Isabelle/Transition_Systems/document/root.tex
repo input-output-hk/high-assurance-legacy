@@ -11,6 +11,8 @@
 \urlstyle{rm}
 \isabellestyle{it}
 
+\usepackage{amsmath}
+
 \begin{document}
 
 \title{Transition Systems}
@@ -23,6 +25,31 @@
 \parindent 0pt\parskip 0.5ex
 
 \section{Introduction}
+
+We present a theory of labeled transition systems, formalized in Isabelle/HOL. Our theory supports
+two advanced features:
+\begin{description}
+
+\item[Contexts.]
+
+Whether a particular transition is possible may depend on a context. This feature can be used, for
+example, to implement process calculi with named processes. In such a calculus, a context maps names
+to processes, and a transition $\langle N\rangle \overset{\alpha}{\longrightarrow} P$, where
+$\langle N\rangle$ denotes the process with name~$N$, is possible in a context~$\Gamma$ if and only
+if $\Gamma(N) \overset{\alpha}{\longrightarrow} P$ is possible in~$\Gamma$.
+
+\item[Scope openings.]
+
+A transition may open scopes by having the label contain binders that bind their respective names
+also in the target process. In the $\pi$-calculus, for example, a transition
+$(\nu y)P \overset{\overline{x}\hspace{-0.03em}(\hspace{-.06em}y\hspace{-.12em})}{\longrightarrow}
+Q$ (which opens the $y$-scope and sends $y$ along~$x$) is possible if $P
+\overset{\overline{x}y}{\longrightarrow} Q$ (which sends $y$ along~$x$ without opening the
+$y$-scope) is possible. In the former transition, $y$ is bound in~$Q$ via the $(y)$ in the label.
+Certain other process calculi, like $\psi$-calculi and the $\chi$-calculus, allow for opening
+multiple scopes in a single transition.
+
+\end{description}
 
 \input{session}
 
