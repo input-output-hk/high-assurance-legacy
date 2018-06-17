@@ -31,13 +31,15 @@ datatype ('name, 'chan, 'val) process =
 *)
 
 text \<open>
-  The notation for \<^const>\<open>Receive\<close> cannot be declared with \<^bold>\<open>binder\<close>, for the following reasons:
+    The notation for \<^const>\<open>Receive\<close> cannot be declared with \<^theory_text>\<open>binder\<close>, for the
+    following reasons:
 
     \<^item> It does not allow binding multiple variables in one go (like in \<open>\<forall>x\<^sub>1 \<dots> x\<^sub>n. [\<dots>]\<close>).
 
     \<^item> It has an extra parameter (for the medium) before the binder.
 
-  Therefore we introduce this notation using the low-level \<^bold>\<open>syntax\<close> and \<^bold>\<open>translations\<close> constructs.
+  Therefore we introduce this notation using the low-level \<^theory_text>\<open>syntax\<close> and
+  \<^theory_text>\<open>translations\<close> constructs.
 \<close>
 
 syntax
