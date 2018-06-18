@@ -49,8 +49,7 @@ text \<open>
 lemma transfer_reverse_weak_equality_preservation: "transfer op = \<ge> op ="
   by (simp add: lift_equality_preservation refl_ge_eq)
 lemma transfer_reverse_weak_composition_preservation: "transfer (\<X> OO \<Y>) \<ge> transfer \<X> OO transfer \<Y>"
-  using relcomppE and lift_composition_preservation
-  by fastforce
+  by (fastforce simp add: lift_composition_preservation)
 
 text \<open>
   (Reverse) weak preservation laws for the binary infimum and supremum operations follow from just
@@ -158,10 +157,9 @@ proof -
     by simp_all
   then have "\<X> \<squnion> \<X>\<inverse>\<inverse> \<le> transfer \<X> \<squnion> transfer \<X>\<inverse>\<inverse>"
     by (fact sup_mono)
-  moreover have "transfer \<X> \<squnion> transfer \<X>\<inverse>\<inverse> \<le> transfer (\<X> \<squnion> \<X>\<inverse>\<inverse>)"
+  also have "\<dots> \<le> transfer (\<X> \<squnion> \<X>\<inverse>\<inverse>)"
     by (fact transfer_reverse_weak_supremum_preservation)
-  ultimately show "sim (\<X> \<squnion> \<X>\<inverse>\<inverse>)"
-    by (fact order.trans)
+  finally show ?thesis .
 qed
 
 subsection \<open>Bisimilarity\<close>
@@ -212,11 +210,9 @@ lemma bisimilarity_is_simulation: "sim op \<sim>"
 proof -
   have "op \<sim> \<le> op \<preceq>"
     by blast
-  moreover have "op \<preceq> \<le> transfer op \<sim>"
-    using pre_bisimilarity.cases
-    by blast
-  ultimately show "op \<sim> \<le> transfer op \<sim>"
-    by simp
+  also have "\<dots> \<le> transfer op \<sim>"
+    by (blast elim: pre_bisimilarity.cases)
+  finally show ?thesis .
 qed
 
 text \<open>
@@ -349,7 +345,7 @@ private lemma bisimilarity_standard_symp_intro:
   shows "symp \<X>"
   using assms ..
 private lemma bisimilarity_standard_sim_intro:
-  assumes "(\<And>P Q \<Gamma> C. \<Gamma> \<turnstile> P \<longmapsto>C \<Longrightarrow> \<X> P Q \<Longrightarrow> \<exists>D. \<Gamma> \<turnstile> Q \<longmapsto>D \<and> lift \<X> C D)"
+  assumes "(\<And>P Q \<Gamma> C. \<lbrakk> \<Gamma> \<turnstile> P \<longmapsto>C; \<X> P Q \<rbrakk> \<Longrightarrow> \<exists>D. \<Gamma> \<turnstile> Q \<longmapsto>D \<and> lift \<X> C D)"
   shows "sim \<X>"
   using assms by blast
 
