@@ -36,7 +36,7 @@ text \<open>
   Monotonicity follows from \<^term>\<open>lift\<close> monotonicity.
 \<close>
 
-lemma transfer_monotonicity: "\<X> \<le> \<Y> \<Longrightarrow> transfer \<X> \<le> transfer \<Y>"
+lemma transfer_monotonicity [mono]: "\<X> \<le> \<Y> \<Longrightarrow> transfer \<X> \<le> transfer \<Y>"
   using lift_monotonicity
   by blast
 
@@ -178,7 +178,6 @@ and
 where
   "transfer op \<sim> P Q \<Longrightarrow> P \<preceq> Q" |
   "P \<sim> Q \<equiv> P \<preceq> Q \<and> Q \<preceq> P"
-monos transfer_monotonicity
 
 subsubsection \<open>Symmetry\<close>
 

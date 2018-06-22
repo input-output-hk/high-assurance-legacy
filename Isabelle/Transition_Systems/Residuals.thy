@@ -23,7 +23,7 @@ text \<open>
 
 locale residual =
   fixes lift :: "('process \<Rightarrow> 'process \<Rightarrow> bool) \<Rightarrow> ('residual \<Rightarrow> 'residual \<Rightarrow> bool)"
-  assumes lift_monotonicity:
+  assumes lift_monotonicity [mono]:
     "\<X> \<le> \<Y> \<Longrightarrow> lift \<X> \<le> lift \<Y>"
   assumes lift_equality_preservation:
     "lift op = = op ="
