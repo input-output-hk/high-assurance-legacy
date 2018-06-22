@@ -4,11 +4,10 @@ theory Transition_Systems
   imports Residuals "HOL-Eisbach.Eisbach"
 begin
 
-subsection \<open>Definition\<close>
-
 text \<open>
-  A transition system consists of a notion of residual and a transition relation. There are no
-  axioms besides those for \<^term>\<open>lift\<close>.
+  A transition system is characterized by a relation between a context, a process, and a residual,
+  where residuals come from a residual structure as described in \hyperref[residuals]{the previous
+  section}.
 \<close>
 
 locale transition_system =
@@ -23,7 +22,7 @@ text \<open>
   relation between processes again. A relation \<open>transfer \<X>\<close> relates two processes \<open>P\<close> and~\<open>Q\<close> if
   and only if for each transition from~\<open>P\<close> there is a simulating transition from~\<open>Q\<close> such that the
   target processes of the two transitions are in relation~\<open>\<X>\<close>. The \<open>transfer\<close> operation forms the
-  backbone of the definition of simulation relations and is also used in our definition of
+  backbone of our definition of simulation relations and is also used in our definition of
   bisimilarity.
 \<close>
 
@@ -33,7 +32,7 @@ where
   "transfer \<X> P Q \<equiv> \<forall>\<Gamma> C. \<Gamma> \<turnstile> P \<longmapsto>C \<longrightarrow> (\<exists>D. \<Gamma> \<turnstile> Q \<longmapsto>D \<and> lift \<X> C D)"
 
 text \<open>
-  Monotonicity follows from \<^term>\<open>lift\<close> monotonicity.
+  Monotonicity of \<^term>\<open>transfer\<close> follows from monotonicity of \<^term>\<open>lift\<close>.
 \<close>
 
 lemma transfer_monotonicity [mono]: "\<X> \<le> \<Y> \<Longrightarrow> transfer \<X> \<le> transfer \<Y>"
@@ -55,7 +54,7 @@ lemma transfer_reverse_weak_composition_preservation:
 
 text \<open>
   (Reverse) weak preservation laws for the binary infimum and supremum operations follow from just
-  the monotonicity axiom, like in the case of \<^term>\<open>lift\<close>.
+  the monotonicity lemma, like in the case of \<^term>\<open>lift\<close>.
 \<close>
 
 lemma transfer_weak_infimum_preservation:
@@ -171,7 +170,7 @@ subsection \<open>Bisimilarity\<close>
 text \<open>
   Our definition of bisimilarity is essentially the well-known coinductive definition. Using
   \<^const>\<open>transfer\<close> makes it very concise. As an auxiliary relation we introduce
-  ``pre-bisimilarity'', which requires simulation only in one direction for the first step, but in
+  ``pre-bisimilarity'', which requires simulation only in one direction for the first step but in
   both directions for all following steps.
 \<close>
 
@@ -198,8 +197,8 @@ lemma bisimilarity_symmetry: "symp op \<sim>"
   using bisimilarity_symmetry_rule ..
 
 text \<open>
-  We defer reflexivity and transitivity to the
-  \hyperref[bisimilarity-reflexivity-transitivity]{end of the bisimilarity subsection} to avoid
+  We defer reflexivity and transitivity to
+  \hyperref[bisimilarity-reflexivity-transitivity]{the end of the bisimilarity subsection} to avoid
   circular reasoning.
 \<close>
 
@@ -300,11 +299,8 @@ subsubsection \<open>Proof Methods\<close>
 text \<open>
   Any symmetric simulation relation is a bisimulation relation and thus a subrelation of
   bisimilarity. Based on this fact, we define a standard method for proving statements of the form
-  \<^term>\<open>\<X> \<le> op \<sim>\<close>. This method creates two cases: \<open>symmetry\<close>, where \<open>?case\<close> is
-  \<^term>\<open>symp \<X>\<close>, and \<open>is_simulation\<close>, where \<open>?case\<close> is \<^term>\<open>sim \<X>\<close>.
-
-  Our proof method can be seen in action in the proofs of \<open>bisimilarity_reflexivity\<close> and
-  \<open>bisimilarity_transitivity\<close> in Subsubsection~\ref{bisimilarity-reflexivity-transitivity}.
+  \<^term>\<open>\<X> \<le> op \<sim>\<close>. This method creates two cases: \<open>symmetry\<close>, with conclusion \<^term>\<open>symp \<X>\<close>,
+  and \<open>is_simulation\<close>, with conclusion \<^term>\<open>sim \<X>\<close>.
 \<close>
 
 method in_bisimilarity_standard = (
@@ -312,6 +308,11 @@ method in_bisimilarity_standard = (
   intro symmetric_simulation_is_bisimulation,
   goal_cases symmetry is_simulation
 )
+
+text \<open>
+  Our proof method can be seen in action in the proofs of \<open>bisimilarity_reflexivity\<close> and
+  \<open>bisimilarity_transitivity\<close> in Subsubsection~\ref{bisimilarity-reflexivity-transitivity}.
+\<close>
 
 text \<open>
   Based on \<open>in_bisimilarity_standard\<close>, we define a method \<open>bisimilarity_standard\<close> for proving
@@ -327,20 +328,20 @@ text \<open>
 
   Note that, contrary to the \<open>symmetry\<close> and \<open>is_simulation\<close> cases of \<open>in_bisimilarity_standard\<close>, the
   \<open>sym\<close> and \<open>sim\<close> cases of \<open>bisimilarity_standard\<close> do not use the \<^term>\<open>symp\<close> and \<^term>\<open>sim\<close>
-  predicates but make the underlying logical constructions explicit. This often makes proofs easier.
-  Furthermore note that in the \<open>sim\<close> case the premise \<open>\<Gamma> \<turnstile> P \<longmapsto>C\<close> comes before the premise
+  predicates but are based directly on the underlying logical constructions. This often makes proofs
+  easier. Furthermore note that in the \<open>sim\<close> case the premise \<open>\<Gamma> \<turnstile> P \<longmapsto>C\<close> comes before the premise
   \<open>\<X> P Q\<close>. In the common situation of an inductively defined \<open>transition\<close> relation, this
-  arrangement makes it possible to directly handle the \<open>sim\<close> case via induction on \<open>\<Gamma> \<turnstile> P \<longmapsto>C\<close>, by
-  writing \<^theory_text>\<open>then show ?case proof induction \<dots> qed\<close>.
+  arrangement makes it possible to directly handle the \<open>sim\<close> case via induction on the derivation of
+  \<open>\<Gamma> \<turnstile> P \<longmapsto>C\<close>, by writing \<^theory_text>\<open>then show ?case proof induction \<dots> qed\<close>.
 \<close>
 
 context begin
 
 text \<open>
   We introduce two trivial auxiliary lemmas, which are used by the \<open>bisimilarity_standard\<close> proof
-  method. It would be simpler to let \<open>bisimilarity_standard\<close> employ some simple proof methods
-  instead of using these lemmas. However, the present solution allows us to choose default names for
-  the parameters of the \<open>sym\<close> and \<open>sim\<close> cases.
+  method. It would be simpler to let \<open>bisimilarity_standard\<close> employ some basic proof methods instead
+  of using these lemmas. However, the present solution allows us to choose default names for the
+  parameters of the \<open>sym\<close> and \<open>sim\<close> cases.
 \<close>
 
 private lemma bisimilarity_standard_symp_intro:

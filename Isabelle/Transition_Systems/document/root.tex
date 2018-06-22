@@ -13,6 +13,12 @@
 
 \usepackage{amsmath}
 
+\newcommand{\openandsendexample}{
+  (\nu y)P
+  \overset{\overline{x}\hspace{-0.03em}(\hspace{-.06em}y\hspace{-.12em})}{\longrightarrow}
+  Q
+}
+
 \begin{document}
 
 \title{A Theory of Labeled Transition Systems\\with Support for Contexts and Scope Openings}
@@ -32,22 +38,23 @@ two advanced features:
 
 \item[Contexts.]
 
-Whether a particular transition is possible may depend on a context. This feature can be used, for
-example, to implement process calculi with named processes. In such a calculus, a context maps names
-to processes, and a transition $\langle N\rangle \overset{\alpha}{\longrightarrow} P$, where
-$\langle N\rangle$ denotes the process with name~$N$, is possible in a context~$\Gamma$ if and only
-if $\Gamma(N) \overset{\alpha}{\longrightarrow} P$ is possible in~$\Gamma$.
+Whether a particular transition is possible may depend on a context. This feature is useful, for
+example, for implementing process calculi with named processes. The general idea is that a context
+maps names to processes and that a transition $\langle N\rangle \overset{\alpha}{\longrightarrow}
+P$, where $\langle N\rangle$ denotes the process with name~$N$, is possible in a context~$\Gamma$ if
+and only if $\Gamma(N) \overset{\alpha}{\longrightarrow} P$ is possible in~$\Gamma$.
 
 \item[Scope openings.]
 
 A transition may open scopes by having the label contain binders that bind their respective names
 also in the target process. In the $\pi$-calculus, for example, a transition
-$(\nu y)P \overset{\overline{x}\hspace{-0.03em}(\hspace{-.06em}y\hspace{-.12em})}{\longrightarrow}
-Q$ (which opens the $y$-scope and sends $y$ along~$x$) is possible if $P
-\overset{\overline{x}y}{\longrightarrow} Q$ (which sends $y$ along~$x$ without opening the
-$y$-scope) is possible. In the former transition, $y$ is bound in~$Q$ via the $(y)$ in the label.
-Certain other process calculi, like $\psi$-calculi and the $\chi$-calculus, allow for opening
-multiple scopes in a single transition.
+$\openandsendexample$ is possible if $P \overset{\overline{x}y}{\longrightarrow} Q$ is. The latter
+transition just sends $y$ along~$x$, but the former first opens the $y$-scope and only then sends
+$y$ along~$x$. The channel denoted by~$y$ is accessible in~$Q$ because the $(y)$ in the label
+$\overline{x}(y)$ binds $y$ in~$Q$. Certain other process calculi, like $\psi$-calculi and the
+$\chi$-calculus, even allow for opening multiple scopes in a single transition. Our theory of
+transition systems assumes that binding structures that realize scope openings are implemented using
+higher-order abstract syntax (HOAS).
 
 \end{description}
 
