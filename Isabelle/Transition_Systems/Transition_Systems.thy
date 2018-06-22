@@ -99,11 +99,10 @@ lemma composition_sim_propagation: "\<lbrakk> sim \<X>; sim \<Y> \<rbrakk> \<Lon
 proof -
   assume "\<X> \<le> transfer \<X>" and "\<Y> \<le> transfer \<Y>"
   then have "\<X> OO \<Y> \<le> transfer \<X> OO transfer \<Y>"
-    by (simp add: relcompp_mono)
-  moreover have "transfer \<X> OO transfer \<Y> \<le> transfer (\<X> OO \<Y>)"
+    by (fact relcompp_mono)
+  also have "transfer \<X> OO transfer \<Y> \<le> transfer (\<X> OO \<Y>)"
     by (fact transfer_reverse_weak_composition_preservation)
-  ultimately show "\<X> OO \<Y> \<le> transfer (\<X> OO \<Y>)"
-    by (fact order.trans)
+  finally show ?thesis .
 qed
 
 subsection \<open>Bisimulation Relations\<close>
