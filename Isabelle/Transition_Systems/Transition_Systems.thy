@@ -46,9 +46,11 @@ text \<open>
   because of the fundamental asymmetry in the definition of \<^const>\<open>transfer\<close>.
 \<close>
 
-lemma transfer_reverse_weak_equality_preservation: "transfer op = \<ge> op ="
+lemma transfer_reverse_weak_equality_preservation:
+  "transfer op = \<ge> op ="
   by (simp add: lift_equality_preservation refl_ge_eq)
-lemma transfer_reverse_weak_composition_preservation: "transfer (\<X> OO \<Y>) \<ge> transfer \<X> OO transfer \<Y>"
+lemma transfer_reverse_weak_composition_preservation:
+  "transfer (\<X> OO \<Y>) \<ge> transfer \<X> OO transfer \<Y>"
   by (fastforce simp add: lift_composition_preservation)
 
 text \<open>
@@ -56,9 +58,11 @@ text \<open>
   the monotonicity axiom, like in the case of \<^term>\<open>lift\<close>.
 \<close>
 
-lemma transfer_weak_infimum_preservation: "transfer (\<X> \<sqinter> \<Y>) \<le> transfer \<X> \<sqinter> transfer \<Y>"
+lemma transfer_weak_infimum_preservation:
+  "transfer (\<X> \<sqinter> \<Y>) \<le> transfer \<X> \<sqinter> transfer \<Y>"
   by (simp add: transfer_monotonicity)
-lemma transfer_reverse_weak_supremum_preservation: "transfer (\<X> \<squnion> \<Y>) \<ge> transfer \<X> \<squnion> transfer \<Y>"
+lemma transfer_reverse_weak_supremum_preservation:
+  "transfer (\<X> \<squnion> \<Y>) \<ge> transfer \<X> \<squnion> transfer \<Y>"
   by (simp add: transfer_monotonicity)
 
 text \<open>
