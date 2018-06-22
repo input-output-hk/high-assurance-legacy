@@ -430,7 +430,7 @@ qed
 
 lemma basic_bisimilarity_is_proper_bisimulation: "bisim\<^sub>\<sharp> op \<sim>\<^sub>\<flat>"
   using basic.bisimilarity_symmetry and basic_bisimilarity_is_proper_simulation
-  by (fact proper.symmetric_simulation)
+  by (fact proper.symmetric_simulation_is_bisimulation)
 
 lemma basic_bisimilarity_in_proper_bisimilarity: "op \<sim>\<^sub>\<flat> \<le> op \<sim>\<^sub>\<sharp>"
   using basic_bisimilarity_is_proper_bisimulation

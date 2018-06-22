@@ -135,7 +135,7 @@ text \<open>
   Any symmetric simulation relation is a bisimulation relation.
 \<close>
 
-lemma symmetric_simulation: "\<lbrakk> symp \<X>; sim \<X> \<rbrakk> \<Longrightarrow> bisim \<X>"
+lemma symmetric_simulation_is_bisimulation: "\<lbrakk> symp \<X>; sim \<X> \<rbrakk> \<Longrightarrow> bisim \<X>"
 proof
   assume "symp \<X>"
   then have "\<X>\<inverse>\<inverse> = \<X>"
@@ -220,7 +220,7 @@ text \<open>
 
 lemma bisimilarity_is_bisimulation: "bisim op \<sim>"
   using bisimilarity_symmetry and bisimilarity_is_simulation
-  by (fact symmetric_simulation)
+  by (fact symmetric_simulation_is_bisimulation)
 
 text \<open>
   Any bisimulation relation is a subrelation of bisimilarity.
@@ -305,7 +305,7 @@ text \<open>
 
 method in_bisimilarity_standard = (
   intro bisimulation_in_bisimilarity,
-  intro symmetric_simulation,
+  intro symmetric_simulation_is_bisimulation,
   goal_cases symmetry is_simulation
 )
 
