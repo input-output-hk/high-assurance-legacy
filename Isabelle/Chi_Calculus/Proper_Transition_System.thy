@@ -72,7 +72,7 @@ proof
 qed
 lemma output_rest_lift_equality_preservation:
   "output_rest_lift op = = op ="
-proof (intro ext)+
+proof (intro ext)
   fix K\<^sub>1 and K\<^sub>2
   show "output_rest_lift op = K\<^sub>1 K\<^sub>2 \<longleftrightarrow> K\<^sub>1 = K\<^sub>2"
   proof
@@ -87,7 +87,7 @@ proof (intro ext)+
 qed
 lemma output_rest_lift_composition_preservation:
   "output_rest_lift (\<X> OO \<Y>) = output_rest_lift \<X> OO output_rest_lift \<Y>"
-proof (intro ext)+
+proof (intro ext)
   fix K and M
   show "output_rest_lift (\<X> OO \<Y>) K M \<longleftrightarrow> (output_rest_lift \<X> OO output_rest_lift \<Y>) K M"
   proof
@@ -139,7 +139,7 @@ proof (intro ext)+
 qed
 lemma output_rest_lift_conversion_preservation:
   "output_rest_lift \<X>\<inverse>\<inverse> = (output_rest_lift \<X>)\<inverse>\<inverse>"
-proof (intro ext)+
+proof (intro ext)
   fix K and L
   show "output_rest_lift \<X>\<inverse>\<inverse> L K \<longleftrightarrow> (output_rest_lift \<X>)\<inverse>\<inverse> L K"
   proof
@@ -210,7 +210,7 @@ proof
   qed
 qed
 lemma proper_lift_equality_preservation: "proper_lift op = = op ="
-proof (intro ext)+
+proof (intro ext)
   fix C\<^sub>1 and C\<^sub>2
   show "proper_lift op = C\<^sub>1 C\<^sub>2 \<longleftrightarrow> C\<^sub>1 = C\<^sub>2"
   proof
@@ -225,7 +225,7 @@ proof (intro ext)+
   qed
 qed
 lemma proper_lift_composition_preservation: "proper_lift (\<X> OO \<Y>) = proper_lift \<X> OO proper_lift \<Y>"
-proof (intro ext)+
+proof (intro ext)
   fix C and E
   show "proper_lift (\<X> OO \<Y>) C E \<longleftrightarrow> (proper_lift \<X> OO proper_lift \<Y>) C E"
   proof
@@ -270,7 +270,7 @@ proof (intro ext)+
   qed
 qed
 lemma proper_lift_conversion_preservation: "proper_lift \<X>\<inverse>\<inverse> = (proper_lift \<X>)\<inverse>\<inverse>"
-proof (intro ext)+
+proof (intro ext)
   fix C and D
   show "proper_lift \<X>\<inverse>\<inverse> D C \<longleftrightarrow> (proper_lift \<X>)\<inverse>\<inverse> D C"
   proof

@@ -68,7 +68,7 @@ proof
   then show "basic_lift \<Y> C D" by induction (blast intro: basic_lift.intros)+
 qed
 lemma basic_lift_equality_preservation: "basic_lift op = = op ="
-proof (intro ext)+
+proof (intro ext)
   fix C\<^sub>1 and C\<^sub>2
   show "basic_lift op = C\<^sub>1 C\<^sub>2 \<longleftrightarrow> C\<^sub>1 = C\<^sub>2"
   proof
@@ -82,7 +82,7 @@ proof (intro ext)+
   qed
 qed
 lemma basic_lift_composition_preservation: "basic_lift (\<X> OO \<Y>) = basic_lift \<X> OO basic_lift \<Y>"
-proof (intro ext)+
+proof (intro ext)
   fix C and E
   show "basic_lift (\<X> OO \<Y>) C E \<longleftrightarrow> (basic_lift \<X> OO basic_lift \<Y>) C E"
   proof
@@ -130,7 +130,7 @@ proof (intro ext)+
   qed
 qed
 lemma basic_lift_conversion_preservation: "basic_lift \<X>\<inverse>\<inverse> = (basic_lift \<X>)\<inverse>\<inverse>"
-proof (intro ext)+
+proof (intro ext)
   fix C and D
   show "basic_lift \<X>\<inverse>\<inverse> D C \<longleftrightarrow> (basic_lift \<X>)\<inverse>\<inverse> D C"
   proof
