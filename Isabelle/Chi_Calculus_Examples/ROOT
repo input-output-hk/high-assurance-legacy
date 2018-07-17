@@ -1,0 +1,8 @@
+chapter Cardano
+
+session Chi_Calculus_Examples (ouroboros) = Chi_Calculus +
+  description \<open>Examples of using the \<chi>-calculus formalization.\<close>
+  theories
+    (* TBA *)
+  document_files
+    "root.tex"
