@@ -321,7 +321,7 @@ where
     "\<lbrakk> \<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a; \<And>a. \<Gamma> \<turnstile> \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<K> a \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<nu> a. \<K> a"
 
 text \<open>
-  The residual structure and \<^const>\<open>basic_transition\<close> together form a transition system.
+  The residual structure and \<^const>\<open>proper_transition\<close> together form a transition system.
 \<close>
 
 interpretation proper: transition_system proper_lift proper_transition
