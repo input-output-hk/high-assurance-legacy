@@ -395,7 +395,7 @@ text \<open>
 \<close>
 
 lemma bisimilarity_reflexivity: "reflp op \<sim>"
-proof (unfold reflp_eq, in_bisimilarity_standard)
+unfolding reflp_eq proof in_bisimilarity_standard
   case symmetry
   show ?case by (simp add: sympI)
 next
@@ -411,7 +411,7 @@ text \<open>
 \<close>
 
 lemma bisimilarity_transitivity: "transp op \<sim>"
-proof (unfold transp_relcompp, in_bisimilarity_standard)
+unfolding transp_relcompp proof in_bisimilarity_standard
   case symmetry
   show ?case by (blast intro: sympI)
 next
