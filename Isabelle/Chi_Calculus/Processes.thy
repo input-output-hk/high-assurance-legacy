@@ -17,13 +17,12 @@ text \<open>
   The definition of the type of processes is fairly straightforward.
 \<close>
 
-datatype ('name, 'chan, 'val) process =
+codatatype ('chan, 'val) process =
   Stop ("\<zero>") |
   Send "('chan medium)" 'val (infix "\<triangleleft>" 100) |
-  Receive "('chan medium)" "('val \<Rightarrow> ('name, 'chan, 'val) process)" |
-  Parallel "(('name, 'chan, 'val) process)" "(('name, 'chan, 'val) process)" (infixr "\<parallel>" 65) |
-  NewChannel "('chan \<Rightarrow> ('name, 'chan, 'val) process)" (binder "\<nu>" 100) |
-  Invoke 'name 'val ("\<langle>_\<rangle> _" [0, 100] 100)
+  Receive "('chan medium)" "('val \<Rightarrow> ('chan, 'val) process)" |
+  Parallel "(('chan, 'val) process)" "(('chan, 'val) process)" (infixr "\<parallel>" 65) |
+  NewChannel "('chan \<Rightarrow> ('chan, 'val) process)" (binder "\<nu>" 100)
 
 (*
   It might be good to never use a concrete channel type and introduce global channels by passing
@@ -43,11 +42,7 @@ text \<open>
 \<close>
 
 syntax
-  "_Receive" :: "
-    'chan medium \<Rightarrow>
-    pttrn \<Rightarrow>
-    ('name, 'chan, 'val) process \<Rightarrow>
-    ('name, 'chan, 'val) process"
+  "_Receive" :: "'chan medium \<Rightarrow> pttrn \<Rightarrow> ('chan, 'val) process \<Rightarrow> ('chan, 'val) process"
   ("(3_ \<triangleright> _./ _)" [101, 0, 100] 100)
 translations
   "m \<triangleright> x. P" \<rightleftharpoons> "CONST Receive m (\<lambda>x. P)"

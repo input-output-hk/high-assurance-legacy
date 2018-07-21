@@ -41,17 +41,16 @@ nothing to do with the famous cryptocurrency of the same name.} and denote by~$\
 
 \item
 
-Execution of a process takes place in a context, which maps names to process functions. A process
-can invoke process functions by name, which allows for recursion. Replication of processes (provided
-by the $!$-operator in the $\pi$- and the $\psi$-calculus) is not provided by the $\chi$-calculus,
-since the availability of recursion makes it unnecessary.
-
-\item
-
 Processes can work with arbitrary data. The $\chi$-calculus uses higher-order abstract syntax (HOAS)
 to make the full computational power of the host language available inside the process calculus. It
 also uses HOAS for dealing with locally created channels. Through the consequent use of HOAS, all
 naming issues are handled by the host language.
+
+\item
+
+Process terms can be infinite. This allows for recursively defined processes. Replication of
+processes (provided by the $!$-operator in the $\pi$- and the $\psi$-calculus) is not provided by
+the $\chi$-calculus, since the possibility of using recursion makes it unnecessary.
 
 \end{itemize}
 

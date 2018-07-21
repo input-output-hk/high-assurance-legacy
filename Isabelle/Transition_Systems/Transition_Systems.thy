@@ -5,14 +5,14 @@ theory Transition_Systems
 begin
 
 text \<open>
-  A transition system is characterized by a relation between a context, a process, and a residual,
-  where residuals come from a residual structure as described in \hyperref[residuals]{the previous
+  A transition system is characterized by a relation between a process and a residual, where
+  residuals come from a residual structure as described in \hyperref[residuals]{the previous
   section}.
 \<close>
 
 locale transition_system =
   residual lift for lift :: "('process \<Rightarrow> 'process \<Rightarrow> bool) \<Rightarrow> ('residual \<Rightarrow> 'residual \<Rightarrow> bool)" +
-  fixes transition :: "'context \<Rightarrow> 'process \<Rightarrow> 'residual \<Rightarrow> bool" ("_ \<turnstile> _ \<longmapsto>_" [51, 0, 51] 50)
+  fixes transition :: "'process \<Rightarrow> 'residual \<Rightarrow> bool" (infix "\<longmapsto>" 50)
 begin
 
 subsection \<open>Transfer\<close>
@@ -29,7 +29,7 @@ text \<open>
 abbreviation
   transfer :: "('process \<Rightarrow> 'process \<Rightarrow> bool) \<Rightarrow> ('process \<Rightarrow> 'process \<Rightarrow> bool)"
 where
-  "transfer \<X> P Q \<equiv> \<forall>\<Gamma> C. \<Gamma> \<turnstile> P \<longmapsto>C \<longrightarrow> (\<exists>D. \<Gamma> \<turnstile> Q \<longmapsto>D \<and> lift \<X> C D)"
+  "transfer \<X> P Q \<equiv> \<forall>C. P \<longmapsto>C \<longrightarrow> (\<exists>D. Q \<longmapsto>D \<and> lift \<X> C D)"
 
 text \<open>
   Monotonicity of \<^term>\<open>transfer\<close> follows from monotonicity of \<^term>\<open>lift\<close>.
@@ -330,16 +330,16 @@ text \<open>
 
     \<^item> \<open>sym\<close>, with parameters \<open>P\<close> and~\<open>Q\<close>, premise \<open>\<X> P Q\<close>, and conclusion \<open>\<X> Q P\<close>
 
-    \<^item> \<open>sim\<close>, with parameters \<open>P\<close>, \<open>Q\<close>, \<open>\<Gamma>\<close>, and \<open>C\<close>, premises \<open>\<Gamma> \<turnstile> P \<longmapsto>C\<close> and \<open>\<X> P Q\<close>, and
-      conclusion \<open>\<exists>D. \<Gamma> \<turnstile> Q \<longmapsto>D \<and> lift \<X> C D\<close>
+    \<^item> \<open>sim\<close>, with parameters \<open>P\<close>, \<open>Q\<close>, and \<open>C\<close>, premises \<open>P \<longmapsto>C\<close> and \<open>\<X> P Q\<close>, and conclusion
+      \<open>\<exists>D. Q \<longmapsto>D \<and> lift \<X> C D\<close>
 
   Note that, contrary to the \<open>symmetry\<close> and \<open>is_simulation\<close> cases of \<open>in_bisimilarity_standard\<close>, the
   \<open>sym\<close> and \<open>sim\<close> cases of \<open>bisimilarity_standard\<close> do not use the \<^term>\<open>symp\<close> and \<^term>\<open>sim\<close>
   predicates but are based directly on the underlying logical constructions. This often makes proofs
-  easier. Furthermore note that in the \<open>sim\<close> case the premise \<open>\<Gamma> \<turnstile> P \<longmapsto>C\<close> comes before the premise
+  easier. Furthermore note that in the \<open>sim\<close> case the premise \<open>P \<longmapsto>C\<close> comes before the premise
   \<open>\<X> P Q\<close>. In the common situation of an inductively defined \<open>transition\<close> relation, this
   arrangement makes it possible to directly handle the \<open>sim\<close> case via induction on the derivation of
-  \<open>\<Gamma> \<turnstile> P \<longmapsto>C\<close>, by writing @{theory_text \<open>then show ?case proof induction \<dots> qed\<close>}.
+  \<open>P \<longmapsto>C\<close>, by writing @{theory_text \<open>then show ?case proof induction \<dots> qed\<close>}.
 \<close>
 
 context begin
@@ -356,7 +356,7 @@ private lemma bisimilarity_standard_symp_intro:
   shows "symp \<X>"
   using assms ..
 private lemma bisimilarity_standard_sim_intro:
-  assumes "(\<And>P Q \<Gamma> C. \<lbrakk> \<Gamma> \<turnstile> P \<longmapsto>C; \<X> P Q \<rbrakk> \<Longrightarrow> \<exists>D. \<Gamma> \<turnstile> Q \<longmapsto>D \<and> lift \<X> C D)"
+  assumes "(\<And>P Q C. \<lbrakk> P \<longmapsto>C; \<X> P Q \<rbrakk> \<Longrightarrow> \<exists>D. Q \<longmapsto>D \<and> lift \<X> C D)"
   shows "sim \<X>"
   using assms by blast
 

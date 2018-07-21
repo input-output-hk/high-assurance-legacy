@@ -21,7 +21,7 @@
 
 \begin{document}
 
-\title{A Theory of Labeled Transition Systems\\with Support for Contexts and Scope Openings}
+\title{A Theory of Labeled Transition Systems\\with Support for Scope Openings}
 \author{Wolfgang Jeltsch\\\small\texttt{wolfgang@well-typed.com}}
 
 \maketitle
@@ -32,31 +32,17 @@
 
 \section{Introduction}
 
-We present a theory of labeled transition systems, formalized in Isabelle/HOL. Our theory supports
-two advanced features:
-\begin{description}
+We present a theory of labeled transition systems, formalized in Isabelle/HOL. Our theory allows
+a transition to open scopes by having the label contain binders that bind their respective names
+also in the target process. In the $\pi$-calculus, for example, a transition $\openandsendexample$
+is possible if $P \overset{\overline{x}y}{\longrightarrow} Q$ is. The latter transition just sends
+$y$ along~$x$, but the former first opens the $y$-scope and only then sends $y$ along~$x$. The
+channel denoted by~$y$ is accessible in~$Q$ because the $(y)$ in the label $\overline{x}(y)$ binds
+$y$ in~$Q$. Certain other process calculi, like $\psi$-calculi and the $\chi$-calculus, even allow
+for opening multiple scopes in a single transition.
 
-\item[Contexts.]
-
-Whether a particular transition is possible may depend on a context. This feature is useful, for
-example, for implementing process calculi with named processes. The general idea is that a context
-maps names to processes and that a transition $\langle N\rangle \overset{\alpha}{\longrightarrow}
-P$, where $\langle N\rangle$ denotes the process with name~$N$, is possible in a context~$\Gamma$ if
-and only if $\Gamma(N) \overset{\alpha}{\longrightarrow} P$ is possible in~$\Gamma$.
-
-\item[Scope openings.]
-
-A transition may open scopes by having the label contain binders that bind their respective names
-also in the target process. In the $\pi$-calculus, for example, a transition
-$\openandsendexample$ is possible if $P \overset{\overline{x}y}{\longrightarrow} Q$ is. The latter
-transition just sends $y$ along~$x$, but the former first opens the $y$-scope and only then sends
-$y$ along~$x$. The channel denoted by~$y$ is accessible in~$Q$ because the $(y)$ in the label
-$\overline{x}(y)$ binds $y$ in~$Q$. Certain other process calculi, like $\psi$-calculi and the
-$\chi$-calculus, even allow for opening multiple scopes in a single transition. Our theory of
-transition systems assumes that binding structures that realize scope openings are implemented using
-higher-order abstract syntax (HOAS).
-
-\end{description}
+Our theory of transition systems assumes that binding structures that realize scope openings are
+implemented using higher-order abstract syntax (HOAS).
 
 \input{session}
 

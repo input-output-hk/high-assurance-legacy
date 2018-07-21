@@ -2,7 +2,7 @@ chapter Cardano
 
 session Transition_Systems (ouroboros) = HOL +
   description
-    \<open>A framework for labeled transition systems with support for contexts and scope openings.\<close>
+    \<open>A framework for labeled transition systems with support for scope openings.\<close>
   sessions
     "HOL-Eisbach"
     "HOL-Library"
