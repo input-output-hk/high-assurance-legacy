@@ -339,7 +339,7 @@ text \<open>
   easier. Furthermore note that in the \<open>sim\<close> case the premise \<open>\<Gamma> \<turnstile> P \<longmapsto>C\<close> comes before the premise
   \<open>\<X> P Q\<close>. In the common situation of an inductively defined \<open>transition\<close> relation, this
   arrangement makes it possible to directly handle the \<open>sim\<close> case via induction on the derivation of
-  \<open>\<Gamma> \<turnstile> P \<longmapsto>C\<close>, by writing \<^theory_text>\<open>then show ?case proof induction \<dots> qed\<close>.
+  \<open>\<Gamma> \<turnstile> P \<longmapsto>C\<close>, by writing @{theory_text \<open>then show ?case proof induction \<dots> qed\<close>}.
 \<close>
 
 context begin
