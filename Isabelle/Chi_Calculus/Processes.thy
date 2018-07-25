@@ -5,22 +5,13 @@ theory Processes
 begin
 
 text \<open>
-  A communication medium is either a channel, providing unicast communication, or the ether,
-  providing broadcast communication.
-\<close>
-
-datatype 'chan medium =
-  Unicast 'chan ("\<cdot>_" [1000] 1000) |
-  Broadcast ("\<star>")
-
-text \<open>
   The definition of the type of processes is fairly straightforward.
 \<close>
 
 codatatype ('chan, 'val) process =
   Stop ("\<zero>") |
-  Send "('chan medium)" 'val (infix "\<triangleleft>" 100) |
-  Receive "('chan medium)" "('val \<Rightarrow> ('chan, 'val) process)" |
+  Send 'chan 'val (infix "\<triangleleft>" 100) |
+  Receive 'chan "('val \<Rightarrow> ('chan, 'val) process)" |
   Parallel "(('chan, 'val) process)" "(('chan, 'val) process)" (infixr "\<parallel>" 65) |
   NewChannel "('chan \<Rightarrow> ('chan, 'val) process)" (binder "\<nu>" 100)
 
@@ -35,17 +26,17 @@ text \<open>
 
     \<^item> It does not allow binding multiple variables in one go (like in \<open>\<forall>x\<^sub>1 \<dots> x\<^sub>n. [\<dots>]\<close>).
 
-    \<^item> It has an extra parameter (for the medium) before the binder.
+    \<^item> It has an extra parameter (for the channel) before the binder.
 
   Therefore we introduce this notation using the low-level @{theory_text \<open>syntax\<close>} and
   @{theory_text \<open>translations\<close>} constructs.
 \<close>
 
 syntax
-  "_Receive" :: "'chan medium \<Rightarrow> pttrn \<Rightarrow> ('chan, 'val) process \<Rightarrow> ('chan, 'val) process"
+  "_Receive" :: "'chan \<Rightarrow> pttrn \<Rightarrow> ('chan, 'val) process \<Rightarrow> ('chan, 'val) process"
   ("(3_ \<triangleright> _./ _)" [101, 0, 100] 100)
 translations
-  "m \<triangleright> x. P" \<rightleftharpoons> "CONST Receive m (\<lambda>x. P)"
+  "c \<triangleright> x. P" \<rightleftharpoons> "CONST Receive c (\<lambda>x. P)"
 
 text \<open>
   This is all for processes.

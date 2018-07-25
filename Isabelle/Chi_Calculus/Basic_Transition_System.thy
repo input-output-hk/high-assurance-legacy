@@ -11,19 +11,19 @@ text \<open>
 \<close>
 
 datatype ('chan, 'val) io_action =
-  BasicIn "('chan medium)" 'val |
-  BasicOut "('chan medium)" 'val
+  BasicIn 'chan 'val |
+  BasicOut 'chan 'val
 datatype ('chan, 'val) basic_action =
   IO "(('chan, 'val) io_action)" |
   BasicSilent ("\<tau>")
 abbreviation
-  BasicInAction :: "'chan medium \<Rightarrow> 'val \<Rightarrow> ('chan, 'val) basic_action" (infix "\<triangleright>" 100)
+  BasicInAction :: "'chan \<Rightarrow> 'val \<Rightarrow> ('chan, 'val) basic_action" (infix "\<triangleright>" 100)
 where
-  "m \<triangleright> V \<equiv> IO (BasicIn m V)"
+  "c \<triangleright> V \<equiv> IO (BasicIn c V)"
 abbreviation
-  BasicOutAction :: "'chan medium \<Rightarrow> 'val \<Rightarrow> ('chan, 'val) basic_action" (infix "\<triangleleft>" 100)
+  BasicOutAction :: "'chan \<Rightarrow> 'val \<Rightarrow> ('chan, 'val) basic_action" (infix "\<triangleleft>" 100)
 where
-  "m \<triangleleft> V \<equiv> IO (BasicOut m V)"
+  "c \<triangleleft> V \<equiv> IO (BasicOut c V)"
 
 subsection \<open>Residuals\<close>
 
@@ -173,9 +173,9 @@ inductive
   (infix "\<bowtie>" 50)
 where
   unicast_ltr:
-    "BasicOut m V \<bowtie> BasicIn m V" |
+    "BasicOut c V \<bowtie> BasicIn c V" |
   unicast_rtl:
-    "BasicIn m V \<bowtie> BasicOut m V"
+    "BasicIn c V \<bowtie> BasicOut c V"
 
 text \<open>
   The communication relation is symmetric.
@@ -189,16 +189,6 @@ lemma communication_symmetry: "symp op \<bowtie>"
 subsection \<open>Transition System\<close>
 
 text \<open>
-  A send continuation is the target process of a sending transition. For unicast communication, it
-  is \<open>\<zero>\<close>, because the value in question should be sent only once; for broadcast communication, it is
-  the source process of the transition, because the sending should be repeated indefinitely.
-\<close>
-
-fun send_cont :: "'chan medium \<Rightarrow> 'val \<Rightarrow> ('chan, 'val) process" where
-  "send_cont \<cdot>_ _ = \<zero>" |
-  "send_cont \<star> V = \<star> \<triangleleft> V"
-
-text \<open>
   The following definition of the transition relation captures the set of rules that define the
   transition system.
 \<close>
@@ -208,9 +198,9 @@ inductive
   (infix "\<longmapsto>\<^sub>\<flat>" 50)
 where
   sending:
-    "m \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>m \<triangleleft> V\<rbrace> send_cont m V" |
+    "c \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>c \<triangleleft> V\<rbrace> \<zero>" |
   receiving:
-    "m \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>m \<triangleright> V\<rbrace> \<P> V" |
+    "c \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>c \<triangleright> V\<rbrace> \<P> V" |
   communication:
     "\<lbrakk> \<eta> \<bowtie> \<mu>; P \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> P'; Q \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> Q' \<rbrakk> \<Longrightarrow> P \<parallel> Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> P' \<parallel> Q'" |
   opening:
@@ -298,12 +288,12 @@ text \<open>
   Only certain transitions are possible from send and receive processes.
 \<close>
 
-lemma basic_transitions_from_send: "m \<triangleleft> V \<longmapsto>\<^sub>\<flat>C \<Longrightarrow> C = \<lbrace>m \<triangleleft> V\<rbrace> send_cont m V"
+lemma basic_transitions_from_send: "c \<triangleleft> V \<longmapsto>\<^sub>\<flat>C \<Longrightarrow> C = \<lbrace>c \<triangleleft> V\<rbrace> \<zero>"
 proof -
-  fix m and V and C :: "('chan, 'val) basic_residual"
-  assume "m \<triangleleft> V \<longmapsto>\<^sub>\<flat>C"
-  then show "C = \<lbrace>m \<triangleleft> V\<rbrace> send_cont m V"
-  proof (induction "m \<triangleleft> V :: ('chan, 'val) process" C)
+  fix c and V and C :: "('chan, 'val) basic_residual"
+  assume "c \<triangleleft> V \<longmapsto>\<^sub>\<flat>C"
+  then show "C = \<lbrace>c \<triangleleft> V\<rbrace> \<zero>"
+  proof (induction "c \<triangleleft> V :: ('chan, 'val) process" C)
     case sending
     show ?case by (fact refl)
   next
@@ -315,9 +305,9 @@ proof -
   qed
 qed
 lemma basic_transitions_from_receive:
-  assumes "m \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>C"
-  obtains V where "C = \<lbrace>m \<triangleright> V\<rbrace> \<P> V"
-using assms proof (induction "m \<triangleright> x. \<P> x" C)
+  assumes "c \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>C"
+  obtains V where "C = \<lbrace>c \<triangleright> V\<rbrace> \<P> V"
+using assms proof (induction "c \<triangleright> x. \<P> x" C)
   case receiving
   then show ?case by simp
 next
@@ -332,9 +322,9 @@ text \<open>
   No opening transitions are possible from send and receive processes.
 \<close>
 
-lemma no_opening_transitions_from_send: "\<not> m \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
+lemma no_opening_transitions_from_send: "\<not> c \<triangleleft> V \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
   using basic_transitions_from_send by fastforce
-lemma no_opening_transitions_from_receive: "\<not> m \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
+lemma no_opening_transitions_from_receive: "\<not> c \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
   using basic_transitions_from_receive by fastforce
 
 subsection \<open>Concrete Bisimilarities\<close>
@@ -449,12 +439,12 @@ end
 
 context begin
 
-private lemma basic_pre_receive_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> m \<triangleright> x. \<P> x \<preceq>\<^sub>\<flat> m \<triangleright> x. \<Q> x"
+private lemma basic_pre_receive_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> c \<triangleright> x. \<P> x \<preceq>\<^sub>\<flat> c \<triangleright> x. \<Q> x"
 proof (standard, intro allI, intro impI)
   assume "\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x"
   fix C
-  assume "m \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>C"
-  then show "\<exists>D. m \<triangleright> x. \<Q> x \<longmapsto>\<^sub>\<flat>D \<and> basic_lift op \<sim>\<^sub>\<flat> C D"
+  assume "c \<triangleright> x. \<P> x \<longmapsto>\<^sub>\<flat>C"
+  then show "\<exists>D. c \<triangleright> x. \<Q> x \<longmapsto>\<^sub>\<flat>D \<and> basic_lift op \<sim>\<^sub>\<flat> C D"
   proof cases
     case receiving
     with `\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x` show ?thesis
@@ -463,7 +453,7 @@ proof (standard, intro allI, intro impI)
   qed (simp_all add: no_opening_transitions_from_receive)
 qed
 
-lemma basic_receive_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> m \<triangleright> x. \<P> x \<sim>\<^sub>\<flat> m \<triangleright> x. \<Q> x"
+lemma basic_receive_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<flat> \<Q> x) \<Longrightarrow> c \<triangleright> x. \<P> x \<sim>\<^sub>\<flat> c \<triangleright> x. \<Q> x"
   by (simp add: basic_pre_receive_preservation)
 
 end

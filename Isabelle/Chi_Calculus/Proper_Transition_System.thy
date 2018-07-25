@@ -11,7 +11,7 @@ text \<open>
 \<close>
 
 datatype ('chan, 'val) proper_action =
-  ProperIn "('chan medium)" 'val (infix "\<triangleright>" 100) |
+  ProperIn 'chan 'val (infix "\<triangleright>" 100) |
   ProperSilent ("\<tau>")
 
 text \<open>
@@ -20,7 +20,7 @@ text \<open>
 \<close>
 
 fun basic_action_of :: "('chan, 'val) proper_action \<Rightarrow> ('chan, 'val) basic_action" where
-  "basic_action_of (m \<triangleright> V) = m \<triangleright> V" |
+  "basic_action_of (c \<triangleright> V) = c \<triangleright> V" |
   "basic_action_of \<tau> = \<tau>"
 
 subsection \<open>Output Rests\<close>
@@ -169,13 +169,12 @@ subsection \<open>Residuals\<close>
 text \<open>
   There are two kinds of residuals in the proper transition system: simple residuals, written
   \<open>\<lparr>\<delta>\<rparr> Q\<close> where \<open>\<delta>\<close> is an action, and output residuals, written
-  \<open>\<lparr>m \<triangleleft> \<nu> a\<^sub>1 \<dots> a\<^sub>n. \<V> a\<^sub>1 \<dots> a\<^sub>n\<rparr> \<Q> a\<^sub>1 \<dots> a\<^sub>n\<close> where \<open>m\<close> is a communication medium and the \<open>a\<^sub>i\<close> are
-  channel variables.
+  \<open>\<lparr>c \<triangleleft> \<nu> a\<^sub>1 \<dots> a\<^sub>n. \<V> a\<^sub>1 \<dots> a\<^sub>n\<rparr> \<Q> a\<^sub>1 \<dots> a\<^sub>n\<close> where \<open>c\<close> is a channel and the \<open>a\<^sub>i\<close> are channel variables.
 \<close>
 
 datatype ('chan, 'val) proper_residual =
   Simple "(('chan, 'val) proper_action)" "(('chan, 'val) process)" ("\<lparr>_\<rparr> _" [0, 51] 51) |
-  Output "('chan medium)" "(('chan, 'val) output_rest)" ("\<lparr>_ \<triangleleft> _" [0, 51] 51)
+  Output 'chan "(('chan, 'val) output_rest)" ("\<lparr>_ \<triangleleft> _" [0, 51] 51)
 
 text \<open>
   Residual lifting is defined in the obvious way.
@@ -190,7 +189,7 @@ where
   simple_lift:
     "\<X> P Q \<Longrightarrow> proper_lift \<X> (\<lparr>\<alpha>\<rparr> P) (\<lparr>\<alpha>\<rparr> Q)" |
   output_lift:
-    "output_rest_lift \<X> K L \<Longrightarrow> proper_lift \<X> (\<lparr>m \<triangleleft> K) (\<lparr>m \<triangleleft> L)"
+    "output_rest_lift \<X> K L \<Longrightarrow> proper_lift \<X> (\<lparr>c \<triangleleft> K) (\<lparr>c \<triangleleft> L)"
 
 text \<open>
   The \<^const>\<open>proper_lift\<close> operator has the properties of a residual lifting operator.
@@ -311,9 +310,9 @@ where
   simple:
     "P \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> Q \<Longrightarrow> P \<longmapsto>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> Q" |
   output_without_opening:
-    "P \<longmapsto>\<^sub>\<flat>\<lbrace>m \<triangleleft> V\<rbrace> Q \<Longrightarrow> P \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> V\<rparr> Q" |
+    "P \<longmapsto>\<^sub>\<flat>\<lbrace>c \<triangleleft> V\<rbrace> Q \<Longrightarrow> P \<longmapsto>\<^sub>\<sharp>\<lparr>c \<triangleleft> V\<rparr> Q" |
   output_with_opening:
-    "\<lbrakk> P \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a; \<And>a. \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<K> a \<rbrakk> \<Longrightarrow> P \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<nu> a. \<K> a"
+    "\<lbrakk> P \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a; \<And>a. \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<K> a \<rbrakk> \<Longrightarrow> P \<longmapsto>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<nu> a. \<K> a"
 
 text \<open>
   The residual structure and \<^const>\<open>proper_transition\<close> together form a transition system.
@@ -378,9 +377,9 @@ proof (intro predicate2I, intro allI, intro impI)
     then show ?case
       by (blast intro: proper_transition.simple simple_lift)
   next
-    case (output_without_opening P m V P' Q)
-    from `P \<sim>\<^sub>\<flat> Q` and `P \<longmapsto>\<^sub>\<flat>\<lbrace>m \<triangleleft> V\<rbrace> P'`
-    obtain Q' where "Q \<longmapsto>\<^sub>\<flat>\<lbrace>m \<triangleleft> V\<rbrace> Q'" and "P' \<sim>\<^sub>\<flat> Q'"
+    case (output_without_opening P c V P' Q)
+    from `P \<sim>\<^sub>\<flat> Q` and `P \<longmapsto>\<^sub>\<flat>\<lbrace>c \<triangleleft> V\<rbrace> P'`
+    obtain Q' where "Q \<longmapsto>\<^sub>\<flat>\<lbrace>c \<triangleleft> V\<rbrace> Q'" and "P' \<sim>\<^sub>\<flat> Q'"
       using
         basic.bisimilarity_is_simulation and
         predicate2D and
@@ -391,7 +390,7 @@ proof (intro predicate2I, intro allI, intro impI)
     then show ?case
       by (blast intro: proper_transition.output_without_opening without_opening_lift output_lift)
   next
-    case (output_with_opening P \<P> m \<K> Q)
+    case (output_with_opening P \<P> c \<K> Q)
     obtain \<Q> where "Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a" and "\<And>a. \<P> a \<sim>\<^sub>\<flat> \<Q> a"
     proof -
       from `P \<sim>\<^sub>\<flat> Q` and `P \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a`
@@ -416,24 +415,24 @@ proof (intro predicate2I, intro allI, intro impI)
               basic_residual.inject(2)
             by smt
     *)
-    obtain \<L> where "\<And>a. \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<L> a" and "\<And>a. output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) (\<L> a)"
+    obtain \<L> where "\<And>a. \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<L> a" and "\<And>a. output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) (\<L> a)"
     proof -
       from output_with_opening.IH and `\<And>a. \<P> a \<sim>\<^sub>\<flat> \<Q> a`
-      have "\<forall>a. \<exists>L. \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> L \<and> output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) L"
+      have "\<forall>a. \<exists>L. \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>c \<triangleleft> L \<and> output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) L"
         using
           proper_lift.cases and
           proper_residual.distinct(1) and
           proper_residual.inject(2)
         by smt
-      then have "\<exists>\<L>. \<forall>a. \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<L> a \<and> output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) (\<L> a)"
+      then have "\<exists>\<L>. \<forall>a. \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<L> a \<and> output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) (\<L> a)"
         by (fact choice)
       with that show ?thesis by blast
     qed
-    from `Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` and `\<And>a. \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<L> a` have "Q \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<nu> a. \<L> a"
+    from `Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` and `\<And>a. \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<L> a` have "Q \<longmapsto>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<nu> a. \<L> a"
       by (fact proper_transition.output_with_opening)
     with `\<And>a. output_rest_lift op \<sim>\<^sub>\<flat> (\<K> a) (\<L> a)` show ?case
       using with_opening_lift and output_lift
-      by blast
+      by smt
   qed
 qed
 
@@ -450,7 +449,7 @@ lemma basic_bisimilarity_in_proper_bisimilarity_rule: "P \<sim>\<^sub>\<flat> Q 
 
 subsection \<open>Concrete Bisimilarities\<close>
 
-lemma proper_receive_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<sharp> \<Q> x) \<Longrightarrow> m \<triangleright> x. \<P> x \<sim>\<^sub>\<sharp> m \<triangleright> x. \<Q> x"
+lemma proper_receive_preservation: "(\<And>x. \<P> x \<sim>\<^sub>\<sharp> \<Q> x) \<Longrightarrow> c \<triangleright> x. \<P> x \<sim>\<^sub>\<sharp> c \<triangleright> x. \<Q> x"
   sorry
 
 lemma proper_parallel_preservation: "P \<sim>\<^sub>\<sharp> Q \<Longrightarrow> P \<parallel> R \<sim>\<^sub>\<sharp> Q \<parallel> R"
@@ -461,30 +460,29 @@ lemma proper_new_channel_preservation: "(\<And>a. \<P> a \<sim>\<^sub>\<sharp> \
 
 context begin
 
-private lemma proper_pre_receive_scope_extension_ltr: "m \<triangleright> x. \<nu> a. \<P> x a \<preceq>\<^sub>\<sharp> \<nu> a. m \<triangleright> x. \<P> x a"
+private lemma proper_pre_receive_scope_extension_ltr: "c \<triangleright> x. \<nu> a. \<P> x a \<preceq>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. \<P> x a"
 proof (standard, intro allI, intro impI)
   fix C
-  assume "m \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
-  then show "\<exists>D. \<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>D \<and> proper_lift op \<sim>\<^sub>\<sharp> C D"
+  assume "c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
+  then show "\<exists>D. \<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>D \<and> proper_lift op \<sim>\<^sub>\<sharp> C D"
   proof cases
     case (simple \<delta> Q)
-    from `m \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> Q`
-    obtain V where "basic_action_of \<delta> = m \<triangleright> V" and "Q = \<nu> a. \<P> V a"
+    from `c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> Q`
+    obtain V where "basic_action_of \<delta> = c \<triangleright> V" and "Q = \<nu> a. \<P> V a"
       by (blast elim: basic_transitions_from_receive)
-    from `basic_action_of \<delta> = m \<triangleright> V` have "\<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. \<P> V a"
+    from `basic_action_of \<delta> = c \<triangleright> V` have "\<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. \<P> V a"
       using receiving and acting_scope
       by smt
-    with `C = \<lparr>\<delta>\<rparr> Q` and `Q = \<nu> a. \<P> V a` have "\<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
+    with `C = \<lparr>\<delta>\<rparr> Q` and `Q = \<nu> a. \<P> V a` have "\<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
       by (blast intro: proper_transition.simple)
     then show ?thesis
       using proper.bisimilarity_reflexivity and proper.lift_reflexivity_propagation and reflpD
       by smt
   next
-    case (output_without_opening m V Q)
-    then obtain V' where "m \<triangleright> V' = m \<triangleleft> V"
+    case (output_without_opening c V Q)
+    then show ?thesis
       using basic_transitions_from_receive
-      by blast
-    then show ?thesis by (cases m) simp_all
+      by fastforce
   next
     case output_with_opening
     then show ?thesis by (simp add: no_opening_transitions_from_receive)
@@ -492,8 +490,8 @@ proof (standard, intro allI, intro impI)
 qed
 
 private lemma opening_transitions_from_new_channel_receive:
-  "\<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a \<Longrightarrow> \<Q> a = m \<triangleright> x . \<P> x a"
-proof (induction "\<nu> a. m \<triangleright> x. \<P> x a" "\<lbrace>\<nu> a\<rbrace> \<Q> a" arbitrary: \<Q> rule: basic_transition.induct)
+  "\<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a \<Longrightarrow> \<Q> a = c \<triangleright> x . \<P> x a"
+proof (induction "\<nu> a. c \<triangleright> x. \<P> x a" "\<lbrace>\<nu> a\<rbrace> \<Q> a" arbitrary: \<Q> rule: basic_transition.induct)
   case opening
   show ?case by (fact refl)
 next
@@ -501,63 +499,60 @@ next
   then show ?case using no_opening_transitions_from_receive by metis
 qed
 
-private lemma proper_pre_receive_scope_extension_rtl: "\<nu> a. m \<triangleright> x. \<P> x a \<preceq>\<^sub>\<sharp> m \<triangleright> x. \<nu> a. \<P> x a"
+private lemma proper_pre_receive_scope_extension_rtl: "\<nu> a. c \<triangleright> x. \<P> x a \<preceq>\<^sub>\<sharp> c \<triangleright> x. \<nu> a. \<P> x a"
 proof (standard, intro allI, intro impI)
   fix C
-  assume "\<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
-  then show "\<exists>D. m \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>D \<and> proper_lift op \<sim>\<^sub>\<sharp> C D"
+  assume "\<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
+  then show "\<exists>D. c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>D \<and> proper_lift op \<sim>\<^sub>\<sharp> C D"
   proof cases
     case (simple \<delta> R)
-    from `\<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> R` show ?thesis
+    from `\<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> R` show ?thesis
     proof cases
       case (scoped_acting \<Q> \<R>)
-      from `\<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = m \<triangleright> x . \<P> x a"
+      from `\<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = c \<triangleright> x . \<P> x a"
         by (fact opening_transitions_from_new_channel_receive)
       with `\<And>a. \<Q> a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<R> a`
-      obtain V where "basic_action_of \<delta> = m \<triangleright> V" and "\<And>a. \<R> a = \<P> V a"
+      obtain V where "basic_action_of \<delta> = c \<triangleright> V" and "\<And>a. \<R> a = \<P> V a"
         using
           basic_transitions_from_receive and
           basic_residual.inject(1) and
           basic_action.inject(1) and
           io_action.inject(1)
         by smt
-      from `basic_action_of \<delta> = m \<triangleright> V` have "m \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. \<P> V a"
+      from `basic_action_of \<delta> = c \<triangleright> V` have "c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. \<P> V a"
         using receiving
         by fastforce
       moreover from `C = \<lparr>\<delta>\<rparr> R` and `R = \<nu> a. \<R> a` and `\<And>a. \<R> a = \<P> V a` have "C = \<lparr>\<delta>\<rparr> \<nu> a. \<P> V a"
         by simp
-      ultimately have "m \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
+      ultimately have "c \<triangleright> x. \<nu> a. \<P> x a \<longmapsto>\<^sub>\<sharp>C"
         by (blast intro: proper_transition.simple)
       then show ?thesis
         using proper.bisimilarity_reflexivity and proper.lift_reflexivity_propagation and reflpD
         by smt
     qed
   next
-    case (output_without_opening m' V R)
-    from `\<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>m' \<triangleleft> V\<rbrace> R` show ?thesis
+    case (output_without_opening c' V R)
+    from `\<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>c' \<triangleleft> V\<rbrace> R` show ?thesis
     proof cases
       case (scoped_acting \<Q> \<R>)
-      from `\<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = m \<triangleright> x. \<P> x a"
+      from `\<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = c \<triangleright> x. \<P> x a"
         by (fact opening_transitions_from_new_channel_receive)
-      with `\<And>a. \<Q> a \<longmapsto>\<^sub>\<flat>\<lbrace>m' \<triangleleft> V\<rbrace> \<R> a`
-      obtain V' where "m \<triangleright> V' = m' \<triangleleft> V"
+      with `\<And>a. \<Q> a \<longmapsto>\<^sub>\<flat>\<lbrace>c' \<triangleleft> V\<rbrace> \<R> a` show ?thesis
         using basic_transitions_from_receive and basic_residual.inject(1)
-        by metis
-      then show ?thesis by (cases m) simp_all
+        by fastforce
     qed
   next
-    case (output_with_opening \<Q> m' \<K>)
-    from `\<nu> a. m \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = m \<triangleright> x. \<P> x a"
+    case (output_with_opening \<Q> c' \<K>)
+    from `\<nu> a. c \<triangleright> x. \<P> x a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` have "\<And>a. \<Q> a = c \<triangleright> x. \<P> x a"
       by (fact opening_transitions_from_new_channel_receive)
-    with `\<And>a. \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>m' \<triangleleft> \<K> a` have "m \<triangleright> x. \<P> x undefined \<longmapsto>\<^sub>\<sharp>\<lparr>m' \<triangleleft> \<K> undefined"
+    with `\<And>a. \<Q> a \<longmapsto>\<^sub>\<sharp>\<lparr>c' \<triangleleft> \<K> a` have "c \<triangleright> x. \<P> x undefined \<longmapsto>\<^sub>\<sharp>\<lparr>c' \<triangleleft> \<K> undefined"
       by simp
     then show ?thesis
     proof cases
       case (output_without_opening V Q)
-      then obtain V' where "m \<triangleright> V' = m' \<triangleleft> V"
+      then show ?thesis
         using basic_transitions_from_receive
-        by blast
-      then show ?thesis by (cases m) simp_all
+        by fastforce
     next
       case output_with_opening
       then show ?thesis by (simp add: no_opening_transitions_from_receive)
@@ -565,7 +560,7 @@ proof (standard, intro allI, intro impI)
   qed
 qed
 
-lemma proper_unicast_input_scope_extension: "m \<triangleright> x. \<nu> a. \<P> x a \<sim>\<^sub>\<sharp> \<nu> a. m \<triangleright> x. \<P> x a"
+lemma proper_unicast_input_scope_extension: "c \<triangleright> x. \<nu> a. \<P> x a \<sim>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. \<P> x a"
   by standard (
     fact proper_pre_receive_scope_extension_ltr,
     fact proper_pre_receive_scope_extension_rtl
@@ -629,10 +624,10 @@ proof
   assume "\<nu> a. \<zero> \<longmapsto>\<^sub>\<sharp>C"
   then show False
   proof cases
-    case (output_with_opening \<P> m \<K>)
+    case (output_with_opening \<P> c \<K>)
     from `\<nu> a. \<zero> \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a` have "\<And>a. \<P> a = \<zero>"
       by (fact opening_transitions_from_new_channel_stop)
-    with `\<And>a. \<P> a \<longmapsto>\<^sub>\<sharp>\<lparr>m \<triangleleft> \<K> a` show ?thesis
+    with `\<And>a. \<P> a \<longmapsto>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<K> a` show ?thesis
       by (simp add: no_proper_transitions_from_stop)
   qed (simp_all add: no_acting_transitions_from_new_channel_stop)
 qed

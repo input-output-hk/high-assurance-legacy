@@ -29,15 +29,9 @@ The $\chi$-calculus is a process calculus with the following features:
 
 \item
 
-Communication is always asynchronous. This is ensured by disallowing sequential composition of an
-output operation and some follow-up process.
-
-\item
-
-There are two kinds of communication: unicast and broadcast. Unicast communication takes place over
-channels, of which they are arbitrary many to choose from. All broadcast communication, on the other
-hand, takes place over a single, separate medium, which we call the ether\footnote{Our ether has
-nothing to do with the famous cryptocurrency of the same name.} and denote by~$\star$.
+The only supported notion of communication is asynchronous unicast communication. Other notions of
+communication have to be emulated based on that. Asynchronism is ensured by disallowing sequential
+composition of an output operation and some follow-up process.
 
 \item
 
