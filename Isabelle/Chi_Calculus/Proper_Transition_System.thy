@@ -10,8 +10,8 @@ text \<open>
   Actions include input actions and the silent action.
 \<close>
 
-datatype ('chan, 'val) proper_action =
-  ProperIn 'chan 'val (infix "\<triangleright>" 100) |
+datatype proper_action =
+  ProperIn chan val (infix "\<triangleright>" 100) |
   ProperSilent ("\<tau>")
 
 text \<open>
@@ -19,7 +19,7 @@ text \<open>
   system.
 \<close>
 
-fun basic_action_of :: "('chan, 'val) proper_action \<Rightarrow> ('chan, 'val) basic_action" where
+fun basic_action_of :: "proper_action \<Rightarrow> basic_action" where
   "basic_action_of (c \<triangleright> V) = c \<triangleright> V" |
   "basic_action_of \<tau> = \<tau>"
 
@@ -30,9 +30,9 @@ text \<open>
   transition. Its syntax is part of the syntax of output transitions.
 \<close>
 
-datatype ('chan, 'val) output_rest =
-  WithoutOpening 'val "(('chan, 'val) process)" ("_\<rparr> _" [52, 51] 51) |
-  WithOpening "('chan \<Rightarrow> ('chan, 'val) output_rest)" (binder "\<nu>" 51)
+datatype output_rest =
+  WithoutOpening val process ("_\<rparr> _" [52, 51] 51) |
+  WithOpening "(chan \<Rightarrow> output_rest)" (binder "\<nu>" 51)
 
 text \<open>
   Note that the definition of \<open>output_rest\<close> is actually more permissive than the verbal definition
@@ -47,9 +47,7 @@ text \<open>
 \<close>
 
 inductive
-  output_rest_lift :: "
-    (('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool) \<Rightarrow>
-    (('chan, 'val) output_rest \<Rightarrow> ('chan, 'val) output_rest \<Rightarrow> bool)"
+  output_rest_lift :: "(process \<Rightarrow> process \<Rightarrow> bool) \<Rightarrow> (output_rest \<Rightarrow> output_rest \<Rightarrow> bool)"
   for \<X>
 where
   without_opening_lift:
@@ -172,18 +170,16 @@ text \<open>
   \<open>\<lparr>c \<triangleleft> \<nu> a\<^sub>1 \<dots> a\<^sub>n. \<V> a\<^sub>1 \<dots> a\<^sub>n\<rparr> \<Q> a\<^sub>1 \<dots> a\<^sub>n\<close> where \<open>c\<close> is a channel and the \<open>a\<^sub>i\<close> are channel variables.
 \<close>
 
-datatype ('chan, 'val) proper_residual =
-  Simple "(('chan, 'val) proper_action)" "(('chan, 'val) process)" ("\<lparr>_\<rparr> _" [0, 51] 51) |
-  Output 'chan "(('chan, 'val) output_rest)" ("\<lparr>_ \<triangleleft> _" [0, 51] 51)
+datatype proper_residual =
+  Simple proper_action process ("\<lparr>_\<rparr> _" [0, 51] 51) |
+  Output chan output_rest ("\<lparr>_ \<triangleleft> _" [0, 51] 51)
 
 text \<open>
   Residual lifting is defined in the obvious way.
 \<close>
 
 inductive
-  proper_lift :: "
-    (('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool) \<Rightarrow>
-    (('chan, 'val) proper_residual \<Rightarrow> ('chan, 'val) proper_residual \<Rightarrow> bool)"
+  proper_lift :: "(process \<Rightarrow> process \<Rightarrow> bool) \<Rightarrow> (proper_residual \<Rightarrow> proper_residual \<Rightarrow> bool)"
   for \<X>
 where
   simple_lift:
@@ -304,7 +300,7 @@ text \<open>
 \<close>
 
 inductive
-  proper_transition :: "('chan, 'val) process \<Rightarrow> ('chan, 'val) proper_residual \<Rightarrow> bool"
+  proper_transition :: "process \<Rightarrow> proper_residual \<Rightarrow> bool"
   (infix "\<longmapsto>\<^sub>\<sharp>" 50)
 where
   simple:
@@ -326,22 +322,22 @@ text \<open>
 \<close>
 
 abbreviation
-  proper_sim :: "(('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool) \<Rightarrow> bool"
+  proper_sim :: "(process \<Rightarrow> process \<Rightarrow> bool) \<Rightarrow> bool"
   ("sim\<^sub>\<sharp>")
 where
   "sim\<^sub>\<sharp> \<equiv> proper.sim"
 abbreviation
-  proper_bisim :: "(('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool) \<Rightarrow> bool"
+  proper_bisim :: "(process \<Rightarrow> process \<Rightarrow> bool) \<Rightarrow> bool"
   ("bisim\<^sub>\<sharp>")
 where
   "bisim\<^sub>\<sharp> \<equiv> proper.bisim"
 abbreviation
-  proper_pre_bisimilarity :: "('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool"
+  proper_pre_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool"
   (infix "\<preceq>\<^sub>\<sharp>" 50)
 where
   "op \<preceq>\<^sub>\<sharp> \<equiv> proper.pre_bisimilarity"
 abbreviation
-  proper_bisimilarity :: "('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool"
+  proper_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool"
   (infix "\<sim>\<^sub>\<sharp>" 50)
 where
   "op \<sim>\<^sub>\<sharp> \<equiv> proper.bisimilarity"
@@ -350,10 +346,10 @@ subsection \<open>Fundamental Properties of the Transition System\<close>
 
 lemma no_proper_transitions_from_stop: "\<not> \<zero> \<longmapsto>\<^sub>\<sharp>C"
 proof
-  fix C :: "('chan, 'val) proper_residual"
+  fix C
   assume "\<zero> \<longmapsto>\<^sub>\<sharp>C"
   then show False
-    by (induction "\<zero> :: ('chan, 'val) process" C) (simp_all add: no_basic_transitions_from_stop)
+    by (induction "\<zero>" C) (simp_all add: no_basic_transitions_from_stop)
 qed
 
 subsection \<open>Relationships between Basic and Proper Bisimilarity\<close>
@@ -592,10 +588,10 @@ context begin
 
 private lemma opening_transitions_from_new_channel_stop: "\<nu> a. \<zero> \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a \<Longrightarrow> \<P> a = \<zero>"
 proof -
-  fix \<P> :: "'chan \<Rightarrow> ('chan, 'val) process" and a
+  fix \<P> and a
   assume "\<nu> a. \<zero> \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a"
   then show "\<P> a = \<zero>"
-  proof (induction "\<nu> a. \<zero> :: ('chan, 'val) process" "\<lbrace>\<nu> a\<rbrace> \<P> a" arbitrary: \<P>)
+  proof (induction "\<nu> a. \<zero>" "\<lbrace>\<nu> a\<rbrace> \<P> a" arbitrary: \<P>)
     case opening
     show ?case by (fact refl)
   next
@@ -606,7 +602,7 @@ qed
 
 private lemma no_acting_transitions_from_new_channel_stop: "\<not> \<nu> a. \<zero> \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> P"
 proof
-  fix \<alpha> and P :: "('chan, 'val) process"
+  fix \<alpha> and P
   assume "\<nu> a. \<zero> \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> P"
   then show False
   proof cases
@@ -620,7 +616,7 @@ qed
 
 private lemma no_proper_transitions_from_new_channel_stop: "\<not> \<nu> a. \<zero> \<longmapsto>\<^sub>\<sharp>C"
 proof
-  fix C :: "('chan, 'val) proper_residual"
+  fix C
   assume "\<nu> a. \<zero> \<longmapsto>\<^sub>\<sharp>C"
   then show False
   proof cases

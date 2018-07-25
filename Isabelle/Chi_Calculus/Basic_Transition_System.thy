@@ -10,18 +10,18 @@ text \<open>
   Actions include I/O actions and the silent action.
 \<close>
 
-datatype ('chan, 'val) io_action =
-  BasicIn 'chan 'val |
-  BasicOut 'chan 'val
-datatype ('chan, 'val) basic_action =
-  IO "(('chan, 'val) io_action)" |
+datatype io_action =
+  BasicIn chan val |
+  BasicOut chan val
+datatype basic_action =
+  IO io_action |
   BasicSilent ("\<tau>")
 abbreviation
-  BasicInAction :: "'chan \<Rightarrow> 'val \<Rightarrow> ('chan, 'val) basic_action" (infix "\<triangleright>" 100)
+  BasicInAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleright>" 100)
 where
   "c \<triangleright> V \<equiv> IO (BasicIn c V)"
 abbreviation
-  BasicOutAction :: "'chan \<Rightarrow> 'val \<Rightarrow> ('chan, 'val) basic_action" (infix "\<triangleleft>" 100)
+  BasicOutAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleleft>" 100)
 where
   "c \<triangleleft> V \<equiv> IO (BasicOut c V)"
 
@@ -33,11 +33,11 @@ text \<open>
   variable.
 \<close>
 
-datatype ('chan, 'val) basic_residual =
-  Acting "(('chan, 'val) basic_action)" "(('chan, 'val) process)" ("\<lbrace>_\<rbrace> _" [0, 51] 51) |
-  Opening "('chan \<Rightarrow> ('chan, 'val) process)"
+datatype basic_residual =
+  Acting basic_action process ("\<lbrace>_\<rbrace> _" [0, 51] 51) |
+  Opening "(chan \<Rightarrow> process)"
 syntax
-  "_Opening" :: "pttrn \<Rightarrow> ('chan, 'val) process \<Rightarrow> ('chan, 'val) basic_residual"
+  "_Opening" :: "pttrn \<Rightarrow> process \<Rightarrow> basic_residual"
   ("\<lbrace>\<nu> _\<rbrace> _" [0, 51] 51)
 translations
   "\<lbrace>\<nu> a\<rbrace> P" \<rightleftharpoons> "CONST Opening (\<lambda>a. P)"
@@ -47,9 +47,7 @@ text \<open>
 \<close>
 
 inductive
-  basic_lift :: "
-    (('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool) \<Rightarrow>
-    (('chan, 'val) basic_residual \<Rightarrow> ('chan, 'val) basic_residual \<Rightarrow> bool)"
+  basic_lift :: "(process \<Rightarrow> process \<Rightarrow> bool) \<Rightarrow> (basic_residual \<Rightarrow> basic_residual \<Rightarrow> bool)"
   for \<X>
 where
   acting_lift:
@@ -166,10 +164,7 @@ text \<open>
 \<close>
 
 inductive
-  communication :: "
-    ('chan, 'val) io_action \<Rightarrow>
-    ('chan, 'val) io_action \<Rightarrow>
-    bool"
+  communication :: "io_action \<Rightarrow> io_action \<Rightarrow> bool"
   (infix "\<bowtie>" 50)
 where
   unicast_ltr:
@@ -194,7 +189,7 @@ text \<open>
 \<close>
 
 inductive
-  basic_transition :: "('chan, 'val) process \<Rightarrow> ('chan, 'val) basic_residual \<Rightarrow> bool"
+  basic_transition :: "process \<Rightarrow> basic_residual \<Rightarrow> bool"
   (infix "\<longmapsto>\<^sub>\<flat>" 50)
 where
   sending:
@@ -234,22 +229,22 @@ text \<open>
 \<close>
 
 abbreviation
-  basic_sim :: "(('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool) \<Rightarrow> bool"
+  basic_sim :: "(process \<Rightarrow> process \<Rightarrow> bool) \<Rightarrow> bool"
   ("sim\<^sub>\<flat>")
 where
   "sim\<^sub>\<flat> \<equiv> basic.sim"
 abbreviation
-  basic_bisim :: "(('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool) \<Rightarrow> bool"
+  basic_bisim :: "(process \<Rightarrow> process \<Rightarrow> bool) \<Rightarrow> bool"
   ("bisim\<^sub>\<flat>")
 where
   "bisim\<^sub>\<flat> \<equiv> basic.bisim"
 abbreviation
-  basic_pre_bisimilarity :: "('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool"
+  basic_pre_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool"
   (infix "\<preceq>\<^sub>\<flat>" 50)
 where
   "op \<preceq>\<^sub>\<flat> \<equiv> basic.pre_bisimilarity"
 abbreviation
-  basic_bisimilarity :: "('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool"
+  basic_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool"
   (infix "\<sim>\<^sub>\<flat>" 50)
 where
   "op \<sim>\<^sub>\<flat> \<equiv> basic.bisimilarity"
@@ -279,9 +274,9 @@ text \<open>
 
 lemma no_basic_transitions_from_stop: "\<not> \<zero> \<longmapsto>\<^sub>\<flat>C"
 proof
-  fix C :: "('chan, 'val) basic_residual"
+  fix C
   assume "\<zero> \<longmapsto>\<^sub>\<flat>C"
-  then show False by (induction "\<zero> :: ('chan, 'val) process" C)
+  then show False by (induction "\<zero>" C)
 qed
 
 text \<open>
@@ -290,10 +285,10 @@ text \<open>
 
 lemma basic_transitions_from_send: "c \<triangleleft> V \<longmapsto>\<^sub>\<flat>C \<Longrightarrow> C = \<lbrace>c \<triangleleft> V\<rbrace> \<zero>"
 proof -
-  fix c and V and C :: "('chan, 'val) basic_residual"
+  fix c and V and C
   assume "c \<triangleleft> V \<longmapsto>\<^sub>\<flat>C"
   then show "C = \<lbrace>c \<triangleleft> V\<rbrace> \<zero>"
-  proof (induction "c \<triangleleft> V :: ('chan, 'val) process" C)
+  proof (induction "c \<triangleleft> V :: process" C)
     case sending
     show ?case by (fact refl)
   next
@@ -461,7 +456,7 @@ end
 context begin
 
 private inductive
-  parallel_preservation_aux :: "('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool"
+  parallel_preservation_aux :: "process \<Rightarrow> process \<Rightarrow> bool"
 where
   without_new_channel: "
     P \<sim>\<^sub>\<flat> Q \<Longrightarrow> parallel_preservation_aux (P \<parallel> R) (Q \<parallel> R)" |
@@ -576,7 +571,7 @@ end
 context begin
 
 private inductive
-  new_channel_preservation_aux :: "('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool"
+  new_channel_preservation_aux :: "process \<Rightarrow> process \<Rightarrow> bool"
 where
   without_new_channel: "
     P \<sim>\<^sub>\<flat> Q \<Longrightarrow> new_channel_preservation_aux P Q" |
@@ -647,11 +642,7 @@ end
 context begin
 
 private inductive
-  parallel_scope_extension_subaux :: "
-    ('chan, 'val) process \<Rightarrow>
-    ('chan, 'val) process \<Rightarrow>
-    ('chan, 'val) process \<Rightarrow>
-    bool"
+  parallel_scope_extension_subaux :: "process \<Rightarrow> process \<Rightarrow> process \<Rightarrow> bool"
 where
   without_new_channel: "
     parallel_scope_extension_subaux Q P (P \<parallel> Q)" |
@@ -730,7 +721,7 @@ next
 qed simp_all
 
 private inductive
-  parallel_scope_extension_aux :: "('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool"
+  parallel_scope_extension_aux :: "process \<Rightarrow> process \<Rightarrow> bool"
 where
   without_new_channel_ltr: "
     parallel_scope_extension_subaux Q P R \<Longrightarrow> parallel_scope_extension_aux (P \<parallel> Q) R" |
@@ -1015,7 +1006,7 @@ end
 context begin
 
 private inductive
-  parallel_unit_aux :: "('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool"
+  parallel_unit_aux :: "process \<Rightarrow> process \<Rightarrow> bool"
 where
   without_new_channel_ltr: "
     parallel_unit_aux (\<zero> \<parallel> P) P" |
@@ -1109,11 +1100,7 @@ end
 context begin
 
 private inductive
-  nested_parallel_commutativity_subaux :: "
-    ('chan, 'val) process \<Rightarrow>
-    ('chan, 'val) process \<Rightarrow>
-    ('chan, 'val) process \<Rightarrow>
-    bool"
+  nested_parallel_commutativity_subaux :: "process \<Rightarrow> process \<Rightarrow> process \<Rightarrow> bool"
 where
   without_new_channel: "
     nested_parallel_commutativity_subaux R (P \<parallel> Q) ((P \<parallel> R) \<parallel> Q)" |
@@ -1185,7 +1172,7 @@ next
 qed
 
 private inductive
-  nested_parallel_commutativity_aux :: "('chan, 'val) process \<Rightarrow> ('chan, 'val) process \<Rightarrow> bool"
+  nested_parallel_commutativity_aux :: "process \<Rightarrow> process \<Rightarrow> bool"
 where
   without_new_channel_ltr: "
     nested_parallel_commutativity_subaux R U T \<Longrightarrow>
