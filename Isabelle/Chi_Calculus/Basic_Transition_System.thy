@@ -16,13 +16,9 @@ datatype io_action =
 datatype basic_action =
   IO io_action |
   BasicSilent ("\<tau>")
-abbreviation
-  BasicOutAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleleft>" 100)
-where
+abbreviation BasicOutAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleleft>" 100) where
   "c \<triangleleft> V \<equiv> IO (BasicOut c V)"
-abbreviation
-  BasicInAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleright>" 100)
-where
+abbreviation BasicInAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleright>" 100) where
   "c \<triangleright> V \<equiv> IO (BasicIn c V)"
 
 subsection \<open>Residuals\<close>
