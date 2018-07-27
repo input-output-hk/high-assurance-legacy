@@ -1,15 +1,8 @@
 section \<open>Processes\<close>
 
 theory Processes
-  imports Main
+  imports Channels
 begin
-
-text \<open>
-  We introduce types for channels and values.
-\<close>
-
-typedecl chan
-typedecl val
 
 text \<open>
   The definition of the type of processes is fairly straightforward.
