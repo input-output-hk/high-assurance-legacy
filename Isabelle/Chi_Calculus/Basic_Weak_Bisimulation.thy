@@ -47,7 +47,7 @@ next
   then have "\<Gamma> \<turnstile> R \<parallel> Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> P' \<parallel> Q" 
     using tau_seq_step.hyps(2) by (simp add: acting_left)
   then show ?case 
-    using tau_seq_step.IH and append_tau_transition_to_tau_sequence_is_tau_sequence by blast
+    using tau_seq_step.IH and append_tau_transition_to_tau_sequence_is_tau_sequence by simp
 qed
 
 lemma tau_sequence_par_right: "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat> Q' \<Longrightarrow> \<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat> P \<parallel> Q'"
@@ -59,10 +59,33 @@ next
   then have "\<Gamma> \<turnstile> P \<parallel> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> P \<parallel> Q'" 
     using tau_seq_step.hyps(2) by (simp add: acting_right)
   then show ?case 
-    using tau_seq_step.IH and append_tau_transition_to_tau_sequence_is_tau_sequence by blast
+    using tau_seq_step.IH and append_tau_transition_to_tau_sequence_is_tau_sequence by simp
 qed
 
-(* Weak basic transition \<Longrightarrow>\<^sub>\<flat> *)
+lemma tau_sequence_par: "\<lbrakk> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat> P'; \<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat> Q' \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat> P' \<parallel> Q'"
+proof -
+  assume "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat> P'" and "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat> Q'" 
+  have "\<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat> P' \<parallel> Q"
+    using \<open>\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat> P'\<close> and tau_sequence_par_left by simp
+  moreover have "\<Gamma> \<turnstile> P' \<parallel> Q \<Longrightarrow>\<^sub>\<flat> P' \<parallel> Q'"
+    using \<open>\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat> Q'\<close> and tau_sequence_par_right by simp 
+  finally show ?thesis 
+    by simp
+qed 
+
+lemma tau_sequence_res: "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat> P' \<Longrightarrow> \<Gamma> \<turnstile> \<nu> a. P \<Longrightarrow>\<^sub>\<flat> \<nu> a. P'"
+proof (induction rule: tau_sequence_induction)
+  case tau_seq_refl
+  then show ?case by simp
+next
+  case (tau_seq_step R P')
+  then have "\<Gamma> \<turnstile> \<nu> a. R  \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<nu> a. P'"
+    using tau_seq_step(2) by (simp add: acting_scope)
+  then show ?case 
+    using tau_seq_step.IH and append_tau_transition_to_tau_sequence_is_tau_sequence by simp
+qed  
+
+(* Weak basic transition \<Longrightarrow>\<^sub>\<flat>R *)
 
 definition 
   weak_basic_transition :: "
