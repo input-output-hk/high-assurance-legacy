@@ -1,0 +1,35 @@
+Name:          chi-calculus
+Version:       0.0.0.0
+Cabal-Version: >= 2.0
+Build-Type:    Simple
+License:       MIT
+License-File:  LICENSE
+Copyright:     © 2018 IOHK
+Author:        Wolfgang Jeltsch
+Maintainer:    wolfgang@well-typed.com
+Stability:     provisional
+Homepage:      https://github.com/input-output-hk/ouroboros-spec/Haskell/chi-calculus
+Bug-Reports:   https://github.com/input-output-hk/ouroboros-spec/issues
+Synopsis:      The χ-calculus
+Description:   This package defines the language of the χ-calculus, a
+               process calculus used in the high-assurance
+               implementation of the Ouroboros Genesis protocol 
+Category:      Concurrency
+Tested-With:   GHC == 8.4.2
+
+Source-Repository head
+
+    Type:     git
+    Location: https://github.com/input-output-hk/ouroboros-spec.git
+    Branch:   master
+    Subdir:   Haskell/chi-calculus
+
+Library
+
+    Exposed-Modules:
+
+    Build-Depends: base >= 4 && < 5
+
+    HS-Source-Dirs: src
+
+    Default-Language: Haskell2010
