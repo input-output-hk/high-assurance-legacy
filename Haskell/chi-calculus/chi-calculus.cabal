@@ -13,7 +13,7 @@ Bug-Reports:   https://github.com/input-output-hk/ouroboros-spec/issues
 Synopsis:      The χ-calculus
 Description:   This package defines the language of the χ-calculus, a
                process calculus used in the high-assurance
-               implementation of the Ouroboros Genesis protocol 
+               implementation of the Ouroboros Genesis protocol.
 Category:      Concurrency
 Tested-With:   GHC == 8.4.2
 
