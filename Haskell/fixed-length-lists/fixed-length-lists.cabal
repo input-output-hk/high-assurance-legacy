@@ -39,6 +39,5 @@ Library
                         GADTs
                         RankNTypes
                         StandaloneDeriving
-                        TypeOperators
 
     GHC-Options: -Wall
