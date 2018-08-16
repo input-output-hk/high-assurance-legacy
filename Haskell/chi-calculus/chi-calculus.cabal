@@ -26,12 +26,18 @@ Source-Repository head
 
 Library
 
-    Exposed-Modules:
+    Exposed-Modules: Ouroboros.Chi_Calculus
+                     Ouroboros.Chi_Calculus.Interpretation
+                     Ouroboros.Chi_Calculus.Interpretation.Exec
 
-    Build-Depends: base >= 4 && < 5
+    Build-Depends: base                >= 4.10 && < 5,
+                   fixed-length-lists ^>= 0.0
 
     HS-Source-Dirs: src
 
     Default-Language: Haskell2010
+
+    Default-Extensions: GADTs
+                        RankNTypes
 
     GHC-Options: -Wall
