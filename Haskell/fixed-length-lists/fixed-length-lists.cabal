@@ -1,0 +1,44 @@
+Name:          fixed-length-lists
+Version:       0.0.0.0
+Cabal-Version: >= 2.0
+Build-Type:    Simple
+License:       MIT
+License-File:  LICENSE
+Copyright:     © 2018 IOHK
+Author:        Wolfgang Jeltsch
+Maintainer:    wolfgang@well-typed.com
+Stability:     provisional
+Homepage:      https://github.com/input-output-hk/ouroboros-spec/Haskell/fixed-length-lists
+Bug-Reports:   https://github.com/input-output-hk/ouroboros-spec/issues
+Synopsis:      Lists whose lengths are fixed via a type parameter
+Description:   This package defines a type of lists that has an additional type
+               parameter specifying list lengths. Such a type is often
+               misleadingly called @Vec@.
+Category:      Data
+Tested-With:   GHC == 8.4.2
+
+Source-Repository head
+
+    Type:     git
+    Location: https://github.com/input-output-hk/ouroboros-spec.git
+    Branch:   master
+    Subdir:   Haskell/fixed-length-lists
+
+Library
+
+    Exposed-Modules: Data.List.FixedLength
+                     Data.Type.Natural
+
+    Build-Depends: base >= 4.10 && < 5
+
+    HS-Source-Dirs: src
+
+    Default-Language: Haskell2010
+
+    Default-Extensions: DataKinds
+                        GADTs
+                        RankNTypes
+                        StandaloneDeriving
+                        TypeOperators
+
+    GHC-Options: -Wall
