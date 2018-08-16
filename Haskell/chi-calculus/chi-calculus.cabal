@@ -33,3 +33,5 @@ Library
     HS-Source-Dirs: src
 
     Default-Language: Haskell2010
+
+    GHC-Options: -Wall
