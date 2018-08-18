@@ -10,6 +10,9 @@ module Data.List.FixedLength (
 
 import Prelude hiding (map, zipWith, iterate, repeat)
 
+import Control.Applicative (liftA2)
+
+import Data.Foldable (toList)
 import Data.Type.Natural (Natural (Z, S), TypeNatural (induct))
 
 infixr 5 :::
@@ -25,6 +28,43 @@ deriving instance Eq a => Eq (List n a)
 deriving instance Ord a => Ord (List n a)
 
 deriving instance Show a => Show (List n a)
+
+instance Functor (List n) where
+
+    fmap = map
+
+    _ <$ Empty    = Empty
+    x <$ _ ::: ys = x ::: (x <$ ys)
+
+instance TypeNatural n => Applicative (List n) where
+
+    pure = repeat
+
+    liftA2 = zipWith
+
+    (*>) = flip const
+
+    (<*) = const
+
+instance TypeNatural n => Monad (List n) where
+
+    xs >>= f = zipWith (!!) (map (toList . f) xs) firstNaturals
+
+    (>>) = (*>)
+
+instance Foldable (List n) where
+
+    foldMap _ Empty      = mempty
+    foldMap f (x ::: xs) = f x <> foldMap f xs
+
+    -- FIXME: Perhaps implement other methods explicitly.
+
+instance Traversable (List n) where
+
+    traverse _ Empty      = pure Empty
+    traverse f (x ::: xs) = liftA2 (:::) (f x) (traverse f xs)
+
+    -- FIXME: Perhaps implement other methods explicitly.
 
 map :: (a -> b) -> List n a -> List n b
 map _ Empty      = Empty
