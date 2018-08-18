@@ -1,3 +1,7 @@
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs #-}
+
 module Data.List.FixedLength (
 
     List (Empty, (:::)),

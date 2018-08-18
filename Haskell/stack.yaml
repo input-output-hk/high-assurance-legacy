@@ -1,0 +1,7 @@
+resolver: lts-12.6
+packages:
+- ./fixed-length-lists
+- ./chi-calculus
+nix:
+    enable: true
+    shell-file: shell.nix

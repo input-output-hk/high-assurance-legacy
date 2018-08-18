@@ -1,3 +1,7 @@
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE OverloadedStrings #-}
+
 module Ouroboros.Chi_Calculus.Process.Expr (
 
     expr

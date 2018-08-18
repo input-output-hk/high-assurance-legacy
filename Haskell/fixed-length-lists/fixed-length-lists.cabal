@@ -35,9 +35,4 @@ Library
 
     Default-Language: Haskell2010
 
-    Default-Extensions: DataKinds
-                        GADTs
-                        RankNTypes
-                        StandaloneDeriving
-
     GHC-Options: -Wall

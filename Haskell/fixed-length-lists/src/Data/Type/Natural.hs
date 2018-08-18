@@ -1,3 +1,7 @@
+{-# LANGUAGE DataKinds  #-}
+{-# LANGUAGE GADTs      #-}
+{-# LANGUAGE RankNTypes #-}
+
 module Data.Type.Natural (
 
     Natural (Z, S),

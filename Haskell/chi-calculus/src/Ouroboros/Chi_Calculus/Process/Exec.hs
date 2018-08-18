@@ -1,19 +1,22 @@
+{-# LANGUAGE RankNTypes #-}
+
 module Ouroboros.Chi_Calculus.Process.Exec (
 
     exec
 
 ) where
 
-import Prelude hiding (map)
+import           Prelude                        hiding (map)
 
-import Control.Concurrent (forkIO)
-import Control.Concurrent.MVar (MVar, putMVar, takeMVar, newEmptyMVar)
+import           Control.Concurrent             (forkIO)
+import           Control.Concurrent.MVar        (MVar, newEmptyMVar, putMVar,
+                                                 takeMVar)
 
-import Data.Function (fix)
-import Data.Functor.Identity (Identity (Identity, runIdentity))
-import Data.List.FixedLength (map)
+import           Data.Function                  (fix)
+import           Data.Functor.Identity          (Identity (Identity, runIdentity))
+import           Data.List.FixedLength          (map)
 
-import Ouroboros.Chi_Calculus.Process (Process (..), Interpretation)
+import           Ouroboros.Chi_Calculus.Process (Interpretation, Process (..))
 
 exec :: Interpretation MVar Identity (IO ())
 exec dataInter = worker

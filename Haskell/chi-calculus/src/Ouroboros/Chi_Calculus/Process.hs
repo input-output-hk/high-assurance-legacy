@@ -1,3 +1,6 @@
+{-# LANGUAGE GADTs      #-}
+{-# LANGUAGE RankNTypes #-}
+
 module Ouroboros.Chi_Calculus.Process (
 
     Process (Stop, Send, Receive, Parallel, NewChannel, Var, Letrec),
@@ -6,8 +9,8 @@ module Ouroboros.Chi_Calculus.Process (
 
 ) where
 
-import Data.List.FixedLength (List)
-import Data.Type.Natural (TypeNatural)
+import           Data.List.FixedLength       (List)
+import           Data.Type.Natural           (TypeNatural)
 
 import qualified Ouroboros.Chi_Calculus.Data as Data (Interpretation)
 
