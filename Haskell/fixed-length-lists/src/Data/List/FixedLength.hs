@@ -12,6 +12,8 @@ import Prelude hiding (map, zipWith, iterate)
 
 import Data.Type.Natural (Natural (Z, S), TypeNatural (induct))
 
+infixr 5 :::
+
 data List n a where
 
     Empty :: List 'Z a
