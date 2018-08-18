@@ -8,7 +8,7 @@ module Data.List.FixedLength (
 
 ) where
 
-import Prelude hiding (map, zipWith, iterate)
+import Prelude hiding (map, zipWith, iterate, repeat)
 
 import Data.Type.Natural (Natural (Z, S), TypeNatural (induct))
 
@@ -40,6 +40,9 @@ iterate :: TypeNatural n => (a -> a) -> a -> List n a
 iterate f = fromIterateAccum $
             induct (IterateAccum $ const Empty)
                    (\ h -> IterateAccum $ \ x -> x ::: fromIterateAccum h (f x))
+
+repeat :: TypeNatural n => a -> List n a
+repeat = iterate id
 
 firstNaturals :: (TypeNatural n, Enum a, Num a) => List n a
 firstNaturals = iterate succ 0
