@@ -30,9 +30,12 @@ Library
     Exposed-Modules: Ouroboros.Chi_Calculus.Data
                      Ouroboros.Chi_Calculus.Process
                      Ouroboros.Chi_Calculus.Process.Exec
+                     Ouroboros.Chi_Calculus.Process.Expr
 
     Build-Depends: base                >= 4.10 && < 5,
-                   fixed-length-lists ^>= 0.0
+                   fixed-length-lists ^>= 0.0,
+                   text               ^>= 1.2,
+                   transformers       ^>= 0.5
 
     HS-Source-Dirs: src
 
@@ -40,6 +43,8 @@ Library
 
     Default-Extensions: GADTs
                         KindSignatures
+                        OverloadedStrings
                         RankNTypes
+                        TypeApplications
 
     GHC-Options: -Wall
