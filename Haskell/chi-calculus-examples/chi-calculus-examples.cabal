@@ -1,0 +1,37 @@
+Name:          chi-calculus-examples
+Version:       0.0.0.0
+Cabal-Version: >= 2.0
+Build-Type:    Simple
+License:       MIT
+License-File:  LICENSE
+Copyright:     © 2018 IOHK
+Author:        Lars Bruenjes
+Maintainer:    lars.bruenjes@iohk.io
+Stability:     provisional
+Homepage:      https://github.com/input-output-hk/ouroboros-spec/Haskell/chi-calculus-examples
+Bug-Reports:   https://github.com/input-output-hk/ouroboros-spec/issues
+Synopsis:      χ-calculus examples
+Description:   Some simple examples of χ-calculus processes.
+Category:      Concurrency
+Tested-With:   GHC == 8.4.3
+
+Source-Repository head
+
+    Type:     git
+    Location: https://github.com/input-output-hk/ouroboros-spec.git
+    Branch:   master
+    Subdir:   Haskell/chi-calculus-examples
+
+Library
+
+    Exposed-Modules: Ouroboros.Chi_Calculus.Examples
+
+    Build-Depends: base                >= 4.10 && < 5,
+                   fixed-length-lists ^>= 0.0,
+                   chi-calculus       ^>= 0.0
+
+    HS-Source-Dirs: src
+
+    Default-Language: Haskell2010
+
+    GHC-Options: -Wall

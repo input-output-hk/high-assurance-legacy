@@ -2,6 +2,7 @@ resolver: lts-12.6
 packages:
 - ./fixed-length-lists
 - ./chi-calculus
+- ./chi-calculus-examples
 nix:
     enable: true
     shell-file: shell.nix
