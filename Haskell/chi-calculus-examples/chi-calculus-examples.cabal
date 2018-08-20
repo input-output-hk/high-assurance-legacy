@@ -28,7 +28,8 @@ Library
 
     Build-Depends: base                >= 4.10 && < 5,
                    fixed-length-lists ^>= 0.0,
-                   chi-calculus       ^>= 0.0
+                   chi-calculus       ^>= 0.0,
+                   text
 
     HS-Source-Dirs: src
 
