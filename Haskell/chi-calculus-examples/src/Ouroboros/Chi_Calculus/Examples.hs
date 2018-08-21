@@ -17,7 +17,6 @@ import           Data.Text                           (Text, pack, unpack)
 import           Prelude                             hiding (log)
 
 import qualified Ouroboros.Chi_Calculus.Data         as Data
-import           Ouroboros.Chi_Calculus.DeltaQ       (DeltaQ (..))
 import           Ouroboros.Chi_Calculus.Process
 import           Ouroboros.Chi_Calculus.Process.Exec (exec)
 import           Ouroboros.Chi_Calculus.Process.Expr (expr)
@@ -33,16 +32,13 @@ datExpr (StringDat s) = Const $ pack s
 
 withLogging :: (forall c d p. (String -> Process Dat c d p) -> Process Dat c d p)
             -> ClosedProcess Dat '[String]
-withLogging f = closedProcess $ \c -> f $ Send c (Uniform 0 0) . StringDat
-
-exprWithLogging :: ClosedProcess Dat '[String] -> Text
-exprWithLogging p = interpret expr datExpr p $ Const 9999
+withLogging f = closedProcess $ \c -> f $ Send c . StringDat
 
 execWithLogging :: ClosedProcess Dat '[String] -> IO ()
 execWithLogging p = do
     logChan <- newEmptyMVar
     logger  <- forkIO $ forever $ takeMVar logChan >>= mask_ . putStrLn
-    interpret exec datEval p logChan
+    interpretEnv exec datEval p logChan
     wait logChan
     killThread logger
   where
@@ -63,15 +59,15 @@ pingPong = withLogging $ \log ->
     Parallel
         (log "sending PING")
         (Parallel
-            (Send c (Uniform 1 2) $ StringDat "PING")
+            (Send c $ StringDat "PING")
             (Parallel
                 (Receive d $ \_ -> log "received PONG")
                 (Receive c $ \_ -> Parallel
                     (log "received PING")
-                    (Send d (Uniform 1 2) $ StringDat "PONG"))))
+                    (Send d $ StringDat "PONG"))))
 
 test :: ClosedProcess Dat '[String] -> IO ()
 test p = do
-    putStrLn $ unpack $ exprWithLogging p
+    putStrLn $ unpack $ getConst $ interpret expr datExpr p
     putStrLn "------------------------------------"
     execWithLogging p

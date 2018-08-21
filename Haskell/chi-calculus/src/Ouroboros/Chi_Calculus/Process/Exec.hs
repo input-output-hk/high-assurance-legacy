@@ -1,4 +1,6 @@
-{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE GADTs               #-}
+{-# LANGUAGE RankNTypes          #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Ouroboros.Chi_Calculus.Process.Exec (
 
@@ -6,25 +8,30 @@ module Ouroboros.Chi_Calculus.Process.Exec (
 
 ) where
 
-import Prelude                        hiding (map)
+import           Prelude                            hiding (map)
 
-import Control.Concurrent             (forkIO)
-import Control.Concurrent.MVar        (MVar, newEmptyMVar, putMVar, takeMVar)
-import Control.Monad                  (void)
+import           Control.Concurrent                 (forkIO)
+import           Control.Concurrent.MVar            (MVar, newEmptyMVar,
+                                                     putMVar, takeMVar)
+import           Control.Monad                      (void)
 
-import Data.Function                  (fix)
-import Data.Functor.Identity          (Identity (Identity, runIdentity))
-import Data.List.FixedLength          (map)
+import           Data.Function                      (fix)
+import           Data.Functor.Identity              (Identity (Identity, runIdentity))
+import           Data.List.FixedLength              (map)
 
-import Ouroboros.Chi_Calculus.Process (Interpretation, Process (..))
+import qualified Ouroboros.Chi_Calculus.Data        as Data
+import           Ouroboros.Chi_Calculus.Environment (Env' (..))
+import           Ouroboros.Chi_Calculus.Process     (InterpretationEnv,
+                                                     Process (..))
 
-exec :: Interpretation MVar Identity (IO ())
-exec dataInter = worker
+exec :: InterpretationEnv MVar Identity (IO ())
+exec (dataInter :: Data.Interpretation dat Identity) = worker
 
     where
 
+    worker :: Process dat MVar Identity (Env' (IO ()) MVar) -> IO ()
     worker Stop                 = return ()
-    worker (Send chan _ val)    = putMVar chan (runIdentity (dataInter val))
+    worker (Send chan val)      = putMVar chan (runIdentity (dataInter val))
     worker (Receive chan cont)  = takeMVar chan >>= worker . cont . Identity
     worker (Parallel prc1 prc2) = do
                                       finishedVar1 <- newEmptyMVar
@@ -38,5 +45,5 @@ exec dataInter = worker
                                       takeMVar finishedVar1
                                       takeMVar finishedVar2
     worker (NewChannel cont)    = newEmptyMVar >>= worker . cont
-    worker (Var meaning)        = meaning
-    worker (Letrec defs res)    = worker (res (fix (map worker . defs)))
+    worker (Var (Nil meaning))  = meaning
+    worker (Letrec defs res)    = worker (res (fix (map (Nil . worker) . defs)))

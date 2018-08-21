@@ -1,6 +1,8 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RankNTypes        #-}
-{-# LANGUAGE TypeApplications  #-}
+{-# LANGUAGE GADTs               #-}
+{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE RankNTypes          #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
 
 module Ouroboros.Chi_Calculus.Process.Expr (
 
@@ -8,27 +10,43 @@ module Ouroboros.Chi_Calculus.Process.Expr (
 
 ) where
 
-import Prelude                        hiding (drop, map, zipWith)
+import           Prelude                            hiding (drop, map, zipWith)
 
-import Control.Monad.Trans.Reader     (ask, runReader)
+import           Control.Monad.Trans.Reader         (ask, runReader)
 
-import Data.Functor.Const             (Const (Const, getConst))
-import Data.List.FixedLength          as List (firstNaturals, map, zipWith)
-import Data.Text                      as Text (Text, drop, pack)
+import           Data.Functor.Const                 (Const (Const, getConst))
+import           Data.List.FixedLength              as List (firstNaturals, map,
+                                                             zipWith)
+import           Data.Text                          as Text (Text, drop, pack)
 
-import Numeric.Natural                (Natural)
+import           Numeric.Natural                    (Natural)
 
-import Ouroboros.Chi_Calculus.Process (Interpretation, Process (..))
+import qualified Ouroboros.Chi_Calculus.Data        as Data
+import           Ouroboros.Chi_Calculus.Environment (Env' (..))
+import           Ouroboros.Chi_Calculus.Process     (Interpretation,
+                                                     Process (..))
 
-expr :: Interpretation (Const Natural) (Const Text) Text
-expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
+expr :: Interpretation (Const Natural) (Const Text) (Const Text)
+expr (dataInter :: Data.Interpretation dat (Const Text)) = Const . worker 0
+  where
+    worker :: Natural
+           -> Env' (Process dat (Const Natural) (Const Text) (Const Text)) (Const Natural) xs
+           -> Text
+    worker (n :: Natural) (Nil p)  = expr' dataInter p n
+    worker n              (Cons f) = worker (n + 1) (f $ Const n)
 
-    where
+expr' :: Data.Interpretation dat (Const Text)
+      -> Process dat (Const Natural) (Const Text) (Const Text)
+      -> Natural
+      -> Text
+expr' dataInter prc n = worker prc `runReader` VarIndexes n 0 0
+
+  where
 
     worker Stop = do
         return "Stop"
-    worker (Send chan dq val) = do
-        return $ channelVar chan <> " ◁ " <> getConst (dataInter val) <> " [" <> pack (show dq) <> "]"
+    worker (Send chan val) = do
+        return $ channelVar chan <> " ◁ " <> getConst (dataInter val)
     worker (Receive chan cont) = do
         varIndexes <- ask
         let valIx = valueIndex varIndexes
@@ -47,7 +65,7 @@ expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
         let varIndexes' = varIndexes { channelIndex = succ chanIx }
         let prcMeaning = worker (cont chan) `runReader` varIndexes'
         return $ "ν" <> channelVar chan <> ". " <> prcMeaning
-    worker (Var meaning) = do
+    worker (Var (Const meaning)) = do
         return meaning
     worker (Letrec defs res) = do
         varIndexes <- ask
@@ -55,7 +73,7 @@ expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
         let prcVarPrefix = "p_" <> pack (show prcIx) <> "_"
         let prcVars = map ((prcVarPrefix  <>) . pack . show)
                           (firstNaturals @_ @Natural)
-        let defPrcs = defs prcVars
+        let defPrcs = defs $ map Const prcVars
         let varIndexes' = varIndexes { processIndex = succ prcIx }
         let defPrcMeanings = mapM worker defPrcs `runReader` varIndexes'
         let defTexts = zipWith (\ prcVar defPrcMeaning -> prcVar        <>
@@ -64,7 +82,7 @@ expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
                                prcVars
                                defPrcMeanings
         let defsText = "{" <> drop 1 (foldMap ("; " <>) defTexts) <> " }"
-        resMeaning <- worker (res prcVars)
+        resMeaning <- worker (res $ map Const prcVars)
         return $ "let " <> defsText <> " in " <> resMeaning
 
 data VarIndexes = VarIndexes {

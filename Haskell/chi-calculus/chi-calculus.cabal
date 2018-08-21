@@ -28,10 +28,11 @@ Source-Repository head
 Library
 
     Exposed-Modules: Ouroboros.Chi_Calculus.Data
-                     Ouroboros.Chi_Calculus.DeltaQ
                      Ouroboros.Chi_Calculus.Environment
                      Ouroboros.Chi_Calculus.Process
                      Ouroboros.Chi_Calculus.Process.DeltaQ
+                     Ouroboros.Chi_Calculus.Process.DeltaQ.DeltaQ
+                     Ouroboros.Chi_Calculus.Process.DeltaQ.HList
                      Ouroboros.Chi_Calculus.Process.Exec
                      Ouroboros.Chi_Calculus.Process.Expr
 

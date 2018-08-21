@@ -1,4 +1,4 @@
-module Ouroboros.Chi_Calculus.DeltaQ
+module Ouroboros.Chi_Calculus.Process.DeltaQ.DeltaQ
     ( Seconds
     , DeltaQ (..)
     ) where
