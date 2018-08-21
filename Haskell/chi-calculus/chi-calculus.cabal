@@ -41,10 +41,10 @@ Library
 
     Default-Language: Haskell2010
 
-    Default-Extensions: GADTs
-                        KindSignatures
-                        OverloadedStrings
-                        RankNTypes
-                        TypeApplications
+    Other-Extensions: GADTs
+                      KindSignatures
+                      OverloadedStrings
+                      RankNTypes
+                      TypeApplications
 
     GHC-Options: -Wall

@@ -1,3 +1,5 @@
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
 module Ouroboros.Chi_Calculus.Process (
 
     Process (Stop, Send, Receive, Parallel, NewChannel, Var, Letrec),

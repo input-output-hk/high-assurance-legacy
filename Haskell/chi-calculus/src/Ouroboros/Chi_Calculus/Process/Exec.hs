@@ -1,3 +1,4 @@
+{-# LANGUAGE RankNTypes #-}
 module Ouroboros.Chi_Calculus.Process.Exec (
 
     exec
