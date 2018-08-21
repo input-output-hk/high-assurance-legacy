@@ -1,72 +1,77 @@
+{-# LANGUAGE DataKinds      #-}
+{-# LANGUAGE GADTs          #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RankNTypes     #-}
+{-# LANGUAGE TypeOperators  #-}
 
 module Ouroboros.Chi_Calculus.Examples where
 
-import Control.Concurrent                  (forkIO)
-import Control.Concurrent.MVar             (MVar, newEmptyMVar, putMVar,
-                                            takeMVar)
-import Data.Functor.Const                  (Const (..))
-import Data.Functor.Identity               (Identity (..))
-import Data.Text                           (Text, pack, unpack)
-import Numeric.Natural                     (Natural)
-import Ouroboros.Chi_Calculus.Process
-import Ouroboros.Chi_Calculus.Process.Exec (exec)
-import Ouroboros.Chi_Calculus.Process.Expr (expr)
-import Prelude                             hiding (log)
+import           Control.Concurrent                  (forkIO, killThread)
+import           Control.Concurrent.MVar             (MVar, newEmptyMVar,
+                                                      takeMVar, tryReadMVar)
+import           Control.Exception                   (mask_)
+import           Control.Monad                       (forever)
+import           Data.Functor.Const                  (Const (..))
+import           Data.Functor.Identity               (Identity (..))
+import           Data.Text                           (Text, pack, unpack)
+import           Prelude                             hiding (log)
 
-newtype I d a = I {unI :: d a}
+import qualified Ouroboros.Chi_Calculus.Data         as Data
+import           Ouroboros.Chi_Calculus.DeltaQ       (DeltaQ (..))
+import           Ouroboros.Chi_Calculus.Process
+import           Ouroboros.Chi_Calculus.Process.Exec (exec)
+import           Ouroboros.Chi_Calculus.Process.Expr (expr)
 
-type ProcessExpr = Process I (Const Natural) (Const Text) Text
+data Dat (d :: * -> *) a where
+    StringDat :: String -> Dat d String
 
-type ProcessExec = Process I MVar Identity (IO ())
+datEval :: Data.Interpretation Dat Identity
+datEval (StringDat s) = Identity s
 
-exprWithLogging :: ((String -> ProcessExpr) -> ProcessExpr) -> String
-exprWithLogging p = unpack $ expr unI $ p $ Send (Const 9999) . encode
+datExpr :: Data.Interpretation Dat (Const Text)
+datExpr (StringDat s) = Const $ pack s
 
-execWithLogging :: ((String -> ProcessExec) -> ProcessExec) -> IO ()
+withLogging :: (forall c d p. (String -> Process Dat c d p) -> Process Dat c d p)
+            -> ClosedProcess Dat '[String]
+withLogging f = closedProcess $ \c -> f $ Send c (Uniform 0 0) . StringDat
+
+exprWithLogging :: ClosedProcess Dat '[String] -> Text
+exprWithLogging p = interpret expr datExpr p $ Const 9999
+
+execWithLogging :: ClosedProcess Dat '[String] -> IO ()
 execWithLogging p = do
-    v <- newEmptyMVar
-    _ <- forkIO $ exec unI (p $ Send v . I . Identity . Just) >> putMVar v Nothing
-    go v
+    logChan <- newEmptyMVar
+    logger  <- forkIO $ forever $ takeMVar logChan >>= mask_ . putStrLn
+    interpret exec datEval p logChan
+    wait logChan
+    killThread logger
   where
-    go :: MVar (Maybe String) -> IO ()
-    go v = do
-        m <- takeMVar v
+    wait :: MVar String -> IO ()
+    wait v = do
+        m <- tryReadMVar v
         case m of
-            Just s  -> putStrLn s >> go v
             Nothing -> return ()
+            Just _  -> wait v
 
-encode :: String -> I (Const Text) String
-encode s = I $ Const $ pack $ '"' : s ++ "\""
+hello :: ClosedProcess Dat '[String]
+hello = withLogging $ \log -> log "Hello, World!"
 
-hello :: (String -> Process dat c d p) -> Process dat c d p
-hello log = log "Hello, World!"
-
-pingPong :: (String -> dat d String)
-         -> (String -> Process dat c d p)
-         -> Process dat c d p
-pingPong enc log =
+pingPong :: ClosedProcess Dat '[String]
+pingPong = withLogging $ \log ->
     NewChannel $ \c ->
     NewChannel $ \d ->
     Parallel
         (log "sending PING")
         (Parallel
-            (Send c $ enc "PING")
+            (Send c (Uniform 1 2) $ StringDat "PING")
             (Parallel
                 (Receive d $ \_ -> log "received PONG")
                 (Receive c $ \_ -> Parallel
                     (log "received PING")
-                    (Send d $ enc "PONG"))))
+                    (Send d (Uniform 1 2) $ StringDat "PONG"))))
 
-testHello :: IO ()
-testHello = do
-    putStrLn $ exprWithLogging hello
+test :: ClosedProcess Dat '[String] -> IO ()
+test p = do
+    putStrLn $ unpack $ exprWithLogging p
     putStrLn "------------------------------------"
-    execWithLogging hello
-
-testPingPong :: IO ()
-testPingPong = do
-    putStrLn $ exprWithLogging $ pingPong encode
-    putStrLn "------------------------------------"
-    execWithLogging $ pingPong (I . Identity)
+    execWithLogging p
