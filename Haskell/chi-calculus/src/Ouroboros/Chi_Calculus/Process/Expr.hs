@@ -26,16 +26,16 @@ expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
 
     worker Stop = do
         return "Stop"
-    worker (Send chan val) = do
+    worker (chan :<: val) = do
         return $ channelVar chan <> " ◁ " <> getConst (dataInter val)
-    worker (Receive chan cont) = do
+    worker (chan :>: cont) = do
         varIndexes <- ask
         let valIx = valueIndex varIndexes
         let valVar = "x_" <> pack (show valIx)
         let varIndexes' = varIndexes { valueIndex = succ valIx }
         let prcMeaning = worker (cont (Const valVar)) `runReader` varIndexes'
         return $ channelVar chan <> " ▷ " <> valVar <> ". " <> prcMeaning
-    worker (Parallel prc1 prc2) = do
+    worker (prc1 :|: prc2) = do
         prcMeaning1 <- worker prc1
         prcMeaning2 <- worker prc2
         return $ "(" <> prcMeaning1 <> " ‖ " <> prcMeaning2 <> ")"

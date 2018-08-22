@@ -2,7 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 module Ouroboros.Chi_Calculus.Process (
 
-    Process (Stop, Send, Receive, Parallel, NewChannel, Var, Letrec),
+    Process (Stop, (:<:), (:>:), (:|:), NewChannel, Var, Letrec),
     Interpretation,
     interpret
 
@@ -21,15 +21,15 @@ data Process dat c d p where
 
     Stop       :: Process dat c d p
 
-    Send       :: c a
+    (:<:)      :: c a
                -> dat d a
                -> Process dat c d p
 
-    Receive    :: c a
+    (:>:)      :: c a
                -> (d a -> Process dat c d p)
                -> Process dat c d p
 
-    Parallel   :: Process dat c d p
+    (:|:)      :: Process dat c d p
                -> Process dat c d p
                -> Process dat c d p
 
