@@ -1,0 +1,8 @@
+resolver: lts-12.6
+packages:
+- chi-calculus
+- chi-calculus-examples
+- fixed-length-lists
+nix:
+    enable: true
+    shell-file: shell.nix
