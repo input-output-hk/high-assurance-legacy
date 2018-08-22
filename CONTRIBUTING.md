@@ -21,5 +21,5 @@ When committing to the Git repository, please follow these rules:
 
   * Use the body to explain the *what* and *why*, not the *how*.
 
-Several of those rules have been taken from
+Several of these rules have been taken from
 https://chris.beams.io/posts/git-commit/#seven-rules.
