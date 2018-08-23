@@ -62,6 +62,9 @@ execWithLogging p = do
             Nothing -> return ()
             Just _  -> wait v
 
+deltaQIO :: ClosedProcess Dat ts -> IO (Exit, HList (ChannelLog Identity) ts)
+deltaQIO p = runSampling $ deltaQ datEval dq 10 p
+
 hello :: ClosedProcess Dat '[String]
 hello = withLogging $ \log -> log "Hello, World!"
 
@@ -92,13 +95,8 @@ delay d p =
 tick :: ClosedProcess Dat '[String]
 tick = withLogging $ \log ->
     Letrec @('S 'Z)
-        (\(p FL.::: FL.Empty) -> Parallel (log "tick") (delay (Uniform 1 1) $ Var p) FL.::: FL.Empty)
+        (\xs -> Parallel (log "tick") (delay (Uniform 1 1) $ Var $ xs FL.! FL.Here) FL.::: FL.Empty)
         (\(p FL.::: FL.Empty) -> Var p)
-
-tick' :: ClosedProcess Dat '[String]
-tick' = withLogging $ \log ->
-    let p = Parallel (log "tick") (delay (Uniform 1 1) p)
-    in  p
 
 test :: ClosedProcess Dat '[String] -> IO ()
 test p = do

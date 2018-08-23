@@ -5,6 +5,8 @@
 module Data.List.FixedLength (
 
     List (Empty, (:::)),
+    Index (..),
+    (!),
     map,
     zipWith,
     iterate,
@@ -26,6 +28,14 @@ data List n a where
     Empty :: List 'Z a
 
     (:::) :: a -> List n a -> List ('S n) a
+
+data Index n where
+    Here  :: Index ('S n)
+    There :: Index n -> Index ('S n)
+
+(!) :: List n a -> Index n -> a
+(!) (a ::: _)  Here      = a
+(!) (_ ::: xs) (There i) = xs ! i
 
 deriving instance Eq a => Eq (List n a)
 
