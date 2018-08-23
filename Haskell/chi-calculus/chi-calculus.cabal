@@ -37,7 +37,10 @@ Library
                      Ouroboros.Chi_Calculus.Process.Expr
 
     Build-Depends: base                >= 4.10 && < 5,
+                   containers         ^>= 0.5,
                    fixed-length-lists ^>= 0.0,
+                   MonadRandom        ^>= 0.5,
+                   semigroups         ^>= 0.18,
                    text               ^>= 1.2,
                    transformers       ^>= 0.5
 
