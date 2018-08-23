@@ -5,6 +5,9 @@ When committing to the Git repository, please follow these rules:
 
   * Put only related changes into a single commit.
 
+  * Use correct spelling for the author name (for example, include all
+    diacritics).
+
   * Use Markdown for the entire commit message (subject line and body).
 
   * Separate the subject line from the body with a blank line.
