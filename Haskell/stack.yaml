@@ -1,6 +1,7 @@
-resolver: lts-12.6
+﻿resolver: lts-12.6
 packages:
 - ./fixed-length-lists
+- ./deltaQ
 - ./chi-calculus
 - ./chi-calculus-examples
 nix:

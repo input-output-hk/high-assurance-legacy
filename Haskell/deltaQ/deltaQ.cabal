@@ -1,0 +1,38 @@
+Name:          deltaQ
+Version:       0.0.0.0
+Cabal-Version: >= 2.0
+Build-Type:    Simple
+License:       MIT
+License-File:  LICENSE
+Copyright:     © 2018 IOHK
+Author:        Lars Bruenjes
+Maintainer:    lars.bruenjes@iohk.io
+Stability:     provisional
+Homepage:      https://github.com/input-output-hk/ouroboros-spec/Haskell/deltaQ
+Bug-Reports:   https://github.com/input-output-hk/ouroboros-spec/issues
+Synopsis:      DeltaQ
+Description:   DeltaQ.
+Category:      Concurrency
+Tested-With:   GHC == 8.4.3
+
+Source-Repository head
+
+    Type:     git
+    Location: https://github.com/input-output-hk/ouroboros-spec.git
+    Branch:   master
+    Subdir:   Haskell/deltaQ
+
+Library
+
+    Exposed-Modules: Data.DeltaQ,
+                     Data.DeltaQ.Probability
+
+    Build-Depends: base                >= 4.10 && < 5,
+                   MonadRandom        ^>= 0.5,
+                   semigroups         ^>= 0.18
+
+    HS-Source-Dirs: src
+
+    Default-Language: Haskell2010
+
+    GHC-Options: -Wall
