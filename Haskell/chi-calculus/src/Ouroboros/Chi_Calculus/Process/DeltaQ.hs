@@ -184,19 +184,18 @@ type P dat d m = Process dat (Const Int) d (Const (Target dat d m))
 deltaQ :: forall m dat d ts .
           MonadDeltaQ m
        => Data.Interpretation dat d
-       -> (forall a. dat d a -> DeltaQ)
        -> (d Bool -> Bool)
        -> Seconds
        -> ClosedProcess dat ts
        -> m (Exit, HList (ChannelLog d) ts)
-deltaQ dataInter dq toBool tmax cp = (\(e, xs, _) -> (e, xs)) <$> go emptyChannelLogs cp
+deltaQ dataInter toBool tmax cp = (\(e, xs, _) -> (e, xs)) <$> go emptyChannelLogs cp
   where
     go :: forall ts' .
           ChannelLogs d
        -> Env.Env' (P dat d m) (Const Int) ts'
        -> m (Exit, HList (ChannelLog d) ts', ChannelLogs d)
     go ls (Env.Nil p) = do
-        let Target f = deltaQ' dataInter dq toBool p
+        let Target f = deltaQ' dataInter toBool p
         (ms, ls') <- f 0 tmax ls emptyReceivings []
         return (ms, Nil, ls')
     go ls (Env.Cons f) = do
@@ -209,17 +208,15 @@ deltaQ dataInter dq toBool tmax cp = (\(e, xs, _) -> (e, xs)) <$> go emptyChanne
 deltaQ' :: forall m dat d .
            MonadDeltaQ m
         => Data.Interpretation dat d
-        -> (forall a. dat d a -> DeltaQ)
         -> (d Bool -> Bool)
         -> P dat d m
         -> Target dat d m
-deltaQ' dataInter dq toBool p = Target $ \t tmax ls rs ps ->
-    worker dataInter dq toBool tmax t ls rs (p : ps)
+deltaQ' dataInter toBool p = Target $ \t tmax ls rs ps ->
+    worker dataInter toBool tmax t ls rs (p : ps)
 
 worker :: forall m dat d .
           MonadDeltaQ m
        => Data.Interpretation dat d
-       -> (forall a. dat d a -> DeltaQ)
        -> (d Bool -> Bool)
        -> Seconds
        -> Seconds
@@ -227,7 +224,7 @@ worker :: forall m dat d .
        -> Receivings dat d m
        -> [P dat d m]
        -> m (Exit, ChannelLogs d)
-worker dataInter dq toBool tmax = go
+worker dataInter toBool tmax = go
   where
     go :: Seconds
        -> ChannelLogs d
@@ -245,7 +242,7 @@ worker dataInter dq toBool tmax = go
     go t ls rs (Stop                   : ps) = go t ls rs ps
     go t ls rs (Var (Const (Target f)) : ps) = f t tmax ls rs ps
     go t ls rs (Letrec defs res        : ps) =
-        let p = res $ fix $ map (Const . deltaQ' dataInter dq toBool) . defs
+        let p = res $ fix $ map (Const . deltaQ' dataInter toBool) . defs
         in  go t ls rs (p : ps)
     go t ls rs ((p1 :|: p2)            : ps) = go t ls rs (p1 : p2 : ps)
     go t ls rs (NewChannel cont        : ps) = do
@@ -254,8 +251,8 @@ worker dataInter dq toBool tmax = go
         (t', ls'') <- go t ls' rs $ cont ch : ps
         return (t', deleteChannelLog ch ls'')
     go t ls rs (Guard b p              : ps) = go t ls rs $ if toBool (dataInter b) then p : ps else ps
-    go t ls rs ((ch :<: x)             : ps) = do
-        mdt <- deltaQM $ dq x
+    go t ls rs ((ch :<: (dq, x))       : ps) = do
+        mdt <- deltaQM dq
         case mdt of
             Nothing -> go t ls rs ps
             Just dt -> do

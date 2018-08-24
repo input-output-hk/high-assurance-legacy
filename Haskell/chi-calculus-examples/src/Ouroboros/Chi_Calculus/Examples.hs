@@ -2,6 +2,7 @@
 {-# LANGUAGE GADTs            #-}
 {-# LANGUAGE KindSignatures   #-}
 {-# LANGUAGE RankNTypes       #-}
+{-# LANGUAGE TupleSections    #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators    #-}
 
@@ -32,24 +33,23 @@ import           Ouroboros.Chi_Calculus.Process.Exec          (exec)
 import           Ouroboros.Chi_Calculus.Process.Expr          (expr)
 
 data Dat (d :: * -> *) a where
-    StringDat :: DeltaQ -> String -> Dat d String
-    BoolDat   :: DeltaQ -> Bool   -> Dat d Bool
+    DLit :: Show a => a -> Dat d a
+    DNot :: Dat d Bool -> Dat d Bool
+    DVar :: d a -> Dat d a
 
 datEval :: Data.Interpretation Dat Identity
-datEval (StringDat _ s) = Identity s
-datEval (BoolDat _ b)   = Identity b
+datEval (DLit a) = Identity a
+datEval (DNot b) = Identity $ not $ runIdentity $ datEval b
+datEval (DVar x) = x
 
 datExpr :: Data.Interpretation Dat (Const Text)
-datExpr (StringDat d s) = Const $ pack $ s      ++ " [" ++ show d ++ "]"
-datExpr (BoolDat d b)   = Const $ pack $ show b ++ " [" ++ show d ++ "]"
-
-dq :: Dat Identity a -> DeltaQ
-dq (StringDat d _) = d
-dq (BoolDat d _)   = d
+datExpr (DLit a) = Const $ pack $ show a
+datExpr (DNot b) = Const $ pack "(not " <> getConst (datExpr b) <> pack ")"
+datExpr (DVar t) = t
 
 withLogging :: (forall c d p. (String -> Process Dat c d p) -> Process Dat c d p)
             -> ClosedProcess Dat '[String]
-withLogging f = closedProcess $ \c -> f $ (c :<:) . StringDat (Uniform 0 0)
+withLogging f = closedProcess $ \c -> f $ (c :<:) . (Uniform 0 0,) . DLit
 
 execWithLogging :: ClosedProcess Dat '[String] -> IO ()
 execWithLogging p = do
@@ -67,14 +67,31 @@ execWithLogging p = do
             Just _  -> wait v
 
 deltaQIO :: ClosedProcess Dat ts -> IO (Exit, HList (ChannelLog Identity) ts)
-deltaQIO p = runSampling $ deltaQ datEval dq runIdentity 10 p
+deltaQIO p = runSampling $ deltaQ datEval runIdentity 10 p
 
 delay :: DeltaQ -> Process Dat c d p -> Process Dat c d p
 delay d p =
     NewChannel $ \c1 ->
-    NewChannel $ \c2 ->  (c1 :<: StringDat d "DELAY")
-                     :|: (c1 :>: const (c2 :<: StringDat (Uniform 0 0) "ACK"))
+    NewChannel $ \c2 ->  (c1 :<: (d, DLit "DELAY"))
+                     :|: (c1 :>: const (c2 :<: (Uniform 0 0, DLit "ACK")))
                      :|: (c2 :>: const p)
+
+ifThenElse :: Dat d Bool
+           -> Process Dat c d p
+           -> Process Dat c d p
+           -> Process Dat c d p
+ifThenElse b t e = Guard b t :|: Guard (DNot b) e
+
+timeout :: Seconds
+        -> c ()
+        -> Process Dat c d p
+        -> Process Dat c d p
+        -> Process Dat c d p
+timeout t ch p q =
+    NewChannel $ \ch' ->
+        (ch :>: const (ch' :<: (Uniform 0 0, DLit True)))
+    :|: (ch' :<: (Uniform t t, DLit False))
+    :|: (ch' :>: \b -> ifThenElse (DVar b) p q)
 
 hello :: ClosedProcess Dat '[String]
 hello = withLogging $ \log -> log "Hello, World!"
@@ -84,10 +101,10 @@ pingPong = withLogging $ \log ->
     NewChannel $ \c ->
     NewChannel $ \d ->
             log "sending PING"
-        :|: (c :<: StringDat (Uniform 1 2) "PING")
+        :|: (c :<: (Uniform 1 2, DLit "PING"))
         :|: (d :>: (const $ log "received PONG"))
         :|: (c :>: (const $     log "received PING"
-                            :|: (d :<: StringDat (Uniform 2 3) "PONG")))
+                            :|: (d :<: (Uniform 2 3, DLit "PONG"))))
 
 tick :: ClosedProcess Dat '[String]
 tick = withLogging $ \log ->
@@ -96,6 +113,14 @@ tick = withLogging $ \log ->
                  :|: (delay (Uniform 1 1) $ Var $ xs FL.! FL.Here))
                 FL.::: FL.Empty)
         (\(p FL.::: FL.Empty) -> Var p)
+
+testTimeout :: ClosedProcess Dat '[String]
+testTimeout = withLogging $ \log ->
+    NewChannel $ \c ->
+        (NewChannel $ \d ->
+                (d :<: (Uniform 1 3, DLit ()))
+            :|: (d :>: const (c :<: (Uniform 0 0, DLit ()))))
+        :|: timeout 2 c (log "received") (log "timout!")
 
 test :: ClosedProcess Dat '[String] -> IO ()
 test p = do

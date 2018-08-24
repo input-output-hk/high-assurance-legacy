@@ -46,8 +46,8 @@ expr' dataInter prc n = worker prc `runReader` VarIndexes n 0 0
 
     worker Stop = do
         return "Stop"
-    worker (chan :<: val) = do
-        return $ channelVar chan <> " ◁ " <> fromDat val
+    worker (chan :<: (dq, val)) = do
+        return $ channelVar chan <> " [" <> pack (show dq) <> "] ◁ " <> fromDat val
     worker (chan :>: cont) = do
         varIndexes <- ask
         let valIx = valueIndex varIndexes

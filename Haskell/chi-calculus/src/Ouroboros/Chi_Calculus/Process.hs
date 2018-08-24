@@ -18,12 +18,14 @@ module Ouroboros.Chi_Calculus.Process (
 
 ) where
 
-import           Data.List.FixedLength              (List)
-import           Data.Type.Natural                  (TypeNatural)
+import           Data.List.FixedLength                        (List)
+import           Data.Type.Natural                            (TypeNatural)
 
-import qualified Ouroboros.Chi_Calculus.Data        as Data (Interpretation)
-import           Ouroboros.Chi_Calculus.Environment (Env, Env', ToFromEnv (..),
-                                                     mapEnv')
+import qualified Ouroboros.Chi_Calculus.Data                  as Data (Interpretation)
+import           Ouroboros.Chi_Calculus.Environment           (Env, Env',
+                                                               ToFromEnv (..),
+                                                               mapEnv')
+import           Ouroboros.Chi_Calculus.Process.DeltaQ.DeltaQ (DeltaQ)
 
 {-|
     Processes of the χ-calculus with support for @letrec@ constructions. This
@@ -37,7 +39,7 @@ data Process (dat :: (* -> *) -> (* -> *))
     Stop       :: Process dat c d p
 
     (:<:)      :: c a
-               -> dat d a
+               -> (DeltaQ, dat d a)
                -> Process dat c d p
 
     (:>:)      :: c a

@@ -34,8 +34,11 @@ data Index n where
     There :: Index n -> Index ('S n)
 
 (!) :: List n a -> Index n -> a
-(!) (a ::: _)  Here      = a
-(!) (_ ::: xs) (There i) = xs ! i
+(!) = flip f
+  where
+    f :: Index n -> List n a -> a
+    f Here      (a ::: _)  = a
+    f (There i) (_ ::: xs) = f i xs
 
 deriving instance Eq a => Eq (List n a)
 
