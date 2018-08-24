@@ -35,7 +35,8 @@ expr (dataInter :: Data.Interpretation dat (Const Text)) = Const . worker 0
     worker (n :: Natural) (Nil p)  = expr' dataInter p n
     worker n              (Cons f) = worker (n + 1) (f $ Const n)
 
-expr' :: Data.Interpretation dat (Const Text)
+expr' :: forall dat .
+         Data.Interpretation dat (Const Text)
       -> Process dat (Const Natural) (Const Text) (Const Text)
       -> Natural
       -> Text
@@ -45,16 +46,16 @@ expr' dataInter prc n = worker prc `runReader` VarIndexes n 0 0
 
     worker Stop = do
         return "Stop"
-    worker (Send chan val) = do
-        return $ channelVar chan <> " ◁ " <> getConst (dataInter val)
-    worker (Receive chan cont) = do
+    worker (chan :<: val) = do
+        return $ channelVar chan <> " ◁ " <> fromDat val
+    worker (chan :>: cont) = do
         varIndexes <- ask
         let valIx = valueIndex varIndexes
         let valVar = "x_" <> pack (show valIx)
         let varIndexes' = varIndexes { valueIndex = succ valIx }
         let prcMeaning = worker (cont (Const valVar)) `runReader` varIndexes'
         return $ channelVar chan <> " ▷ " <> valVar <> ". " <> prcMeaning
-    worker (Parallel prc1 prc2) = do
+    worker (prc1 :|: prc2) = do
         prcMeaning1 <- worker prc1
         prcMeaning2 <- worker prc2
         return $ "(" <> prcMeaning1 <> " ‖ " <> prcMeaning2 <> ")"
@@ -65,6 +66,9 @@ expr' dataInter prc n = worker prc `runReader` VarIndexes n 0 0
         let varIndexes' = varIndexes { channelIndex = succ chanIx }
         let prcMeaning = worker (cont chan) `runReader` varIndexes'
         return $ "ν" <> channelVar chan <> ". " <> prcMeaning
+    worker (Guard val prc') = do
+        prcMeaning <- worker prc'
+        return $ "(guard " <> fromDat val <> " " <> prcMeaning <> ")"
     worker (Var (Const meaning)) = do
         return meaning
     worker (Letrec defs res) = do
@@ -84,6 +88,9 @@ expr' dataInter prc n = worker prc `runReader` VarIndexes n 0 0
         let defsText = "{" <> drop 1 (foldMap ("; " <>) defTexts) <> " }"
         resMeaning <- worker (res $ map Const prcVars)
         return $ "let " <> defsText <> " in " <> resMeaning
+
+    fromDat :: dat (Const Text) a -> Text
+    fromDat = getConst . dataInter
 
 data VarIndexes = VarIndexes {
     channelIndex, valueIndex, processIndex :: Natural

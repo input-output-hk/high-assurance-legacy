@@ -8,7 +8,7 @@
 
 module Ouroboros.Chi_Calculus.Process (
 
-    Process (Stop, Send, Receive, Parallel, NewChannel, Var, Letrec),
+    Process (Stop, (:<:), (:>:), (:|:), NewChannel, Guard, Var, Letrec),
     ClosedProcess,
     closedProcess,
     Interpretation,
@@ -36,19 +36,23 @@ data Process (dat :: (* -> *) -> (* -> *))
 
     Stop       :: Process dat c d p
 
-    Send       :: c a
+    (:<:)      :: c a
                -> dat d a
                -> Process dat c d p
 
-    Receive    :: c a
+    (:>:)      :: c a
                -> (d a -> Process dat c d p)
                -> Process dat c d p
 
-    Parallel   :: Process dat c d p
+    (:|:)      :: Process dat c d p
                -> Process dat c d p
                -> Process dat c d p
 
     NewChannel :: (c a -> Process dat c d p)
+               -> Process dat c d p
+
+    Guard      :: dat d Bool
+               -> Process dat c d p
                -> Process dat c d p
 
     Var        :: p '[]

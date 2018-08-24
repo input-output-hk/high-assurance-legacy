@@ -13,7 +13,7 @@ import           Prelude                            hiding (map)
 import           Control.Concurrent                 (forkIO)
 import           Control.Concurrent.MVar            (MVar, newEmptyMVar,
                                                      putMVar, takeMVar)
-import           Control.Monad                      (void)
+import           Control.Monad                      (void, when)
 
 import           Data.Function                      (fix)
 import           Data.Functor.Identity              (Identity (Identity, runIdentity))
@@ -31,9 +31,9 @@ exec (dataInter :: Data.Interpretation dat Identity) = worker
 
     worker :: Process dat MVar Identity (Env' (IO ()) MVar) -> IO ()
     worker Stop                 = return ()
-    worker (Send chan val)      = putMVar chan (runIdentity (dataInter val))
-    worker (Receive chan cont)  = takeMVar chan >>= worker . cont . Identity
-    worker (Parallel prc1 prc2) = do
+    worker (chan :<: val)       = putMVar chan (fromDat val)
+    worker (chan :>: cont)      = takeMVar chan >>= worker . cont . Identity
+    worker (prc1 :|: prc2)      = do
                                       finishedVar1 <- newEmptyMVar
                                       finishedVar2 <- newEmptyMVar
                                       void $ forkIO $ do
@@ -45,5 +45,9 @@ exec (dataInter :: Data.Interpretation dat Identity) = worker
                                       takeMVar finishedVar1
                                       takeMVar finishedVar2
     worker (NewChannel cont)    = newEmptyMVar >>= worker . cont
+    worker (Guard val prc)      = when (fromDat val) $ worker prc
     worker (Var (Nil meaning))  = meaning
     worker (Letrec defs res)    = worker (res (fix (map (Nil . worker) . defs)))
+
+    fromDat :: dat Identity a -> a
+    fromDat = runIdentity . dataInter

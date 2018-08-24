@@ -33,19 +33,23 @@ import           Ouroboros.Chi_Calculus.Process.Expr          (expr)
 
 data Dat (d :: * -> *) a where
     StringDat :: DeltaQ -> String -> Dat d String
+    BoolDat   :: DeltaQ -> Bool   -> Dat d Bool
 
 datEval :: Data.Interpretation Dat Identity
 datEval (StringDat _ s) = Identity s
+datEval (BoolDat _ b)   = Identity b
 
 datExpr :: Data.Interpretation Dat (Const Text)
-datExpr (StringDat d s) = Const $ pack $ s ++ " [" ++ show d ++ "]"
+datExpr (StringDat d s) = Const $ pack $ s      ++ " [" ++ show d ++ "]"
+datExpr (BoolDat d b)   = Const $ pack $ show b ++ " [" ++ show d ++ "]"
 
 dq :: Dat Identity a -> DeltaQ
 dq (StringDat d _) = d
+dq (BoolDat d _)   = d
 
 withLogging :: (forall c d p. (String -> Process Dat c d p) -> Process Dat c d p)
             -> ClosedProcess Dat '[String]
-withLogging f = closedProcess $ \c -> f $ Send c . StringDat (Uniform 0 0)
+withLogging f = closedProcess $ \c -> f $ (c :<:) . StringDat (Uniform 0 0)
 
 execWithLogging :: ClosedProcess Dat '[String] -> IO ()
 execWithLogging p = do
@@ -63,7 +67,14 @@ execWithLogging p = do
             Just _  -> wait v
 
 deltaQIO :: ClosedProcess Dat ts -> IO (Exit, HList (ChannelLog Identity) ts)
-deltaQIO p = runSampling $ deltaQ datEval dq 10 p
+deltaQIO p = runSampling $ deltaQ datEval dq runIdentity 10 p
+
+delay :: DeltaQ -> Process Dat c d p -> Process Dat c d p
+delay d p =
+    NewChannel $ \c1 ->
+    NewChannel $ \c2 ->  (c1 :<: StringDat d "DELAY")
+                     :|: (c1 :>: const (c2 :<: StringDat (Uniform 0 0) "ACK"))
+                     :|: (c2 :>: const p)
 
 hello :: ClosedProcess Dat '[String]
 hello = withLogging $ \log -> log "Hello, World!"
@@ -72,30 +83,18 @@ pingPong :: ClosedProcess Dat '[String]
 pingPong = withLogging $ \log ->
     NewChannel $ \c ->
     NewChannel $ \d ->
-    Parallel
-        (log "sending PING")
-        (Parallel
-            (Send c $ StringDat (Uniform 1 2) "PING")
-            (Parallel
-                (Receive d $ \_ -> log "received PONG")
-                (Receive c $ \_ -> Parallel
-                    (log "received PING")
-                    (Send d $ StringDat (Uniform 2 3) "PONG"))))
-
-delay :: DeltaQ -> Process Dat c d p -> Process Dat c d p
-delay d p =
-    NewChannel $ \c1 ->
-    NewChannel $ \c2 ->
-    Parallel
-        (Send c1 $ StringDat d "DELAY")
-        (Parallel
-            (Receive c1 $ \_ -> Send c2 (StringDat (Uniform 0 0) "ACK"))
-            (Receive c2 $ \_ -> p))
+            log "sending PING"
+        :|: (c :<: StringDat (Uniform 1 2) "PING")
+        :|: (d :>: (const $ log "received PONG"))
+        :|: (c :>: (const $     log "received PING"
+                            :|: (d :<: StringDat (Uniform 2 3) "PONG")))
 
 tick :: ClosedProcess Dat '[String]
 tick = withLogging $ \log ->
     Letrec @('S 'Z)
-        (\xs -> Parallel (log "tick") (delay (Uniform 1 1) $ Var $ xs FL.! FL.Here) FL.::: FL.Empty)
+        (\xs -> (    log "tick"
+                 :|: (delay (Uniform 1 1) $ Var $ xs FL.! FL.Here))
+                FL.::: FL.Empty)
         (\(p FL.::: FL.Empty) -> Var p)
 
 test :: ClosedProcess Dat '[String] -> IO ()
@@ -104,6 +103,6 @@ test p = do
     putStrLn "------------------------------------"
     execWithLogging p
     putStrLn "------------------------------------"
-    (e, xs) <- runSampling $ deltaQ datEval dq 10 p
+    (e, xs) <- deltaQIO p
     print e
     print $ xs ! Here
