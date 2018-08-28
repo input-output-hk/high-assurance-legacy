@@ -24,10 +24,14 @@ Source-Repository head
 
 Library
 
-    Exposed-Modules: Data.DeltaQ,
-                     Data.DeltaQ.Probability
+    Exposed-Modules:   Data.DeltaQ
+                     , Data.DeltaQ.Core
+                     , Data.DeltaQ.Discrete
+                     , Data.DeltaQ.IntP
+                     , Data.DeltaQ.Probability
 
     Build-Depends: base                >= 4.10 && < 5,
+                   containers         ^>= 0.5,
                    MonadRandom        ^>= 0.5,
                    semigroups         ^>= 0.18
 

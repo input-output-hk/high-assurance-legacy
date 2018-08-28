@@ -9,6 +9,15 @@
 module Data.DeltaQ.Probability
     ( Prob (getProb)
     , prob
+    , impossibleP
+    , certainP
+    , isImpossibleP
+    , isCertainP
+    , complementP
+    , mixP
+    , mulP
+    , addP
+    , recipP
     , MonadProb (..)
     , coinM
     , elements
@@ -22,10 +31,37 @@ import           Data.List.NonEmpty   (NonEmpty (..))
 import qualified Data.List.NonEmpty   as NE
 
 newtype Prob a = Prob {getProb :: a}
-    deriving (Show, Eq, Ord)
+    deriving (Eq, Ord)
 
-prob :: (Num a, Ord a) => a -> Prob a
+instance Show a => Show (Prob a) where
+    showsPrec d (Prob a) = showsPrec d a
+
+prob :: (Ord a, Num a) => a -> Prob a
 prob = Prob . max 0 . min 1
+
+impossibleP, certainP :: (Ord a, Num a) => Prob a
+impossibleP = prob 0
+certainP = prob 1
+
+isImpossibleP, isCertainP :: (Eq a, Num a) => Prob a -> Bool
+isImpossibleP (Prob p) = p == 0
+isCertainP    (Prob p) = p == 1
+
+complementP :: (Ord a, Num a) => Prob a -> Prob a
+complementP (Prob p) = prob (1 - p)
+
+mixP :: (Ord a, Num a) => Prob a -> Prob a -> Prob a -> Prob a
+mixP (Prob p) (Prob x) (Prob y) = prob (p * x + (1 - p) * y)
+
+mulP :: (Ord a, Num a) => Prob a -> Prob a -> Prob a
+mulP p q = mixP p q impossibleP
+
+addP :: (Ord a, Num a) => Prob a -> Prob a -> Prob a
+addP (Prob p) (Prob q) = prob (p + q)
+
+recipP :: (Ord a, Fractional a) => Prob a -> Maybe (Prob a)
+recipP (Prob 0) = Nothing
+recipP (Prob p) = Just $ prob $ recip p
 
 class (Ord a, Num a, Fractional a, Monad m) => MonadProb a m | m -> a where
     coin :: Prob a -> b -> b -> m b
