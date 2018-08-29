@@ -3,6 +3,7 @@
 module Ouroboros.Chi_Calculus.Process (
 
     Process (Stop, Guard, (:<:), (:>:), (:|:), NewChannel, Var, Letrec),
+    Channel,
     ClosedProcess,
     Interpretation,
     interpret
@@ -18,43 +19,45 @@ import qualified Ouroboros.Chi_Calculus.Data as Data (Interpretation)
     Processes of the χ-calculus with support for @letrec@ constructions. This
     definition uses parametric higher-order abstract syntax (PHOAS).
 -}
-data Process dat c d p where
+data Process dat d p where
 
-    Stop       :: Process dat c d p
+    Stop       :: Process dat d p
 
     Guard      :: dat d Bool
-               -> Process dat c d p
-               -> Process dat c d p
+               -> Process dat d p
+               -> Process dat d p
 
-    (:<:)      :: c a
+    (:<:)      :: dat d (Channel a)
                -> dat d a
-               -> Process dat c d p
+               -> Process dat d p
 
-    (:>:)      :: c a
-               -> (d a -> Process dat c d p)
-               -> Process dat c d p
+    (:>:)      :: dat d (Channel a)
+               -> (d a -> Process dat d p)
+               -> Process dat d p
 
-    (:|:)      :: Process dat c d p
-               -> Process dat c d p
-               -> Process dat c d p
+    (:|:)      :: Process dat d p
+               -> Process dat d p
+               -> Process dat d p
 
-    NewChannel :: (c a -> Process dat c d p)
-               -> Process dat c d p
+    NewChannel :: (d (Channel a) -> Process dat d p)
+               -> Process dat d p
 
     Var        :: p
-               -> Process dat c d p
+               -> Process dat d p
 
     Letrec     :: TypeNatural n
-               => (List n p -> List n (Process dat c d p))
-               -> (List n p -> Process dat c d p)
-               -> Process dat c d p
+               => (List n p -> List n (Process dat d p))
+               -> (List n p -> Process dat d p)
+               -> Process dat d p
 
-type ClosedProcess dat = forall c d p . Process dat c d p
+data Channel a
 
-type Interpretation c d p = forall dat .
-                            Data.Interpretation dat d -> Process dat c d p -> p
+type ClosedProcess dat = forall d p . Process dat d p
 
-interpret :: Interpretation c d p
+type Interpretation d p = forall dat .
+                          Data.Interpretation dat d -> Process dat d p -> p
+
+interpret :: Interpretation d p
           -> Data.Interpretation dat d
           -> ClosedProcess dat
           -> p

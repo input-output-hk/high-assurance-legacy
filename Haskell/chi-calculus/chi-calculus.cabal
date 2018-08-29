@@ -44,7 +44,9 @@ Library
     Other-Extensions: GADTs
                       KindSignatures
                       OverloadedStrings
+                      PartialTypeSignatures
                       RankNTypes
                       TypeApplications
+                      TypeFamilies
 
-    GHC-Options: -Wall
+    GHC-Options: -Wall -Wno-partial-type-signatures

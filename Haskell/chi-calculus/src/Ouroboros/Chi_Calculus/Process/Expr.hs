@@ -19,7 +19,7 @@ import Numeric.Natural (Natural)
 
 import Ouroboros.Chi_Calculus.Process (Process (..), Interpretation)
 
-expr :: Interpretation (Const Natural) (Const Text) Text
+expr :: Interpretation (Const Text) Text
 expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
 
     where
@@ -30,14 +30,18 @@ expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
         contMeaning <- worker cont
         return $ "⟨" <> getConst (dataInter cond) <> "⟩ " <> contMeaning
     worker (chan :<: val) = do
-        return $ channelVar chan <> " ◁ " <> getConst (dataInter val)
+        return $ getConst (dataInter chan) <> " ◁ " <> getConst (dataInter val)
     worker (chan :>: cont) = do
         varIndexes <- ask
         let valIx = valueIndex varIndexes
         let valVar = "x_" <> pack (show valIx)
         let varIndexes' = varIndexes { valueIndex = succ valIx }
         let prcMeaning = worker (cont (Const valVar)) `runReader` varIndexes'
-        return $ channelVar chan <> " ▷ " <> valVar <> ". " <> prcMeaning
+        return $ getConst (dataInter chan) <>
+                 " ▷ "                     <>
+                 valVar                    <>
+                 ". "                      <>
+                 prcMeaning
     worker (prc1 :|: prc2) = do
         prcMeaning1 <- worker prc1
         prcMeaning2 <- worker prc2
@@ -45,10 +49,10 @@ expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
     worker (NewChannel cont) = do
         varIndexes <- ask
         let chanIx = channelIndex varIndexes
-        let chan = Const chanIx
+        let chanVar = "c_" <> pack (show chanIx)
         let varIndexes' = varIndexes { channelIndex = succ chanIx }
-        let prcMeaning = worker (cont chan) `runReader` varIndexes'
-        return $ "ν" <> channelVar chan <> ". " <> prcMeaning
+        let prcMeaning = worker (cont (Const chanVar)) `runReader` varIndexes'
+        return $ "ν" <> chanVar <> ". " <> prcMeaning
     worker (Var meaning) = do
         return meaning
     worker (Letrec defs res) = do
@@ -72,6 +76,3 @@ expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
 data VarIndexes = VarIndexes {
     channelIndex, valueIndex, processIndex :: Natural
 }
-
-channelVar :: Const Natural a -> Text
-channelVar chan = "c_" <> pack (show (getConst chan))
