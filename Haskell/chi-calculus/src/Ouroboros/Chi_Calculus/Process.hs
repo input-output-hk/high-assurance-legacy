@@ -3,6 +3,7 @@
 module Ouroboros.Chi_Calculus.Process (
 
     Process (Stop, Guard, (:<:), (:>:), (:|:), NewChannel, Var, Letrec),
+    ClosedProcess,
     Interpretation,
     interpret
 
