@@ -26,6 +26,9 @@ expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
 
     worker Stop = do
         return "Stop"
+    worker (Guard cond cont) = do
+        contMeaning <- worker cont
+        return $ "⟨" <> getConst (dataInter cond) <> "⟩ " <> contMeaning
     worker (chan :<: val) = do
         return $ channelVar chan <> " ◁ " <> getConst (dataInter val)
     worker (chan :>: cont) = do

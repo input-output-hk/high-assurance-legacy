@@ -2,7 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 module Ouroboros.Chi_Calculus.Process (
 
-    Process (Stop, (:<:), (:>:), (:|:), NewChannel, Var, Letrec),
+    Process (Stop, Guard, (:<:), (:>:), (:|:), NewChannel, Var, Letrec),
     Interpretation,
     interpret
 
@@ -20,6 +20,10 @@ import qualified Ouroboros.Chi_Calculus.Data as Data (Interpretation)
 data Process dat c d p where
 
     Stop       :: Process dat c d p
+
+    Guard      :: dat d Bool
+               -> Process dat c d p
+               -> Process dat c d p
 
     (:<:)      :: c a
                -> dat d a
