@@ -36,8 +36,8 @@ Library
     Default-Language: Haskell2010
 
     Other-Extensions: DataKinds
-                      GADTs
                       RankNTypes
                       StandaloneDeriving
+                      TypeFamilies
 
     GHC-Options: -Wall

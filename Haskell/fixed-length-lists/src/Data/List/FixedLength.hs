@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeFamilies #-}
 module Data.List.FixedLength (
 
     List (Empty, (:::)),
@@ -20,24 +20,69 @@ import Data.Type.Natural (Natural (Z, S), TypeNatural (induct))
 
 infixr 5 :::
 
-data List n a where
+consPrec :: Int
+consPrec = 5
 
-    Empty :: List 'Z a
+data family List (n :: Natural) a
 
-    (:::) :: a -> List n a -> List ('S n) a
+data instance List 'Z a = Empty
 
-deriving instance Eq a => Eq (List n a)
+data instance List ('S n) a = a ::: List n a
 
-deriving instance Ord a => Ord (List n a)
+newtype Equal a n = Equal {
+    plainEqual :: List n a -> List n a -> Bool
+}
 
-deriving instance Show a => Show (List n a)
+instance (TypeNatural n, Eq a) => Eq (List n a) where
 
-instance Functor (List n) where
+    (==) = plainEqual $ induct z s where
+
+        z = Equal $ \ Empty Empty -> True
+
+        s h = Equal $ \ (x ::: xs) (y ::: ys) -> x == y || plainEqual h xs ys
+
+newtype Compare a n = Compare {
+    plainCompare :: List n a -> List n a -> Ordering
+}
+
+instance (TypeNatural n, Ord a) => Ord (List n a) where
+
+    compare = plainCompare $ induct z s where
+
+        z = Compare $ \ Empty Empty -> EQ
+
+        s h = Compare $
+              \ (x ::: xs) (y ::: ys) -> compare x y <> plainCompare h xs ys
+
+newtype ShowsPrec a n = ShowsPrec {
+    plainShowsPrec :: Int -> List n a -> ShowS
+}
+
+instance (TypeNatural n, Show a) => Show (List n a) where
+
+    showsPrec = plainShowsPrec $ induct z s where
+    
+        z = ShowsPrec $ \ _ Empty -> showString "Empty"
+
+        s h = ShowsPrec $
+              \ d (x ::: xs) -> showParen (d > consPrec) $
+                                showsPrec (succ consPrec) x         .
+                                showString " ::: "                  .
+                                plainShowsPrec h (succ consPrec) xs
+
+newtype Replace a b n = Replace {
+    plainReplace :: b -> List n a -> List n b
+}
+
+instance TypeNatural n => Functor (List n) where
 
     fmap = map
 
-    _ <$ Empty    = Empty
-    x <$ _ ::: ys = x ::: (x <$ ys)
+    (<$) = plainReplace $ induct z s where
+
+        z = Replace $ \ _ Empty -> Empty
+
+        s h = Replace $ \ x (_ ::: ys) -> x ::: (plainReplace h x ys)
 
 instance TypeNatural n => Applicative (List n) where
 
@@ -55,27 +100,57 @@ instance TypeNatural n => Monad (List n) where
 
     (>>) = (*>)
 
-instance Foldable (List n) where
+newtype FoldMap m a n = FoldMap {
+    plainFoldMap :: (a -> m) -> List n a -> m
+}
 
-    foldMap _ Empty      = mempty
-    foldMap f (x ::: xs) = f x <> foldMap f xs
+instance TypeNatural n => Foldable (List n) where
+
+    foldMap = plainFoldMap $ induct z s where
+
+        z = FoldMap $ \ _ Empty -> mempty
+
+        s h = FoldMap $ \ f (x ::: xs) -> f x <> plainFoldMap h f xs
 
     -- FIXME: Perhaps implement other methods explicitly.
 
-instance Traversable (List n) where
+newtype Traverse f a b n = Traverse {
+    plainTraverse :: (a -> f b) -> List n a -> f (List n b)
+}
 
-    traverse _ Empty      = pure Empty
-    traverse f (x ::: xs) = liftA2 (:::) (f x) (traverse f xs)
+instance TypeNatural n => Traversable (List n) where
+
+    traverse = plainTraverse $ induct z s where
+
+        z = Traverse $ \ _ Empty -> pure Empty
+
+        s h = Traverse $
+              \ f (x ::: xs) -> liftA2 (:::) (f x) (plainTraverse h f xs)
 
     -- FIXME: Perhaps implement other methods explicitly.
 
-map :: (a -> b) -> List n a -> List n b
-map _ Empty      = Empty
-map f (x ::: xs) = f x ::: map f xs
+newtype Map a b n = Map {
+    plainMap :: (a -> b) -> List n a -> List n b
+}
 
-zipWith :: (a -> b -> c) -> List n a -> List n b -> List n c
-zipWith _ Empty      Empty      = Empty
-zipWith f (x ::: xs) (y ::: ys) = f x y ::: zipWith f xs ys
+map :: TypeNatural n => (a -> b) -> List n a -> List n b
+map = plainMap $ induct z s where
+
+    z = Map $ \ _ Empty -> Empty
+
+    s h = Map $ \ f (x ::: xs) -> f x ::: plainMap h f xs
+
+newtype ZipWith a b c n = ZipWith {
+    plainZipWith :: (a -> b -> c) -> List n a -> List n b -> List n c
+}
+
+zipWith :: TypeNatural n => (a -> b -> c) -> List n a -> List n b -> List n c
+zipWith = plainZipWith $ induct z s where
+
+    z = ZipWith $ \ _ Empty Empty -> Empty
+
+    s h = ZipWith $
+          \ f (x ::: xs) (y ::: ys) -> f x y ::: plainZipWith h f xs ys
 
 newtype Iterate a n = Iterate {
     plainIterate :: a -> List n a
@@ -83,7 +158,7 @@ newtype Iterate a n = Iterate {
 
 iterate :: TypeNatural n => (a -> a) -> a -> List n a
 iterate f = plainIterate $
-            induct (Iterate $ const Empty)
+            induct (Iterate $ \ _ -> Empty)
                    (\ h -> Iterate $ \ x -> x ::: plainIterate h (f x))
 
 repeat :: TypeNatural n => a -> List n a
