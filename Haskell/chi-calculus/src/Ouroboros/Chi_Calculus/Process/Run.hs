@@ -16,7 +16,7 @@ import Control.Concurrent.MVar (MVar, putMVar, takeMVar, newEmptyMVar)
 import Control.Monad (void)
 
 import Data.Function (fix)
-import Data.List.FixedLength (map)
+import Data.List.FixedLength (ensureSpine, map)
 
 import Ouroboros.Chi_Calculus.Process (Process (..), Channel, Interpretation)
 
@@ -34,7 +34,8 @@ run dataInter = void . forkIO . worker
                                    void $ forkIO $ worker prc2
     worker (NewChannel cont) = newEmptyMVar >>= worker . cont . Value
     worker (Var meaning)     = meaning
-    worker (Letrec defs res) = worker (res (fix (map worker . defs)))
+    worker (Letrec defs res) = worker . res $
+                               fix (map worker . defs . ensureSpine)
 
     eval :: _ Value a -> PlainValue a
     eval = plainValue . dataInter
