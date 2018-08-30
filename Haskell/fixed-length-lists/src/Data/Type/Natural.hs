@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
 module Data.Type.Natural (
 
@@ -8,11 +7,7 @@ module Data.Type.Natural (
 
 ) where
 
-data Natural where
-
-    Z :: Natural
-
-    S :: Natural -> Natural
+data Natural = Z | S Natural
 
 class TypeNatural n where
 
