@@ -4,6 +4,7 @@
 module Data.List.FixedLength (
 
     List (Empty, (:::)),
+    ensureSpine,
     map,
     zipWith,
     iterate,
@@ -28,6 +29,17 @@ data family List (n :: Natural) a
 data instance List 'Z a = Empty
 
 data instance List ('S n) a = a ::: !(List n a)
+
+newtype EnsureSpine a n = EnsureSpine {
+    plainEnsureSpine :: List n a -> List n a
+}
+
+ensureSpine :: TypeNatural n => List n a -> List n a
+ensureSpine = plainEnsureSpine $ induct z s where
+
+    z = EnsureSpine $ \ ~Empty -> Empty
+
+    s h = EnsureSpine $ \ ~(x ::: xs) -> x ::: plainEnsureSpine h xs
 
 newtype Equal a n = Equal {
     plainEqual :: List n a -> List n a -> Bool
