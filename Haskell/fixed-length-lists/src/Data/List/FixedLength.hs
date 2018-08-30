@@ -27,7 +27,7 @@ data family List (n :: Natural) a
 
 data instance List 'Z a = Empty
 
-data instance List ('S n) a = a ::: List n a
+data instance List ('S n) a = a ::: !(List n a)
 
 newtype Equal a n = Equal {
     plainEqual :: List n a -> List n a -> Bool
