@@ -15,6 +15,10 @@ import Data.Type.Natural (TypeNatural)
 
 import qualified Ouroboros.Chi_Calculus.Data as Data (Interpretation)
 
+infixr 3 :<:
+infixr 3 :>:
+infixr 2 :|:
+
 {-|
     Processes of the χ-calculus with support for @letrec@ constructions. This
     definition uses parametric higher-order abstract syntax (PHOAS).
