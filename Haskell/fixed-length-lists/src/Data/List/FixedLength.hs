@@ -77,12 +77,14 @@ zipWith :: (a -> b -> c) -> List n a -> List n b -> List n c
 zipWith _ Empty      Empty      = Empty
 zipWith f (x ::: xs) (y ::: ys) = f x y ::: zipWith f xs ys
 
-newtype IterateAccum a n = IterateAccum { fromIterateAccum :: a -> List n a }
+newtype Iterate a n = Iterate {
+    plainIterate :: a -> List n a
+}
 
 iterate :: TypeNatural n => (a -> a) -> a -> List n a
-iterate f = fromIterateAccum $
-            induct (IterateAccum $ const Empty)
-                   (\ h -> IterateAccum $ \ x -> x ::: fromIterateAccum h (f x))
+iterate f = plainIterate $
+            induct (Iterate $ const Empty)
+                   (\ h -> Iterate $ \ x -> x ::: plainIterate h (f x))
 
 repeat :: TypeNatural n => a -> List n a
 repeat = iterate id
