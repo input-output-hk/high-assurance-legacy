@@ -1,23 +1,27 @@
 module Data.DeltaQ.IntP
-    ( IntP (..)
+    ( IntP (getIntP)
+    , intP
     , subP
     ) where
 
-data IntP = Finite !Int | Infinity
+newtype IntP = IntP {getIntP :: Int}
     deriving (Eq, Ord)
 
 instance Show IntP where
-    show (Finite n) = show n
-    show Infinity   = "∞"
+    show (IntP n) = show n
+
+intP :: Int -> IntP
+intP = IntP . max 0
 
 instance Semigroup IntP where
-    Infinity <> _        = Infinity
-    _        <> Infinity = Infinity
-    Finite m <> Finite n = Finite $ m + n
+    IntP m <> IntP n = IntP $ m + n
 
 instance Monoid IntP where
-    mempty = Finite 0
+    mempty = intP 0
 
-subP :: IntP -> Int -> IntP
-subP (Finite m) n = Finite $ m - n
-subP Infinity   _ = Infinity
+instance Enum IntP where
+    toEnum = intP
+    fromEnum = getIntP
+
+subP :: IntP -> IntP -> IntP
+x `subP` y = intP $ getIntP x - getIntP y

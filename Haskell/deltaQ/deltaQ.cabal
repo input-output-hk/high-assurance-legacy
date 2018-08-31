@@ -28,12 +28,16 @@ Library
                      , Data.DeltaQ.Core
                      , Data.DeltaQ.Discrete
                      , Data.DeltaQ.IntP
+                     , Data.DeltaQ.IntPP
+                     , Data.DeltaQ.Monad
                      , Data.DeltaQ.Probability
+                     , Data.DeltaQ.Queue
 
     Build-Depends: base                >= 4.10 && < 5,
                    containers         ^>= 0.5,
                    MonadRandom        ^>= 0.5,
-                   semigroups         ^>= 0.18
+                   semigroups         ^>= 0.18,
+                   transformers       ^>= 0.5
 
     HS-Source-Dirs: src
 
