@@ -11,12 +11,15 @@ module Data.DeltaQ.Monad
     , runDeltaQT
     , runDeltaQM
     , timing
+    , after'
     ) where
 
 import           Control.Monad
 import           Control.Monad.Random      hiding (uniform)
 import           Control.Monad.Trans.Class (MonadTrans (..))
 import           Data.DeltaQ.Core
+import           Data.DeltaQ.Discrete
+import           Data.DeltaQ.IntP
 import           Data.DeltaQ.Probability
 import           Data.Functor.Identity     (Identity (..))
 import           Data.List                 (foldl')
@@ -140,18 +143,33 @@ instance (DeltaQ p t dq, MonadProb p m) => MonadDeltaQ p t dq (DeltaQT p t dq m)
         (a, dqa) <- runDeltaQT' x dq
         (b, dqb) <- runDeltaQT' y dq
         case ftf dqa dqb of
-            First  dqa' _       -> return (Left  (a, returnAt b dqb), dqa')
-            Second dqb' _       -> return (Right (b, returnAt a dqa), dqb')
+            First  dqa' _       -> return (Left  (a, f b dqb dqa'), dqa')
+            Second dqb' _       -> return (Right (b, f a dqa dqb'), dqb')
             Mix p dqa' _ dqb' _ -> coin p
-                (Left  (a, returnAt b dqb), dqa')
-                (Right (b, returnAt a dqa), dqb')
+                (Left  (a, f b dqb dqa'), dqa')
+                (Right (b, f a dqa dqb'), dqb')
+      where
+        f :: c -> dq -> dq -> DeltaQT p t dq m c
+        f c dq1 dq2 =
+            let Just dq  = dq1 `after'` dq2
+            in  returnAt c dq
 
 timing :: (Ord dq, DeltaQ p t dq) => DeltaQM p t dq a -> dq
 timing m = snd $ runDeltaQM (void m) M.! ()
 
-returnAt :: (DeltaQ p t dq, Monad m) => a -> dq -> DeltaQT p t dq m a
-returnAt a dq = DeltaQT $ \dq' -> return $ case dq `after'` dq' of
-    Nothing   -> error "impossible!"
-    Just dq'' -> (a, dq'')
+after' :: DeltaQ p t dq => dq -> dq -> Maybe dq
+after' dq1 dq2 = smear dq2 (dq1 `after`)
+
+at :: forall p t dq. DeltaQ p t dq => dq -> dq -> dq
+at dq1 dq2 = let Just dq = smear dq2 f in dq
   where
-    after' dq1 dq2 = smear dq2 (dq1 `after`)
+    f :: Maybe t -> Maybe dq
+    f mt = smear dq1 $ g mt
+
+    g :: Maybe t -> Maybe t -> Maybe dq
+    g mt ms = Just $ case (ms, mt) of
+        (Just s, Just t) -> exact (max s t)
+        _                -> never
+
+returnAt :: (DeltaQ p t dq, Monad m) => a -> dq -> DeltaQT p t dq m a
+returnAt a dq = DeltaQT $ \dq' -> return (a, dq `at` dq')

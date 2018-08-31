@@ -11,14 +11,17 @@ module Data.DeltaQ
     , module Data.DeltaQ.Probability
     ) where
 
-import Control.Monad
-import Data.DeltaQ.Core
-import Data.DeltaQ.Discrete
-import Data.DeltaQ.IntP
-import Data.DeltaQ.IntPP
-import Data.DeltaQ.Monad
-import Data.DeltaQ.Probability
-import Data.DeltaQ.Queue
+import           Control.Monad
+import           Data.DeltaQ.Core
+import           Data.DeltaQ.Discrete
+import           Data.DeltaQ.IntP
+import           Data.DeltaQ.IntPP
+import           Data.DeltaQ.Monad
+import           Data.DeltaQ.Probability
+import           Data.DeltaQ.Queue
+import           Data.List               (foldl')
+import           Data.Map.Strict         (Map)
+import qualified Data.Map.Strict         as M
 
 testQueue :: forall p m. MonadDeltaQ p IntP (DDQ p) m => QueueDQ m Char
 testQueue =
@@ -38,12 +41,24 @@ waitUntilTwo = go (2 :: Int)
         (_, q) <- m
         go (n - 1) q
 
-testIO :: Int -> IO [IntPP]
-testIO n = replicateM n $ do
-    m <- runSamplingT $ runSamplingDQT $ waitUntilTwo @Double testQueue
-    return $ case m of
-        Nothing     -> Infinity
-        Just (_, t) -> Finite t
+testIO :: Int -> IO (Map IntPP Double)
+testIO n = do
+    xs <- replicateM n oneSample
+    return $ histogram xs
+  where
+    oneSample :: IO IntPP
+    oneSample = do
+        m <- runSamplingT $ runSamplingDQT $ waitUntilTwo @Double testQueue
+        return $ case m of
+            Nothing     -> Infinity
+            Just (_, t) -> Finite t
 
-testProb :: DDQ Rational
+    histogram :: [IntPP] -> Map IntPP Double
+    histogram xs =
+        let m   = foldl' (\m' x -> M.insertWith (+) x 1 m') M.empty xs :: Map IntPP Int
+            l   = fromIntegral $ length xs :: Double
+            f i = fromIntegral i / l
+        in  f <$> m
+
+testProb :: DDQ Double
 testProb = timing $ waitUntilTwo testQueue
