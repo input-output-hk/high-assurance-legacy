@@ -85,8 +85,6 @@ instance (Ord p, Fractional p) => DeltaQ p IntP (DDQ p) where
                                 (return $ fromIntPP t)
                                 (go (p - q) xs)
 
-    sub _ = subP
-
 toIntPP :: Maybe IntP -> IntPP
 toIntPP (Just t) = Finite t
 toIntPP Nothing  = Infinity

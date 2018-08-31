@@ -18,21 +18,18 @@ import           Control.Monad
 import           Control.Monad.Random      hiding (uniform)
 import           Control.Monad.Trans.Class (MonadTrans (..))
 import           Data.DeltaQ.Core
-import           Data.DeltaQ.Discrete
-import           Data.DeltaQ.IntP
 import           Data.DeltaQ.Probability
 import           Data.Functor.Identity     (Identity (..))
 import           Data.List                 (foldl')
 import           Data.Map.Strict           (Map)
 import qualified Data.Map.Strict           as M
-import           Data.Proxy                (Proxy (..))
 
 class (DeltaQ p t dq, MonadProb p m) => MonadDeltaQ p t dq m | m -> p t dq where
     delay      :: dq -> m ()
     race       :: m a -> m b -> m (Either (a, m b) (b, m a))
 
 newtype SamplingDQT p t dq m a =
-    SamplingDQT {runSamplingDQT :: SamplingT p m (Maybe (a, t))}
+    SamplingDQT {runSamplingDQT :: t -> SamplingT p m (Maybe (a, t))}
 
 instance (DeltaQ p t dq, Monad m) => Functor (SamplingDQT p t dq m) where
     fmap = liftM
@@ -43,51 +40,48 @@ instance (DeltaQ p t dq, Monad m) => Applicative (SamplingDQT p t dq m) where
 
 instance (DeltaQ p t dq, Monad m) => Monad (SamplingDQT p t dq m) where
 
-    return x = SamplingDQT $ return $ Just (x, mempty)
+    return x = SamplingDQT $ \t -> return $ Just (x, t)
 
-    ma >>= cont = SamplingDQT $ do
-        x <- runSamplingDQT ma
+    ma >>= cont = SamplingDQT $ \t -> do
+        x <- runSamplingDQT ma t
         case x of
             Nothing     -> return Nothing
-            Just (a, s) -> do
-                y <- runSamplingDQT $ cont a
+            Just (a, ta) -> do
+                y <- runSamplingDQT (cont a) ta
                 case y of
-                    Nothing     -> return Nothing
-                    Just (b, t) -> return $ Just (b, s <> t)
+                    Nothing      -> return Nothing
+                    Just (b, tb) -> return $ Just (b, tb)
 
 instance (DeltaQ p t dq, Random p, MonadRandom m) =>
          MonadProb p (SamplingDQT p t dq m) where
-    coin p x y = SamplingDQT $ coin p (Just (x, mempty)) (Just (y, mempty))
+    coin p x y = SamplingDQT $ \t -> coin p (Just (x, t)) (Just (y, t))
 
 instance forall p t dq m. (DeltaQ p t dq, Random p, MonadRandom m) =>
          MonadDeltaQ p t dq (SamplingDQT p t dq m) where
 
-    delay dq = SamplingDQT $ do
-        mt <- sampleDQ dq
-        case mt of
+    delay dq = SamplingDQT $ \t -> do
+        ms <- sampleDQ dq
+        case ms of
             Nothing -> return Nothing
-            Just t  -> return $ Just ((), t)
+            Just s  -> return $ Just ((), t <> s)
 
-    race x y = SamplingDQT $ do
-        mx <- runSamplingDQT x
-        my <- runSamplingDQT y
-        let sb = sub (Proxy :: Proxy dq)
+    race x y = SamplingDQT $ \t -> do
+        mx <- runSamplingDQT x t
+        my <- runSamplingDQT y t
         case (mx, my) of
-            (Nothing, Nothing)         ->
+            (Nothing, Nothing)           ->
                     return Nothing
-            (Just (a, s), Nothing)     ->
-                    return $ Just (Left (a, SamplingDQT $ return Nothing), s)
-            (Nothing, Just (b, t))     ->
-                    return $ Just (Right (b, SamplingDQT $ return Nothing), t)
-            (Just (a, s), Just (b, t))
-                | s < t                ->
-                    return $ Just (Left (a, SamplingDQT $ return $ Just (b, sb t s)), s)
-                | t < s                ->
-                    return $ Just (Right (b, SamplingDQT $ return $ Just (a, sb s t)), t)
-                | otherwise            ->
-                    coin 0.5
-                        (Just (Left  (a, SamplingDQT $ return $ Just (b, mempty)), s))
-                        (Just (Right (b, SamplingDQT $ return $ Just (a, mempty)), s))
+            (Just (a, ta), Nothing)      ->
+                    return $ Just (Left  (a, SamplingDQT $ const $ return Nothing), ta)
+            (Nothing, Just (b, tb))      ->
+                    return $ Just (Right (b, SamplingDQT $ const $ return Nothing), tb)
+            (Just (a, ta), Just (b, tb)) -> do
+                let ma = Just (Left  (a, SamplingDQT $ \t' -> return $ Just (b, max t' tb)) , ta)
+                    mb = Just (Right (b, SamplingDQT $ \t' -> return $ Just (a, max t' ta)) , tb)
+                case compare ta tb of
+                    LT -> return ma
+                    GT -> return mb
+                    EQ -> coin 0.5 ma mb
 
 newtype DeltaQT p t dq m a = DeltaQT {runDeltaQT' :: dq -> m (a, dq)}
 

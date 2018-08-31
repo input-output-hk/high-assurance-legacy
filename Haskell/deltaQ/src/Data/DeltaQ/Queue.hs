@@ -44,16 +44,22 @@ waitUntil p (Waiting m) = do
     (a, q) <- m
     unless (p a) $ waitUntil p q
 
-sampleQueueT :: Monad m => QueueDQ (SamplingDQT p t dq m) a -> SamplingT p m [(a, t)]
+sampleQueueT :: (DeltaQ p t dq, Monad m)
+             => QueueDQ (SamplingDQT p t dq m) a -> SamplingT p m [(a, t)]
 sampleQueueT Empty         = return []
 sampleQueueT (Waiting maq) = do
-    m <- runSamplingDQT maq
+    m <- runSamplingDQT maq mempty
     case m of
         Nothing          -> return []
         Just ((a, q), t) -> ((a, t) :) <$> sampleQueueT q
 
-sampleQueueIO :: QueueDQ (SamplingDQT p t dq IO) a -> IO [(a, t)]
+sampleQueueIO :: DeltaQ p t dq
+              => QueueDQ (SamplingDQT p t dq IO) a
+              -> IO [(a, t)]
 sampleQueueIO = runSamplingT . sampleQueueT
 
-sampleQueue :: Int -> QueueDQ (SamplingDQT p t dq (Rand StdGen)) a -> [(a, t)]
+sampleQueue :: DeltaQ p t dq
+            => Int
+            -> QueueDQ (SamplingDQT p t dq (Rand StdGen)) a
+            -> [(a, t)]
 sampleQueue seed = (`evalRand` mkStdGen seed) . runSamplingT . sampleQueueT

@@ -12,7 +12,6 @@ module Data.DeltaQ.Core
     ) where
 
 import Data.DeltaQ.Probability
-import Data.Proxy              (Proxy)
 
 infixl 6 >>>
 
@@ -26,7 +25,6 @@ class (Ord p, Fractional p, Ord t, Monoid t, Monoid dq) => DeltaQ p t dq | dq ->
     before   :: dq -> Maybe t -> Maybe dq
     ftf'     :: dq -> dq -> Prob p
     sampleDQ :: MonadProb p m => dq -> m (Maybe t)
-    sub      :: Proxy dq -> t -> t -> t
 
 exact :: DeltaQ p t dq => t -> dq
 exact t = uniform t t

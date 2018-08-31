@@ -48,7 +48,7 @@ testIO n = do
   where
     oneSample :: IO IntPP
     oneSample = do
-        m <- runSamplingT $ runSamplingDQT $ waitUntilTwo @Double testQueue
+        m <- runSamplingT $ runSamplingDQT (waitUntilTwo @Double testQueue) mempty
         return $ case m of
             Nothing     -> Infinity
             Just (_, t) -> Finite t
