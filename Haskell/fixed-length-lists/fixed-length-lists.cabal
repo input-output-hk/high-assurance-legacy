@@ -37,7 +37,6 @@ Library
 
     Other-Extensions: DataKinds
                       RankNTypes
-                      StandaloneDeriving
                       TypeFamilies
 
     GHC-Options: -Wall
