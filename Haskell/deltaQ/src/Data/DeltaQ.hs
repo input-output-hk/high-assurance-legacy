@@ -19,7 +19,6 @@ import Data.DeltaQ.IntPP
 import Data.DeltaQ.Monad
 import Data.DeltaQ.Probability
 import Data.DeltaQ.Queue
-import Data.Map.Strict         ((!))
 
 testQueue :: forall p m. MonadDeltaQ p IntP (DDQ p) m => QueueDQ m Char
 testQueue =
@@ -31,7 +30,7 @@ testQueue =
         Empty
 
 waitUntilTwo :: MonadDeltaQ p IntP (DDQ p) m => QueueDQ m Char -> m ()
-waitUntilTwo = go 2
+waitUntilTwo = go (2 :: Int)
   where
     go 0 _           = return ()
     go _ Empty       = delay never
@@ -47,4 +46,4 @@ testIO n = replicateM n $ do
         Just (_, t) -> Finite t
 
 testProb :: DDQ Rational
-testProb = snd $ runDeltaQM (waitUntilTwo testQueue) mempty ! ()
+testProb = timing $ waitUntilTwo testQueue
