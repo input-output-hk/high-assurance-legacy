@@ -2,25 +2,28 @@
 
 module Data.DeltaQ.Queue
     ( QueueDQ (..)
-    , dequeueDQ
+    , emptyQueueDQ
     , enqueueDQ
     , waitUntil
     , sampleQueueT
     , sampleQueueIO
     , sampleQueue
+    , QueueTree (..)
+    , toTree
     ) where
 
-import Control.Monad
-import Control.Monad.Random    hiding (uniform)
-import Data.DeltaQ.Core
-import Data.DeltaQ.Monad
-import Data.DeltaQ.Probability
+import           Control.Arrow           (second)
+import           Control.Monad.Random    hiding (uniform)
+import           Data.DeltaQ.Core
+import           Data.DeltaQ.Monad
+import           Data.DeltaQ.Probability
+import           Data.Map.Strict         (Map)
+import qualified Data.Map.Strict         as M
 
-data QueueDQ m a = Empty | Waiting (m (a, QueueDQ m a))
+newtype QueueDQ m a = QueueDQ {dequeueDQ :: m (Maybe (a, QueueDQ m a))}
 
-dequeueDQ :: Monad m => QueueDQ m a -> m (Maybe (a, QueueDQ m a))
-dequeueDQ Empty       = return Nothing
-dequeueDQ (Waiting m) = Just <$> m
+emptyQueueDQ :: Monad m => QueueDQ m a
+emptyQueueDQ = QueueDQ $ return Nothing
 
 enqueueDQ :: forall p t dq m a .
              MonadDeltaQ p t dq m
@@ -31,27 +34,34 @@ enqueueDQ :: forall p t dq m a .
 enqueueDQ dq a = go (delay dq)
   where
     go :: m () -> QueueDQ m a -> QueueDQ m a
-    go d Empty         = Waiting $ d >> return (a, Empty)
-    go d (Waiting maq) = Waiting $ do
-        e <- d `race` maq
-        return $ case e of
-            Left  (()     , maq') -> (a , Waiting maq')
-            Right ((a', q), d'  ) -> (a', go d' q)
+    go d q = QueueDQ $ do
+        e <- d `race` dequeueDQ q
+        case e of
+            Left  (() , m') -> return $ Just (a, QueueDQ m')
+            Right (maq, d') -> case maq of
+                Just (a', q') -> return $ Just (a', go d' q')
+                Nothing       -> d' >> return (Just (a, emptyQueueDQ))
 
 waitUntil :: MonadDeltaQ p t dq m => (a -> Bool) -> QueueDQ m a -> m ()
-waitUntil _ Empty       = delay never
-waitUntil p (Waiting m) = do
-    (a, q) <- m
-    unless (p a) $ waitUntil p q
+waitUntil p q = do
+    m <- dequeueDQ q
+    case m of
+        Nothing         -> delay never
+        Just (a, q')
+            | p a       -> return ()
+            | otherwise -> waitUntil p q'
 
 sampleQueueT :: (DeltaQ p t dq, Monad m)
-             => QueueDQ (SamplingDQT p t dq m) a -> SamplingT p m [(a, t)]
-sampleQueueT Empty         = return []
-sampleQueueT (Waiting maq) = do
-    m <- runSamplingDQT maq mempty
-    case m of
-        Nothing          -> return []
-        Just ((a, q), t) -> ((a, t) :) <$> sampleQueueT q
+             => QueueDQ (SamplingDQT p t dq m) a
+             -> SamplingT p m [(a, t)]
+sampleQueueT = go now
+  where
+    go t q = do
+        m <- runSamplingDQT (dequeueDQ q) t
+        case m of
+            Nothing                 -> return []
+            Just (Nothing, _)       -> return []
+            Just (Just (a, q'), t') -> ((a, t') :) <$> go t' q'
 
 sampleQueueIO :: DeltaQ p t dq
               => QueueDQ (SamplingDQT p t dq IO) a
@@ -63,3 +73,24 @@ sampleQueue :: DeltaQ p t dq
             -> QueueDQ (SamplingDQT p t dq (Rand StdGen)) a
             -> [(a, t)]
 sampleQueue seed = (`evalRand` mkStdGen seed) . runSamplingT . sampleQueueT
+
+newtype QueueTree p dq a = QT [(Prob p, dq, a, QueueTree p dq a)]
+    deriving (Show, Eq, Ord)
+
+toTree :: forall p t dq a.
+          (DeltaQ p t dq, Ord dq, Ord a)
+       => QueueDQ (DeltaQM p t dq) a
+       -> QueueTree p dq a
+toTree q =
+    let keys = filter (/= Nothing) $ M.keys m
+        xs   = do
+            k@(Just (a, t)) <- keys
+            let (p, dq) = m M.! k
+            return (p, dq, a, t)
+    in QT xs
+  where
+    m :: Map (Maybe (a, QueueTree p dq a)) (Prob p, dq)
+    m = runDeltaQM $ f <$> dequeueDQ q
+
+    f :: Maybe (a, QueueDQ (DeltaQM p t dq) a) -> Maybe (a, QueueTree p dq a)
+    f = fmap $ second toTree

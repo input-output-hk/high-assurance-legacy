@@ -1,8 +1,9 @@
 module Data.DeltaQ.IntP
     ( IntP (getIntP)
     , intP
-    , subP
     ) where
+
+import Data.DeltaQ.Core
 
 newtype IntP = IntP {getIntP :: Int}
     deriving (Eq, Ord)
@@ -19,9 +20,8 @@ instance Semigroup IntP where
 instance Monoid IntP where
     mempty = intP 0
 
+instance Time IntP where
+
 instance Enum IntP where
     toEnum = intP
     fromEnum = getIntP
-
-subP :: IntP -> IntP -> IntP
-x `subP` y = intP $ getIntP x - getIntP y

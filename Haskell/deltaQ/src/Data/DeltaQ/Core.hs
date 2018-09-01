@@ -1,54 +1,62 @@
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses  #-}
-{-# LANGUAGE ScopedTypeVariables    #-}
 
 module Data.DeltaQ.Core
-    ( DeltaQ (..)
-    , exact
-    , convolve
-    , after
+    ( Time
+    , now
+    , Ext (..)
+    , DeltaQ (..)
+    , never
     , Ftf (..)
     , ftf
     ) where
 
 import Data.DeltaQ.Probability
 
-infixl 6 >>>
+class (Ord a, Monoid a) => Time a where
 
-class (Ord p, Fractional p, Ord t, Monoid t, Monoid dq) => DeltaQ p t dq | dq -> p t where
-    never    :: dq
-    uniform  :: t -> t -> dq
+now :: Time a => a
+now = mempty
+
+data Ext a = Finite !a | Infinity
+    deriving (Eq, Ord)
+
+instance Show a => Show (Ext a) where
+    show (Finite a) = show a
+    show Infinity   = "∞"
+
+instance Semigroup a => Semigroup (Ext a) where
+    Infinity <> _        = Infinity
+    _        <> Infinity = Infinity
+    Finite m <> Finite n = Finite $ m <> n
+
+instance Monoid a => Monoid (Ext a) where
+    mempty = Finite mempty
+
+instance Time a => Time (Ext a) where
+
+class (Ord p, Fractional p, Time t, Monoid dq) => DeltaQ p t dq | dq -> p t where
+    massive  :: dq -> Maybe (Prob p, dq)
+    exact    :: Ext t -> dq
     mix      :: Prob p -> dq -> dq -> dq
-    smear    :: dq -> (Maybe t -> Maybe dq) -> Maybe dq
-    (>>>)    :: dq -> Maybe t -> dq
-    (<<<)    :: Maybe t -> dq -> Maybe dq
-    before   :: dq -> Maybe t -> Maybe dq
-    ftf'     :: dq -> dq -> Prob p
+    before   :: dq -> dq -> Maybe (Prob p, dq)
+    after    :: dq -> dq -> Maybe (Prob p, dq)
+    maxDQ    :: dq -> dq -> dq
     sampleDQ :: MonadProb p m => dq -> m (Maybe t)
 
-exact :: DeltaQ p t dq => t -> dq
-exact t = uniform t t
-
-convolve :: DeltaQ p t dq => dq -> dq -> dq
-convolve x y = let Just z = smear x (Just . (y >>>)) in z
-
-after :: DeltaQ p t dq => dq -> Maybe t -> Maybe dq
-after x t = (>>> t) <$> t <<< x
+never :: DeltaQ p t dq => dq
+never = exact Infinity
 
 data Ftf p t dq =
-      First           dq (Maybe t -> Maybe dq)
-    | Second                                   dq (Maybe t -> Maybe dq)
-    | Mix    (Prob p) dq (Maybe t -> Maybe dq) dq (Maybe t -> Maybe dq)
+      Never
+    | First  (Prob p) dq
+    | Second             (Prob p) dq
+    | Mix    (Prob p) dq (Prob p) dq
+    deriving (Show, Eq, Ord)
 
-ftf :: forall p t dq. DeltaQ p t dq => dq -> dq -> Ftf p t dq
-ftf x y = case ftf' x y of
-    p
-        | p == 0    -> Second y (<<< x)
-        | p == 1    -> First  x (<<< y)
-        | otherwise ->
-            let (x', i) = f x y
-                (y', j) = f y x
-            in  Mix p x' i y' j
-  where
-    f :: dq -> dq -> (dq, Maybe t -> Maybe dq)
-    f a b = let Just c = smear b (before a) in (c, (<<< b))
+ftf :: DeltaQ p t dq => dq -> dq -> Ftf p t dq
+ftf x y = case (x `before` y, y `before` x) of
+    (Just (px, dqx), Nothing       ) -> First  px dqx
+    (Nothing       , Just (py, dqy)) -> Second py dqy
+    (Nothing       , Nothing       ) -> Never
+    (Just (px, dqx), Just (py, dqy)) -> Mix px dqx py dqy

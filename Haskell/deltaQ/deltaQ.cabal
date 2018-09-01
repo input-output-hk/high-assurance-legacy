@@ -28,10 +28,10 @@ Library
                      , Data.DeltaQ.Core
                      , Data.DeltaQ.Discrete
                      , Data.DeltaQ.IntP
-                     , Data.DeltaQ.IntPP
                      , Data.DeltaQ.Monad
                      , Data.DeltaQ.Probability
                      , Data.DeltaQ.Queue
+                     , Examples
 
     Build-Depends: base                >= 4.10 && < 5,
                    containers         ^>= 0.5,

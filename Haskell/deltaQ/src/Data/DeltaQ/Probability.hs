@@ -120,7 +120,7 @@ runProbT' (ProbT g) = g
 runProbT :: (Ord a, Ord p, Num p, Monad m) => ProbT p m a -> m (Map a (Prob p))
 runProbT = flip runProbT' $ \a -> return $ M.singleton a 1
 
-type ProbM p a = ProbT p Identity a
+type ProbM p = ProbT p Identity
 
 runProbM :: (Ord a, Ord p, Num p) => ProbM p a -> Map a (Prob p)
 runProbM = runIdentity . runProbT

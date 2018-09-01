@@ -8,21 +8,20 @@ module Data.DeltaQ.Monad
     ( MonadDeltaQ (..)
     , SamplingDQT (..)
     , DeltaQT
+    , DeltaQM
     , runDeltaQT
     , runDeltaQM
+    , liftQT
     , timing
-    , after'
     ) where
 
 import           Control.Monad
-import           Control.Monad.Random      hiding (uniform)
-import           Control.Monad.Trans.Class (MonadTrans (..))
+import           Control.Monad.Random    hiding (uniform)
 import           Data.DeltaQ.Core
 import           Data.DeltaQ.Probability
-import           Data.Functor.Identity     (Identity (..))
-import           Data.List                 (foldl')
-import           Data.Map.Strict           (Map)
-import qualified Data.Map.Strict           as M
+import           Data.List               (foldl')
+import           Data.Map.Strict         (Map)
+import qualified Data.Map.Strict         as M
 
 class (DeltaQ p t dq, MonadProb p m) => MonadDeltaQ p t dq m | m -> p t dq where
     delay      :: dq -> m ()
@@ -83,87 +82,94 @@ instance forall p t dq m. (DeltaQ p t dq, Random p, MonadRandom m) =>
                     GT -> return mb
                     EQ -> coin 0.5 ma mb
 
-newtype DeltaQT p t dq m a = DeltaQT {runDeltaQT' :: dq -> m (a, dq)}
+newtype DeltaQT p t dq m a = DeltaQT {runDeltaQT' :: dq -> m (Maybe (a, dq))}
 
-runDeltaQT :: DeltaQ p t dq => DeltaQT p t dq m a -> m (a, dq)
+runDeltaQT :: DeltaQ p t dq => DeltaQT p t dq m a -> m (Maybe (a, dq))
 runDeltaQT m = runDeltaQT' m mempty
 
-type DeltaQM p t dq a = DeltaQT p t dq (ProbT p Identity) a
+type DeltaQM p t dq = DeltaQT p t dq (ProbM p)
 
 runDeltaQM :: forall a p t dq. (Ord a, DeltaQ p t dq, Ord dq)
            => DeltaQM p t dq a
            -> Map a (Prob p, dq)
 runDeltaQM x = foldl' f M.empty $ M.toList m
   where
-    m :: Map (a, dq) (Prob p)
+    m :: Map (Maybe (a, dq)) (Prob p)
     m = runProbM $ runDeltaQT x
 
     f :: Map a (Prob p, dq)
-      -> ((a, dq), Prob p)
+      -> (Maybe (a, dq), Prob p)
       -> Map a (Prob p, dq)
-    f n ((a, dq), p) = M.insertWith g a (p, dq) n
+    f n (Nothing     , _) = n
+    f n (Just (a, dq), p) = M.insertWith g a (p, dq) n
 
     g :: (Prob p, dq) -> (Prob p, dq) -> (Prob p, dq)
     g (0, _) (q, v) = (q, v)
     g (p, u) (0, _) = (p, u)
     g (p, u) (q, v) = let pq = p + q in (pq, mix (p / pq) u v)
 
-instance (DeltaQ p t dq, Monad m) => Functor (DeltaQT p t dq m) where
+instance (DeltaQ p t dq, MonadProb p m) => Functor (DeltaQT p t dq m) where
     fmap = liftM
 
-instance (DeltaQ p t dq, Monad m) => Applicative (DeltaQT p t dq m) where
+instance (DeltaQ p t dq, MonadProb p m) => Applicative (DeltaQT p t dq m) where
     pure = return
     (<*>) = ap
 
-instance (DeltaQ p t dq, Monad m) => Monad (DeltaQT p t dq m) where
+massiveM :: (DeltaQ p t dq, MonadProb p m) => a -> dq -> m (Maybe (a, dq))
+massiveM a dq = case massive dq of
+    Nothing         -> return Nothing
+    Just (p, dq')
+        | p == 1    -> return $ Just (a, dq)
+        | otherwise -> coin p (Just (a, dq')) Nothing
 
-    return a = DeltaQT $ \dq -> return (a, dq)
+instance (DeltaQ p t dq, MonadProb p m) => Monad (DeltaQT p t dq m) where
+
+    return a = DeltaQT $ \dq -> massiveM a dq
 
     ma >>= cont = DeltaQT $ \dq -> do
-        (a, dq') <- runDeltaQT' ma dq
-        runDeltaQT' (cont a) dq'
+        m <- runDeltaQT' ma dq
+        case m of
+            Nothing       -> return Nothing
+            Just (a, dq') -> runDeltaQT' (cont a) dq'
 
-instance DeltaQ p t dq => MonadTrans (DeltaQT p t dq) where
-    lift ma = DeltaQT $ \dq -> (\a -> (a, dq)) <$> ma
+liftQT :: (DeltaQ p t dq, MonadProb p m) => m a -> DeltaQT p t dq m a
+liftQT ma = DeltaQT $ \dq -> ma >>= \a -> massiveM a dq
 
 instance (DeltaQ p t dq, MonadProb p m) => MonadProb p (DeltaQT p t dq m) where
-    coin p a b = DeltaQT $ \dq -> coin p (a, dq) (b, dq)
+    coin 0 _ b = return b
+    coin 1 a _ = return a
+    coin p a b = DeltaQT $ \dq -> coin p a b >>= \c -> massiveM c dq
 
 instance (DeltaQ p t dq, MonadProb p m) => MonadDeltaQ p t dq (DeltaQT p t dq m) where
 
-    delay dq = DeltaQT $ \dq' -> return ((), dq' <> dq)
+    delay dq = DeltaQT $ \dq' -> massiveM () $ dq' <> dq
 
     x `race` y = DeltaQT $ \dq -> do
-        (a, dqa) <- runDeltaQT' x dq
-        (b, dqb) <- runDeltaQT' y dq
+        ma <- runDeltaQT' x dq
+        mb <- runDeltaQT' y dq
+        let dqa = maybe never snd ma
+            dqb = maybe never snd mb
         case ftf dqa dqb of
-            First  dqa' _       -> return (Left  (a, f b dqb dqa'), dqa')
-            Second dqb' _       -> return (Right (b, f a dqa dqb'), dqb')
-            Mix p dqa' _ dqb' _ -> coin p
-                (Left  (a, f b dqb dqa'), dqa')
-                (Right (b, f a dqa dqb'), dqb')
+            Never               -> return Nothing
+            First  pa dqa'      -> let Just (a, _) = ma
+                                   in  coin pa (Just (Left  (a, f mb dqa'), dqa')) Nothing
+            Second pb dqb'      -> let Just (b, _) = mb
+                                   in  coin pb (Just (Right (b, f ma dqb'), dqb')) Nothing
+            Mix pa dqa' pb dqb' -> let Just (a, _) = ma
+                                       Just (b, _) = mb
+                                   in  coinM (pa + pb)
+                                           (coin (pa / (pa + pb))
+                                               (Just (Left  (a, f mb dqa'), dqa'))
+                                               (Just (Right (b, f ma dqb'), dqb')))
+                                           (return Nothing)
       where
-        f :: c -> dq -> dq -> DeltaQT p t dq m c
-        f c dq1 dq2 =
-            let Just dq  = dq1 `after'` dq2
-            in  returnAt c dq
+        f :: Maybe (c, dq) -> dq -> DeltaQT p t dq m c
+        f Nothing _          = DeltaQT $ const $ return Nothing
+        f (Just (c, dqc)) dq = case dqc `after` dq of
+            Nothing        -> DeltaQT $ const $ return Nothing
+            Just (_, dqc') -> DeltaQT $ \dq' -> massiveM c (dqc' `maxDQ` dq')
 
 timing :: (Ord dq, DeltaQ p t dq) => DeltaQM p t dq a -> dq
-timing m = snd $ runDeltaQM (void m) M.! ()
-
-after' :: DeltaQ p t dq => dq -> dq -> Maybe dq
-after' dq1 dq2 = smear dq2 (dq1 `after`)
-
-at :: forall p t dq. DeltaQ p t dq => dq -> dq -> dq
-at dq1 dq2 = let Just dq = smear dq2 f in dq
-  where
-    f :: Maybe t -> Maybe dq
-    f mt = smear dq1 $ g mt
-
-    g :: Maybe t -> Maybe t -> Maybe dq
-    g mt ms = Just $ case (ms, mt) of
-        (Just s, Just t) -> exact (max s t)
-        _                -> never
-
-returnAt :: (DeltaQ p t dq, Monad m) => a -> dq -> DeltaQT p t dq m a
-returnAt a dq = DeltaQT $ \dq' -> return (a, dq `at` dq')
+timing m =
+    let (p, dq) = runDeltaQM (void m) M.! ()
+    in  mix p dq never
