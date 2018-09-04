@@ -14,6 +14,7 @@ module Data.DeltaQ.Probability
     , MonadProb (..)
     , coinM
     , elements
+    , pick
     , SamplingT (..)
     , sampleIO
     , sample
@@ -23,11 +24,12 @@ module Data.DeltaQ.Probability
     , runProbM
     ) where
 
+import           Control.Arrow         (second)
 import           Control.Monad
 import           Control.Monad.Random
 
 import           Data.Functor.Identity (Identity (..))
-import           Data.List.NonEmpty    (NonEmpty (..))
+import           Data.List.NonEmpty    (NonEmpty (..), toList)
 import qualified Data.List.NonEmpty    as NE
 import           Data.Map.Strict       (Map)
 import qualified Data.Map.Strict       as M
@@ -84,6 +86,16 @@ elements xs = go (NE.length xs) xs
         c <- coin p True False
         if c then return a
              else go (n - 1) (y :| ys)
+
+pick :: forall p m a. MonadProb p m => NonEmpty a -> m (a, [a])
+pick = elements . picks
+  where
+    picks :: NonEmpty a -> NonEmpty (a, [a])
+    picks (x :| [])           = return (x, [])
+    picks (x :| ys@(y : ys')) =
+        let zs = toList $ picks $ y :| ys'
+            zs' = second (x :) <$> zs
+        in  (x, ys) :| zs'
 
 instance Monad m => MonadProb Double (RandT StdGen m) where
     coin p x y = runSamplingT $ coin p x y

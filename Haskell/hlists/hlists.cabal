@@ -1,0 +1,35 @@
+Name:          hlists
+Version:       0.0.0.0
+Cabal-Version: >= 2.0
+Build-Type:    Simple
+License:       MIT
+License-File:  LICENSE
+Copyright:     © 2018 IOHK
+Author:        Lars Bruenjes
+Maintainer:    lars.bruenjes@iohk.io
+Stability:     provisional
+Homepage:      https://github.com/input-output-hk/ouroboros-spec/Haskell/hlists
+Bug-Reports:   https://github.com/input-output-hk/ouroboros-spec/issues
+Synopsis:      Simple heterogeneous products and sums.
+Description:   Simple heterogeneous products and sums.
+Category:      Data Structures.
+Tested-With:   GHC == 8.4.3
+
+Source-Repository head
+
+    Type:     git
+    Location: https://github.com/input-output-hk/ouroboros-spec.git
+    Branch:   master
+    Subdir:   Haskell/hlists
+
+Library
+
+    Exposed-Modules:   Data.HList
+
+    Build-Depends: base                >= 4.10 && < 5
+
+    HS-Source-Dirs: src
+
+    Default-Language: Haskell2010
+
+    GHC-Options: -Wall

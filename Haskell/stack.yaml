@@ -4,6 +4,7 @@ packages:
 - ./deltaQ
 - ./chi-calculus
 - ./chi-calculus-examples
+- ./hlists
 nix:
     enable: true
     shell-file: shell.nix

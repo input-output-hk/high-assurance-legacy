@@ -32,6 +32,7 @@ Library
                      , Data.DeltaQ.Probability
                      , Data.DeltaQ.Queue
                      , Examples
+                     , Process
 
     Build-Depends: base                >= 4.10 && < 5,
                    containers         ^>= 0.5,

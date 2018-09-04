@@ -1,9 +1,12 @@
+{-# LANGUAGE DeriveFunctor       #-}
+{-# LANGUAGE FlexibleInstances   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Data.DeltaQ.Queue
     ( QueueDQ (..)
     , emptyQueueDQ
     , enqueueDQ
+    , filterDQ
     , waitUntil
     , sampleQueueT
     , sampleQueueIO
@@ -21,6 +24,11 @@ import           Data.Map.Strict         (Map)
 import qualified Data.Map.Strict         as M
 
 newtype QueueDQ m a = QueueDQ {dequeueDQ :: m (Maybe (a, QueueDQ m a))}
+    deriving Functor
+
+instance (Show p, Show dq, Ord dq, Show a, Ord a, DeltaQ p t dq)
+         => Show (QueueDQ (DeltaQM p t dq) a) where
+    show = show . toTree
 
 emptyQueueDQ :: Monad m => QueueDQ m a
 emptyQueueDQ = QueueDQ $ return Nothing
@@ -41,6 +49,15 @@ enqueueDQ dq a = go (delay dq)
             Right (maq, d') -> case maq of
                 Just (a', q') -> return $ Just (a', go d' q')
                 Nothing       -> d' >> return (Just (a, emptyQueueDQ))
+
+filterDQ :: Monad m => (a -> Bool) -> QueueDQ m a -> QueueDQ m a
+filterDQ p q = QueueDQ $ do
+    m <- dequeueDQ q
+    case m of
+        Nothing         -> return Nothing
+        Just (a, q')
+            | p a       -> return $ Just (a, filterDQ p q')
+            | otherwise -> dequeueDQ $ filterDQ p q'
 
 waitUntil :: MonadDeltaQ p t dq m => (a -> Bool) -> QueueDQ m a -> m ()
 waitUntil p q = do
