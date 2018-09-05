@@ -1,7 +1,6 @@
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE FunctionalDependencies     #-}
-{-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE RankNTypes                 #-}
@@ -24,15 +23,15 @@ module Data.DeltaQ.Probability
     , runProbM
     ) where
 
-import           Control.Arrow         (second)
-import           Control.Monad
+import           Control.Arrow             (second)
+import           Control.Monad.Operational
 import           Control.Monad.Random
 
-import           Data.Functor.Identity (Identity (..))
-import           Data.List.NonEmpty    (NonEmpty (..), toList)
-import qualified Data.List.NonEmpty    as NE
-import           Data.Map.Strict       (Map)
-import qualified Data.Map.Strict       as M
+import           Data.Functor.Identity     (Identity (..))
+import           Data.List.NonEmpty        (NonEmpty (..), toList)
+import qualified Data.List.NonEmpty        as NE
+import           Data.Map.Strict           (Map)
+import qualified Data.Map.Strict           as M
 
 newtype Prob p = Prob {getProb :: p}
     deriving (Eq, Ord)
@@ -121,45 +120,30 @@ sampleIO = id
 sample :: Int -> (forall m. MonadProb Double m => m a) -> a
 sample seed = (`evalRand` mkStdGen seed)
 
-data ProbT p m a where
-    ProbT :: (forall b. Ord b => (a -> m (Map b (Prob p)))
-          -> m (Map b (Prob p)))
-          -> ProbT p m a
+data ProbI p a = Coin !(Prob p) a a
 
-runProbT' :: Ord b => ProbT p m a -> (a -> m (Map b (Prob p))) -> m (Map b (Prob p))
-runProbT' (ProbT g) = g
+newtype ProbT p m a = ProbT (ProgramT (ProbI p) m a)
+    deriving (Functor, Applicative, Monad, MonadTrans)
 
-runProbT :: (Ord a, Ord p, Num p, Monad m) => ProbT p m a -> m (Map a (Prob p))
-runProbT = flip runProbT' $ \a -> return $ M.singleton a 1
+instance (Ord p, Fractional p, Monad m) => MonadProb p (ProbT p m) where
+    coin 0 _ y = return y
+    coin 1 x _ = return x
+    coin p x y = ProbT $ singleton $ Coin p x y
+
+runProbT :: forall p m a .
+            (Ord p, Num p, Monad m, Ord a)
+         => ProbT p m a
+         -> m (Map a (Prob p))
+runProbT (ProbT u) = viewT u >>= eval
+  where
+    eval :: ProgramViewT (ProbI p) m a -> m (Map a (Prob p))
+    eval (Return a)             = return $ M.singleton a 1
+    eval (Coin p x y :>>= cont) = do
+        m <- runProbT $ ProbT $ cont x
+        n <- runProbT $ ProbT $ cont y
+        return $ M.unionWith (+) ((* p) <$> m) ((* (1 - p)) <$> n)
 
 type ProbM p = ProbT p Identity
 
 runProbM :: (Ord a, Ord p, Num p) => ProbM p a -> Map a (Prob p)
 runProbM = runIdentity . runProbT
-
-instance Monad m => Functor (ProbT p m) where
-    fmap = liftM
-
-instance Monad m => Applicative (ProbT p m) where
-    pure = return
-    (<*>) = ap
-
-instance Monad m => Monad (ProbT p m) where
-
-    return a = ProbT $ \f -> f a
-
-    ma >>= cont = ProbT              $ \f ->
-                  runProbT' ma       $ \a ->
-                  runProbT' (cont a) f
-
-instance MonadTrans (ProbT p) where
-
-    lift ma = ProbT (ma >>=)
-
-instance (Ord p, Fractional p, Monad m) => MonadProb p (ProbT p m) where
-    coin 0 _ b = return b
-    coin 1 a _ = return a
-    coin p a b = ProbT $ \f -> do
-        m <- f a
-        n <- f b
-        return $ M.unionWith (+) ((* p) <$> m) ((* (1 - p)) <$> n)

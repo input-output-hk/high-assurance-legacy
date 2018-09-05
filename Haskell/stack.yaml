@@ -5,6 +5,10 @@ packages:
 - ./chi-calculus
 - ./chi-calculus-examples
 - ./hlists
+- ./polynomials
 nix:
     enable: true
     shell-file: shell.nix
+extra-deps:
+- Chart-1.9
+- Chart-cairo-1.9

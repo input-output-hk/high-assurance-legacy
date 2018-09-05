@@ -24,19 +24,28 @@ Source-Repository head
 
 Library
 
-    Exposed-Modules:   Data.DeltaQ
+    Exposed-Modules:   Charts
+                     , Data.DeltaQ
                      , Data.DeltaQ.Core
                      , Data.DeltaQ.Discrete
                      , Data.DeltaQ.IntP
                      , Data.DeltaQ.Monad
                      , Data.DeltaQ.Probability
                      , Data.DeltaQ.Queue
+                     , Graph
                      , Examples
                      , Process
 
     Build-Depends: base                >= 4.10 && < 5,
+                   Chart              ^>= 1.9,
+                   Chart-cairo        ^>= 1.9,
+                   colour             ^>= 2.3,
                    containers         ^>= 0.5,
+                   data-default-class ^>= 0.1,
+                   lens               ^>= 4.16,
                    MonadRandom        ^>= 0.5,
+                   mtl                ^>= 2.2,
+                   operational        ^>= 0.2,
                    semigroups         ^>= 0.18,
                    transformers       ^>= 0.5
 
@@ -45,3 +54,11 @@ Library
     Default-Language: Haskell2010
 
     GHC-Options: -Wall
+
+executable graph
+  hs-source-dirs:      graph
+  main-is:             Main.hs
+  build-depends:       base >= 4.7 && < 5
+                     , deltaQ
+  ghc-options:         -Wall -O2 -fexcess-precision -optc-O3 -optc-ffast-math
+  default-language:    Haskell2010

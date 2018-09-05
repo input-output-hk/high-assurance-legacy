@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts       #-}
 {-# LANGUAGE FlexibleInstances      #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE InstanceSigs           #-}
@@ -6,7 +7,15 @@
 {-# LANGUAGE StandaloneDeriving     #-}
 {-# LANGUAGE UndecidableInstances   #-}
 
-module Process where
+module Process
+    ( Chan
+    , Process (..)
+    , ChannelState (..)
+    , Message (..)
+    , Environment (..)
+    , ToQueue
+    , toQueue
+    ) where
 
 import           Data.DeltaQ
 import           Data.IntMap.Strict (IntMap)
@@ -63,10 +72,13 @@ step Stop env = return env
 step (ch :<: (dq, s)) env = return $
     env {envMsgs = enqueueDQ dq (Message ch s) $ envMsgs env}
 
+step (p :|: q) env = step p env >>= step q
+{-
 step (p :|: q) env = coinM 0.5 (f p q) (f q p)
   where
     f :: Process dq -> Process dq -> m (Environment dq m)
     f p1 p2 = step p1 env >>= step p2
+    -}
 
 step (ch :>: cont) env = do
     (chst, mp) <- f (envChSts env IM.! ch)
@@ -89,12 +101,6 @@ step (Nu cont) env = do
     let (env', ch) = newChan env
         p          = cont ch
     step p env'
-
-    {-
-    let chsts = IM.delete ch $ envChSts env''
-        q     = filterDQ (\msg -> msgChan msg /= ch) $ envMsgs env''
-    return $ Environment chsts q
-    -}
 
 newChan :: Environment dq m -> (Environment dq m, Chan)
 newChan env =
@@ -119,7 +125,7 @@ instance ToQueue dq (Process dq) where
              => Process dq
              -> Environment dq m
              -> QueueDQ m Message
-    toQueue' p env = filterDQ (\msg -> msgChan msg `IM.member` envChSts env) $ 
+    toQueue' p env = filterDQ (\msg -> msgChan msg `IM.member` envChSts env) $
         QueueDQ $ step p env >>= go
       where
         go :: Environment dq m -> m (Maybe (Message, QueueDQ m Message))

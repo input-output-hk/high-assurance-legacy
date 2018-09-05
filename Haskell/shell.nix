@@ -4,6 +4,6 @@ with nixpkgs;
 
 haskell.lib.buildStackProject {
   name = "datastructures";
-  buildInputs = [];
+  buildInputs = [cairo zlib];
   inherit ghc;
 }

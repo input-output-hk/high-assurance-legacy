@@ -6,6 +6,7 @@ module Data.DeltaQ.Core
     , now
     , Ext (..)
     , DeltaQ (..)
+    , mass
     , never
     , Ftf (..)
     , ftf
@@ -46,6 +47,11 @@ class (Ord p, Fractional p, Time t, Monoid dq) => DeltaQ p t dq | dq -> p t wher
 
 never :: DeltaQ p t dq => dq
 never = exact Infinity
+
+mass :: DeltaQ p t dq => dq -> Prob p
+mass dq = case massive dq of
+    Nothing     -> 0
+    Just (p, _) -> p
 
 data Ftf p t dq =
       Never

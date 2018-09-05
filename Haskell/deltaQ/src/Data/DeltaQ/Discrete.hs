@@ -9,6 +9,7 @@ module Data.DeltaQ.Discrete
     , uniform
     , sampleDDQIO
     , sampleDDQ
+    , cdf
     ) where
 
 import           Data.DeltaQ.Core
@@ -102,3 +103,14 @@ sampleDDQIO x = sampleIO $ sampleDQ x
 
 sampleDDQ :: Time t => Int -> DDQ Double t -> Maybe t
 sampleDDQ seed x = sample seed $ sampleDQ x
+
+cdf :: forall p. (Ord p, Fractional p) => DDQ p IntP -> [Prob p]
+cdf (DDQ m) = go 0 0 $ M.toList m
+  where
+    go :: Int -> Prob p -> [(Ext IntP, Prob  p)] -> [Prob p]
+    go _ _ []                   = []
+    go t p ((Infinity, _) : xs) = go t p xs
+    go t p ((Finite s, q) : xs) =
+        let t' = 1 + getIntP s
+            p' = p + q
+        in  replicate (t' - t - 1) p ++ p' : go t' p' xs
