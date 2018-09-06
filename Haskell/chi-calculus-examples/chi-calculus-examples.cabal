@@ -1,0 +1,42 @@
+Name:          chi-calculus-examples
+Version:       0.0.0.0
+Cabal-Version: >= 2.0
+Build-Type:    Simple
+License:       MIT
+License-File:  LICENSE
+Copyright:     © 2018 IOHK
+Author:        Wolfgang Jeltsch
+Maintainer:    wolfgang@well-typed.com
+Stability:     provisional
+Homepage:      https://github.com/input-output-hk/ouroboros-spec/Haskell/chi-calculus-examples
+Bug-Reports:   https://github.com/input-output-hk/ouroboros-spec/issues
+Synopsis:      χ-calculus examples
+Description:   The χ-calculus is a process calculus that is used in the
+               high-assurance implementation of the Ouroboros Genesis protocol.
+               This package contains examples of χ-calculus programs.
+Category:      Concurrency
+Tested-With:   GHC == 8.4.2
+
+Source-Repository head
+
+    Type:     git
+    Location: https://github.com/input-output-hk/ouroboros-spec.git
+    Branch:   master
+    Subdir:   Haskell/chi-calculus-examples
+
+Library
+
+    Exposed-Modules: Ouroboros.Chi_Calculus.Examples.Reverser
+
+    Build-Depends: base          >= 4.10 && < 5,
+                   chi-calculus ^>= 0.0
+
+    HS-Source-Dirs: src
+
+    Default-Language: Haskell2010
+
+    Other-Extensions: GADTs
+                      KindSignatures
+                      RankNTypes
+
+    GHC-Options: -Wall
