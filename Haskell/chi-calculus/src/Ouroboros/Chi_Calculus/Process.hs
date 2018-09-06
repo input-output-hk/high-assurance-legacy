@@ -6,11 +6,13 @@ module Ouroboros.Chi_Calculus.Process (
     Channel,
     ClosedProcess,
     Interpretation,
-    interpret
+    interpret,
+    plet,
+    pfix
 
 ) where
 
-import Data.List.FixedLength (List)
+import Data.List.FixedLength (List, singleton, fromSingleton)
 import Data.Type.Natural (TypeNatural)
 
 import qualified Ouroboros.Chi_Calculus.Data as Data (Interpretation)
@@ -66,3 +68,9 @@ interpret :: Interpretation d p
           -> ClosedProcess dat
           -> p
 interpret inter = inter
+
+plet :: Process dat d p -> (p -> Process dat d p) -> Process dat d p
+plet prc fun = Letrec (const (singleton prc)) (fun . fromSingleton)
+
+pfix :: (p -> Process dat d p) -> Process dat d p
+pfix fun = Letrec (singleton . fun . fromSingleton) (PVar . fromSingleton)
