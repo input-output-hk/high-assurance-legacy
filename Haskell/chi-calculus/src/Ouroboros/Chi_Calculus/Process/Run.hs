@@ -4,7 +4,7 @@
 module Ouroboros.Chi_Calculus.Process.Run (
 
     run,
-    Value (plainValue),
+    Value (Value, plainValue),
     PlainValue
 
 ) where
