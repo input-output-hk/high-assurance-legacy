@@ -4,6 +4,10 @@ module Data.List.FixedLength (
 
     List (Empty, (:::)),
     ensureSpine,
+    singleton,
+    fromSingleton,
+    head,
+    tail,
     iterate,
     firstNaturals,
     map,
@@ -11,7 +15,7 @@ module Data.List.FixedLength (
 
 ) where
 
-import Prelude hiding (iterate, repeat, map, zipWith)
+import Prelude hiding (head, tail, iterate, repeat, map, zipWith)
 
 import Control.Applicative (liftA2)
 
@@ -139,6 +143,18 @@ instance TypeNatural n => Traversable (List n) where
               \ f (x ::: xs) -> liftA2 (:::) (f x) (plainTraverse h f xs)
 
     -- FIXME: Perhaps implement other methods explicitly.
+
+singleton :: a -> List ('S 'Z) a
+singleton x = x ::: Empty
+
+fromSingleton :: List ('S 'Z) a -> a
+fromSingleton (x ::: Empty) = x
+
+head :: List ('S n) a -> a
+head (x ::: _) = x
+
+tail :: List ('S n) a -> List n a
+tail (_ ::: xs) = xs
 
 iterate :: TypeNatural n => (a -> a) -> a -> List n a
 iterate f = plainIterate $
