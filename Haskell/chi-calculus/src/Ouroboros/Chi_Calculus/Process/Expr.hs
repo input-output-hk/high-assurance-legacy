@@ -53,8 +53,6 @@ expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
         let varIndexes' = varIndexes { channelIndex = succ chanIx }
         let prcMeaning = worker (cont (Const chanVar)) `runReader` varIndexes'
         return $ "ν" <> chanVar <> ". " <> prcMeaning
-    worker (Var meaning) = do
-        return meaning
     worker (Letrec defs res) = do
         varIndexes <- ask
         let prcIx = processIndex varIndexes
@@ -72,6 +70,8 @@ expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
         let defsText = "{" <> drop 1 (foldMap ("; " <>) defTexts) <> " }"
         resMeaning <- worker (res prcVars)
         return $ "let " <> defsText <> " in " <> resMeaning
+    worker (Var meaning) = do
+        return meaning
 
 data VarIndexes = VarIndexes {
     channelIndex, valueIndex, processIndex :: Natural

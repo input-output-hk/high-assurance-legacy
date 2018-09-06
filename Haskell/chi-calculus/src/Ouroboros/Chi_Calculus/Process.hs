@@ -2,7 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 module Ouroboros.Chi_Calculus.Process (
 
-    Process (Stop, Guard, (:<:), (:>:), (:|:), NewChannel, Var, Letrec),
+    Process (Stop, Guard, (:<:), (:>:), (:|:), NewChannel, Letrec, Var),
     Channel,
     ClosedProcess,
     Interpretation,
@@ -46,12 +46,12 @@ data Process dat d p where
     NewChannel :: (d (Channel a) -> Process dat d p)
                -> Process dat d p
 
-    Var        :: p
-               -> Process dat d p
-
     Letrec     :: TypeNatural n
                => (List n p -> List n (Process dat d p))
                -> (List n p -> Process dat d p)
+               -> Process dat d p
+
+    Var        :: p
                -> Process dat d p
 
 data Channel a
