@@ -70,7 +70,7 @@ expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
         let defsText = "{" <> drop 1 (foldMap ("; " <>) defTexts) <> " }"
         resMeaning <- worker (res prcVars)
         return $ "let " <> defsText <> " in " <> resMeaning
-    worker (Var meaning) = do
+    worker (PVar meaning) = do
         return meaning
 
 data VarIndexes = VarIndexes {

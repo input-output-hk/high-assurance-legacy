@@ -35,7 +35,7 @@ run dataInter = void . forkIO . worker
     worker (NewChannel cont) = newEmptyMVar >>= worker . cont . Value
     worker (Letrec defs res) = worker . res $
                                fix (map worker . defs . ensureSpine)
-    worker (Var meaning)     = meaning
+    worker (PVar meaning)    = meaning
 
     eval :: _ Value a -> PlainValue a
     eval = plainValue . dataInter
