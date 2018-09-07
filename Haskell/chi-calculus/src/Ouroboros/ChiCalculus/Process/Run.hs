@@ -1,7 +1,7 @@
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
-module Ouroboros.Chi_Calculus.Process.Run (
+module Ouroboros.ChiCalculus.Process.Run (
 
     run
 
@@ -17,7 +17,7 @@ import Data.Function (fix)
 import Data.Functor.Identity (Identity (..))
 import Data.List.FixedLength (ensureSpine, map)
 
-import Ouroboros.Chi_Calculus.Process (Process (..), Interpretation)
+import Ouroboros.ChiCalculus.Process (Process (..), Interpretation)
 
 run :: Interpretation Identity (IO ())
 run dataInter = void . forkIO . worker

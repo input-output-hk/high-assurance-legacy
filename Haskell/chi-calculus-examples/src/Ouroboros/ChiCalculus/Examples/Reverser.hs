@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RankNTypes #-}
-module Ouroboros.Chi_Calculus.Examples.Reverser (
+module Ouroboros.ChiCalculus.Examples.Reverser (
 
     Data (StdInput, StdOutput, Reverse, DVar),
     eval,
@@ -17,17 +17,17 @@ import Control.Monad (forever, void)
 import Data.Functor.Identity (Identity (..))
 import Data.Kind (Type)
 
-import Ouroboros.Chi_Calculus.Data (
+import Ouroboros.ChiCalculus.Data (
            Interpretation
        )
-import Ouroboros.Chi_Calculus.Process (
+import Ouroboros.ChiCalculus.Process (
            Process (..),
            Channel,
            ClosedProcess,
            interpret,
            pfix
        )
-import Ouroboros.Chi_Calculus.Process.Run (
+import Ouroboros.ChiCalculus.Process.Run (
            run
        )
 

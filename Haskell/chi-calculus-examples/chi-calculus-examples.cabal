@@ -26,7 +26,7 @@ Source-Repository head
 
 Library
 
-    Exposed-Modules: Ouroboros.Chi_Calculus.Examples.Reverser
+    Exposed-Modules: Ouroboros.ChiCalculus.Examples.Reverser
 
     Build-Depends: base          >= 4.10 && < 5,
                    chi-calculus ^>= 0.0

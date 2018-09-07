@@ -27,10 +27,10 @@ Source-Repository head
 
 Library
 
-    Exposed-Modules: Ouroboros.Chi_Calculus.Data
-                     Ouroboros.Chi_Calculus.Process
-                     Ouroboros.Chi_Calculus.Process.Expr
-                     Ouroboros.Chi_Calculus.Process.Run
+    Exposed-Modules: Ouroboros.ChiCalculus.Data
+                     Ouroboros.ChiCalculus.Process
+                     Ouroboros.ChiCalculus.Process.Expr
+                     Ouroboros.ChiCalculus.Process.Run
 
     Build-Depends: base                >= 4.10 && < 5,
                    fixed-length-lists ^>= 0.0,

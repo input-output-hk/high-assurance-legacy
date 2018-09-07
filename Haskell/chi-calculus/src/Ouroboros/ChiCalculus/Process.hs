@@ -1,6 +1,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
-module Ouroboros.Chi_Calculus.Process (
+module Ouroboros.ChiCalculus.Process (
 
     Process (Stop, Guard, (:<:), (:>:), (:|:), NewChannel, Letrec, PVar),
     Channel,
@@ -17,7 +17,7 @@ import Control.Concurrent.MVar (MVar)
 import Data.List.FixedLength (List, singleton, fromSingleton)
 import Data.Type.Natural (TypeNatural)
 
-import qualified Ouroboros.Chi_Calculus.Data as Data (Interpretation)
+import qualified Ouroboros.ChiCalculus.Data as Data (Interpretation)
 
 infixr 3 :<:
 infixr 3 :>:

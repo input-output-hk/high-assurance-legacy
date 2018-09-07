@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeApplications #-}
-module Ouroboros.Chi_Calculus.Process.Expr (
+module Ouroboros.ChiCalculus.Process.Expr (
 
     expr
 
@@ -17,7 +17,7 @@ import Data.Text as Text (Text, pack, drop)
 
 import Numeric.Natural (Natural)
 
-import Ouroboros.Chi_Calculus.Process (Process (..), Interpretation)
+import Ouroboros.ChiCalculus.Process (Process (..), Interpretation)
 
 expr :: Interpretation (Const Text) Text
 expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0

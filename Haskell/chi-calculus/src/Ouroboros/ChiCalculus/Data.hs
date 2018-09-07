@@ -1,6 +1,6 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RankNTypes #-}
-module Ouroboros.Chi_Calculus.Data (
+module Ouroboros.ChiCalculus.Data (
 
     ClosedData,
     Interpretation,
