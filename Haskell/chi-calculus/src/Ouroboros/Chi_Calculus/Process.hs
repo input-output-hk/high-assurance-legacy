@@ -12,6 +12,8 @@ module Ouroboros.Chi_Calculus.Process (
 
 ) where
 
+import Control.Concurrent.MVar (MVar)
+
 import Data.List.FixedLength (List, singleton, fromSingleton)
 import Data.Type.Natural (TypeNatural)
 
@@ -56,7 +58,7 @@ data Process dat d p where
     PVar       :: p
                -> Process dat d p
 
-data Channel a
+type Channel = MVar
 
 type ClosedProcess dat = forall d p . Process dat d p
 

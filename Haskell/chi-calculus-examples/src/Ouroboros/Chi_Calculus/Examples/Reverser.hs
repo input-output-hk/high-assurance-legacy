@@ -11,9 +11,10 @@ module Ouroboros.Chi_Calculus.Examples.Reverser (
 ) where
 
 import Control.Concurrent (forkIO)
-import Control.Concurrent.MVar (MVar, newEmptyMVar, takeMVar, putMVar)
+import Control.Concurrent.MVar (newEmptyMVar, takeMVar, putMVar)
 import Control.Monad (forever, void)
 
+import Data.Functor.Identity (Identity (..))
 import Data.Kind (Type)
 
 import Ouroboros.Chi_Calculus.Data (
@@ -27,8 +28,7 @@ import Ouroboros.Chi_Calculus.Process (
            pfix
        )
 import Ouroboros.Chi_Calculus.Process.Run (
-           run,
-           Value (..)
+           run
        )
 
 data Data (d :: Type -> Type) (a :: Type) where
@@ -41,14 +41,14 @@ data Data (d :: Type -> Type) (a :: Type) where
 
     DVar      :: d a -> Data d a
 
-eval :: MVar String -> MVar String -> Interpretation Data Value
+eval :: Channel String -> Channel String -> Interpretation Data Identity
 eval stdInput stdOutput = worker
 
     where
 
-    worker StdInput       = Value stdInput
-    worker StdOutput      = Value stdOutput
-    worker (Reverse str)  = Value (reverse (plainValue (worker str)))
+    worker StdInput       = Identity stdInput
+    worker StdOutput      = Identity stdOutput
+    worker (Reverse str)  = Identity (reverse (runIdentity (worker str)))
     worker (DVar meaning) = meaning
 
 runWithStdIO :: ClosedProcess Data -> IO ()

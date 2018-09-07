@@ -3,24 +3,23 @@
 {-# LANGUAGE TypeFamilies #-}
 module Ouroboros.Chi_Calculus.Process.Run (
 
-    run,
-    Value (Value, plainValue),
-    PlainValue
+    run
 
 ) where
 
 import Prelude hiding (map)
 
 import Control.Concurrent (forkIO)
-import Control.Concurrent.MVar (MVar, putMVar, takeMVar, newEmptyMVar)
+import Control.Concurrent.MVar (putMVar, takeMVar, newEmptyMVar)
 import Control.Monad (void)
 
 import Data.Function (fix)
+import Data.Functor.Identity (Identity (..))
 import Data.List.FixedLength (ensureSpine, map)
 
-import Ouroboros.Chi_Calculus.Process (Process (..), Channel, Interpretation)
+import Ouroboros.Chi_Calculus.Process (Process (..), Interpretation)
 
-run :: Interpretation Value (IO ())
+run :: Interpretation Identity (IO ())
 run dataInter = void . forkIO . worker
 
     where
@@ -28,20 +27,14 @@ run dataInter = void . forkIO . worker
     worker Stop              = return ()
     worker (Guard cond cont) = if eval cond then worker cont else return ()
     worker (chan :<: val)    = putMVar (eval chan) (eval val)
-    worker (chan :>: cont)   = takeMVar (eval chan) >>= worker . cont . Value
+    worker (chan :>: cont)   = takeMVar (eval chan) >>= worker . cont . Identity
     worker (prc1 :|: prc2)   = do
                                    void $ forkIO $ worker prc1
                                    void $ forkIO $ worker prc2
-    worker (NewChannel cont) = newEmptyMVar >>= worker . cont . Value
+    worker (NewChannel cont) = newEmptyMVar >>= worker . cont . Identity
     worker (Letrec defs res) = worker . res $
                                fix (map worker . defs . ensureSpine)
     worker (PVar meaning)    = meaning
 
-    eval :: _ Value a -> PlainValue a
-    eval = plainValue . dataInter
-
-newtype Value a = Value { plainValue :: PlainValue a }
-
-type family PlainValue a where
-    PlainValue (Channel a) = MVar (PlainValue a)
-    PlainValue a           = a
+    eval :: _ Identity a -> a
+    eval = runIdentity . dataInter
