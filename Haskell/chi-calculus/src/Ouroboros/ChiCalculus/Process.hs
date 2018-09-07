@@ -7,6 +7,7 @@ module Ouroboros.ChiCalculus.Process (
     ClosedProcess,
     Interpretation,
     interpret,
+    parallel,
     newChannels,
     plet,
     pfix
@@ -73,6 +74,9 @@ interpret :: Interpretation d p
           -> ClosedProcess dat
           -> p
 interpret inter = inter
+
+parallel :: [Process dat d p] -> Process dat d p
+parallel = foldr (:|:) Stop
 
 newChannels :: Int -> ([d (Channel a)] -> Process dat d p) -> Process dat d p
 newChannels count = runCont $ replicateM count $ cont NewChannel
