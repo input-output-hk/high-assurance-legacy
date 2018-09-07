@@ -102,17 +102,17 @@ qed
 
 (* Weak Semantics *)
 
-(** Weak basic transition \<Longrightarrow>\<^sub>\<flat>C **)
+(** Weak \<tau>-respecting basic transition \<Longrightarrow>\<^sub>\<flat>C **)
 (** NOTE: Note that even though the transition P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a appears to contain a binder into \<Q> a, in
 reality it does not. The binder occurs inside the definition, where a binds into \<P> a. The process
 \<P> a then does a \<tau>-sequence to \<Q> a, which "a" does not bind into, unless \<P> a = \<Q> a. Formally, one can
 still reason about "a" as a binder: there is no way that any new names can be introduced by a \<tau>-sequence;
 the name "a" can be communicated within the process, but if so it occurs free in an output-prefix in P. **)
 (** TODO: Perhaps I can define a weak basic transition without using a residual, i.e. as
- weak_basic_transition :: process \<Rightarrow> process \<Rightarrow> [IO action|chan] \<Rightarrow> process **)
+ weak_tau_respecting_basic_transition :: process \<Rightarrow> process \<Rightarrow> [IO action|chan] \<Rightarrow> process **)
 
 definition
-  weak_basic_transition :: "
+  weak_tau_respecting_basic_transition :: "
     ('name \<Rightarrow> 'val \<Rightarrow> ('name, 'chan, 'val) process) \<Rightarrow>
     ('name, 'chan, 'val) process \<Rightarrow>
     ('name, 'chan, 'val) basic_residual \<Rightarrow>
@@ -124,39 +124,39 @@ definition
         \<lbrace>\<alpha>\<rbrace> Q     \<Rightarrow> \<exists>R S. \<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R \<and> \<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> S \<and> \<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q |
         Opening \<Q> \<Rightarrow> \<exists>R \<P>. \<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R \<and> \<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a \<and> (\<forall>a. \<Gamma> \<turnstile> \<P> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<Q> a)"
 
-lemma weak_basic_transition_acting_intro: "\<lbrakk> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R; \<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> S; \<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q"
-  using weak_basic_transition_def by force
+lemma weak_tau_respecting_basic_transition_acting_intro: "\<lbrakk> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R; \<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> S; \<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q"
+  using weak_tau_respecting_basic_transition_def by force
 
-lemma weak_basic_transition_scoping_intro: "\<lbrakk> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R; \<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a; \<And>a. \<Gamma> \<turnstile> \<P> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<Q> a \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-  using weak_basic_transition_def by force
+lemma weak_tau_respecting_basic_transition_scoping_intro: "\<lbrakk> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R; \<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a; \<And>a. \<Gamma> \<turnstile> \<P> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<Q> a \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
+  using weak_tau_respecting_basic_transition_def by force
 
-lemma weak_basic_transition_acting_elim: "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q \<Longrightarrow> \<exists>R S. \<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R \<and> \<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> S \<and> \<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q"
-  by (simp split: basic_residual.split add: weak_basic_transition_def)
+lemma weak_tau_respecting_basic_transition_acting_elim: "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q \<Longrightarrow> \<exists>R S. \<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R \<and> \<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> S \<and> \<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q"
+  by (simp split: basic_residual.split add: weak_tau_respecting_basic_transition_def)
 
-lemma weak_basic_transition_scoping_elim: "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a \<Longrightarrow> \<exists>R \<P>. \<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R \<and> \<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a \<and> (\<forall>a. \<Gamma> \<turnstile> \<P> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<Q> a)"
-  by (simp split: basic_residual.split add: weak_basic_transition_def)
+lemma weak_tau_respecting_basic_transition_scoping_elim: "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a \<Longrightarrow> \<exists>R \<P>. \<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R \<and> \<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a \<and> (\<forall>a. \<Gamma> \<turnstile> \<P> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<Q> a)"
+  by (simp split: basic_residual.split add: weak_tau_respecting_basic_transition_def)
 
-lemma weak_basic_transition_single_acting: "\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q"
-  using weak_basic_transition_acting_intro by blast
+lemma weak_tau_respecting_basic_transition_single_acting: "\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q"
+  using weak_tau_respecting_basic_transition_acting_intro by blast
 
-lemma weak_basic_transition_single_scoping: "\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
-  using weak_basic_transition_scoping_intro by blast
+lemma weak_tau_respecting_basic_transition_single_scoping: "\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
+  using weak_tau_respecting_basic_transition_scoping_intro by blast
 
-(** Lifted weak basic operational semantics **)
+(** Lifted weak \<tau>-respecting basic operational semantics **)
 
-lemma weak_basic_transition_sending: "\<Gamma> \<turnstile> m \<triangleleft> V \<Longrightarrow>\<^sub>\<flat>\<lbrace>m \<triangleleft> V\<rbrace> send_cont m V"
-  using weak_basic_transition_def and sending by force
+lemma weak_tau_respecting_basic_transition_sending: "\<Gamma> \<turnstile> m \<triangleleft> V \<Longrightarrow>\<^sub>\<flat>\<lbrace>m \<triangleleft> V\<rbrace> send_cont m V"
+  using weak_tau_respecting_basic_transition_def and sending by force
 
-lemma weak_basic_transition_receiving: "\<Gamma> \<turnstile> m \<triangleright> x. \<P> x \<Longrightarrow>\<^sub>\<flat>\<lbrace>m \<triangleright> V\<rbrace> \<P> V"
-  using weak_basic_transition_def and receiving by force
+lemma weak_tau_respecting_basic_transition_receiving: "\<Gamma> \<turnstile> m \<triangleright> x. \<P> x \<Longrightarrow>\<^sub>\<flat>\<lbrace>m \<triangleright> V\<rbrace> \<P> V"
+  using weak_tau_respecting_basic_transition_def and receiving by force
 
-lemma weak_basic_transition_communication: "\<lbrakk> \<eta> \<bowtie> \<mu>; \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> P'; \<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> Q' \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> P' \<parallel> Q'"
+lemma weak_tau_respecting_basic_transition_communication: "\<lbrakk> \<eta> \<bowtie> \<mu>; \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> P'; \<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> Q' \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> P' \<parallel> Q'"
 proof -
   assume "\<eta> \<bowtie> \<mu>" and "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> P'" and "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> Q'"
   then obtain R and S where "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R" and "\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> S" and "\<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P'"
-    using weak_basic_transition_acting_elim and \<open>\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> P'\<close> by fastforce
+    using weak_tau_respecting_basic_transition_acting_elim and \<open>\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> P'\<close> by fastforce
   moreover obtain T and U where "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> T" and "\<Gamma> \<turnstile> T \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> U" and "\<Gamma> \<turnstile> U \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q'"
-    using weak_basic_transition_acting_elim and \<open>\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> Q'\<close> by fastforce
+    using weak_tau_respecting_basic_transition_acting_elim and \<open>\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> Q'\<close> by fastforce
   ultimately show ?thesis
   proof -
     have "\<Gamma> \<turnstile> R \<parallel> T \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> S \<parallel> U"
@@ -166,19 +166,19 @@ proof -
     moreover have "\<Gamma> \<turnstile> S \<parallel> U \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P' \<parallel> Q'"
       using \<open>\<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P'\<close> and \<open>\<Gamma> \<turnstile> U \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q'\<close> and tau_sequence_parallel_preservation by simp
     ultimately show "\<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> P' \<parallel> Q'"
-      using weak_basic_transition_acting_intro by simp
+      using weak_tau_respecting_basic_transition_acting_intro by simp
   qed
 qed
 
-lemma weak_basic_transition_opening: "\<Gamma> \<turnstile> \<nu> a. \<P> a \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a"
-  by (simp add: opening weak_basic_transition_single_scoping)
+lemma weak_tau_respecting_basic_transition_opening: "\<Gamma> \<turnstile> \<nu> a. \<P> a \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a"
+  by (simp add: opening weak_tau_respecting_basic_transition_single_scoping)
 
-lemma weak_basic_transition_invocation: "\<Gamma> \<turnstile> \<Gamma> N V \<Longrightarrow>\<^sub>\<flat>C \<Longrightarrow> \<Gamma> \<turnstile> \<langle>N\<rangle> V \<Longrightarrow>\<^sub>\<flat>C"
+lemma weak_tau_respecting_basic_transition_invocation: "\<Gamma> \<turnstile> \<Gamma> N V \<Longrightarrow>\<^sub>\<flat>C \<Longrightarrow> \<Gamma> \<turnstile> \<langle>N\<rangle> V \<Longrightarrow>\<^sub>\<flat>C"
 proof (cases C)
   assume "\<Gamma> \<turnstile> \<Gamma> N V \<Longrightarrow>\<^sub>\<flat>C"
   case (Acting \<alpha> P)
   then obtain R and S where "\<Gamma> \<turnstile> \<Gamma> N V \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R" and "\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> S" and "\<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P"
-    using weak_basic_transition_acting_elim and \<open>\<Gamma> \<turnstile> \<Gamma> N V \<Longrightarrow>\<^sub>\<flat>C\<close> by fastforce
+    using weak_tau_respecting_basic_transition_acting_elim and \<open>\<Gamma> \<turnstile> \<Gamma> N V \<Longrightarrow>\<^sub>\<flat>C\<close> by fastforce
   then show ?thesis
   proof (cases "\<Gamma> N V = R")
     case True
@@ -189,20 +189,20 @@ proof (cases C)
     moreover have "\<Gamma> \<turnstile> \<langle>N\<rangle> V \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<langle>N\<rangle> V"
       by (simp add: tau_sequence_refl)
     ultimately show ?thesis
-      using Acting and \<open>\<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P\<close> and weak_basic_transition_acting_intro by blast
+      using Acting and \<open>\<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P\<close> and weak_tau_respecting_basic_transition_acting_intro by blast
   next
     case False
     then have "\<Gamma> \<turnstile> \<langle>N\<rangle> V \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R"
       using \<open>\<Gamma> \<turnstile> \<Gamma> N V \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R\<close> and tau_sequence_invocation_preservation by simp
     then show ?thesis
-      using Acting and \<open>\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> S\<close> and \<open>\<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P\<close> and weak_basic_transition_acting_intro
+      using Acting and \<open>\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> S\<close> and \<open>\<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P\<close> and weak_tau_respecting_basic_transition_acting_intro
       by blast
   qed
 next
   assume "\<Gamma> \<turnstile> \<Gamma> N V \<Longrightarrow>\<^sub>\<flat>C"
   case (Opening \<P>)
   then obtain R and \<Q> where "\<Gamma> \<turnstile> \<Gamma> N V \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R" and "\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a" and "\<forall>a. \<Gamma> \<turnstile> \<Q> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<P> a"
-    using weak_basic_transition_scoping_elim and \<open>\<Gamma> \<turnstile> \<Gamma> N V \<Longrightarrow>\<^sub>\<flat>C\<close> by fastforce
+    using weak_tau_respecting_basic_transition_scoping_elim and \<open>\<Gamma> \<turnstile> \<Gamma> N V \<Longrightarrow>\<^sub>\<flat>C\<close> by fastforce
   then show ?thesis
   proof (cases "\<Gamma> N V = R")
     case True
@@ -213,22 +213,22 @@ next
       moreover have "\<Gamma> \<turnstile> \<langle>N\<rangle> V \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<langle>N\<rangle> V"
         by (simp add: tau_sequence_refl)
       ultimately show ?thesis
-        using Opening and \<open>\<forall>a. \<Gamma> \<turnstile> \<Q> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<P> a\<close> and weak_basic_transition_scoping_intro by blast
+        using Opening and \<open>\<forall>a. \<Gamma> \<turnstile> \<Q> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<P> a\<close> and weak_tau_respecting_basic_transition_scoping_intro by blast
   next
     case False
       then have "\<Gamma> \<turnstile> \<langle>N\<rangle> V \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R"
         using \<open>\<Gamma> \<turnstile> \<Gamma> N V \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R\<close> and tau_sequence_invocation_preservation by simp
       then show ?thesis
-        using Opening and \<open>\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a\<close> and \<open>\<forall>a. \<Gamma> \<turnstile> \<Q> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<P> a\<close> and weak_basic_transition_scoping_intro
+        using Opening and \<open>\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a\<close> and \<open>\<forall>a. \<Gamma> \<turnstile> \<Q> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<P> a\<close> and weak_tau_respecting_basic_transition_scoping_intro
         by blast
   qed
 qed
 
-lemma weak_basic_transition_acting_left: "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> P' \<Longrightarrow> \<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> P' \<parallel> Q"
+lemma weak_tau_respecting_basic_transition_acting_left: "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> P' \<Longrightarrow> \<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> P' \<parallel> Q"
 proof -
   assume "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> P'"
   then obtain R and S where "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R" and "\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> S" and "\<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P'"
-    using weak_basic_transition_acting_elim by fastforce
+    using weak_tau_respecting_basic_transition_acting_elim by fastforce
   then have "\<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R \<parallel> Q"
     using tau_sequence_parallel_preservation and \<open>\<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R\<close> by fastforce
   moreover have "\<Gamma> \<turnstile> R \<parallel> Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> S \<parallel> Q"
@@ -236,14 +236,14 @@ proof -
   moreover have "\<Gamma> \<turnstile> S \<parallel> Q  \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P' \<parallel> Q"
     using tau_sequence_parallel_preservation_left and \<open>\<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P'\<close> by simp
   ultimately show ?thesis
-    by (simp add: weak_basic_transition_acting_intro)
+    by (simp add: weak_tau_respecting_basic_transition_acting_intro)
 qed
 
-lemma weak_basic_transition_acting_right: "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q' \<Longrightarrow> \<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> P \<parallel> Q'"
+lemma weak_tau_respecting_basic_transition_acting_right: "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q' \<Longrightarrow> \<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> P \<parallel> Q'"
 proof -
   assume "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q'"
   then obtain R and S where "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R" and "\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> S" and "\<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q'"
-    using weak_basic_transition_acting_elim by fastforce
+    using weak_tau_respecting_basic_transition_acting_elim by fastforce
   then have "\<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P \<parallel> R"
     using tau_sequence_parallel_preservation and \<open>\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R\<close> by fastforce
   moreover have "\<Gamma> \<turnstile> P \<parallel> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> P \<parallel> S"
@@ -251,14 +251,14 @@ proof -
   moreover have "\<Gamma> \<turnstile> P \<parallel> S  \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P \<parallel> Q'"
     using tau_sequence_parallel_preservation_right and \<open>\<Gamma> \<turnstile> S \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q'\<close> by simp
   ultimately show ?thesis
-    by (simp add: weak_basic_transition_acting_intro)
+    by (simp add: weak_tau_respecting_basic_transition_acting_intro)
 qed
 
-lemma weak_basic_transition_opening_left: "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a \<Longrightarrow> \<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a \<parallel> Q"
+lemma weak_tau_respecting_basic_transition_opening_left: "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a \<Longrightarrow> \<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a \<parallel> Q"
 proof -
   assume "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a"
   then obtain R and \<Q> where "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R" and "\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a" and "\<forall>a. \<Gamma> \<turnstile> \<Q> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<P> a"
-    using weak_basic_transition_scoping_elim by fastforce
+    using weak_tau_respecting_basic_transition_scoping_elim by fastforce
   then have "\<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R \<parallel> Q"
     using tau_sequence_parallel_preservation and \<open>\<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R\<close> by fastforce
   moreover have "\<Gamma> \<turnstile> R \<parallel> Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a \<parallel> Q"
@@ -266,14 +266,14 @@ proof -
   moreover have "\<And>a. \<Gamma> \<turnstile> \<Q> a \<parallel> Q  \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<P> a \<parallel> Q"
     using tau_sequence_parallel_preservation_left and \<open>\<forall>a. \<Gamma> \<turnstile> \<Q> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<P> a\<close> by fastforce
   ultimately show ?thesis
-    by (simp add: weak_basic_transition_scoping_intro)
+    by (simp add: weak_tau_respecting_basic_transition_scoping_intro)
 qed
 
 lemma weak_basic_transition_opening_right: "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a \<Longrightarrow> \<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P \<parallel> \<Q> a"
 proof -
   assume "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
   then obtain R and \<P> where "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R" and "\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a" and "\<forall>a. \<Gamma> \<turnstile> \<P> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<Q> a"
-    using weak_basic_transition_scoping_elim by fastforce
+    using weak_tau_respecting_basic_transition_scoping_elim by fastforce
   then have "\<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P \<parallel> R"
     using tau_sequence_parallel_preservation and \<open>\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R\<close> by fastforce
   moreover have "\<Gamma> \<turnstile> P \<parallel> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P \<parallel> \<P> a"
@@ -281,15 +281,46 @@ proof -
   moreover have "\<And>a. \<Gamma> \<turnstile> P \<parallel> \<P> a  \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P \<parallel> \<Q> a"
     using tau_sequence_parallel_preservation_right and \<open>\<forall>a. \<Gamma> \<turnstile> \<P> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<Q> a\<close> by fastforce
   ultimately show ?thesis
-    by (simp add: weak_basic_transition_scoping_intro)
+    by (simp add: weak_tau_respecting_basic_transition_scoping_intro)
 qed
 
 (* TODO: Prove. *)
-lemma weak_basic_transition_scoped_acting: "\<lbrakk> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a; \<And>a. \<Gamma> \<turnstile> \<Q> a \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<R> a \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. \<R> a"
+lemma weak_tau_respecting_basic_transition_scoped_acting: "\<lbrakk> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a; \<And>a. \<Gamma> \<turnstile> \<Q> a \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<R> a \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. \<R> a"
   sorry
 
 (* TODO: Prove. *)
-lemma weak_basic_transition_scoped_opening: "\<lbrakk> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a; \<And>a. \<Gamma> \<turnstile> \<Q> a \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<R> a b \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. \<R> a b"
+lemma weak_tau_respecting_basic_transition_scoped_opening: "\<lbrakk> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a; \<And>a. \<Gamma> \<turnstile> \<Q> a \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<R> a b \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. \<R> a b"
   sorry
+
+(** Week basic transition \<Longrightarrow>\<^sub>\<flat>\<^sup>^ **)
+
+definition weak_basic_transition :: "
+  ('name \<Rightarrow> 'val \<Rightarrow> ('name, 'chan, 'val) process) \<Rightarrow>
+  ('name, 'chan, 'val) process \<Rightarrow>
+  ('name, 'chan, 'val) basic_residual \<Rightarrow>
+  bool"
+  ("_ \<turnstile> _ \<Longrightarrow>\<^sub>\<flat>\<^sup>^_" [51, 0, 51] 50)
+  where
+   "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<^sup>^C \<equiv>
+      case C of
+        \<lbrace>\<alpha>\<rbrace> Q \<Rightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q \<or> (\<alpha> = \<tau> \<and> P = Q)"
+
+lemma weak_basic_transition_refl_intro: "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<tau>\<rbrace> P"
+  using weak_basic_transition_def by fastforce
+
+lemma weak_basic_transition_step_intro: "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> Q"
+  using weak_basic_transition_def by fastforce
+
+lemma weak_basic_transition_induction
+  [consumes 1, case_names weak_basic_tran_refl weak_basic_tran_step]:
+  assumes "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> Q"
+  and     "\<PP> \<tau> P"
+  and     "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q \<Longrightarrow> \<PP> \<alpha> Q"
+  shows   "\<PP> \<alpha> Q"
+  using assms
+  by (auto simp add: weak_basic_transition_def)
+
+lemma weak_basic_transition_single_acting: "\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> Q"
+  using weak_tau_respecting_basic_transition_acting_intro and weak_basic_transition_step_intro by fastforce
 
 end
