@@ -7,12 +7,15 @@ module Ouroboros.ChiCalculus.Process (
     ClosedProcess,
     Interpretation,
     interpret,
+    newChannels,
     plet,
     pfix
 
 ) where
 
 import Control.Concurrent.MVar (MVar)
+import Control.Monad (replicateM)
+import Control.Monad.Trans.Cont (cont, runCont)
 
 import Data.List.FixedLength (List, singleton, fromSingleton)
 import Data.Type.Natural (TypeNatural)
@@ -70,6 +73,9 @@ interpret :: Interpretation d p
           -> ClosedProcess dat
           -> p
 interpret inter = inter
+
+newChannels :: Int -> ([d (Channel a)] -> Process dat d p) -> Process dat d p
+newChannels count = runCont $ replicateM count $ cont NewChannel
 
 plet :: Process dat d p -> (p -> Process dat d p) -> Process dat d p
 plet prc fun = Letrec (const (singleton prc)) (fun . fromSingleton)
