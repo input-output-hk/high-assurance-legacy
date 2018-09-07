@@ -4,7 +4,8 @@ module Ouroboros.ChiCalculus.Data (
 
     ClosedData,
     Interpretation,
-    interpret
+    interpret,
+    VarData (dvar)
 
 ) where
 
@@ -16,3 +17,7 @@ type Interpretation dat d = forall a . dat d a -> d a
 
 interpret :: Interpretation dat d -> ClosedData dat -> d a
 interpret inter = inter
+
+class VarData dat where
+
+    dvar :: d a -> dat d a

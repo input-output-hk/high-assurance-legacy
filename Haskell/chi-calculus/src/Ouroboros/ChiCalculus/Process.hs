@@ -10,7 +10,8 @@ module Ouroboros.ChiCalculus.Process (
     parallel,
     newChannels,
     plet,
-    pfix
+    pfix,
+    (<#)
 
 ) where
 
@@ -21,11 +22,13 @@ import Control.Monad.Trans.Cont (cont, runCont)
 import Data.List.FixedLength (List, singleton, fromSingleton)
 import Data.Type.Natural (TypeNatural)
 
+import           Ouroboros.ChiCalculus.Data (VarData (dvar))
 import qualified Ouroboros.ChiCalculus.Data as Data (Interpretation)
 
 infixr 3 :<:
 infixr 3 :>:
 infixr 2 :|:
+infix  3 <#
 
 {-|
     Processes of the χ-calculus with support for @letrec@ constructions. This
@@ -86,3 +89,11 @@ plet prc fun = Letrec (const (singleton prc)) (fun . fromSingleton)
 
 pfix :: (p -> Process dat d p) -> Process dat d p
 pfix fun = Letrec (singleton . fun . fromSingleton) (PVar . fromSingleton)
+
+(<#) :: VarData dat
+     => dat d (Channel m)
+     -> (dat d (Channel a) -> dat d m)
+     -> (d a -> Process dat d p)
+     -> Process dat d p
+(obj <# msg) cont = NewChannel $ \ resp ->
+                    obj :<: msg (dvar resp) :|: dvar resp :>: cont
