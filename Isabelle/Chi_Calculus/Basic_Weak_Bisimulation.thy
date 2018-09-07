@@ -292,7 +292,7 @@ lemma weak_tau_respecting_basic_transition_scoped_acting: "\<lbrakk> \<Gamma> \<
 lemma weak_tau_respecting_basic_transition_scoped_opening: "\<lbrakk> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a; \<And>a. \<Gamma> \<turnstile> \<Q> a \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<R> a b \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. \<R> a b"
   sorry
 
-(** Week basic transition \<Longrightarrow>\<^sub>\<flat>\<^sup>^ **)
+(** Weak basic transition \<Longrightarrow>\<^sub>\<flat>\<^sup>^ **)
 
 definition weak_basic_transition :: "
   ('name \<Rightarrow> 'val \<Rightarrow> ('name, 'chan, 'val) process) \<Rightarrow>
@@ -322,5 +322,22 @@ lemma weak_basic_transition_induction
 
 lemma weak_basic_transition_single_acting: "\<Gamma> \<turnstile> P \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q \<Longrightarrow> \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> Q"
   using weak_tau_respecting_basic_transition_acting_intro and weak_basic_transition_step_intro by fastforce
+
+(** Lifted weak basic operational semantics **)
+
+lemma weak_basic_transition_sending: "\<Gamma> \<turnstile> m \<triangleleft> V \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>m \<triangleleft> V\<rbrace> send_cont m V"
+  by (simp add: weak_tau_respecting_basic_transition_sending weak_basic_transition_def)
+
+lemma weak_basic_transition_receiving: "\<Gamma> \<turnstile> m \<triangleright> x. \<P> x \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>m \<triangleright> V\<rbrace> \<P> V"
+  by (simp add: weak_tau_respecting_basic_transition_receiving weak_basic_transition_def)
+
+lemma weak_basic_transition_communication: "\<lbrakk> \<eta> \<bowtie> \<mu>; \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>IO \<eta>\<rbrace> P'; \<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>IO \<mu>\<rbrace> Q' \<rbrakk> \<Longrightarrow> \<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<tau>\<rbrace> P' \<parallel> Q'"
+  by (simp add: weak_tau_respecting_basic_transition_communication weak_basic_transition_def)
+
+lemma weak_basic_transition_acting_left: "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> P' \<Longrightarrow> \<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> P' \<parallel> Q"
+  by (auto simp add: weak_tau_respecting_basic_transition_acting_left weak_basic_transition_def)
+
+lemma weak_basic_transition_acting_right: "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> Q' \<Longrightarrow> \<Gamma> \<turnstile> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> P \<parallel> Q'"
+  by (auto simp add: weak_tau_respecting_basic_transition_acting_right weak_basic_transition_def)
 
 end
