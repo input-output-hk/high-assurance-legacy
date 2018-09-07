@@ -26,17 +26,17 @@ expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
 
     worker Stop = do
         return "Stop"
-    worker (Guard cond cont) = do
-        contMeaning <- worker cont
-        return $ "⟨" <> getConst (dataInter cond) <> "⟩ " <> contMeaning
+    worker (Guard cond cnt) = do
+        cntMeaning <- worker cnt
+        return $ "⟨" <> getConst (dataInter cond) <> "⟩ " <> cntMeaning
     worker (chan :<: val) = do
         return $ getConst (dataInter chan) <> " ◁ " <> getConst (dataInter val)
-    worker (chan :>: cont) = do
+    worker (chan :>: cnt) = do
         varIndexes <- ask
         let valIx = valueIndex varIndexes
         let valVar = "x_" <> pack (show valIx)
         let varIndexes' = varIndexes { valueIndex = succ valIx }
-        let prcMeaning = worker (cont (Const valVar)) `runReader` varIndexes'
+        let prcMeaning = worker (cnt (Const valVar)) `runReader` varIndexes'
         return $ getConst (dataInter chan) <>
                  " ▷ "                     <>
                  valVar                    <>
@@ -46,12 +46,12 @@ expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
         prcMeaning1 <- worker prc1
         prcMeaning2 <- worker prc2
         return $ "(" <> prcMeaning1 <> " ‖ " <> prcMeaning2 <> ")"
-    worker (NewChannel cont) = do
+    worker (NewChannel cnt) = do
         varIndexes <- ask
         let chanIx = channelIndex varIndexes
         let chanVar = "c_" <> pack (show chanIx)
         let varIndexes' = varIndexes { channelIndex = succ chanIx }
-        let prcMeaning = worker (cont (Const chanVar)) `runReader` varIndexes'
+        let prcMeaning = worker (cnt (Const chanVar)) `runReader` varIndexes'
         return $ "ν" <> chanVar <> ". " <> prcMeaning
     worker (Letrec defs res) = do
         varIndexes <- ask

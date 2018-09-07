@@ -95,5 +95,5 @@ pfix fun = Letrec (singleton . fun . fromSingleton) (PVar . fromSingleton)
      -> (dat d (Channel a) -> dat d m)
      -> (d a -> Process dat d p)
      -> Process dat d p
-(obj <# msg) cont = NewChannel $ \ resp ->
-                    obj :<: msg (dvar resp) :|: dvar resp :>: cont
+(obj <# msg) cnt = NewChannel $ \ resp ->
+                   obj :<: msg (dvar resp) :|: dvar resp :>: cnt

@@ -25,13 +25,13 @@ run dataInter = void . forkIO . worker
     where
 
     worker Stop              = return ()
-    worker (Guard cond cont) = if eval cond then worker cont else return ()
+    worker (Guard cond cnt)  = if eval cond then worker cnt else return ()
     worker (chan :<: val)    = putMVar (eval chan) (eval val)
-    worker (chan :>: cont)   = takeMVar (eval chan) >>= worker . cont . Identity
+    worker (chan :>: cnt)    = takeMVar (eval chan) >>= worker . cnt . Identity
     worker (prc1 :|: prc2)   = do
                                    void $ forkIO $ worker prc1
                                    void $ forkIO $ worker prc2
-    worker (NewChannel cont) = newEmptyMVar >>= worker . cont . Identity
+    worker (NewChannel cnt)  = newEmptyMVar >>= worker . cnt . Identity
     worker (Letrec defs res) = worker . res $
                                fix (map worker . defs . ensureSpine)
     worker (PVar meaning)    = meaning
