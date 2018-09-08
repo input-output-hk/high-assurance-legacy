@@ -12,7 +12,6 @@ module Data.DeltaQ.Probability
     , mixP
     , MonadProb (..)
     , coinM
-    , elements
     , pick
     , SamplingT (..)
     , sampleIO
@@ -67,24 +66,25 @@ mixP :: (Ord p, Num p) => Prob p -> Prob p -> Prob p -> Prob p
 mixP p x y = p * x + (1 - p) * y
 
 class (Ord p, Fractional p, Monad m) => MonadProb p m | m -> p where
+
     coin :: Prob p -> a -> a -> m a
+
+    elements :: NonEmpty a -> m a
+    elements xs = go (NE.length xs) xs
+      where
+        go :: Int -> NonEmpty a -> m a
+        go _ (a :| [])       = return a
+        go n (a :| (y : ys)) = do
+            let p = prob $ 1 / fromIntegral n
+            c <- coin p True False
+            if c then return a
+                 else go (n - 1) (y :| ys)
 
 coinM :: MonadProb p m => Prob p -> m a -> m a -> m a
 coinM p x y = do
     a <- x
     b <- y
     coin p a b
-
-elements :: forall p m a. MonadProb p m => NonEmpty a -> m a
-elements xs = go (NE.length xs) xs
-  where
-    go :: Int -> NonEmpty a -> m a
-    go _ (a :| [])       = return a
-    go n (a :| (y : ys)) = do
-        let p = prob $ 1 / fromIntegral n
-        c <- coin p True False
-        if c then return a
-             else go (n - 1) (y :| ys)
 
 pick :: forall p m a. MonadProb p m => NonEmpty a -> m (a, [a])
 pick = elements . picks
@@ -120,7 +120,10 @@ sampleIO = id
 sample :: Int -> (forall m. MonadProb Double m => m a) -> a
 sample seed = (`evalRand` mkStdGen seed)
 
-data ProbI p a = Coin !(Prob p) a a
+data ProbI p a =
+      Coin (Prob p) a a
+    | Elements (NonEmpty a)
+    deriving (Show, Eq, Ord)
 
 newtype ProbT p m a = ProbT (ProgramT (ProbI p) m a)
     deriving (Functor, Applicative, Monad, MonadTrans)
@@ -131,19 +134,29 @@ instance (Ord p, Fractional p, Monad m) => MonadProb p (ProbT p m) where
     coin p x y = ProbT $ singleton $ Coin p x y
 
 runProbT :: forall p m a .
-            (Ord p, Num p, Monad m, Ord a)
+            (Ord p, Fractional p, Monad m, Ord a)
          => ProbT p m a
          -> m (Map a (Prob p))
 runProbT (ProbT u) = viewT u >>= eval
   where
     eval :: ProgramViewT (ProbI p) m a -> m (Map a (Prob p))
-    eval (Return a)             = return $ M.singleton a 1
-    eval (Coin p x y :>>= cont) = do
+    eval (Return a)              = return $ M.singleton a 1
+    eval (Coin p x y :>>= cont)  = do
         m <- runProbT $ ProbT $ cont x
         n <- runProbT $ ProbT $ cont y
         return $ M.unionWith (+) ((* p) <$> m) ((* (1 - p)) <$> n)
+    eval (Elements xs :>>= cont) = do
+        ys <- fmap NE.toList $ forM xs $ runProbT . ProbT . cont
+        let f = prob $ recip $ fromIntegral $ NE.length xs
+        return $ M.unionsWith (+) $ map (fmap (* f)) ys
 
 type ProbM p = ProbT p Identity
 
-runProbM :: (Ord a, Ord p, Num p) => ProbM p a -> Map a (Prob p)
+runProbM :: (Ord a, Ord p, Fractional p) => ProbM p a -> Map a (Prob p)
 runProbM = runIdentity . runProbT
+
+die :: ProbM Rational Int
+die = elements $ 1 :| [2..6]
+
+dice :: Int -> ProbM Rational Int
+dice n = sum <$> replicateM n die
