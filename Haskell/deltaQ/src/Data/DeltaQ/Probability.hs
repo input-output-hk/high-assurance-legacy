@@ -62,6 +62,9 @@ instance (Ord p, Fractional p) => Fractional (Prob p) where
 
     Prob x / Prob y = prob $ x / y
 
+instance Real p => Real (Prob p) where
+    toRational = toRational . getProb
+
 mixP :: (Ord p, Num p) => Prob p -> Prob p -> Prob p -> Prob p
 mixP p x y = p * x + (1 - p) * y
 
@@ -154,9 +157,3 @@ type ProbM p = ProbT p Identity
 
 runProbM :: (Ord a, Ord p, Fractional p) => ProbM p a -> Map a (Prob p)
 runProbM = runIdentity . runProbT
-
-die :: ProbM Rational Int
-die = elements $ 1 :| [2..6]
-
-dice :: Int -> ProbM Rational Int
-dice n = sum <$> replicateM n die

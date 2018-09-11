@@ -22,6 +22,12 @@ instance Monoid IntP where
 
 instance Time IntP where
 
+    fromTime = fromIntegral . getIntP
+
+    diff (IntP m) (IntP n)
+        | m >= n    = Just $ IntP (m - n)
+        | otherwise = Nothing
+
 instance Enum IntP where
     toEnum = intP
     fromEnum = getIntP

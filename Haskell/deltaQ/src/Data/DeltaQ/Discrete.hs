@@ -5,10 +5,10 @@
 
 module Data.DeltaQ.Discrete
     ( DDQ (..)
-    , smear
     , uniform
     , sampleDDQIO
     , sampleDDQ
+    , pdf
     , cdf
     ) where
 
@@ -45,10 +45,10 @@ smear f x y =
 instance (Ord p, Fractional p, Time t) => Semigroup (DDQ p t) where
     x <> y = let Just (_, z) = smear (\s t -> (1, s <> t)) x y in z
 
-instance (Ord p, Fractional p, Time t) => Monoid (DDQ p t) where
+instance (Show p, Fractional p, Real p, Time t) => Monoid (DDQ p t) where
     mempty = DDQ $ M.singleton now 1
 
-instance (Ord p, Fractional p, Time t) => DeltaQ p t (DDQ p t) where
+instance (Show p, Fractional p, Real p, Time t) => DeltaQ p t (DDQ p t) where
 
     massive x = let m = getDDQ x in case M.lookup Infinity m of
         Nothing     -> Just (1, x)
@@ -63,21 +63,44 @@ instance (Ord p, Fractional p, Time t) => DeltaQ p t (DDQ p t) where
     mix p x y = DDQ $ M.unionWith (+) ((* p)       <$> getDDQ x)
                                       ((* (1 - p)) <$> getDDQ y)
 
-    before = smear $ \case
-        Infinity -> const (0, Infinity)
-        s        -> \t -> case compare s t of
-                            LT -> (1  , s)
-                            EQ -> (0.5, s)
-                            GT -> (0  , s)
+    before x ys        =
+        let xs         = M.toList $ getDDQ x
+            yss        = map (M.toList . getDDQ) ys
+            n          = length ys
+            xsyss      = [(b, cs) | b <- xs, cs <- sequence yss]
+            (p, m, ms) = foldl' f (0, M.empty, replicate n M.empty) xsyss
+        in  if p == 0
+                then Nothing
+                else Just (p, g p m, map (g p) ms)
+      where
+        f :: (Prob p, Map (Ext t) (Prob p), [Map (Ext t) (Prob p)])
+          -> ((Ext t, Prob p), [(Ext t, Prob p)])
+          -> (Prob p, Map (Ext t) (Prob p), [Map (Ext t) (Prob p)])
+        f (p, m, ms) ((t, q), tqs)
+            | any (\tq -> fst tq < t) tqs = (p, m, ms)
+            | otherwise                   =
+                let c   = prob
+                        $ recip
+                        $ fromIntegral
+                        $ 1 + length (filter (\tq -> fst tq == t) tqs)
+                    w   = c * q * product (map snd tqs)
+                    p'  = p + w
+                    m'  = M.insertWith (+) t w m
+                    ms' = zipWith (h w t) tqs ms
+                in  (p', m', ms')
 
-    after = smear $ \s t -> case t of
-        Infinity -> (0, Infinity)
-        _        -> case compare s t of
-                        LT -> (0  , s)
-                        EQ -> (0.5, s)
-                        GT -> (1  , s)
+        g :: Prob p -> Map (Ext t) (Prob p) -> DDQ p t
+        g p m = DDQ $ (/ p) <$> m
 
-    maxDQ x y = let Just (_, z) = smear (\s t -> (1, max s t)) x y in z
+        h :: Prob p
+          -> Ext t
+          -> (Ext t, Prob p)
+          -> Map (Ext t) (Prob p)
+          -> Map (Ext t) (Prob p)
+        h w s (t, _) = M.insertWith (+) (diff' s t) w
+
+        diff' :: Ext t -> Ext t -> Ext t
+        diff' s t = let Just d = diff t s in d
 
     sampleDQ = go 1 . M.toList . getDDQ
       where
@@ -90,7 +113,7 @@ instance (Ord p, Fractional p, Time t) => DeltaQ p t (DDQ p t) where
         fromExt (Finite t) = Just t
         fromExt Infinity   = Nothing
 
-uniform :: (Ord p, Fractional p) => IntP -> IntP -> DDQ p IntP
+uniform :: (Show p, Fractional p, Real p) => IntP -> IntP -> DDQ p IntP
 uniform x y = case getIntP y - getIntP x + 1 of
     n
         | n <= 0    -> never
@@ -103,6 +126,16 @@ sampleDDQIO x = sampleIO $ sampleDQ x
 
 sampleDDQ :: Time t => Int -> DDQ Double t -> Maybe t
 sampleDDQ seed x = sample seed $ sampleDQ x
+
+pdf :: forall p. (Ord p, Fractional p) => DDQ p IntP -> [Prob p]
+pdf (DDQ m) = go 0 $ M.toList m
+  where
+    go :: Int -> [(Ext IntP, Prob  p)] -> [Prob p]
+    go _ []                   = []
+    go t ((Infinity, _) : xs) = go t xs
+    go t ((Finite s, q) : xs) =
+        let t' = 1 + getIntP s
+        in  replicate (t' - t - 1) 0 ++ q : go t' xs
 
 cdf :: forall p. (Ord p, Fractional p) => DDQ p IntP -> [Prob p]
 cdf (DDQ m) = go 0 0 $ M.toList m

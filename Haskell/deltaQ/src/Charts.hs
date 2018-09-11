@@ -1,5 +1,7 @@
 module Charts
-    ( layoutDDQ
+    ( layoutCdf
+    , layoutPdf
+    , layoutDDQ
     , toFileDDQ
     ) where
 
@@ -9,10 +11,12 @@ import Data.Default.Class
 import Data.DeltaQ
 import Graphics.Rendering.Chart
 import Graphics.Rendering.Chart.Backend.Cairo
+import Graphics.Rendering.Chart.Grid
 import Text.Printf                            (printf)
 
-layoutDDQ :: (Ord p, Fractional p, Real p) => DDQ p IntP -> Layout Int Double
-layoutDDQ dq = layout_title .~ "ΔQ"
+layoutCdf :: (Show p, Ord p, Fractional p, Real p) => DDQ p IntP -> Layout Int Double
+
+layoutCdf dq = layout_title .~ "ΔQ (cdf)"
              $ layout_plots .~ [ plotBars bars
                                , line
                                ]
@@ -33,11 +37,22 @@ layoutDDQ dq = layout_title .~ "ΔQ"
     bars = plot_bars_values .~ zipWith (\t p -> (t, [p])) [0..] ps
          $ def
 
-toFileDDQ :: (Ord p, Fractional p, Real p) => FilePath -> DDQ p IntP -> IO ()
-toFileDDQ fp = void . renderableToFile def fp . toRenderable . layoutDDQ
+layoutPdf :: (Ord p, Fractional p, Real p) => DDQ p IntP -> Layout Int Double
+layoutPdf dq = layout_title .~ "ΔQ (pdf)"
+             $ layout_plots .~ [ plotBars bars ]
+             $ def
+  where
+    ps :: [Double]
+    ps = map (fromRational . toRational . getProb) $ pdf dq
 
-test :: IO ()
-test = do
-    let dq1 = uniform (intP 2) (intP 10) :: DDQ Rational IntP
-        dq  = dq1 <> dq1 <> dq1
-    toFileDDQ "test.png" dq
+    bars :: PlotBars Int Double
+    bars = plot_bars_values .~ zipWith (\t p -> (t, [p])) [0..] ps
+         $ def
+
+layoutDDQ :: (Show p, Ord p, Fractional p, Real p)
+          => DDQ p IntP
+          -> Grid (Renderable (LayoutPick Int Double Double))
+layoutDDQ dq = layoutToGrid (layoutCdf dq) ./. layoutToGrid (layoutPdf dq)
+
+toFileDDQ :: (Show p, Ord p, Fractional p, Real p) => FilePath -> DDQ p IntP -> IO ()
+toFileDDQ fp = void . renderableToFile def fp . fillBackground def . toRenderable . layoutDDQ

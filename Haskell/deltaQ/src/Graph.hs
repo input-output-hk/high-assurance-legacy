@@ -8,16 +8,17 @@ module Graph
     , addNode
     , addEdge
     , buildGraph
+    , networkP
+    , measureM
     , measure
-    , DQ
-    , M
     ) where
 
-import Control.Monad
-import Control.Monad.State
-import Data.DeltaQ
-import Data.Maybe          (mapMaybe)
-import Process
+import           Control.Monad
+import           Control.Monad.State
+import           Data.DeltaQ
+import qualified Data.Map.Strict     as M
+import           Data.Maybe          (mapMaybe)
+import           Process
 
 type Node = Int
 type Graph = (Int, [(Node, Node)])
@@ -68,7 +69,7 @@ nodeP :: forall p t dq. DeltaQ p t dq
       -> Chan
       -> Process dq
 nodeP dq node ns inp lg =
-    inp :>: \s -> let n = read s in f n ns
+    inp :>: PrCont (\s -> let n = read s in f n ns)
   where
     f :: Node -> [(Node, Chan)] -> Process dq
     f _ []             = lg :<: (exact now, show node)
@@ -104,27 +105,30 @@ networkP dq g@(n, _) lg = go n []
   where
     go :: Node -> [(Node, Chan)] -> Process dq
     go 0 ns = nodesP dq g ns lg
-    go m ns = Nu $ \inp -> go (m - 1) ((m, inp) : ns)
+    go m ns = Nu $ PrCont (\inp -> go (m - 1) ((m, inp) : ns))
 
-type DQ = DDQ Double IntP
-type M = DeltaQM Double IntP DQ
-
-measure :: Graph -> DQ -> DQ
-measure g@(n, _) dq = timing $ f q
+measureM :: forall p t dq m. (DeltaQ p t dq, MonadProb p m)
+         => Graph
+         -> dq
+         -> m dq
+measureM g@(n, _) dq = go [1..n] (exact now) <$> toQueue (networkP dq g)
   where
-    q :: QueueDQ M Message
-    q = toQueue $ networkP dq g
+    go :: [Int] -> dq -> [(dq, Message)] -> dq
+    go [] dq' _                  = dq'
+    go _  _   []                 = never
+    go ns dq' ((dq'', msg) : xs) =
+        let node = read (msgPayload msg)
+        in  if node `elem` ns
+                then go (filter (/= node) ns) dq'' xs
+                else go ns                    dq'  xs
 
-    f :: QueueDQ M Message -> M ()
-    f = go [1..n]
-      where
-        go :: [Node] -> QueueDQ M Message -> M ()
-        go [] _ = return ()
-        go ns q' = do
-            m <- dequeueDQ q'
-            case m of
-                Nothing        -> delay never
-                Just (msg, q'') -> do
-                    let i   = read $ msgPayload msg
-                        ns' = filter (/= i) ns
-                    go ns' q''
+weighted :: forall p t dq. DeltaQ p t dq => ProbM p dq -> dq
+weighted = go 1 . M.toList . runProbM
+  where
+    go :: Prob p -> [(dq, Prob p)] -> dq
+    go _ []             = error "impossible case"
+    go _ [(dq, _)]      = dq
+    go w ((dq, p) : xs) = mix (p / w) dq $ go (w - p) xs
+
+measure :: DeltaQ p t dq => Graph -> dq -> dq
+measure g dq = weighted $ measureM g dq

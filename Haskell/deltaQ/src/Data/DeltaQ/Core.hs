@@ -2,19 +2,19 @@
 {-# LANGUAGE MultiParamTypeClasses  #-}
 
 module Data.DeltaQ.Core
-    ( Time
+    ( Time (..)
     , now
     , Ext (..)
     , DeltaQ (..)
     , mass
     , never
-    , Ftf (..)
-    , ftf
     ) where
 
 import Data.DeltaQ.Probability
 
-class (Ord a, Monoid a) => Time a where
+class (Show a, Ord a, Monoid a) => Time a where
+    fromTime :: a -> Double
+    diff :: a -> a -> Maybe a
 
 now :: Time a => a
 now = mempty
@@ -36,13 +36,19 @@ instance Monoid a => Monoid (Ext a) where
 
 instance Time a => Time (Ext a) where
 
-class (Ord p, Fractional p, Time t, Monoid dq) => DeltaQ p t dq | dq -> p t where
+    fromTime (Finite t) = fromTime t
+    fromTime Infinity   = 1 / 0
+
+    diff (Finite t) (Finite s) = Finite <$> diff t s
+    diff Infinity   _          = Just Infinity
+    diff (Finite _) Infinity   = Nothing
+
+class (Show p, Fractional p, Real p, Time t, Show dq, Ord dq, Monoid dq) =>
+      DeltaQ p t dq | dq -> p t where
     massive  :: dq -> Maybe (Prob p, dq)
     exact    :: Ext t -> dq
     mix      :: Prob p -> dq -> dq -> dq
-    before   :: dq -> dq -> Maybe (Prob p, dq)
-    after    :: dq -> dq -> Maybe (Prob p, dq)
-    maxDQ    :: dq -> dq -> dq
+    before   :: dq -> [dq] -> Maybe (Prob p, dq, [dq])
     sampleDQ :: MonadProb p m => dq -> m (Maybe t)
 
 never :: DeltaQ p t dq => dq
@@ -52,17 +58,3 @@ mass :: DeltaQ p t dq => dq -> Prob p
 mass dq = case massive dq of
     Nothing     -> 0
     Just (p, _) -> p
-
-data Ftf p t dq =
-      Never
-    | First  (Prob p) dq
-    | Second             (Prob p) dq
-    | Mix    (Prob p) dq (Prob p) dq
-    deriving (Show, Eq, Ord)
-
-ftf :: DeltaQ p t dq => dq -> dq -> Ftf p t dq
-ftf x y = case (x `before` y, y `before` x) of
-    (Just (px, dqx), Nothing       ) -> First  px dqx
-    (Nothing       , Just (py, dqy)) -> Second py dqy
-    (Nothing       , Nothing       ) -> Never
-    (Just (px, dqx), Just (py, dqy)) -> Mix px dqx py dqy

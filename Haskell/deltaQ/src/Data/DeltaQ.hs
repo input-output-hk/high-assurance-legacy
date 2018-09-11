@@ -2,7 +2,6 @@ module Data.DeltaQ
     ( module Data.DeltaQ.Core
     , module Data.DeltaQ.Discrete
     , module Data.DeltaQ.IntP
-    , module Data.DeltaQ.Monad
     , module Data.DeltaQ.Probability
     , module Data.DeltaQ.Queue
     ) where
@@ -10,6 +9,5 @@ module Data.DeltaQ
 import Data.DeltaQ.Core
 import Data.DeltaQ.Discrete
 import Data.DeltaQ.IntP
-import Data.DeltaQ.Monad
 import Data.DeltaQ.Probability
 import Data.DeltaQ.Queue
