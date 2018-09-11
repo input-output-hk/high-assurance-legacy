@@ -46,6 +46,7 @@ eval stdInput stdOutput = worker
 
     where
 
+    worker :: Interpretation Data Identity
     worker (Reverse str)  = Identity $ reverse (runIdentity (worker str))
     worker StdInput       = Identity $ stdInput
     worker StdOutput      = Identity $ stdOutput
