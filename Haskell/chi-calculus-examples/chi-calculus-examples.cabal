@@ -32,7 +32,7 @@ Library
     Build-Depends: base          >= 4.10 && < 5,
                    chi-calculus ^>= 0.0
 
-    HS-Source-Dirs: src
+    HS-Source-Dirs: src/lib
 
     Default-Language: Haskell2010
 
@@ -42,5 +42,31 @@ Library
                       OverloadedStrings
                       RankNTypes
                       ViewPatterns
+
+    GHC-Options: -Wall
+
+Executable Reverser
+
+    Main-Is: Reverser.hs
+
+    Build-Depends: base                   >= 4.10 && < 5,
+                   chi-calculus-examples ^>= 0.0
+
+    HS-Source-Dirs: src/exe
+
+    Default-Language: Haskell2010
+
+    GHC-Options: -Wall
+
+Executable DiningPhilosophers
+
+    Main-Is: DiningPhilosophers.hs
+
+    Build-Depends: base                   >= 4.10 && < 5,
+                   chi-calculus-examples ^>= 0.0
+
+    HS-Source-Dirs: src/exe
+
+    Default-Language: Haskell2010
 
     GHC-Options: -Wall
