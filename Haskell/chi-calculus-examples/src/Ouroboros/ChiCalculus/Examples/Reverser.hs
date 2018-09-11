@@ -3,7 +3,7 @@
 {-# LANGUAGE RankNTypes #-}
 module Ouroboros.ChiCalculus.Examples.Reverser (
 
-    Data (StdInput, StdOutput, Reverse, DVar),
+    Data (Reverse, StdInput, StdOutput, DVar),
     eval,
     runWithStdIO,
     reverser
@@ -33,11 +33,11 @@ import Ouroboros.ChiCalculus.Process.Run (
 
 data Data (d :: Type -> Type) (a :: Type) where
 
+    Reverse   :: Data d String -> Data d String
+
     StdInput  :: Data d (Channel String)
 
     StdOutput :: Data d (Channel String)
-
-    Reverse   :: Data d String -> Data d String
 
     DVar      :: d a -> Data d a
 
@@ -46,9 +46,9 @@ eval stdInput stdOutput = worker
 
     where
 
-    worker StdInput       = Identity stdInput
-    worker StdOutput      = Identity stdOutput
-    worker (Reverse str)  = Identity (reverse (runIdentity (worker str)))
+    worker (Reverse str)  = Identity $ reverse (runIdentity (worker str))
+    worker StdInput       = Identity $ stdInput
+    worker StdOutput      = Identity $ stdOutput
     worker (DVar meaning) = meaning
 
 runWithStdIO :: ClosedProcess Data -> IO ()
