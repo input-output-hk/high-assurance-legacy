@@ -26,7 +26,8 @@ Source-Repository head
 
 Library
 
-    Exposed-Modules: Ouroboros.ChiCalculus.Examples.Reverser
+    Exposed-Modules: Ouroboros.ChiCalculus.Examples.DiningPhilosophers
+                     Ouroboros.ChiCalculus.Examples.Reverser
 
     Build-Depends: base          >= 4.10 && < 5,
                    chi-calculus ^>= 0.0
@@ -35,8 +36,10 @@ Library
 
     Default-Language: Haskell2010
 
-    Other-Extensions: GADTs
+    Other-Extensions: FlexibleInstances
+                      GADTs
                       KindSignatures
+                      OverloadedStrings
                       RankNTypes
 
     GHC-Options: -Wall
