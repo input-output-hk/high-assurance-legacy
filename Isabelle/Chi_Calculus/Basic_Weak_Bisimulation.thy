@@ -620,11 +620,10 @@ proof -
   next
     case (opening \<Gamma> \<Q>)
     then have "\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a" by simp
-    then obtain \<Q>' where "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q>' a" and "\<forall>a. \<Y> (\<Q>' a) (\<Q> a)" using `Q \<leadsto>\<^sub>\<flat><\<Y>> R` and `\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a`
-      by (blast dest: weak_basic_sim_opening_elim)
-    then obtain \<P>' where "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P>' a" and "\<forall>a. \<X> (\<P>' a) (\<Q>' a)"
-      using `\<And>S T. \<X> S T \<Longrightarrow> S \<leadsto>\<^sub>\<flat><\<X>> T` and `\<X> P Q` and `\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q>' a` using weak_basic_sim_opening_elim2 by blast
-    moreover have "\<forall>a. \<Z> (\<P>' a) (\<Q> a)" using `\<forall>a. \<X> (\<P>' a) (\<Q>' a)` and `\<forall>a. \<Y> (\<Q>' a) (\<Q> a)` and `\<X> OO \<Y> \<le> \<Z>` by blast
+    then obtain \<Q>' where A\<^sub>9: "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q>' a" and A\<^sub>1\<^sub>0: "\<forall>a. \<Y> (\<Q>' a) (\<Q> a)" using A\<^sub>1 by (blast dest: weak_basic_sim_opening_elim)
+    then obtain \<P>' where A\<^sub>1\<^sub>1: "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P>' a" and A\<^sub>1\<^sub>2: "\<forall>a. \<X> (\<P>' a) (\<Q>' a)"
+      using A\<^sub>3 and A\<^sub>4 and A\<^sub>9 using weak_basic_sim_opening_elim2 by blast
+    moreover have "\<forall>a. \<Z> (\<P>' a) (\<Q> a)" using A\<^sub>1\<^sub>2 and A\<^sub>1\<^sub>0 and `\<X> OO \<Y> \<le> \<Z>` by blast
     ultimately show ?case by blast
   qed
 qed
