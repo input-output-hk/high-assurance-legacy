@@ -3,6 +3,7 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ViewPatterns #-}
 module Ouroboros.ChiCalculus.Examples.DiningPhilosophers (
 
     LoggerMsg (LogMsg),
@@ -25,6 +26,7 @@ import Control.Monad (forever, void)
 import Data.Functor.Identity (Identity (..))
 import Data.Kind (Type)
 import Data.List (zipWith3, zipWith5)
+import Data.List.NonEmpty (NonEmpty ((:|)), toList)
 import Data.String (IsString (fromString))
 
 import Ouroboros.ChiCalculus.Data (
@@ -120,48 +122,52 @@ philosopher :: Person
             -> d (Channel Fork)
             -> d (Channel Fork)
             -> Process Data d p
-philosopher staticPerson fromLeft fromRight toLeft toRight =
-    NewChannel $ \ acquiredLeft  ->
-    NewChannel $ \ acquiredRight ->
+philosopher staticPerson fromFst fromSnd toFst toSnd =
     pfix $ \ turn ->
     let
 
-        acquire fromSector acquired =
+        acquire fromSector cnt =
             DVar fromSector :>: \ fork ->
             log (StringLit staticPerson :<>:
                  " has taken fork "     :<>:
                  DVar fork              :<>:
                  ".") $
-            DVar acquired :<: DVar fork
-
-        cnt = DVar acquiredLeft  :>: \ leftFork  ->
-              DVar acquiredRight :>: \ rightFork ->
-              log (StringLit staticPerson :<>: " is eating.") $
-              DVar toLeft  :<: DVar leftFork  :|:
-              DVar toRight :<: DVar rightFork :|:
-              PVar turn
+            cnt fork
 
     in
-    acquire fromLeft acquiredLeft :|: acquire fromRight acquiredRight :|: cnt
+    acquire fromFst $ \ fstFork ->
+    acquire fromSnd $ \ sndFork ->
+    log (StringLit staticPerson :<>: " is eating.") $
+    DVar toFst :<: DVar fstFork :|:
+    DVar toSnd :<: DVar sndFork :|:
+    PVar turn
 
-diningPhilosophers :: [Person] -> ClosedProcess Data
-diningPhilosophers staticPersons =
+diningPhilosophers :: NonEmpty Person -> ClosedProcess Data
+diningPhilosophers (toList -> staticPersons) =
     newChannels noOfPersons $ \ fromSectors ->
     newChannels noOfPersons $ \ toSectors   ->
     let
 
-        tableSectors = parallel $ zipWith3 tableSector staticForks
-                                                       fromSectors
-                                                       toSectors
-        
-        philosophers = parallel $ zipWith5 philosopher staticPersons
-                                                       fromSectors
-                                                       (rotate fromSectors)
-                                                       toSectors
-                                                       (rotate toSectors)
+        tableSectors = parallel $
+                       zipWith3 tableSector staticForks
+                                            fromSectors
+                                            toSectors
+
+        leftRightPhilosophers = parallel $
+                                zipWith5 philosopher (init staticPersons)
+                                                     (init fromSectors)
+                                                     (tail fromSectors)
+                                                     (init toSectors)
+                                                     (tail toSectors)
+
+        rightLeftPhilosopher = philosopher (last staticPersons)
+                                           (head fromSectors)
+                                           (last fromSectors)
+                                           (head toSectors)
+                                           (last toSectors)
 
     in
-    tableSectors :|: philosophers
+    tableSectors :|: leftRightPhilosophers :|: rightLeftPhilosopher
 
     where
 
@@ -169,7 +175,5 @@ diningPhilosophers staticPersons =
 
     staticForks = map show [1 .. noOfPersons]
 
-    rotate chans = init chans ++ [last chans]
-
-defaultPhilosophers :: [Person]
-defaultPhilosophers = ["Plato", "Aristotle", "Bertrand Russell", "Karl Popper"]
+defaultPhilosophers :: NonEmpty Person
+defaultPhilosophers = "Plato" :| ["Aristotle", "Bertrand Russell", "Karl Popper"]

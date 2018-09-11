@@ -41,5 +41,6 @@ Library
                       KindSignatures
                       OverloadedStrings
                       RankNTypes
+                      ViewPatterns
 
     GHC-Options: -Wall
