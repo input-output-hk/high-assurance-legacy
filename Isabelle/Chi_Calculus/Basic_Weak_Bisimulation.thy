@@ -490,10 +490,10 @@ definition weak_basic_simulation :: "
   ('name, 'chan, 'val) process \<Rightarrow>
   (('name, 'chan, 'val) process \<Rightarrow> ('name, 'chan, 'val) process \<Rightarrow> bool) \<Rightarrow>
   ('name, 'chan, 'val) process \<Rightarrow>
-  bool" 
+  bool"
   ("_ \<leadsto>\<^sub>\<flat><_> _" [80, 80, 80] 80)
-  where 
-    "P \<leadsto>\<^sub>\<flat><\<X>> Q \<equiv> 
+  where
+    "P \<leadsto>\<^sub>\<flat><\<X>> Q \<equiv>
       (\<forall>\<Gamma> \<alpha> Q'. \<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q' \<longrightarrow> (\<exists>P'. \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> P' \<and> \<X> P' Q'))
       \<and>
       (\<forall>\<Gamma> \<Q>. \<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a \<longrightarrow> (\<exists>\<P>. \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a \<and> (\<forall>a. \<X> (\<P> a) (\<Q> a))))"
@@ -530,10 +530,10 @@ proof (induction rule: tau_sequence_induction)
   ultimately show ?case using A\<^sub>3 and A\<^sub>2 by blast
 next
   case (tau_seq_step Q' Q'')
-  have "\<exists>P'. \<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P' \<and> \<X> P' Q'" using tau_seq_step.prems and tau_seq_step.IH by simp 
+  have "\<exists>P'. \<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P' \<and> \<X> P' Q'" using tau_seq_step.prems and tau_seq_step.IH by simp
   then obtain P' where A\<^sub>4: "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P'" and A\<^sub>5: "\<X> P' Q'" by auto
   then have "P' \<leadsto>\<^sub>\<flat><\<X>> Q'" using A\<^sub>5 and A\<^sub>3 by simp
-  moreover have A\<^sub>6: "\<Gamma> \<turnstile> Q' \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> Q''" by fact 
+  moreover have A\<^sub>6: "\<Gamma> \<turnstile> Q' \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> Q''" by fact
   ultimately obtain P'' where A\<^sub>7: "\<Gamma> \<turnstile> P' \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<tau>\<rbrace> P''" and A\<^sub>8: "\<X> P'' Q''" by (blast dest: weak_basic_sim_acting_elim)
   then have "\<Gamma> \<turnstile> P' \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P''" using A\<^sub>7 and weak_basic_tau_transition_is_tau_sequence by blast
   then have "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P''" using A\<^sub>4 by simp
@@ -559,7 +559,7 @@ proof -
   then show "\<exists>P'. \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> P' \<and> \<X> P' Q'"
   proof (induction rule: weak_basic_transition_induction)
     case weak_basic_tran_refl
-    then have "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<tau>\<rbrace> P" by (simp add: weak_basic_transition_refl_intro) 
+    then have "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<tau>\<rbrace> P" by (simp add: weak_basic_transition_refl_intro)
     then show ?case using A\<^sub>2 by auto
   next
     case weak_basic_tran_step
@@ -572,7 +572,7 @@ proof -
     then obtain P\<^sub>3 where A\<^sub>9: "\<Gamma> \<turnstile> P\<^sub>2 \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> P\<^sub>3" and A\<^sub>1\<^sub>0: "\<X> P\<^sub>3 Q\<^sub>3" using A\<^sub>5 by (blast dest: weak_basic_sim_acting_elim)
     then have "\<exists>P'. \<Gamma> \<turnstile> P\<^sub>3 \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P' \<and> \<X> P' Q'" using A\<^sub>6 and A\<^sub>1\<^sub>0 and A\<^sub>1 and weak_basic_sim_tau_sequence by blast
     then obtain P' where A\<^sub>1\<^sub>1: "\<Gamma> \<turnstile> P\<^sub>3 \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P'" and A\<^sub>1\<^sub>2: "\<X> P' Q'" by auto
-    then have "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> P'" using A\<^sub>7 and A\<^sub>9 and A\<^sub>1\<^sub>1 
+    then have "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> P'" using A\<^sub>7 and A\<^sub>9 and A\<^sub>1\<^sub>1
       by (blast dest: prepend_tau_sequence_to_weak_basic_transition append_tau_sequence_to_weak_basic_transition)
     then show ?case using A\<^sub>1\<^sub>2 by auto
   qed
@@ -593,7 +593,7 @@ proof -
   then have "P\<^sub>2 \<leadsto>\<^sub>\<flat><\<X>> Q\<^sub>2" using A\<^sub>8 and A\<^sub>1 by simp
   then obtain \<P>\<^sub>3 where A\<^sub>9: "\<Gamma> \<turnstile> P\<^sub>2 \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P>\<^sub>3 a" and A\<^sub>1\<^sub>0: "\<forall>a. \<X> (\<P>\<^sub>3 a) (\<Q>\<^sub>3 a)" using A\<^sub>5
     by (blast dest: weak_basic_sim_opening_elim)
-  then have "\<exists>\<P>. \<forall>a. \<Gamma> \<turnstile> \<P>\<^sub>3 a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<P> a \<and> \<X> (\<P> a) (\<Q> a)" using A\<^sub>6 and A\<^sub>1\<^sub>0 and A\<^sub>1 weak_basic_sim_tau_sequence2 by blast 
+  then have "\<exists>\<P>. \<forall>a. \<Gamma> \<turnstile> \<P>\<^sub>3 a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<P> a \<and> \<X> (\<P> a) (\<Q> a)" using A\<^sub>6 and A\<^sub>1\<^sub>0 and A\<^sub>1 weak_basic_sim_tau_sequence2 by blast
   then obtain \<P> where A\<^sub>1\<^sub>1: "\<And>a. \<Gamma> \<turnstile> \<P>\<^sub>3 a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<P> a" and A\<^sub>1\<^sub>2: "\<And>a. \<X> (\<P> a) (\<Q> a)" by auto
   then have "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a" using A\<^sub>7 and A\<^sub>9 and A\<^sub>1\<^sub>1
     by (blast dest: prepend_tau_sequence_to_weak_tau_respecting_basic_transition_opening append_tau_sequence_to_weak_tau_respecting_basic_transition_opening)
@@ -620,9 +620,9 @@ proof -
   next
     case (opening \<Gamma> \<Q>)
     then have "\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a" by simp
-    then obtain \<Q>' where "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q>' a" and "\<forall>a. \<Y> (\<Q>' a) (\<Q> a)" using `Q \<leadsto>\<^sub>\<flat><\<Y>> R` and `\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a` 
+    then obtain \<Q>' where "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q>' a" and "\<forall>a. \<Y> (\<Q>' a) (\<Q> a)" using `Q \<leadsto>\<^sub>\<flat><\<Y>> R` and `\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a`
       by (blast dest: weak_basic_sim_opening_elim)
-    then obtain \<P>' where "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P>' a" and "\<forall>a. \<X> (\<P>' a) (\<Q>' a)" 
+    then obtain \<P>' where "\<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P>' a" and "\<forall>a. \<X> (\<P>' a) (\<Q>' a)"
       using `\<And>S T. \<X> S T \<Longrightarrow> S \<leadsto>\<^sub>\<flat><\<X>> T` and `\<X> P Q` and `\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q>' a` using weak_basic_sim_opening_elim2 by blast
     moreover have "\<forall>a. \<Z> (\<P>' a) (\<Q> a)" using `\<forall>a. \<X> (\<P>' a) (\<Q>' a)` and `\<forall>a. \<Y> (\<Q>' a) (\<Q> a)` and `\<X> OO \<Y> \<le> \<Z>` by blast
     ultimately show ?case by blast
