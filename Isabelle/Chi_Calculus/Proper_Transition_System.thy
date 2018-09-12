@@ -556,7 +556,7 @@ proof (standard, intro allI, intro impI)
   qed
 qed
 
-lemma proper_unicast_input_scope_extension: "c \<triangleright> x. \<nu> a. \<P> x a \<sim>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. \<P> x a"
+lemma proper_receive_scope_extension: "c \<triangleright> x. \<nu> a. \<P> x a \<sim>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. \<P> x a"
   by standard (
     fact proper_pre_receive_scope_extension_ltr,
     fact proper_pre_receive_scope_extension_rtl
