@@ -163,9 +163,9 @@ inductive
   communication :: "io_action \<Rightarrow> io_action \<Rightarrow> bool"
   (infix "\<bowtie>" 50)
 where
-  unicast_ltr:
+  ltr:
     "BasicOut c V \<bowtie> BasicIn c V" |
-  unicast_rtl:
+  rtl:
     "BasicIn c V \<bowtie> BasicOut c V"
 
 text \<open>
