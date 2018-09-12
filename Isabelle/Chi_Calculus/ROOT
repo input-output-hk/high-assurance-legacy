@@ -9,5 +9,9 @@ session Chi_Calculus (ouroboros) = Transition_Systems +
     Processes
     Basic_Transition_System
     Proper_Transition_System
+    Typed_Channels
+    Typed_Processes
+    Typed_Basic_Transition_System
+    Typed_Proper_Transition_System
   document_files
     "root.tex"
