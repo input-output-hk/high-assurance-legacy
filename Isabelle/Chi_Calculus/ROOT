@@ -5,6 +5,7 @@ session Chi_Calculus (ouroboros) = Transition_Systems +
   sessions
     "HOL-Eisbach"
   theories
+    Channels
     Processes
     Basic_Transition_System
     Proper_Transition_System
