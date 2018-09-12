@@ -19,7 +19,7 @@ text \<open>
   system.
 \<close>
 
-fun basic_action_of :: "proper_action \<Rightarrow> basic_action" where
+primrec basic_action_of :: "proper_action \<Rightarrow> basic_action" where
   "basic_action_of (c \<triangleright> V) = c \<triangleright> V" |
   "basic_action_of \<tau> = \<tau>"
 
