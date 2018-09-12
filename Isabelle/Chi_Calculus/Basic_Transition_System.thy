@@ -11,19 +11,15 @@ text \<open>
 \<close>
 
 datatype io_action =
-  BasicIn chan val |
-  BasicOut chan val
+  BasicOut chan val |
+  BasicIn chan val
 datatype basic_action =
   IO io_action |
   BasicSilent ("\<tau>")
-abbreviation
-  BasicInAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleright>" 100)
-where
-  "c \<triangleright> V \<equiv> IO (BasicIn c V)"
-abbreviation
-  BasicOutAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleleft>" 100)
-where
+abbreviation BasicOutAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleleft>" 100) where
   "c \<triangleleft> V \<equiv> IO (BasicOut c V)"
+abbreviation BasicInAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleright>" 100) where
+  "c \<triangleright> V \<equiv> IO (BasicIn c V)"
 
 subsection \<open>Residuals\<close>
 
@@ -167,9 +163,9 @@ inductive
   communication :: "io_action \<Rightarrow> io_action \<Rightarrow> bool"
   (infix "\<bowtie>" 50)
 where
-  unicast_ltr:
+  ltr:
     "BasicOut c V \<bowtie> BasicIn c V" |
-  unicast_rtl:
+  rtl:
     "BasicIn c V \<bowtie> BasicOut c V"
 
 text \<open>
