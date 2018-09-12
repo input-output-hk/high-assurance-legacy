@@ -25,7 +25,7 @@ import Control.Monad (forever, void)
 
 import Data.Functor.Identity (Identity (..))
 import Data.Kind (Type)
-import Data.List (zipWith3, zipWith5)
+import Data.List (zipWith5)
 import Data.List.NonEmpty (NonEmpty ((:|)), toList)
 import Data.String (IsString (fromString))
 
