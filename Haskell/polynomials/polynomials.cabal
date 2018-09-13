@@ -24,7 +24,11 @@ Source-Repository head
 
 Library
 
-    Exposed-Modules:   Data.RModule
+    Exposed-Modules:   Data.CMonoid
+                       Data.Free
+                       Data.Alg
+                       Data.Mod
+                       Data.Pol
 
     Build-Depends: base                >= 4.10 && < 5,
                    containers         ^>= 0.5
