@@ -498,6 +498,11 @@ definition weak_basic_simulation :: "
       \<and>
       (\<forall>\<Gamma> \<Q>. \<Gamma> \<turnstile> Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a \<longrightarrow> (\<exists>\<P>. \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a \<and> (\<forall>a. \<X> (\<P> a) (\<Q> a))))"
 
+abbreviation
+  is_weak_basic_sim
+where
+  "is_weak_basic_sim \<X> \<equiv> \<forall>P Q. \<X> P Q \<longrightarrow> P \<leadsto>\<^sub>\<flat><\<X>> Q"
+
 lemma weak_basic_sim_monotonicity: "\<X> \<le> \<Y> \<Longrightarrow> P \<leadsto>\<^sub>\<flat><\<X>> Q \<Longrightarrow> P \<leadsto>\<^sub>\<flat><\<Y>> Q"
   by (simp add: weak_basic_simulation_def) blast
 
@@ -521,7 +526,7 @@ lemma weak_basic_sim_reflexivity: "(\<And>P. \<X> P P) \<Longrightarrow> P \<lea
 lemma weak_basic_sim_tau_sequence:
   assumes A\<^sub>1: "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q'"
   and     A\<^sub>2: "\<X> P Q"
-  and     A\<^sub>3: "\<And>R S. \<X> R S \<Longrightarrow> R \<leadsto>\<^sub>\<flat><\<X>> S"
+  and     A\<^sub>3: "is_weak_basic_sim \<X>"
   shows       "\<exists>P'. \<Gamma> \<turnstile> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P' \<and> \<X> P' Q'"
   using assms
 proof (induction rule: tau_sequence_induction)
@@ -544,12 +549,12 @@ qed
 lemma weak_basic_sim_tau_sequence2:
   assumes A\<^sub>1: "\<And>a. \<Gamma> \<turnstile> \<Q> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<Q>' a"
   and     A\<^sub>2: "\<And>a. \<X> (\<P> a) (\<Q> a)"
-  and     A\<^sub>3: "\<And>R S. \<X> R S \<Longrightarrow> R \<leadsto>\<^sub>\<flat><\<X>> S"
+  and     A\<^sub>3: "is_weak_basic_sim \<X>"
   shows       "\<exists>\<P>'. \<forall>a. \<Gamma> \<turnstile> \<P> a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> \<P>' a \<and> \<X> (\<P>' a) (\<Q>' a)"
   sorry
 
 lemma weak_basic_sim_acting_elim2:
-  assumes A\<^sub>1: "\<And>R S. \<X> R S \<Longrightarrow> R \<leadsto>\<^sub>\<flat><\<X>> S"
+  assumes A\<^sub>1: "is_weak_basic_sim \<X>"
   and     A\<^sub>2: "\<X> P Q"
   and     A\<^sub>3: "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> Q'"
   shows       "\<exists>P'. \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> P' \<and> \<X> P' Q'"
@@ -579,7 +584,7 @@ proof -
 qed
 
 lemma weak_basic_sim_opening_elim2:
-  assumes A\<^sub>1: "\<And>R S. \<X> R S \<Longrightarrow> R \<leadsto>\<^sub>\<flat><\<X>> S"
+  assumes A\<^sub>1: "is_weak_basic_sim \<X>"
   and     A\<^sub>2: "\<X> P Q"
   and     A\<^sub>3: "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<Q> a"
   shows       "\<exists>\<P>. \<Gamma> \<turnstile> P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> \<P> a \<and> (\<forall>a. \<X> (\<P> a) (\<Q> a))"
@@ -603,13 +608,13 @@ qed
 lemma weak_basic_sim_transitivity:
   assumes A\<^sub>1: "Q \<leadsto>\<^sub>\<flat><\<Y>> R"
   and     A\<^sub>2: "\<X> OO \<Y> \<le> \<Z>"
-  and     A\<^sub>3:"\<And>S T. \<X> S T \<Longrightarrow> S \<leadsto>\<^sub>\<flat><\<X>> T"
+  and     A\<^sub>3: "is_weak_basic_sim \<X>"
   and     A\<^sub>4: "\<X> P Q"
   shows "P \<leadsto>\<^sub>\<flat><\<Z>> R"
   using assms
 proof -
   show ?thesis
-  proof(induction rule: weak_basic_sim_cases)
+  proof (induction rule: weak_basic_sim_cases)
     case (acting \<Gamma> \<alpha> Q')
     then have "\<Gamma> \<turnstile> R \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q'" by simp
     then obtain Q\<^sub>2 where A\<^sub>5: "\<Gamma> \<turnstile> Q \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> Q\<^sub>2" and A\<^sub>6: "\<Y> Q\<^sub>2 Q'" using A\<^sub>1 by (blast dest: weak_basic_sim_acting_elim)
@@ -627,5 +632,119 @@ proof -
     ultimately show ?case by blast
   qed
 qed
+
+(** Weak basic bisimulation **)
+
+lemma weak_basic_sim_monotonicity_aux: "\<X> \<le> \<Y> \<Longrightarrow> P \<leadsto>\<^sub>\<flat><\<X>> Q \<longrightarrow> P \<leadsto>\<^sub>\<flat><\<Y>> Q"
+  by (auto intro: weak_basic_sim_monotonicity)
+
+coinductive
+  weak_basic_bisimilarity :: "('name, 'chan, 'val) process \<Rightarrow> ('name, 'chan, 'val) process \<Rightarrow> bool" (infixr "\<approx>\<^sub>\<flat>" 50)
+where
+  step: "\<lbrakk> P \<leadsto>\<^sub>\<flat><op \<approx>\<^sub>\<flat>> Q; Q \<approx>\<^sub>\<flat> P \<rbrakk> \<Longrightarrow> P \<approx>\<^sub>\<flat> Q"
+monos weak_basic_sim_monotonicity_aux
+
+(*** Primitive inference rules (coinduction, introduction and elimination) ***)
+
+lemma weak_basic_bisim_coinduct_aux[consumes 1, case_names weak_basic_bisim, case_conclusion weak_basic_bisim step]:
+  assumes related: "\<X> P Q"
+  and     step:    "\<And>P Q. \<X> P Q \<Longrightarrow> P \<leadsto>\<^sub>\<flat><(\<X> \<squnion> op \<approx>\<^sub>\<flat>)> Q \<and> (\<X> \<squnion> op \<approx>\<^sub>\<flat>) Q P"
+  shows            "P \<approx>\<^sub>\<flat> Q"
+proof -
+  have aux: "\<X> \<squnion> op \<approx>\<^sub>\<flat> = (\<lambda>P Q. \<X> P Q \<or> P \<approx>\<^sub>\<flat> Q)" by blast
+  show ?thesis using related
+    by (coinduct, force dest: step simp add: aux)
+qed
+
+lemma weak_basic_bisim_weak_coinduct_aux[consumes 1, case_names weak_basic_bisim, case_conclusion weak_basic_bisim step]:
+  assumes related: "\<X> P Q"
+  and     step:    "\<And>P Q. \<X> P Q \<Longrightarrow> P \<leadsto>\<^sub>\<flat><\<X>> Q \<and> \<X> Q P"
+  shows            "P \<approx>\<^sub>\<flat> Q"
+  using related
+proof (coinduct rule: weak_basic_bisim_coinduct_aux)
+  case (weak_basic_bisim P Q)
+  from step[OF this] show ?case using weak_basic_sim_monotonicity by blast
+qed
+
+lemma weak_basic_bisim_coinduct[consumes 1, case_names sim sym]:
+  assumes "\<X> P Q"
+  and     "\<And>R S. \<X> R S \<Longrightarrow> R \<leadsto>\<^sub>\<flat><(\<X> \<squnion> op \<approx>\<^sub>\<flat>)> S"
+  and     "\<And>R S. \<X> R S \<Longrightarrow> \<X> S R"
+  shows   "P \<approx>\<^sub>\<flat> Q"
+  using assms
+by (coinduct rule: weak_basic_bisim_coinduct_aux) auto
+
+lemma weak_basic_bisim_weak_coinduct[consumes 1, case_names sim sym]:
+  assumes "\<X> P Q"
+  and     "\<And>P Q. \<X> P Q \<Longrightarrow> P \<leadsto>\<^sub>\<flat><\<X>> Q"
+  and     "\<And>P Q. \<X> P Q \<Longrightarrow> \<X> Q P"
+  shows   "P \<approx>\<^sub>\<flat> Q"
+  using assms
+by (coinduct rule: weak_basic_bisim_weak_coinduct_aux) auto
+
+lemma weak_basic_bisim_elim1: "P \<approx>\<^sub>\<flat> Q \<Longrightarrow> P \<leadsto>\<^sub>\<flat><op \<approx>\<^sub>\<flat>> Q"
+  by (auto dest: weak_basic_bisimilarity.cases)
+
+lemma weak_basic_bisim_elim2: "P \<approx>\<^sub>\<flat> Q \<Longrightarrow> Q \<approx>\<^sub>\<flat> P"
+  by (auto dest: weak_basic_bisimilarity.cases)
+
+lemma weak_basic_bisim_intro: "\<lbrakk> P \<leadsto>\<^sub>\<flat><op \<approx>\<^sub>\<flat>> Q; Q \<approx>\<^sub>\<flat> P \<rbrakk> \<Longrightarrow> P \<approx>\<^sub>\<flat> Q"
+  by (auto intro: weak_basic_bisimilarity.intros)
+
+(*** Weak bisimilarity includes strong bisimilarity ***)
+
+(* TODO: Prove it. *)
+lemma strong_basic_sim_imp_weak_basic_sim: "P \<preceq>\<^sub>\<flat> Q \<Longrightarrow> P \<leadsto>\<^sub>\<flat><\<X>> Q"
+  sorry
+
+(* TODO: Prove it. *)
+lemma strong_basic_bisim_imp_weak_basic_bisim: "P \<sim>\<^sub>\<flat> Q \<Longrightarrow> P \<approx>\<^sub>\<flat> Q"
+  sorry
+
+(*** Weak bisimilarity is an equivalence relation ***)
+
+lemma weak_basic_bisim_reflexivity: "P \<approx>\<^sub>\<flat> P"
+proof -
+  have "P = P" by simp
+  then show ?thesis
+    using weak_basic_bisim_weak_coinduct_aux and weak_basic_sim_reflexivity by blast
+qed
+
+lemma weak_basic_bisim_symmetry: "P \<approx>\<^sub>\<flat> Q \<Longrightarrow> Q \<approx>\<^sub>\<flat> P"
+  using weak_basic_bisim_elim2 by auto
+
+lemma weak_basic_bisim_transitivity: "\<lbrakk> P \<approx>\<^sub>\<flat> Q; Q \<approx>\<^sub>\<flat> R \<rbrakk> \<Longrightarrow> P \<approx>\<^sub>\<flat> R"
+proof -
+  assume "P \<approx>\<^sub>\<flat> Q" and "Q \<approx>\<^sub>\<flat> R"
+  let ?\<X> = "op \<approx>\<^sub>\<flat> OO op \<approx>\<^sub>\<flat>"
+  have "?\<X> P R" using \<open>P \<approx>\<^sub>\<flat> Q\<close> and \<open>Q \<approx>\<^sub>\<flat> R\<close> by blast
+  then show ?thesis
+  proof (coinduct rule: weak_basic_bisim_weak_coinduct)
+    case (sim P R)
+    then obtain Q where "P \<approx>\<^sub>\<flat> Q" and "Q \<approx>\<^sub>\<flat> R" using \<open>?\<X> P R\<close> by auto
+    then have "Q \<leadsto>\<^sub>\<flat><op \<approx>\<^sub>\<flat>> R" using weak_basic_bisim_elim1 by auto
+    moreover have "?\<X> \<le> ?\<X>" by simp
+    ultimately show ?case using weak_basic_bisim_elim1 and weak_basic_sim_transitivity and \<open>P \<approx>\<^sub>\<flat> Q\<close> by blast
+  next
+    case (sym P R)
+    then show ?case using weak_basic_bisim_symmetry by auto
+  qed
+qed
+
+(*** Preservation laws ***)
+(* TODO: Prove them. *)
+
+lemma weak_basic_receive_preservation: "(\<And>x. \<P> x \<approx>\<^sub>\<flat> \<Q> x) \<Longrightarrow> m \<triangleright> x. \<P> x \<approx>\<^sub>\<flat> m \<triangleright> x. \<Q> x" sorry
+lemma weak_basic_parallel_preservation: "P \<approx>\<^sub>\<flat> Q \<Longrightarrow> P \<parallel> R \<approx>\<^sub>\<flat> Q \<parallel> R" sorry
+lemma weak_basic_new_channel_preservation: "(\<And>a. \<P> a \<approx>\<^sub>\<flat> \<Q> a) \<Longrightarrow> \<nu> a. \<P> a \<approx>\<^sub>\<flat> \<nu> a. \<Q> a" sorry
+
+(*** Structural congruence laws ***)
+(* TODO: Prove them. *)
+
+lemma weak_basic_parallel_scope_extension: "\<nu> a. \<P> a \<parallel> Q \<approx>\<^sub>\<flat> \<nu> a. (\<P> a \<parallel> Q)" sorry
+lemma weak_basic_new_channel_scope_extension: "\<nu> b. \<nu> a. \<P> a b \<approx>\<^sub>\<flat> \<nu> a. \<nu> b. \<P> a b" sorry
+lemma weak_basic_parallel_unit: "\<zero> \<parallel> P \<approx>\<^sub>\<flat> P" sorry
+lemma weak_basic_parallel_associativity: "(P \<parallel> Q) \<parallel> R \<approx>\<^sub>\<flat> P \<parallel> (Q \<parallel> R)" sorry
+lemma weak_basic_parallel_commutativity: "P \<parallel> Q \<approx>\<^sub>\<flat> Q \<parallel> P" sorry
 
 end
