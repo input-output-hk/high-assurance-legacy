@@ -28,10 +28,13 @@ Library
                        Data.Free
                        Data.Alg
                        Data.Mod
+                       Data.Piecewise
+                       Data.Piecewise.Test
                        Data.Pol
 
     Build-Depends: base                >= 4.10 && < 5,
                    containers         ^>= 0.5,
+                   QuickCheck,
                    reflection         ^>= 2.1 
     HS-Source-Dirs: src
 

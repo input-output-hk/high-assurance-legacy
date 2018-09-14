@@ -7,6 +7,8 @@ module Data.Pol
     ( Pol (..)
     , var
     , pol
+    , dynpol
+    , eval
     , deg
     , joinVar
     , splitVar
@@ -15,6 +17,7 @@ module Data.Pol
     , int
     , intEq
     , defint
+    , defint'
     , defintEq
     , dynChangeBase
     , changeBase
@@ -84,10 +87,13 @@ int' fromRat = Pol . toFAlg . free f . fromFAlg . getPol
 intEq :: (Eq a, Fractional r) => a -> Pol r a -> Pol r a
 intEq a = joinVar a . int' (iota . fromRational) . splitVar a
 
-defint :: Fractional r => r -> r -> Pol r () -> r
-defint a b p =
-    let q = int p
+defint' :: Num r => (Rational -> r) -> r -> r -> Pol r () -> r
+defint' fromRat a b p =
+    let q = int' fromRat p
     in  eval (const b) q - eval (const a) q
+
+defint :: Fractional r => r -> r -> Pol r () -> r
+defint = defint' fromRational
 
 defintEq :: forall a r. (Eq a, Fractional r) => r -> r -> a -> Pol r a -> Pol r a
 defintEq a b x p = eval' b q - eval' a q
@@ -110,13 +116,13 @@ toDoubleFunc :: Real r => Pol r () -> Double -> Double
 toDoubleFunc p x = eval (const x) (toDoublePol p)
 
 prettyFCM :: (Show a, Ord a) => FCMonoid a -> String
-prettyFCM = intercalate " * "
+prettyFCM = unwords
           . map (uncurry f)
           . M.toList
           . getEFCMonoid
           . fromFCMonoid
   where
-    f a (Sum n) = show a ++ '^' : show n
+    f a (Sum n) = '[' : show a ++ '^' : show n ++ "]"
 
 prettyPol :: (Show r, Eq r, Num r, Show a, Ord a) => Pol r a -> String
 prettyPol = intercalate " + "
@@ -127,4 +133,4 @@ prettyPol = intercalate " + "
           . fromFAlg
           . getPol
   where
-    f m r = '(' : show r ++ " * " ++ prettyFCM m ++ ")"
+    f m r = '(' : show r ++ ' ' : prettyFCM m ++ ")"
