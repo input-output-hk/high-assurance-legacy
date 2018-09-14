@@ -16,39 +16,47 @@ module Data.Pol
     , intEq
     , defint
     , defintEq
+    , dynChangeBase
     , changeBase
-    , DoubleAlgebra (..)
+    , toDoublePol
     , toDoubleFunc
     ) where
 
-import Data.Alg
-import Data.CMonoid
-import Data.Free
-import Data.Mod
-import Data.Monoid     (Product (..), Sum (..))
-import Numeric.Natural
+import           Data.Alg
+import           Data.CMonoid
+import           Data.Free
+import           Data.List       (intercalate)
+import qualified Data.Map        as M
+import           Data.Mod
+import           Data.Monoid     (Product (..), Sum (..))
+import           Numeric.Natural
 
 newtype Pol r a = Pol {getPol :: FAlg r (FCMonoid a)}
-    deriving (Show, Eq, Ord, Semigroup, Monoid, CMonoid, Num, Alg r, Mod r)
+    deriving (Eq, Ord, Semigroup, Monoid, CMonoid, Num, Alg r, Mod r)
+
+instance (Num r, Eq r, Show r, Ord a, Show a) => Show (Pol r a) where
+    show = prettyPol
 
 var :: a -> Pol r a
 var = Pol . basis . basis
 
 pol :: Alg r s => (a -> s) -> Pol r a -> s
-pol f = free (getProduct . free (Product . f)) . getPol
+pol f = alg (getProduct . free (Product . f)) . getPol
+
+dynpol :: (Num r, Num s) => (r -> s) -> (a -> s) -> Pol r a -> s
+dynpol iota' f = dynalg iota' (getProduct . free (Product . f)) . getPol
 
 eval :: Num r => (a -> r) -> Pol r a -> r
-eval f = getAlgebra . pol (Algebra . f)
+eval = dynpol id
 
 deg :: FCMonoid () -> Natural
 deg = getSum . free (const 1)
 
 joinVar :: a -> Pol (Pol r a) () -> Pol r a
-joinVar a = getAlgebra . pol (const $ Algebra $ var a)
+joinVar a = dynpol id (const $ var a)
 
 splitVar :: (Eq a, Num r) => a -> Pol r a -> Pol (Pol r a) ()
-splitVar a = getComposedAlgebras
-           . pol (\b -> ComposedAlgebras $ if b == a then var () else iota $ var b)
+splitVar a = dynpol (iota . iota) (\b -> if b == a then var () else iota $ var b)
 
 diff :: forall r. Num r => Pol r () -> Pol r ()
 diff = Pol . toFAlg . free f . fromFAlg . getPol
@@ -89,16 +97,34 @@ defintEq a b x p = eval' b q - eval' a q
     eval' :: r -> Pol r a -> Pol r a
     eval' c = pol $ \y -> if y == x then iota c else var y
 
+dynChangeBase :: (Num r, Num s) => (r -> s) -> Pol r a -> Pol s a
+dynChangeBase iota' = dynpol (iota . iota') var
+
 changeBase :: Alg r s => Pol r a -> Pol s a
-changeBase = getComposedAlgebras . pol (ComposedAlgebras . var)
+changeBase = dynChangeBase iota
 
-newtype DoubleAlgebra r = DoubleAlgebra {getDoubleAlgebra :: Double}
-    deriving Num
-
-instance Real r => Alg r (DoubleAlgebra r) where
-    iota = DoubleAlgebra . fromRational . toRational
+toDoublePol :: Real r => Pol r a -> Pol Double a
+toDoublePol = dynChangeBase $ fromRational . toRational
 
 toDoubleFunc :: Real r => Pol r () -> Double -> Double
-toDoubleFunc p x = getDoubleAlgebra $ eval (const $ DoubleAlgebra x) q
+toDoubleFunc p x = eval (const x) (toDoublePol p)
+
+prettyFCM :: (Show a, Ord a) => FCMonoid a -> String
+prettyFCM = intercalate " * "
+          . map (uncurry f)
+          . M.toList
+          . getEFCMonoid
+          . fromFCMonoid
   where
-    q = changeBase p
+    f a (Sum n) = show a ++ '^' : show n
+
+prettyPol :: (Show r, Eq r, Num r, Show a, Ord a) => Pol r a -> String
+prettyPol = intercalate " + "
+          .  map (uncurry f)
+          . M.toList
+          . getEFMod
+          . fromFMod
+          . fromFAlg
+          . getPol
+  where
+    f m r = '(' : show r ++ " * " ++ prettyFCM m ++ ")"

@@ -31,7 +31,8 @@ Library
                        Data.Pol
 
     Build-Depends: base                >= 4.10 && < 5,
-                   containers         ^>= 0.5
+                   containers         ^>= 0.5,
+                   reflection         ^>= 2.1 
     HS-Source-Dirs: src
 
     Default-Language: Haskell2010

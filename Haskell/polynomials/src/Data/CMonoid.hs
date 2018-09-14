@@ -33,7 +33,7 @@ instance Monoid (FCMonoid a) where
 
 instance CMonoid (FCMonoid a) where
 
-newtype EFCMonoid a = EFCMonoid (Map a (Sum Natural))
+newtype EFCMonoid a = EFCMonoid {getEFCMonoid :: Map a (Sum Natural)}
     deriving (Show, Eq, Ord)
 
 instance Ord a => Semigroup (EFCMonoid a) where
@@ -43,7 +43,6 @@ instance Ord a => Monoid (EFCMonoid a) where
     mempty = EFCMonoid M.empty
 
 instance Ord a => CMonoid (EFCMonoid a) where
-
 
 infixl 8 ^^^
 

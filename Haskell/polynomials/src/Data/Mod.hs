@@ -62,7 +62,7 @@ instance Num r => Mod r (FMod r a) where
     r -*- x = Free $ \f -> r -*- free f x
     neg x = Free $ \f -> neg $ free f x
 
-newtype EFMod r a = EFMod (Map a r)
+newtype EFMod r a = EFMod {getEFMod :: Map a r}
     deriving (Show, Eq, Ord)
 
 instance (Eq r, Num r, Ord a) => Semigroup (EFMod r a) where
