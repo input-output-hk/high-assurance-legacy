@@ -1,10 +1,9 @@
 module Data.Piecewise.Test where
 
-import Data.Alg
-import Data.Function   (on)
+import Data.Function             (on)
 import Data.Piecewise
-import Data.Pol
 import Test.QuickCheck
+import ToySolver.Data.Polynomial
 
 data TPol r a =
       Iota r
@@ -12,8 +11,8 @@ data TPol r a =
     | Add (TPol r a) (TPol r a)
     | Mul (TPol r a) (TPol r a)
 
-toPol :: Num r => TPol r a -> Pol r a
-toPol (Iota r)  = iota r
+toPol :: (Eq r, Num r, Ord a) => TPol r a -> Polynomial r a
+toPol (Iota r)  = constant r
 toPol (Var a)   = var a
 toPol (Add p q) = toPol p + toPol q
 toPol (Mul p q) = toPol p * toPol q
@@ -60,7 +59,7 @@ instance (Arbitrary a, Arbitrary r, Eq r, Num r) => Arbitrary (TPol r a) where
 data TPiece r = TPiece r r (TPol r ())
     deriving (Show, Eq, Ord)
 
-toPiece :: Num r => TPiece r -> Piece r
+toPiece :: (Eq r, Num r) => TPiece r -> Piece r
 toPiece (TPiece b e p) = Piece b e $ toPol p
 
 instance (Eq r, Num r, Arbitrary r) => Arbitrary (TPiece r) where
@@ -83,22 +82,15 @@ pwValid = go . pieces
 
     pValid (Piece b e p) = b < e && p /= 0
 
-prop_pw_valid :: [TPiece Int] -> Property
+prop_pw_valid :: [TPiece Integer] -> Property
 prop_pw_valid xs = let x = pw $ map toPiece xs
                    in counterexample (show x) $ pwValid x
 
-pieceValue :: (Num r, Ord r) => Piece r -> r -> r
-pieceValue (Piece b e p) r
-    | b == e           = 0
-    | b >  e           = pieceValue (Piece e b $ -p) r
-    | r <= b || r >= e = 0
-    | otherwise        = eval (const r) p
-
-prop_pw_value :: Int -> [TPiece Int] -> Property
+prop_pw_value :: Integer -> [TPiece Integer] -> Property
 prop_pw_value n xs =
     let ys       = map toPiece xs
-        expected = sum [pieceValue y n | y <- ys]
+        expected = sum [evalPiece n y | y <- ys]
         res      = pw ys
-        actual   = sum [pieceValue y n | y <- pieces res]
+        actual   = evalPW n res
     in  all (\p -> n /= pBeg p && n /= pEnd p) ys
         ==> counterexample (show res) $ actual === expected

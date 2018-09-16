@@ -12,3 +12,12 @@ nix:
 extra-deps:
 - Chart-1.9
 - Chart-cairo-1.9
+- data-interval-1.3.0
+- extended-reals-0.2.3.0
+- finite-field-0.9.0
+- multiset-0.3.4
+- OptDir-0.0.3
+- pseudo-boolean-0.1.6.0
+- queue-0.1.2
+- sign-0.4.3
+- ./toysolver

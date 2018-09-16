@@ -1,0 +1,4 @@
+#!/bin/sh
+tempdir=/tmp/toysat_ls-$$-$1
+./toysat_main +RTS -H1G -K1G -RTS --maxsat --search=bcd2 --temp-dir=$tempdir --with-ubcsat=./ubcsat --ls-initial $@
+rm -r $tempdir

@@ -24,18 +24,13 @@ Source-Repository head
 
 Library
 
-    Exposed-Modules:   Data.CMonoid
-                       Data.Free
-                       Data.Alg
-                       Data.Mod
-                       Data.Piecewise
-                       Data.Piecewise.Test
-                       Data.Pol
+    Exposed-Modules: Data.Piecewise
+                     Data.Piecewise.Test
 
     Build-Depends: base                >= 4.10 && < 5,
-                   containers         ^>= 0.5,
+                   prettyclass        ^>= 1.0,
                    QuickCheck,
-                   reflection         ^>= 2.1 
+                   toysolver
     HS-Source-Dirs: src
 
     Default-Language: Haskell2010
