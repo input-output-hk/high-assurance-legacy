@@ -1,9 +1,14 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module Data.Piecewise.Test where
 
 import Data.Function             (on)
 import Data.Piecewise
 import Test.QuickCheck
-import ToySolver.Data.Polynomial
+import ToySolver.Data.Polynomial hiding (div)
+
+--instance Arbitrary Rational where
+
 
 data TPol r a =
       Iota r
@@ -86,7 +91,7 @@ prop_pw_valid :: [TPiece Integer] -> Property
 prop_pw_valid xs = let x = pw $ map toPiece xs
                    in counterexample (show x) $ pwValid x
 
-prop_pw_value :: Integer -> [TPiece Integer] -> Property
+prop_pw_value :: Rational -> [TPiece Rational] -> Property
 prop_pw_value n xs =
     let ys       = map toPiece xs
         expected = sum [evalPiece n y | y <- ys]
@@ -94,3 +99,48 @@ prop_pw_value n xs =
         actual   = evalPW n res
     in  all (\p -> n /= pBeg p && n /= pEnd p) ys
         ==> counterexample (show res) $ actual === expected
+
+prop_pw_integral :: [TPiece Rational] -> Property
+prop_pw_integral xs =
+    let ys       = map toPiece xs
+        expected = sum $ map intPiece ys
+        actual   = intPW $ pw ys
+    in  actual === expected
+
+prop_convolvePW_commutes :: [TPiece Rational] -> [TPiece Rational] -> Property
+prop_convolvePW_commutes xs ys =
+    let x = pw $ map toPiece xs
+        y = pw $ map toPiece ys
+    in  x `convolvePW` y === y `convolvePW` x
+
+prop_convolvePW_integral :: [TPiece Rational] -> [TPiece Rational] -> Property
+prop_convolvePW_integral xs ys =
+    let x  = pw $ map toPiece xs
+        y  = pw $ map toPiece ys
+        ix = intPW x
+        iy = intPW y
+        iz = intPW $ x `convolvePW` y
+    in  counterexample (show (ix, iy)) $ iz === ix * iy
+
+prop_ftf_commutes :: [TPiece Rational] -> [TPiece Rational] -> Property
+prop_ftf_commutes xs ys =
+    let x = pw $ map toPiece xs
+        y = pw $ map toPiece ys
+    in  x `ftf` y === y `ftf` x
+
+prop_ftf_integral :: [TPiece Rational] -> [TPiece Rational] -> Property
+prop_ftf_integral xs ys =
+    let x  = pw $ map toPiece xs
+        y  = pw $ map toPiece ys
+        z  = x `ftf` y
+        ix = intPW x
+        iy = intPW y
+        iz = intPW z
+    in  counterexample (show (x, ix, y, iy, z)) $ iz === ix * iy
+
+return []
+runTests :: IO Bool
+runTests = $quickCheckAll
+
+runVerboseTests :: IO Bool
+runVerboseTests = $verboseCheckAll
