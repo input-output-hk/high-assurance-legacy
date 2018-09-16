@@ -15,6 +15,7 @@ module Data.Piecewise
     , convolvePW
     , ftf
     , ltf
+    , cdfPW
     , uniform
     ) where
 
@@ -69,7 +70,13 @@ newtype Piecewise r = PW {pieces :: [Piece r]}
     deriving (Show, Eq, Ord)
 
 evalPW :: (Ord r, Num r) => r -> Piecewise r -> r
-evalPW r ps = sum $ map (evalPiece r) $ pieces ps
+evalPW r = go . pieces
+  where
+    go [] = 0
+    go (p@(Piece a b _) : xs)
+        | r < a  = 0
+        | r <= b = evalPiece r p
+        | otherwise = go xs
 
 noPiece :: Piecewise r
 noPiece = PW []

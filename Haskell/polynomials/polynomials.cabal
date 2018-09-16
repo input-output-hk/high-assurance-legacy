@@ -25,9 +25,14 @@ Source-Repository head
 Library
 
     Exposed-Modules: Data.Piecewise
+                     Data.Piecewise.Charts
                      Data.Piecewise.Test
 
     Build-Depends: base                >= 4.10 && < 5,
+                   Chart              ^>= 1.9,
+                   Chart-cairo        ^>= 1.9,
+                   data-default-class ^>= 0.1,
+                   lens               ^>= 4.16,
                    prettyclass        ^>= 1.0,
                    QuickCheck,
                    toysolver

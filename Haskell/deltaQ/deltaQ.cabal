@@ -37,7 +37,6 @@ Library
     Build-Depends: base                >= 4.10 && < 5,
                    Chart              ^>= 1.9,
                    Chart-cairo        ^>= 1.9,
-                   colour             ^>= 2.3,
                    containers         ^>= 0.5,
                    data-default-class ^>= 0.1,
                    lens               ^>= 4.16,
