@@ -122,6 +122,17 @@ prop_convolvePW_integral xs ys =
         iz = intPW $ x `convolvePW` y
     in  counterexample (show (ix, iy)) $ iz === ix * iy
 
+prop_before_integral :: [TPiece Rational] -> [TPiece Rational] -> Property
+prop_before_integral xs ys =
+    let x  = pw $ map toPiece xs
+        y  = pw $ map toPiece ys
+        xy = before x y
+        yx = before y x
+        ix = intPW x
+        iy = intPW y
+        iz = intPW xy + intPW yx
+    in  counterexample (show (x, ix, y, iy, xy, yx)) $ iz === ix * iy
+
 prop_ftf_commutes :: [TPiece Rational] -> [TPiece Rational] -> Property
 prop_ftf_commutes xs ys =
     let x = pw $ map toPiece xs

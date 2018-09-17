@@ -5,6 +5,7 @@ module Data.Piecewise
     , Polynomial
     , constant
     , var
+    , free
     , defint'
     , defint
     , Piece (..)
@@ -17,15 +18,20 @@ module Data.Piecewise
     , intPW
     , meanPW
     , convolvePW
+    , cdfPW
+    , before
+    , after
     , ftf
     , ltf
-    , cdfPW
     , uniform
     ) where
 
 import Data.Foldable                  (foldl')
 import Text.PrettyPrint.HughesPJClass hiding ((<>))
 import ToySolver.Data.Polynomial
+
+free :: (Eq s, Num s) => (r -> s) -> (v -> s) -> Polynomial r v -> s
+free f g p = eval g $ mapCoeff f p
 
 defint' :: (Eq r, QAlg r, Ord v)
         => Polynomial r v
@@ -174,79 +180,6 @@ intPW = sum . map intPiece . pieces
 meanPW :: (Eq r, QAlg r, Fractional r) => Piecewise r -> r
 meanPW ps = sum [meanPiece p | p <- pieces ps] / intPW ps
 
-ftfPiece :: forall r. (Eq r, QAlg r)
-         => r
-         -> r
-         -> Polynomial r ()
-         -> Polynomial r ()
-         -> Piece r
-ftfPiece a b p q = Piece a b h
-  where
-    x, y   :: Bool
-    x = False
-    y = True
-
-    x', y', p', q',pq :: Polynomial r Bool
-    x' = var x
-    y' = var y
-    p' = subst p $ const x'
-    q' = subst q $ const y'
-    pq = p' * q'
-
-    t, u :: Bool
-    t = False
-    u = True
-
-    t', u', f1, f2, f, g :: Polynomial r Bool
-    t' = var t
-    u' = var u
-    f1 = subst pq $ \c -> if c == x then t' else u'
-    f2 = subst pq $ \c -> if c == y then t' else u'
-    f  = f1 + f2
-    g  = defint' t' (constant b) f u
-
-    h :: Polynomial r ()
-    h = subst g $ const $ var ()
-
-ftf :: forall r. (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
-ftf x y = pw $ go (pieces x) (pieces y) (intPW x) (intPW y)
-  where
-    go :: [Piece r] -> [Piece r] -> r -> r -> [Piece r]
-    go [] _ _ _ = []
-    go _ [] _ _ = []
-    go xs@(p@(Piece xa xb xp) : xs') ys@(q@(Piece ya yb yp) : ys') px py
-        | xb <= ya  =
-            let p' = Piece xa xb $ xp * constant py
-            in  p' : go xs' ys (px - intPiece p) py
-        | yb <= xa  = go ys xs py px
-        | xa < ya   =
-            let p1 = Piece xa ya xp
-                p2 = Piece ya xb xp
-            in  go (p1 : p2 : xs') ys px py
-        | ya < xa   = go ys xs py px
-        | xb < yb   =
-            let q1 = Piece ya xb yp
-                q2 = Piece xb yb yp
-            in go xs (q1 : q2 : ys') px py
-        | yb < xb   = go ys xs py px
-        | otherwise =
-            let Piece _ _ r = ftfPiece xa xb xp yp
-                px'         = px - intPiece p
-                py'         = py - intPiece q
-                xp'         = xp * constant py'
-                yp'         = yp * constant px'
-                s           = Piece xa xb $ r + xp' + yp'
-            in  s : go xs' ys' px' py'
-
-ltf :: forall r. (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
-ltf x y = revPW $ revPW x `ftf` revPW y
-  where
-    revPiece :: Piece r -> Piece r
-    revPiece (Piece a b p) = Piece (-b) (-a) $ subst p $ const $ - var ()
-
-    revPW :: Piecewise r -> Piecewise r
-    revPW = PW . reverse . map revPiece . pieces
-
 cdfPiece :: (Eq r, QAlg r) => Piece r -> Piece r
 cdfPiece (Piece a b p) = Piece a b $ defint' (constant a) (var ()) p ()
 
@@ -259,6 +192,90 @@ cdfPW = pw . go 0 . pieces
             y           = Piece a b $ p + constant c
             c'          = evalPiece b y
         in  y : go c' xs
+
+beforePiece :: forall r. (Eq r, QAlg r)
+            => r
+            -> r
+            -> Polynomial r ()
+            -> Polynomial r ()
+            -> Piece r
+beforePiece a b p q = Piece a b p'
+  where
+    x, y :: Bool
+    x = True
+    y = False
+
+    x', y', pq :: Polynomial r Bool
+    x' = var x
+    y' = var y
+    pq = subst p (const x') * subst q (const y')
+
+    u :: ()
+    u = ()
+
+    t :: Polynomial r ()
+    t = var ()
+
+    t', u', pq1 :: Polynomial (Polynomial r ()) ()
+    t'  = constant t
+    u'  = var u
+    pq1 = free (constant . constant) (\c -> if c == x then t' else u') pq
+
+    p' :: Polynomial r ()
+    p' = defint t (constant b) pq1
+
+before :: forall r. (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
+before x y = pw $ go (pieces x) (pieces y) (intPW x) (intPW y)
+  where
+    go :: [Piece r] -> [Piece r] -> r -> r -> [Piece r]
+    go [] _ _ _ = []
+    go _ [] _ _ = []
+    go xs@(p@(Piece xa xb xp) : xs') ys@(q@(Piece ya yb yp) : ys') px py
+        | xb <= ya  =
+            let p' = Piece xa xb $ xp * constant py
+            in  p' : go xs' ys (px - intPiece p) py
+        | yb <= xa  = go xs ys' px (py - intPiece q)
+        | xa < ya   =
+            let p1 = Piece xa ya xp
+                p2 = Piece ya xb xp
+            in  go (p1 : p2 : xs') ys px py
+        | ya < xa   =
+            let q1 = Piece ya xa yp
+                q2 = Piece xa yb yp
+            in  go xs (q1 : q2 : ys') px py
+        | xb < yb   =
+            let q1 = Piece ya xb yp
+                q2 = Piece xb yb yp
+            in  go xs (q1 : q2 : ys') px py
+        | yb < xb   =
+            let p1 = Piece xa yb xp
+                p2 = Piece yb xb xp
+            in  go (p1 : p2 : xs') ys px py
+        | otherwise =
+            let Piece _ _ r = beforePiece xa xb xp yp
+                px'         = px - intPiece p
+                py'         = py - intPiece q
+                xp'         = xp * constant py'
+                s           = Piece xa xb $ r + xp'
+            in  s : go xs' ys' px' py'
+
+after, ftf, ltf :: (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
+after = revTime before
+ftf x y = before x y <> before y x
+ltf x y = after x y <> after y x
+
+revTime :: forall r. (Ord r, QAlg r)
+        => (Piecewise r -> Piecewise r -> Piecewise r)
+        -> Piecewise r
+        -> Piecewise r
+        -> Piecewise r
+revTime op x y = revPW $ revPW x `op` revPW y
+  where
+    revPiece :: Piece r -> Piece r
+    revPiece (Piece a b p) = Piece (-b) (-a) $ subst p $ const $ - var ()
+
+    revPW :: Piecewise r -> Piecewise r
+    revPW = PW . reverse . map revPiece . pieces
 
 uniform :: (Ord r, Fractional r) => r -> r -> Piecewise r
 uniform a b = pw [Piece a b $ constant (1 / (b - a))]
