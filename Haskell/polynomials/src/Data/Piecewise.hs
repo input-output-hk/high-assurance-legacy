@@ -1,7 +1,11 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Data.Piecewise
-    ( defint'
+    ( QAlg (..)
+    , Polynomial
+    , constant
+    , var
+    , defint'
     , defint
     , Piece (..)
     , evalPiece
@@ -23,7 +27,7 @@ import Data.Foldable                  (foldl')
 import Text.PrettyPrint.HughesPJClass hiding ((<>))
 import ToySolver.Data.Polynomial
 
-defint' :: (Eq r, Fractional r, Ord v)
+defint' :: (Eq r, QAlg r, Ord v)
         => Polynomial r v
         -> Polynomial r v
         -> Polynomial r v
@@ -34,7 +38,7 @@ defint' a b f v = s b - s a
     g = integral f v
     s c = subst g $ \w -> if w == v then c else var w
 
-defint :: (Eq r, Fractional r) => r -> r -> Polynomial r () -> r
+defint :: (Eq r, QAlg r) => r -> r -> Polynomial r () -> r
 defint a b f = eval (const 0) $ defint' (constant a) (constant b) f ()
 
 data Piece r = Piece { pBeg :: r
@@ -54,10 +58,10 @@ instance (Ord r, Num r, PrettyCoeff r) => Pretty (Piece r) where
 instance (Ord r, Num r, PrettyCoeff r) => Show (Piece r) where
     show = prettyShow
 
-intPiece :: (Eq r, Fractional r) => Piece r -> r
+intPiece :: (Eq r, QAlg r) => Piece r -> r
 intPiece p = defint (pBeg p) (pEnd p) (pPol p)
 
-meanPiece :: (Eq r, Fractional r) => Piece r -> r
+meanPiece :: (Eq r, QAlg r) => Piece r -> r
 meanPiece (Piece a b p) = intPiece $ Piece a b $ p * var ()
 
 evalPiece :: (Ord r, Num r) => r -> Piece r -> r
@@ -107,13 +111,13 @@ addPiece piece ps = PW $ clean $ go piece $ pieces ps
 pw :: (Foldable f, Ord r, Num r) => f (Piece r) -> Piecewise r
 pw = foldl' (flip addPiece) noPiece
 
-instance (Ord r, Fractional r) => Semigroup (Piecewise r) where
+instance (Ord r, QAlg r) => Semigroup (Piecewise r) where
     x <> y = foldl' (flip addPiece) x $ pieces y
 
-instance (Ord r, Fractional r) => Monoid (Piecewise r) where
+instance (Ord r, QAlg r) => Monoid (Piecewise r) where
     mempty = noPiece
 
-convolvePiece :: forall r. (Ord r, Fractional r) => Piece r -> Piece r -> Piecewise r
+convolvePiece :: forall r. (Ord r, QAlg r) => Piece r -> Piece r -> Piecewise r
 convolvePiece p@(Piece xa xb xp) q@(Piece ya yb yp)
     | xa + yb > xb + ya = convolvePiece q p
     | otherwise         = pw [ Piece (xa + ya) (xa + yb) p1
@@ -161,16 +165,16 @@ convolvePiece p@(Piece xa xb xp) q@(Piece ya yb yp)
 -- xa + yb .. xb + ya : t - yb | t - ya
 -- xb + ya .. xb + yb : t - yb | xb
 
-convolvePW :: (Ord r, Fractional r) => Piecewise r -> Piecewise r -> Piecewise r
+convolvePW :: (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
 convolvePW x y = mconcat [convolvePiece p q | p <- pieces x, q <- pieces y]
 
-intPW :: (Eq r, Fractional r) => Piecewise r -> r
+intPW :: (Eq r, QAlg r) => Piecewise r -> r
 intPW = sum . map intPiece . pieces
 
-meanPW :: (Eq r, Fractional r) => Piecewise r -> r
+meanPW :: (Eq r, QAlg r, Fractional r) => Piecewise r -> r
 meanPW ps = sum [meanPiece p | p <- pieces ps] / intPW ps
 
-ftfPiece :: forall r. (Eq r, Fractional r)
+ftfPiece :: forall r. (Eq r, QAlg r)
          => r
          -> r
          -> Polynomial r ()
@@ -204,7 +208,7 @@ ftfPiece a b p q = Piece a b h
     h :: Polynomial r ()
     h = subst g $ const $ var ()
 
-ftf :: forall r. (Ord r, Fractional r) => Piecewise r -> Piecewise r -> Piecewise r
+ftf :: forall r. (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
 ftf x y = pw $ go (pieces x) (pieces y) (intPW x) (intPW y)
   where
     go :: [Piece r] -> [Piece r] -> r -> r -> [Piece r]
@@ -234,7 +238,7 @@ ftf x y = pw $ go (pieces x) (pieces y) (intPW x) (intPW y)
                 s           = Piece xa xb $ r + xp' + yp'
             in  s : go xs' ys' px' py'
 
-ltf :: forall r. (Ord r, Fractional r) => Piecewise r -> Piecewise r -> Piecewise r
+ltf :: forall r. (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
 ltf x y = revPW $ revPW x `ftf` revPW y
   where
     revPiece :: Piece r -> Piece r
@@ -243,10 +247,10 @@ ltf x y = revPW $ revPW x `ftf` revPW y
     revPW :: Piecewise r -> Piecewise r
     revPW = PW . reverse . map revPiece . pieces
 
-cdfPiece :: (Eq r, Fractional r) => Piece r -> Piece r
+cdfPiece :: (Eq r, QAlg r) => Piece r -> Piece r
 cdfPiece (Piece a b p) = Piece a b $ defint' (constant a) (var ()) p ()
 
-cdfPW :: (Ord r, Fractional r) => Piecewise r -> Piecewise r
+cdfPW :: (Ord r, QAlg r) => Piecewise r -> Piecewise r
 cdfPW = pw . go 0 . pieces
   where
     go _ []       = []

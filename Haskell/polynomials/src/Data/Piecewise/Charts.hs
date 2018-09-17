@@ -20,7 +20,7 @@ import Text.Printf                            (printf)
 toDouble :: Real r => r -> Double
 toDouble = fromRational . toRational
 
-lines :: forall r. (Ord r, Real r, Fractional r)
+lines :: forall r. (Ord r, Real r, QAlg r)
       => Int
       -> Piecewise r
       -> PlotLines Double Double
@@ -35,13 +35,13 @@ lines n x = plot_lines_values .~ [[getPoint t | t <- times]]
 
     times :: [r]
     times =
-        let delta = (tmax - tmin) / fromIntegral n
+        let delta = (tmax - tmin) * fromQ (recip $ fromIntegral n)
         in  [tmin + delta * fromIntegral i | i <- [0 .. n]]
 
     getPoint :: r -> (Double, Double)
     getPoint t = (toDouble t, toDouble $ evalPW t x)
 
-mean :: (Real r, Fractional r) => Piecewise r -> Plot Double Double
+mean :: (Real r, QAlg r, Fractional r) => Piecewise r -> Plot Double Double
 mean dq = case pieces dq of
     [] -> toPlot $ PlotHidden [] []
     _  ->
@@ -49,7 +49,10 @@ mean dq = case pieces dq of
             s = printf "mean %6.4f" m
         in  vlinePlot s def m
 
-layoutCdf :: (Ord r, Real r, Fractional r) => Int -> Piecewise r -> Layout Double Double
+layoutCdf :: (Ord r, Real r, QAlg r, Fractional r)
+          => Int
+          -> Piecewise r
+          -> Layout Double Double
 layoutCdf n dq = layout_title .~ "ΔQ (cdf)"
                $ layout_plots .~ [ toPlot $ lines n $ cdfPW dq
                                  , mass
@@ -65,20 +68,23 @@ layoutCdf n dq = layout_title .~ "ΔQ (cdf)"
         let s = printf "mass %6.4f" m
         in  hlinePlot s def m
 
-layoutPdf :: (Ord r, Real r, Fractional r) => Int -> Piecewise r -> Layout Double Double
+layoutPdf :: (Ord r, Real r, QAlg r, Fractional r)
+          => Int
+          -> Piecewise r
+          -> Layout Double Double
 layoutPdf n dq = layout_title .~ "ΔQ (pdf)"
                $ layout_plots .~ [ toPlot $ lines n dq
                                  , mean dq
                                  ]
                $ def
 
-layoutPW :: (Ord r, Real r, Fractional r)
+layoutPW :: (Ord r, Real r, QAlg r, Fractional r)
          => Int
          -> Piecewise r
          -> Grid (Renderable (LayoutPick Double Double Double))
 layoutPW n dq = layoutToGrid (layoutCdf n dq) ./. layoutToGrid (layoutPdf n dq)
 
-toFilePW :: (Ord r, Real r, Fractional r) => FilePath -> Piecewise r -> IO ()
+toFilePW :: (Ord r, Real r, QAlg r, Fractional r) => FilePath -> Piecewise r -> IO ()
 toFilePW fp = void
             . renderableToFile def fp
             . fillBackground def

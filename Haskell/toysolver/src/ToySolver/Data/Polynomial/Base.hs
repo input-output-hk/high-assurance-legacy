@@ -1,11 +1,19 @@
-{-# LANGUAGE ScopedTypeVariables, FlexibleInstances, MultiParamTypeClasses, FunctionalDependencies, TypeFamilies, BangPatterns, DeriveDataTypeable, CPP #-}
+{-# LANGUAGE BangPatterns           #-}
+{-# LANGUAGE CPP                    #-}
+{-# LANGUAGE DeriveDataTypeable     #-}
+{-# LANGUAGE FlexibleInstances      #-}
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE MultiParamTypeClasses  #-}
+{-# LANGUAGE ScopedTypeVariables    #-}
+{-# LANGUAGE TypeFamilies           #-}
+{-# LANGUAGE UndecidableInstances   #-}
 {-# OPTIONS_GHC -Wall #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  ToySolver.Data.Polynomial.Base
 -- Copyright   :  (c) Masahiro Sakai 2012-2013
 -- License     :  BSD-style
--- 
+--
 -- Maintainer  :  masahiro.sakai@gmail.com
 -- Stability   :  provisional
 -- Portability :  non-portable (ScopedTypeVariables, FlexibleInstances, MultiParamTypeClasses, FunctionalDependencies, TypeFamilies, BangPatterns, DeriveDataTypeable, CPP)
@@ -19,12 +27,13 @@
 -- * Polynomial class for Ruby <http://www.math.kobe-u.ac.jp/~kodama/tips-RubyPoly.html>
 --
 -- * constructive-algebra package <http://hackage.haskell.org/package/constructive-algebra>
--- 
+--
 -----------------------------------------------------------------------------
 module ToySolver.Data.Polynomial.Base
   (
   -- * Polynomial type
     Polynomial
+  , QAlg (..)
 
   -- * Conversion
   , Var (..)
@@ -121,30 +130,32 @@ module ToySolver.Data.Polynomial.Base
   , PrettyVar (..)
   ) where
 
-import Prelude hiding (lex, div, mod, divMod, gcd, lcm)
+import           Control.DeepSeq
+import           Control.Exception              (assert)
+import           Control.Monad
+import           Data.Data
+import           Data.Default.Class
+import qualified Data.FiniteField               as FF
+import           Data.Function
+import           Data.Hashable
+import           Data.IntMap.Strict             (IntMap)
+import qualified Data.IntMap.Strict             as IntMap
+import           Data.List
+import           Data.Map.Strict                (Map)
+import qualified Data.Map.Strict                as Map
+import           Data.Monoid
+import           Data.Numbers.Primes            (primeFactors)
+import           Data.Ratio
+import           Data.Set                       (Set)
+import qualified Data.Set                       as Set
+import           Data.String                    (IsString (..))
+import           Data.VectorSpace
+import           Prelude                        hiding (div, divMod, gcd, lcm,
+                                                 lex, mod)
 import qualified Prelude
-import Control.DeepSeq
-import Control.Exception (assert)
-import Control.Monad
-import Data.Default.Class
-import Data.Data
-import qualified Data.FiniteField as FF
-import Data.Function
-import Data.Hashable
-import Data.List
-import Data.Monoid
-import Data.Numbers.Primes (primeFactors)
-import Data.Ratio
-import Data.String (IsString (..))
-import Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
-import Data.Set (Set)
-import qualified Data.Set as Set
-import Data.IntMap.Strict (IntMap)
-import qualified Data.IntMap.Strict as IntMap
-import Data.VectorSpace
+import           Text.PrettyPrint.HughesPJClass (Doc, Pretty (..), PrettyLevel,
+                                                 prettyParen)
 import qualified Text.PrettyPrint.HughesPJClass as PP
-import Text.PrettyPrint.HughesPJClass (Doc, PrettyLevel, Pretty (..), prettyParen)
 
 infixl 7  `div`, `mod`
 
@@ -161,6 +172,18 @@ class Ord v => Vars a v | a -> v where
 -- | total degree of a given polynomial
 class Degree t where
   deg :: t -> Integer
+
+class Num a => QAlg a where
+    fromQ :: Rational -> a
+
+instance  QAlg Rational where
+    fromQ = id
+
+instance  QAlg Double where
+    fromQ = fromRational
+
+instance  (Eq r, QAlg r, Ord v) => QAlg (Polynomial r v) where
+    fromQ = constant . fromQ
 
 {--------------------------------------------------------------------
   Polynomial type
@@ -217,9 +240,9 @@ normalize (Polynomial m) = Polynomial (Map.filter (0/=) m)
 asConstant :: Num k => Polynomial k v -> Maybe k
 asConstant p =
   case terms p of
-    [] -> Just 0
+    []                                   -> Just 0
     [(c,xs)] | Map.null (mindicesMap xs) -> Just c
-    _ -> Nothing
+    _                                    -> Nothing
 
 scale :: (Eq k, Num k) => k -> Polynomial k v -> Polynomial k v
 scale 0 _ = zero
@@ -267,7 +290,7 @@ fromCoeffMap m = normalize $ Polynomial m
 
 -- | construct a polynomial from a singlet term
 fromTerm :: (Eq k, Num k) => Term k v -> Polynomial k v
-fromTerm (0,_) = zero
+fromTerm (0,_)  = zero
 fromTerm (c,xs) = Polynomial $ Map.singleton xs c
 
 -- | list of terms
@@ -312,7 +335,7 @@ ppI p = mapCoeff f p
 class ContPP k where
   type PPCoeff k
 
-  -- | Content of a polynomial  
+  -- | Content of a polynomial
   cont :: (Ord v) => Polynomial k v -> k
   -- constructive-algebra-0.3.0 では cont 0 は error になる
 
@@ -333,7 +356,7 @@ instance Integral r => ContPP (Ratio r) where
   cont p = foldl1' Prelude.gcd ns % foldl' Prelude.lcm 1 ds
     where
       ns = [abs (numerator c) | (c,_) <- terms p]
-      ds = [denominator c     | (c,_) <- terms p]  
+      ds = [denominator c     | (c,_) <- terms p]
 
   pp p = mapCoeff (numerator . (/ c)) p
     where
@@ -348,7 +371,7 @@ deriv :: (Eq k, Num k, Ord v) => Polynomial k v -> v -> Polynomial k v
 deriv p x = sumV [fromTerm (tderiv m x) | m <- terms p]
 
 -- | Formal integral of polynomials
-integral :: (Eq k, Fractional k, Ord v) => Polynomial k v -> v -> Polynomial k v
+integral :: (Eq k, QAlg k, Ord v) => Polynomial k v -> v -> Polynomial k v
 integral p x = sumV [fromTerm (tintegral m x) | m <- terms p]
 
 -- | Evaluation
@@ -569,7 +592,7 @@ instance PrettyCoeff Integer where
 instance (PrettyCoeff a, Integral a) => PrettyCoeff (Ratio a) where
   pPrintCoeff lv p r
     | denominator r == 1 = pPrintCoeff lv p (numerator r)
-    | otherwise = 
+    | otherwise =
         prettyParen (p > ratPrec) $
           pPrintCoeff lv (ratPrec+1) (numerator r) <>
           PP.char '/' <>
@@ -653,8 +676,8 @@ gcd f1 f2 = gcd f2 (f1 `mod` f2)
 
 -- | LCM of univariate polynomials
 lcm :: (Eq k, Fractional k) => UPolynomial k -> UPolynomial k -> UPolynomial k
-lcm _ 0 = 0
-lcm 0 _ = 0
+lcm _ 0   = 0
+lcm 0 _   = 0
 lcm f1 f2 = toMonic nat $ (f1 `mod` (gcd f1 f2)) * f2
 
 -- | Extended GCD algorithm
@@ -758,10 +781,10 @@ tderiv (c,xs) x =
   case mderiv xs x of
     (s,ys) -> (c * fromIntegral s, ys)
 
-tintegral :: (Fractional k, Ord v) => Term k v -> v -> Term k v
+tintegral :: (QAlg k, Ord v) => Term k v -> v -> Term k v
 tintegral (c,xs) x =
   case mintegral xs x of
-    (s,ys) -> (c * fromRational s, ys)
+    (s,ys) -> (c * fromQ s, ys)
 
 {--------------------------------------------------------------------
   Monic Monomial
@@ -881,7 +904,7 @@ lex = go `on` mindices
         EQ -> compare n1 n2 `mappend` go xs1 xs2
 
 -- | Reverse lexicographic order.
--- 
+--
 -- Note that revlex is /NOT/ a monomial order.
 revlex :: Ord v => Monomial v -> Monomial v -> Ordering
 revlex = go `on` (Map.toDescList . mindicesMap)
