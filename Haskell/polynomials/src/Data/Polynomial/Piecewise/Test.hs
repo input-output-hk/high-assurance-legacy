@@ -153,7 +153,7 @@ prop_beforePW_deltaPW xs ys =
     let x  = pw $ map toPiece xs
         y  = pw $ map toPiece ys
         i  = intPW $ beforePW x y
-        j  = intPW $ deltaPW x y
+        j  = intPW $ residualPW x y
     in  i === j
 
 return []

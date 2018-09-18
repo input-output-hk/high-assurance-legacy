@@ -24,7 +24,7 @@ module Data.Polynomial.Piecewise
     , afterPW
     , ftfPW
     , ltfPW
-    , deltaPW
+    , residualPW
     , uniformPW
     , scalePiece
     , shiftPiece
@@ -254,13 +254,13 @@ revTime op x y = revPW $ revPW x `op` revPW y
     revPW :: Piecewise r -> Piecewise r
     revPW = PW . reverse . map revPiece . pieces
 
-deltaPiece :: forall r. (Ord r, QAlg r)
+residualPiece :: forall r. (Ord r, QAlg r)
            => r
            -> r
            -> Polynomial r ()
            -> Polynomial r ()
            -> Piece r
-deltaPiece a b p q = Piece
+residualPiece a b p q = Piece
     0
     (b - a)
     (defint (constant a)
@@ -271,11 +271,11 @@ deltaPiece a b p q = Piece
     p' = mapCoeff constant p
     q' = free (constant . constant) (const $ var () + constant (var ())) q
 
-deltaPiece' :: forall r. (Ord r, QAlg r)
+residualPiece' :: forall r. (Ord r, QAlg r)
             => Piece r
             -> Piece r
             -> Piecewise r
-deltaPiece' (Piece a b p) (Piece c d q)
+residualPiece' (Piece a b p) (Piece c d q)
     | c - a <= d - b = pw [ Piece (c - b) (c - a) $ f (c' - x) b'
                           , Piece (c - a) (d - b) $ f a' b'
                           , Piece (d - b) (d - a) $ f a' (d' - x)
@@ -299,14 +299,14 @@ deltaPiece' (Piece a b p) (Piece c d q)
     f :: Polynomial r () -> Polynomial r () -> Polynomial r ()
     f l u = defint l u (p' * q')
 
-deltaPW :: forall r. (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
-deltaPW x y = go (pieces x) (pieces y)
+residualPW :: forall r. (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
+residualPW x y = go (pieces x) (pieces y)
   where
     go :: [Piece r] -> [Piece r] -> Piecewise r
     go [] _ = noPiece
     go _ [] = noPiece
     go xs@(p@(Piece xa xb xp) : xs') ys@(Piece ya yb yp : ys')
-        | xb <= ya  = foldMap (deltaPiece' p) ys <> go xs' ys
+        | xb <= ya  = foldMap (residualPiece' p) ys <> go xs' ys
         | yb <= xa  = go xs ys'
         | xa < ya   =
             let p1 = Piece xa ya xp
@@ -325,7 +325,7 @@ deltaPW x y = go (pieces x) (pieces y)
                 p2 = Piece yb xb xp
             in  go (p1 : p2 : xs') ys
         | otherwise =
-            let r = pw [deltaPiece xa xb xp yp]
+            let r = pw [residualPiece xa xb xp yp]
             in  r <> go xs ys'
 
 scalePiece :: (Eq r, Num r) => r -> Piece r -> Piece r
