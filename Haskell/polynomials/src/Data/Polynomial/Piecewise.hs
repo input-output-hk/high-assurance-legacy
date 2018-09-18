@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Data.Piecewise
+module Data.Polynomial.Piecewise
     ( QAlg (..)
     , Polynomial
     , constant
@@ -13,17 +13,21 @@ module Data.Piecewise
     , intPiece
     , Piecewise
     , pieces
+    , noPiece
     , pw
     , evalPW
     , intPW
     , meanPW
     , convolvePW
     , cdfPW
-    , before
-    , after
-    , ftf
-    , ltf
-    , uniform
+    , beforePW
+    , afterPW
+    , ftfPW
+    , ltfPW
+    , deltaPW
+    , uniformPW
+    , scalePiece
+    , shiftPiece
     ) where
 
 import Data.Foldable                  (foldl')
@@ -193,39 +197,12 @@ cdfPW = pw . go 0 . pieces
             c'          = evalPiece b y
         in  y : go c' xs
 
-beforePiece :: forall r. (Eq r, QAlg r)
-            => r
-            -> r
-            -> Polynomial r ()
-            -> Polynomial r ()
-            -> Piece r
-beforePiece a b p q = Piece a b p'
-  where
-    x, y :: Bool
-    x = True
-    y = False
+beforePiece :: (Eq r, QAlg r) => r -> r -> Polynomial r () -> Polynomial r () -> Piece r
+beforePiece a b p q =
+    Piece a b $ p * defint (var ()) (constant b) (mapCoeff constant q)
 
-    x', y', pq :: Polynomial r Bool
-    x' = var x
-    y' = var y
-    pq = subst p (const x') * subst q (const y')
-
-    u :: ()
-    u = ()
-
-    t :: Polynomial r ()
-    t = var ()
-
-    t', u', pq1 :: Polynomial (Polynomial r ()) ()
-    t'  = constant t
-    u'  = var u
-    pq1 = free (constant . constant) (\c -> if c == x then t' else u') pq
-
-    p' :: Polynomial r ()
-    p' = defint t (constant b) pq1
-
-before :: forall r. (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
-before x y = pw $ go (pieces x) (pieces y) (intPW x) (intPW y)
+beforePW :: forall r. (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
+beforePW x y = pw $ go (pieces x) (pieces y) (intPW x) (intPW y)
   where
     go :: [Piece r] -> [Piece r] -> r -> r -> [Piece r]
     go [] _ _ _ = []
@@ -259,10 +236,10 @@ before x y = pw $ go (pieces x) (pieces y) (intPW x) (intPW y)
                 s           = Piece xa xb $ r + xp'
             in  s : go xs' ys' px' py'
 
-after, ftf, ltf :: (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
-after = revTime before
-ftf x y = before x y <> before y x
-ltf x y = after x y <> after y x
+afterPW, ftfPW, ltfPW :: (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
+afterPW = revTime beforePW
+ftfPW x y = beforePW x y <> beforePW y x
+ltfPW x y = afterPW x y <> afterPW y x
 
 revTime :: forall r. (Ord r, QAlg r)
         => (Piecewise r -> Piecewise r -> Piecewise r)
@@ -277,14 +254,85 @@ revTime op x y = revPW $ revPW x `op` revPW y
     revPW :: Piecewise r -> Piecewise r
     revPW = PW . reverse . map revPiece . pieces
 
-uniform :: (Ord r, Fractional r) => r -> r -> Piecewise r
-uniform a b = pw [Piece a b $ constant (1 / (b - a))]
+deltaPiece :: forall r. (Ord r, QAlg r)
+           => r
+           -> r
+           -> Polynomial r ()
+           -> Polynomial r ()
+           -> Piece r
+deltaPiece a b p q = Piece
+    0
+    (b - a)
+    (defint (constant a)
+            (constant b - var ())
+            (p' * q'))
+  where
+    p', q' :: Polynomial (Polynomial r ()) ()
+    p' = mapCoeff constant p
+    q' = free (constant . constant) (const $ var () + constant (var ())) q
 
-test :: Piecewise Rational
-test =
-    let u1  = uniform 1 3
-        u2  = convolvePW u1 u1
-        u4  = convolvePW u2 u2
-        u8  = convolvePW u4 u4
-        u16 = convolvePW u8 u8
-    in  u16
+deltaPiece' :: forall r. (Ord r, QAlg r)
+            => Piece r
+            -> Piece r
+            -> Piecewise r
+deltaPiece' (Piece a b p) (Piece c d q)
+    | c - a <= d - b = pw [ Piece (c - b) (c - a) $ f (c' - x) b'
+                          , Piece (c - a) (d - b) $ f a' b'
+                          , Piece (d - b) (d - a) $ f a' (d' - x)
+                          ]
+    | otherwise      = pw [ Piece (c - b) (d - b) $ f (c' - x) b'
+                          , Piece (d - b) (c - a) $ f (c' - x) (d' - x)
+                          , Piece (c - a) (d - a) $ f a' (d' - x)
+                          ]
+  where
+    p', q' :: Polynomial (Polynomial r ()) ()
+    p' = mapCoeff constant p
+    q' = free (constant . constant) (const $ var () + constant (var ())) q
+
+    a', b', c', d', x :: Polynomial r ()
+    a' = constant a
+    b' = constant b
+    c' = constant c
+    d' = constant d
+    x  = var ()
+
+    f :: Polynomial r () -> Polynomial r () -> Polynomial r ()
+    f l u = defint l u (p' * q')
+
+deltaPW :: forall r. (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
+deltaPW x y = go (pieces x) (pieces y)
+  where
+    go :: [Piece r] -> [Piece r] -> Piecewise r
+    go [] _ = noPiece
+    go _ [] = noPiece
+    go xs@(p@(Piece xa xb xp) : xs') ys@(Piece ya yb yp : ys')
+        | xb <= ya  = foldMap (deltaPiece' p) ys <> go xs' ys
+        | yb <= xa  = go xs ys'
+        | xa < ya   =
+            let p1 = Piece xa ya xp
+                p2 = Piece ya xb xp
+            in  go (p1 : p2 : xs') ys
+        | ya < xa   =
+            let q1 = Piece ya xa yp
+                q2 = Piece xa yb yp
+            in  go xs (q1 : q2 : ys')
+        | xb < yb   =
+            let q1 = Piece ya xb yp
+                q2 = Piece xb yb yp
+            in  go xs (q1 : q2 : ys')
+        | yb < xb   =
+            let p1 = Piece xa yb xp
+                p2 = Piece yb xb xp
+            in  go (p1 : p2 : xs') ys
+        | otherwise =
+            let r = pw [deltaPiece xa xb xp yp]
+            in  r <> go xs ys'
+
+scalePiece :: (Eq r, Num r) => r -> Piece r -> Piece r
+scalePiece r (Piece a b p) = Piece a b $ constant r * p
+
+shiftPiece :: (Eq r, Num r) => r -> Piece r -> Piece r
+shiftPiece r (Piece a b p) = Piece (a + r) (b + r) $ subst p $ const $ var () - constant r
+
+uniformPW :: (Ord r, Fractional r) => r -> r -> Piecewise r
+uniformPW a b = pw [Piece a b $ constant (1 / (b - a))]

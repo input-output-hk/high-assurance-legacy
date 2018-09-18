@@ -1,11 +1,10 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Data.Piecewise.Test where
+module Data.Polynomial.Piecewise.Test where
 
 import Data.Function             (on)
-import Data.Piecewise
+import Data.Polynomial.Piecewise
 import Test.QuickCheck
-import ToySolver.Data.Polynomial hiding (div)
 
 --instance Arbitrary Rational where
 
@@ -122,32 +121,40 @@ prop_convolvePW_integral xs ys =
         iz = intPW $ x `convolvePW` y
     in  counterexample (show (ix, iy)) $ iz === ix * iy
 
-prop_before_integral :: [TPiece Rational] -> [TPiece Rational] -> Property
-prop_before_integral xs ys =
+prop_beforePW_integral :: [TPiece Rational] -> [TPiece Rational] -> Property
+prop_beforePW_integral xs ys =
     let x  = pw $ map toPiece xs
         y  = pw $ map toPiece ys
-        xy = before x y
-        yx = before y x
+        xy = beforePW x y
+        yx = beforePW y x
         ix = intPW x
         iy = intPW y
         iz = intPW xy + intPW yx
     in  counterexample (show (x, ix, y, iy, xy, yx)) $ iz === ix * iy
 
-prop_ftf_commutes :: [TPiece Rational] -> [TPiece Rational] -> Property
-prop_ftf_commutes xs ys =
+prop_ftfPW_commutes :: [TPiece Rational] -> [TPiece Rational] -> Property
+prop_ftfPW_commutes xs ys =
     let x = pw $ map toPiece xs
         y = pw $ map toPiece ys
-    in  x `ftf` y === y `ftf` x
+    in  x `ftfPW` y === y `ftfPW` x
 
-prop_ftf_integral :: [TPiece Rational] -> [TPiece Rational] -> Property
-prop_ftf_integral xs ys =
+prop_ftfPW_integral :: [TPiece Rational] -> [TPiece Rational] -> Property
+prop_ftfPW_integral xs ys =
     let x  = pw $ map toPiece xs
         y  = pw $ map toPiece ys
-        z  = x `ftf` y
+        z  = x `ftfPW` y
         ix = intPW x
         iy = intPW y
         iz = intPW z
     in  counterexample (show (x, ix, y, iy, z)) $ iz === ix * iy
+
+prop_beforePW_deltaPW :: [TPiece Rational] -> [TPiece Rational] -> Property
+prop_beforePW_deltaPW xs ys =
+    let x  = pw $ map toPiece xs
+        y  = pw $ map toPiece ys
+        i  = intPW $ beforePW x y
+        j  = intPW $ deltaPW x y
+    in  i === j
 
 return []
 runTests :: IO Bool

@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Data.Piecewise.Charts
+module Data.Polynomial.Piecewise.Charts
     ( layoutCdf
     , layoutPdf
     , layoutPW
@@ -10,7 +10,7 @@ module Data.Piecewise.Charts
 import Control.Lens
 import Control.Monad
 import Data.Default.Class
-import Data.Piecewise
+import Data.Polynomial.Piecewise
 import Graphics.Rendering.Chart
 import Graphics.Rendering.Chart.Backend.Cairo
 import Graphics.Rendering.Chart.Grid

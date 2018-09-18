@@ -24,13 +24,17 @@ Source-Repository head
 
 Library
 
-    Exposed-Modules: Data.Piecewise
-                     Data.Piecewise.Charts
-                     Data.Piecewise.Test
+    Exposed-Modules: Data.Polynomial
+                     Data.Polynomial.Discrete
+                     Data.Polynomial.Mixed
+                     Data.Polynomial.Piecewise
+                     Data.Polynomial.Piecewise.Charts
+                     Data.Polynomial.Piecewise.Test
 
     Build-Depends: base                >= 4.10 && < 5,
                    Chart              ^>= 1.9,
                    Chart-cairo        ^>= 1.9,
+                   containers         ^>= 0.5,
                    data-default-class ^>= 0.1,
                    lens               ^>= 4.16,
                    prettyclass        ^>= 1.0,
