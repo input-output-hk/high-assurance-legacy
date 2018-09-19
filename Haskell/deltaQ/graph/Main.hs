@@ -1,11 +1,8 @@
-import           Charts
-import           Control.Monad
-import           Data.DeltaQ
-import           Data.List       (intercalate)
-import qualified Data.Map.Strict as M
-import           Graph
-import           Process
-import           Text.Printf     (printf)
+import Data.DeltaQ
+import Data.List              (intercalate)
+import Data.Polynomial        (uniformMixed)
+import Data.Polynomial.Charts
+import Graph
 
 graphs :: [[(Int, Int)]]
 graphs =
@@ -27,19 +24,7 @@ testGraph = mapM_ $ \xs -> do
         (g, s) = graphFromList xs
         resEx  = measure g dq
     print resEx
-    toFileDDQ s resEx
-
-{-
-    let proc = networkP dq g
-        m    = runProbM $ toQueue proc
-    forM_ (M.toList m) $ \(ys, p) -> do
-        printf "p = %6.4f\n" (fromRational $ toRational $ getProb p :: Double)
-        putStrLn ""
-        forM_ ys $ \(dq', msg) -> do
-            printf "%d: %s\n" (msgChan msg) (msgPayload msg)
-            print dq'
-            putStrLn ""
-            -}
+    toFileMixed s $ getMixed resEx
 
 main :: IO ()
 main = testGraph graphs
@@ -51,10 +36,8 @@ graphFromList xs =
         s = "graph-" ++ intercalate "-" (map (\(x, y) -> show x ++ show y) xs) ++ ".png"
     in  (g, s)
 
-type DQ = DDQ Double IntP
+ex :: Int -> Mixed
+ex = exact . Finite . fromIntegral
 
-ex :: Int -> DQ
-ex = exact . Finite . intP
-
-un :: Int -> Int -> DQ
-un a b = uniform (intP a) (intP b)
+un :: Int -> Int -> Mixed
+un a b = Mixed $ uniformMixed (fromIntegral a) (fromIntegral b)

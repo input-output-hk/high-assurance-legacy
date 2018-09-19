@@ -55,12 +55,12 @@ data Message = Message
     , msgPayload :: !String
     } deriving (Show, Eq, Ord)
 
-data Environment p t dq = Environment
+data Environment p t dq m = Environment
     { envChSts :: IntMap (ChannelState dq)
-    , envMsgs  :: Queue p t dq Message
+    , envMsgs  :: Queue p t dq m Message
     } deriving Show
 
-emptyEnvironment :: Environment p t dq
+emptyEnvironment :: Monad m => Environment p t dq m
 emptyEnvironment = Environment
     { envChSts = IM.empty
     , envMsgs  = emptyQueue
@@ -69,12 +69,12 @@ emptyEnvironment = Environment
 stepProcess :: forall p t dq m .
                (DeltaQ p t dq, MonadProb p m)
             => Process dq
-            -> Environment p t dq
-            -> m (Environment p t dq)
+            -> Environment p t dq m
+            -> m (Environment p t dq m)
 stepProcess Stop env = return env
 
 stepProcess (ch :<: (dq, s)) env = do
-    q <- enqueue dq (Message ch s) $ envMsgs env
+    let q = enqueue dq (Message ch s) $ envMsgs env
     return $ env {envMsgs = q}
 
 stepProcess (p :|: q) env = stepProcess p env >>= stepProcess q
@@ -102,7 +102,7 @@ stepProcess (Nu cont) env = do
         p          = runPrCont cont ch
     stepProcess p env'
 
-newChan :: Environment p t dq -> (Environment p t dq, Chan)
+newChan :: Environment p t dq m -> (Environment p t dq m, Chan)
 newChan env =
     let chsts  = envChSts env
         ch     = head [i | i <- [1..], i `IM.notMember` chsts]
@@ -115,7 +115,7 @@ class ToQueue dq a | a -> dq where
                 (DeltaQ p t dq, MonadProb p m)
              => a
              -> dq
-             -> Environment p t dq
+             -> Environment p t dq m
              -> m [(dq, Message)]
 
 toQueue :: (DeltaQ p t dq, MonadProb p m, ToQueue dq a) => a -> m [(dq, Message)]
@@ -127,29 +127,30 @@ instance ToQueue dq (Process dq) where
                 (DeltaQ p t dq, MonadProb p m)
              => Process dq
              -> dq
-             -> Environment p t dq
+             -> Environment p t dq m
              -> m [(dq, Message)]
     toQueue' p dq env = stepProcess p env >>= go dq
       where
-        go :: dq -> Environment p t dq -> m [(dq, Message)]
-        go dq' env' = case dequeue $ envMsgs env' of
-            Nothing -> return []
-            Just m  -> do
-                (dq'', msg, q) <- m
-                (env'', mp)    <- processMessage msg $ env' {envMsgs = q}
-                env'''         <- case mp of
-                    Nothing -> return env''
-                    Just p' -> stepProcess p' env''
-                xs             <- go (dq' <> dq'') env'''
-                return $ if msgChan msg `IM.member` envChSts env
-                    then (dq', msg) : xs
-                    else xs
+        go :: dq -> Environment p t dq m -> m [(dq, Message)]
+        go dq' env' = do
+            m <- dequeue $ envMsgs env'
+            case m of
+                Nothing             -> return []
+                Just (dq'', msg, q) -> do
+                    (env'', mp)    <- processMessage msg $ env' {envMsgs = q}
+                    env'''         <- case mp of
+                        Nothing -> return env''
+                        Just p' -> stepProcess p' env''
+                    xs             <- go (dq' <> dq'') env'''
+                    return $ if msgChan msg `IM.member` envChSts env
+                        then (dq', msg) : xs
+                        else xs
 
 processMessage :: forall p t dq m .
                   (DeltaQ p t dq, MonadProb p m)
                => Message
-               -> Environment p t dq
-               -> m (Environment p t dq, Maybe (Process dq))
+               -> Environment p t dq m
+               -> m (Environment p t dq m, Maybe (Process dq))
 processMessage (Message ch msg) env = do
     let chsts = envChSts env
     (chst, mp) <- f $ chsts IM.! ch

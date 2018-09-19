@@ -48,7 +48,7 @@ class (Show p, Fractional p, Real p, Time t, Show dq, Ord dq, Monoid dq) =>
     massive  :: dq -> Maybe (Prob p, dq)
     exact    :: Ext t -> dq
     mix      :: Prob p -> dq -> dq -> dq
-    before   :: dq -> [dq] -> Maybe (Prob p, dq, [dq])
+    before   :: dq -> dq -> Maybe (Prob p, dq, dq)
     sampleDQ :: MonadProb p m => dq -> m (Maybe t)
 
 never :: DeltaQ p t dq => dq

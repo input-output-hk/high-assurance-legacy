@@ -6,60 +6,52 @@ module Data.DeltaQ.Queue
     ( Queue (..)
     , emptyQueue
     , enqueue
-    , dequeue
     , filterQueue
     ) where
 
-import Control.Arrow           (first)
 import Data.DeltaQ.Core
 import Data.DeltaQ.Probability
-import Data.Maybe              (mapMaybe)
 
-data Queue p t dq a = Queue {getQueue :: [(dq, a)]}
-    deriving (Show, Eq, Ord, Functor)
+newtype Queue p t dq m a = Queue {dequeue :: m (Maybe (dq, a, Queue p t dq m a))}
+    deriving Functor
 
-emptyQueue :: Queue p t dq a
-emptyQueue = Queue []
+instance Show (Queue p t dq m a) where
+    show = const "Queue"
+
+emptyQueue :: Monad m => Queue p t dq m a
+emptyQueue = Queue $ return Nothing
 
 enqueue :: (DeltaQ p t dq, MonadProb p m)
         => dq
         -> a
-        -> Queue p t dq a
-        -> m (Queue p t dq a)
-enqueue dq a q@(Queue xs) = case massive dq of
-    Nothing       -> return q
-    Just (p, dq') -> coin p (Queue $ (dq', a) : xs) q
+        -> Queue p t dq m a
+        -> Queue p t dq m a
+enqueue dqa a q = case massive dqa of
+    Nothing        -> q
+    Just (p, dqa') -> Queue $ do
+        m <- dequeue q
+        coinM (1 - p) (return m) $ Just <$> case m of
+            Nothing           -> return (dqa', a, emptyQueue)
+            Just (dqb, b, q') -> case before dqa' dqb of
+                Nothing               -> do
+                    let Just (_, _, dqa'') = before dqb dqa'
+                        q''                = enqueue dqa'' a q'
+                    return (dqb, b, q'')
+                Just (pa, dqa'', dqb') -> coin pa
+                    (dqa'', a, Queue $ return $ Just (dqb', b, q'))
+                    (let Just (_, dqb'', dqa''') = before dqb dqa'
+                     in  (dqb'', b, enqueue dqa''' a q'))
 
-dequeue :: forall p t dq m a .
-           (DeltaQ p t dq, MonadProb p m)
-        => Queue p t dq a
-        -> Maybe (m (dq, a, Queue p t dq a))
-dequeue (Queue [])        = Nothing
-dequeue (Queue [(dq, a)]) = Just $ return (dq, a, emptyQueue)
-dequeue (Queue xs)        = Just $ do
-    let ys = mapMaybe (uncurry f) $ picks xs
-    weighted ys
+filterQueue :: (DeltaQ p t dq, Monad m)
+            => (a -> Bool)
+            -> Queue p t dq m a
+            -> Queue p t dq m a
+filterQueue p = go mempty
   where
-    f :: (dq, a) -> [(dq, a)] -> Maybe (Prob p, (dq, a, Queue p t dq a))
-    f (dq, a) dqas = case dq `before` map fst dqas of
-        Nothing             -> Nothing
-        Just (p, dq', dqs') ->
-            let dqas' = zipWith (\dq'' (_, b) -> (dq'', b)) dqs' dqas
-            in  Just (p, (dq', a, Queue dqas'))
-
-picks :: [a] -> [(a, [a])]
-picks []       = []
-picks (x : xs) = (x, xs) : [(y, x : ys) | (y, ys) <- picks xs]
-
-weighted :: MonadProb p m => [(Prob p, a)] -> m a
-weighted []            = error "impossible case"
-weighted [(_, a)]      = return a
-weighted ((0, _) : xs) = weighted xs
-weighted ((1, a) : _)  = return a
-weighted ((p, a) : xs) =
-    coinM p
-        (return a)
-        (weighted $ map (first (/ (1 - p))) xs)
-
-filterQueue :: (a -> Bool) -> Queue p t dq a -> Queue p t dq a
-filterQueue p = Queue . filter (p . snd) . getQueue
+    go dq q = Queue $ do
+        m <- dequeue q
+        case m of
+            Nothing           -> return Nothing
+            Just (dq', a, q')
+                | p a         -> return $ Just (dq <> dq', a, go mempty q')
+                | otherwise   -> dequeue $ go (dq <> dq') q'
