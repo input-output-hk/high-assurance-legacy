@@ -10,6 +10,8 @@ module Data.Polynomial.Piecewise.Charts
 import Control.Lens
 import Control.Monad
 import Data.Default.Class
+import Data.Maybe                             (fromMaybe)
+import Data.Polynomial.Class
 import Data.Polynomial.Piecewise
 import Graphics.Rendering.Chart
 import Graphics.Rendering.Chart.Backend.Cairo
@@ -41,11 +43,11 @@ lines n x = plot_lines_values .~ [[getPoint t | t <- times]]
     getPoint :: r -> (Double, Double)
     getPoint t = (toDouble t, toDouble $ evalPW t x)
 
-mean :: (Real r, QAlg r, Fractional r) => Piecewise r -> Plot Double Double
-mean dq = case pieces dq of
+mean' :: (Real r, QAlg r, Fractional r) => Piecewise r -> Plot Double Double
+mean' dq = case pieces dq of
     [] -> toPlot $ PlotHidden [] []
     _  ->
-        let m = toDouble $ meanPW dq
+        let m = toDouble $ fromMaybe 0 (mean dq)
             s = printf "mean %6.4f" m
         in  vlinePlot s def m
 
@@ -55,16 +57,16 @@ layoutCdf :: (Ord r, Real r, QAlg r, Fractional r)
           -> Layout Double Double
 layoutCdf n dq = layout_title .~ "ΔQ (cdf)"
                $ layout_plots .~ [ toPlot $ lines n $ cdfPW dq
-                                 , mass
-                                 , mean dq
+                                 , mass'
+                                 , mean' dq
                                  ]
                $ def
   where
     m :: Double
-    m = toDouble $ intPW dq
+    m = toDouble $ mass dq
 
-    mass :: Plot Double Double
-    mass =
+    mass' :: Plot Double Double
+    mass' =
         let s = printf "mass %6.4f" m
         in  hlinePlot s def m
 
@@ -74,7 +76,7 @@ layoutPdf :: (Ord r, Real r, QAlg r, Fractional r)
           -> Layout Double Double
 layoutPdf n dq = layout_title .~ "ΔQ (pdf)"
                $ layout_plots .~ [ toPlot $ lines n dq
-                                 , mean dq
+                                 , mean' dq
                                  ]
                $ def
 

@@ -25,6 +25,7 @@ Source-Repository head
 Library
 
     Exposed-Modules: Data.Polynomial
+                     Data.Polynomial.Class
                      Data.Polynomial.Discrete
                      Data.Polynomial.Mixed
                      Data.Polynomial.Piecewise

@@ -1,4 +1,6 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
 
 module Data.Polynomial.Piecewise
     ( QAlg (..)
@@ -13,43 +15,17 @@ module Data.Polynomial.Piecewise
     , intPiece
     , Piecewise
     , pieces
-    , noPiece
     , pw
+    , mapPW
     , evalPW
-    , intPW
-    , meanPW
-    , convolvePW
     , cdfPW
-    , beforePW
-    , afterPW
-    , ftfPW
-    , ltfPW
-    , residualPW
     , uniformPW
-    , scalePiece
-    , shiftPiece
     ) where
 
 import Data.Foldable                  (foldl')
+import Data.Polynomial.Class
 import Text.PrettyPrint.HughesPJClass hiding ((<>))
 import ToySolver.Data.Polynomial
-
-free :: (Eq s, Num s) => (r -> s) -> (v -> s) -> Polynomial r v -> s
-free f g p = eval g $ mapCoeff f p
-
-defint' :: (Eq r, QAlg r, Ord v)
-        => Polynomial r v
-        -> Polynomial r v
-        -> Polynomial r v
-        -> v
-        -> Polynomial r v
-defint' a b f v = s b - s a
-  where
-    g = integral f v
-    s c = subst g $ \w -> if w == v then c else var w
-
-defint :: (Eq r, QAlg r) => r -> r -> Polynomial r () -> r
-defint a b f = eval (const 0) $ defint' (constant a) (constant b) f ()
 
 data Piece r = Piece { pBeg :: r
                      , pEnd :: r
@@ -68,6 +44,104 @@ instance (Ord r, Num r, PrettyCoeff r) => Pretty (Piece r) where
 instance (Ord r, Num r, PrettyCoeff r) => Show (Piece r) where
     show = prettyShow
 
+newtype Piecewise r = PW {pieces :: [Piece r]}
+    deriving (Show, Eq, Ord)
+
+instance (Ord r, QAlg r) => Semigroup (Piecewise r) where
+    x <> y = foldl' (flip addPiece) x $ pieces y
+
+instance (Ord r, QAlg r) => Monoid (Piecewise r) where
+    mempty = PW []
+
+instance (Ord r, QAlg r, Fractional r) => Distribution r r (Piecewise r) where
+
+    mass = sum . map intPiece . pieces
+
+    mean ps = case mass ps of
+        0 -> Nothing
+        m -> Just $ sum [meanPiece p | p <- pieces ps] / m
+
+    support (PW [])                 = Nothing
+    support (PW (Piece a _ _ : ps)) = let Piece _ b _ = last ps in Just (a, b)
+
+    scale = mapPW . scalePiece
+
+    shift = mapPW . shiftPiece
+
+    convolve x y = mconcat [convolvePiece p q | p <- pieces x, q <- pieces y]
+
+    before x y = pw $ go (pieces x) (pieces y) (mass x) (mass y)
+      where
+        go :: [Piece r] -> [Piece r] -> r -> r -> [Piece r]
+        go [] _ _ _ = []
+        go _ [] _ _ = []
+        go xs@(p@(Piece xa xb xp) : xs') ys@(q@(Piece ya yb yp) : ys') px py
+            | xb <= ya  =
+                let p' = Piece xa xb $ xp * constant py
+                in  p' : go xs' ys (px - intPiece p) py
+            | yb <= xa  = go xs ys' px (py - intPiece q)
+            | xa < ya   =
+                let p1 = Piece xa ya xp
+                    p2 = Piece ya xb xp
+                in  go (p1 : p2 : xs') ys px py
+            | ya < xa   =
+                let q1 = Piece ya xa yp
+                    q2 = Piece xa yb yp
+                in  go xs (q1 : q2 : ys') px py
+            | xb < yb   =
+                let q1 = Piece ya xb yp
+                    q2 = Piece xb yb yp
+                in  go xs (q1 : q2 : ys') px py
+            | yb < xb   =
+                let p1 = Piece xa yb xp
+                    p2 = Piece yb xb xp
+                in  go (p1 : p2 : xs') ys px py
+            | otherwise =
+                let Piece _ _ r = beforePiece xa xb xp yp
+                    px'         = px - intPiece p
+                    py'         = py - intPiece q
+                    xp'         = xp * constant py'
+                    s           = Piece xa xb $ r + xp'
+                in  s : go xs' ys' px' py'
+
+    residual x y = go (pieces x) (pieces y)
+      where
+        go :: [Piece r] -> [Piece r] -> Piecewise r
+        go [] _ = mempty
+        go _ [] = mempty
+        go xs@(p@(Piece xa xb xp) : xs') ys@(Piece ya yb yp : ys')
+            | xb <= ya  = foldMap (residualPiece' p) ys <> go xs' ys
+            | yb <= xa  = go xs ys'
+            | xa < ya   =
+                let p1 = Piece xa ya xp
+                    p2 = Piece ya xb xp
+                in  go (p1 : p2 : xs') ys
+            | ya < xa   =
+                let q1 = Piece ya xa yp
+                    q2 = Piece xa yb yp
+                in  go xs (q1 : q2 : ys')
+            | xb < yb   =
+                let q1 = Piece ya xb yp
+                    q2 = Piece xb yb yp
+                in  go xs (q1 : q2 : ys')
+            | yb < xb   =
+                let p1 = Piece xa yb xp
+                    p2 = Piece yb xb xp
+                in  go (p1 : p2 : xs') ys
+            | otherwise =
+                let r = pw [residualPiece xa xb xp yp]
+                in  r <> go xs ys'
+
+    endingAt t = pw . go . pieces
+      where
+        go []                     = []
+        go xs@(Piece a b p : xs')
+            | t <= a              = xs
+            | t >= b              = go xs'
+            | otherwise           = Piece t b p : xs'
+
+    revTime = PW . reverse . map revTimePiece . pieces
+
 intPiece :: (Eq r, QAlg r) => Piece r -> r
 intPiece p = defint (pBeg p) (pEnd p) (pPol p)
 
@@ -80,9 +154,6 @@ evalPiece r (Piece b e p)
     | r < b || r > e = 0
     | otherwise      = eval (const r) p
 
-newtype Piecewise r = PW {pieces :: [Piece r]}
-    deriving (Show, Eq, Ord)
-
 evalPW :: (Ord r, Num r) => r -> Piecewise r -> r
 evalPW r = go . pieces
   where
@@ -91,9 +162,6 @@ evalPW r = go . pieces
         | r < a  = 0
         | r <= b = evalPiece r p
         | otherwise = go xs
-
-noPiece :: Piecewise r
-noPiece = PW []
 
 addPiece :: (Ord r, Num r) => Piece r -> Piecewise r -> Piecewise r
 addPiece (Piece b e p) ps
@@ -118,14 +186,11 @@ addPiece piece ps = PW $ clean $ go piece $ pieces ps
         | e < b' || p /= p'                            = x : clean xs
         | otherwise                                    = clean $ Piece b e' p : ys
 
-pw :: (Foldable f, Ord r, Num r) => f (Piece r) -> Piecewise r
-pw = foldl' (flip addPiece) noPiece
+pw :: (Foldable f, Ord r, QAlg r) => f (Piece r) -> Piecewise r
+pw = foldl' (flip addPiece) mempty
 
-instance (Ord r, QAlg r) => Semigroup (Piecewise r) where
-    x <> y = foldl' (flip addPiece) x $ pieces y
-
-instance (Ord r, QAlg r) => Monoid (Piecewise r) where
-    mempty = noPiece
+mapPW :: (Ord r, QAlg r) => (Piece r -> Piece r) -> Piecewise r -> Piecewise r
+mapPW f = pw . map f . pieces
 
 convolvePiece :: forall r. (Ord r, QAlg r) => Piece r -> Piece r -> Piecewise r
 convolvePiece p@(Piece xa xb xp) q@(Piece ya yb yp)
@@ -175,15 +240,6 @@ convolvePiece p@(Piece xa xb xp) q@(Piece ya yb yp)
 -- xa + yb .. xb + ya : t - yb | t - ya
 -- xb + ya .. xb + yb : t - yb | xb
 
-convolvePW :: (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
-convolvePW x y = mconcat [convolvePiece p q | p <- pieces x, q <- pieces y]
-
-intPW :: (Eq r, QAlg r) => Piecewise r -> r
-intPW = sum . map intPiece . pieces
-
-meanPW :: (Eq r, QAlg r, Fractional r) => Piecewise r -> r
-meanPW ps = sum [meanPiece p | p <- pieces ps] / intPW ps
-
 cdfPiece :: (Eq r, QAlg r) => Piece r -> Piece r
 cdfPiece (Piece a b p) = Piece a b $ defint' (constant a) (var ()) p ()
 
@@ -201,58 +257,8 @@ beforePiece :: (Eq r, QAlg r) => r -> r -> Polynomial r () -> Polynomial r () ->
 beforePiece a b p q =
     Piece a b $ p * defint (var ()) (constant b) (mapCoeff constant q)
 
-beforePW :: forall r. (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
-beforePW x y = pw $ go (pieces x) (pieces y) (intPW x) (intPW y)
-  where
-    go :: [Piece r] -> [Piece r] -> r -> r -> [Piece r]
-    go [] _ _ _ = []
-    go _ [] _ _ = []
-    go xs@(p@(Piece xa xb xp) : xs') ys@(q@(Piece ya yb yp) : ys') px py
-        | xb <= ya  =
-            let p' = Piece xa xb $ xp * constant py
-            in  p' : go xs' ys (px - intPiece p) py
-        | yb <= xa  = go xs ys' px (py - intPiece q)
-        | xa < ya   =
-            let p1 = Piece xa ya xp
-                p2 = Piece ya xb xp
-            in  go (p1 : p2 : xs') ys px py
-        | ya < xa   =
-            let q1 = Piece ya xa yp
-                q2 = Piece xa yb yp
-            in  go xs (q1 : q2 : ys') px py
-        | xb < yb   =
-            let q1 = Piece ya xb yp
-                q2 = Piece xb yb yp
-            in  go xs (q1 : q2 : ys') px py
-        | yb < xb   =
-            let p1 = Piece xa yb xp
-                p2 = Piece yb xb xp
-            in  go (p1 : p2 : xs') ys px py
-        | otherwise =
-            let Piece _ _ r = beforePiece xa xb xp yp
-                px'         = px - intPiece p
-                py'         = py - intPiece q
-                xp'         = xp * constant py'
-                s           = Piece xa xb $ r + xp'
-            in  s : go xs' ys' px' py'
-
-afterPW, ftfPW, ltfPW :: (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
-afterPW = revTime beforePW
-ftfPW x y = beforePW x y <> beforePW y x
-ltfPW x y = afterPW x y <> afterPW y x
-
-revTime :: forall r. (Ord r, QAlg r)
-        => (Piecewise r -> Piecewise r -> Piecewise r)
-        -> Piecewise r
-        -> Piecewise r
-        -> Piecewise r
-revTime op x y = revPW $ revPW x `op` revPW y
-  where
-    revPiece :: Piece r -> Piece r
-    revPiece (Piece a b p) = Piece (-b) (-a) $ subst p $ const $ - var ()
-
-    revPW :: Piecewise r -> Piecewise r
-    revPW = PW . reverse . map revPiece . pieces
+revTimePiece :: (Eq r, Num r) => Piece r -> Piece r
+revTimePiece (Piece a b p) = Piece (-b) (-a) $ subst p $ const $ - var ()
 
 residualPiece :: forall r. (Ord r, QAlg r)
            => r
@@ -299,40 +305,29 @@ residualPiece' (Piece a b p) (Piece c d q)
     f :: Polynomial r () -> Polynomial r () -> Polynomial r ()
     f l u = defint l u (p' * q')
 
-residualPW :: forall r. (Ord r, QAlg r) => Piecewise r -> Piecewise r -> Piecewise r
-residualPW x y = go (pieces x) (pieces y)
-  where
-    go :: [Piece r] -> [Piece r] -> Piecewise r
-    go [] _ = noPiece
-    go _ [] = noPiece
-    go xs@(p@(Piece xa xb xp) : xs') ys@(Piece ya yb yp : ys')
-        | xb <= ya  = foldMap (residualPiece' p) ys <> go xs' ys
-        | yb <= xa  = go xs ys'
-        | xa < ya   =
-            let p1 = Piece xa ya xp
-                p2 = Piece ya xb xp
-            in  go (p1 : p2 : xs') ys
-        | ya < xa   =
-            let q1 = Piece ya xa yp
-                q2 = Piece xa yb yp
-            in  go xs (q1 : q2 : ys')
-        | xb < yb   =
-            let q1 = Piece ya xb yp
-                q2 = Piece xb yb yp
-            in  go xs (q1 : q2 : ys')
-        | yb < xb   =
-            let p1 = Piece xa yb xp
-                p2 = Piece yb xb xp
-            in  go (p1 : p2 : xs') ys
-        | otherwise =
-            let r = pw [residualPiece xa xb xp yp]
-            in  r <> go xs ys'
-
 scalePiece :: (Eq r, Num r) => r -> Piece r -> Piece r
 scalePiece r (Piece a b p) = Piece a b $ constant r * p
 
 shiftPiece :: (Eq r, Num r) => r -> Piece r -> Piece r
 shiftPiece r (Piece a b p) = Piece (a + r) (b + r) $ subst p $ const $ var () - constant r
 
-uniformPW :: (Ord r, Fractional r) => r -> r -> Piecewise r
+uniformPW :: (Ord r, Fractional r, QAlg r) => r -> r -> Piecewise r
 uniformPW a b = pw [Piece a b $ constant (1 / (b - a))]
+
+free :: (Eq s, Num s) => (r -> s) -> (v -> s) -> Polynomial r v -> s
+free f g p = eval g $ mapCoeff f p
+
+defint' :: (Eq r, QAlg r, Ord v)
+        => Polynomial r v
+        -> Polynomial r v
+        -> Polynomial r v
+        -> v
+        -> Polynomial r v
+defint' a b f v = s b - s a
+  where
+    g = integral f v
+    s c = subst g $ \w -> if w == v then c else var w
+
+defint :: (Eq r, QAlg r) => r -> r -> Polynomial r () -> r
+defint a b f = eval (const 0) $ defint' (constant a) (constant b) f ()
+

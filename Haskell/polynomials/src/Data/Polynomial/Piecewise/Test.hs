@@ -3,6 +3,7 @@
 module Data.Polynomial.Piecewise.Test where
 
 import Data.Function             (on)
+import Data.Polynomial.Class
 import Data.Polynomial.Piecewise
 import Test.QuickCheck
 
@@ -86,7 +87,7 @@ pwValid = go . pieces
 
     pValid (Piece b e p) = b < e && p /= 0
 
-prop_pw_valid :: [TPiece Integer] -> Property
+prop_pw_valid :: [TPiece Rational] -> Property
 prop_pw_valid xs = let x = pw $ map toPiece xs
                    in counterexample (show x) $ pwValid x
 
@@ -103,57 +104,57 @@ prop_pw_integral :: [TPiece Rational] -> Property
 prop_pw_integral xs =
     let ys       = map toPiece xs
         expected = sum $ map intPiece ys
-        actual   = intPW $ pw ys
+        actual   = mass $ pw ys
     in  actual === expected
 
 prop_convolvePW_commutes :: [TPiece Rational] -> [TPiece Rational] -> Property
 prop_convolvePW_commutes xs ys =
     let x = pw $ map toPiece xs
         y = pw $ map toPiece ys
-    in  x `convolvePW` y === y `convolvePW` x
+    in  x `convolve` y === y `convolve` x
 
 prop_convolvePW_integral :: [TPiece Rational] -> [TPiece Rational] -> Property
 prop_convolvePW_integral xs ys =
     let x  = pw $ map toPiece xs
         y  = pw $ map toPiece ys
-        ix = intPW x
-        iy = intPW y
-        iz = intPW $ x `convolvePW` y
+        ix = mass x
+        iy = mass y
+        iz = mass $ x `convolve` y
     in  counterexample (show (ix, iy)) $ iz === ix * iy
 
 prop_beforePW_integral :: [TPiece Rational] -> [TPiece Rational] -> Property
 prop_beforePW_integral xs ys =
     let x  = pw $ map toPiece xs
         y  = pw $ map toPiece ys
-        xy = beforePW x y
-        yx = beforePW y x
-        ix = intPW x
-        iy = intPW y
-        iz = intPW xy + intPW yx
+        xy = before x y
+        yx = before y x
+        ix = mass x
+        iy = mass y
+        iz = mass xy + mass yx
     in  counterexample (show (x, ix, y, iy, xy, yx)) $ iz === ix * iy
 
 prop_ftfPW_commutes :: [TPiece Rational] -> [TPiece Rational] -> Property
 prop_ftfPW_commutes xs ys =
     let x = pw $ map toPiece xs
         y = pw $ map toPiece ys
-    in  x `ftfPW` y === y `ftfPW` x
+    in  x `ftf` y === y `ftf` x
 
 prop_ftfPW_integral :: [TPiece Rational] -> [TPiece Rational] -> Property
 prop_ftfPW_integral xs ys =
     let x  = pw $ map toPiece xs
         y  = pw $ map toPiece ys
-        z  = x `ftfPW` y
-        ix = intPW x
-        iy = intPW y
-        iz = intPW z
+        z  = x `ftf` y
+        ix = mass x
+        iy = mass y
+        iz = mass z
     in  counterexample (show (x, ix, y, iy, z)) $ iz === ix * iy
 
 prop_beforePW_deltaPW :: [TPiece Rational] -> [TPiece Rational] -> Property
 prop_beforePW_deltaPW xs ys =
     let x  = pw $ map toPiece xs
         y  = pw $ map toPiece ys
-        i  = intPW $ beforePW x y
-        j  = intPW $ residualPW x y
+        i  = mass $ before x y
+        j  = mass $ residual x y
     in  i === j
 
 return []
