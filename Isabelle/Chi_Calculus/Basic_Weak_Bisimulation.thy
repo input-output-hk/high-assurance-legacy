@@ -663,10 +663,19 @@ lemma weak_basic_new_channel_preservation: "(\<And>a. \<P> a \<approx>\<^sub>\<f
 (*** Structural congruence laws ***)
 (* TODO: Prove them. *)
 
-lemma weak_basic_parallel_scope_extension: "\<nu> a. \<P> a \<parallel> Q \<approx>\<^sub>\<flat> \<nu> a. (\<P> a \<parallel> Q)" sorry
-lemma weak_basic_new_channel_scope_extension: "\<nu> b. \<nu> a. \<P> a b \<approx>\<^sub>\<flat> \<nu> a. \<nu> b. \<P> a b" sorry
-lemma weak_basic_parallel_unit: "\<zero> \<parallel> P \<approx>\<^sub>\<flat> P" sorry
-lemma weak_basic_parallel_associativity: "(P \<parallel> Q) \<parallel> R \<approx>\<^sub>\<flat> P \<parallel> (Q \<parallel> R)" sorry
-lemma weak_basic_parallel_commutativity: "P \<parallel> Q \<approx>\<^sub>\<flat> Q \<parallel> P" sorry
+lemma weak_basic_parallel_scope_extension: "\<nu> a. \<P> a \<parallel> Q \<approx>\<^sub>\<flat> \<nu> a. (\<P> a \<parallel> Q)"
+  using strong_basic_bisim_imp_weak_basic_bisim and basic_parallel_scope_extension by simp
+
+lemma weak_basic_new_channel_scope_extension: "\<nu> b. \<nu> a. \<P> a b \<approx>\<^sub>\<flat> \<nu> a. \<nu> b. \<P> a b"
+  using strong_basic_bisim_imp_weak_basic_bisim and basic_new_channel_scope_extension by simp
+
+lemma weak_basic_parallel_unit: "\<zero> \<parallel> P \<approx>\<^sub>\<flat> P"
+  using strong_basic_bisim_imp_weak_basic_bisim and basic_parallel_unit by simp
+
+lemma weak_basic_parallel_associativity: "(P \<parallel> Q) \<parallel> R \<approx>\<^sub>\<flat> P \<parallel> (Q \<parallel> R)"
+  using strong_basic_bisim_imp_weak_basic_bisim and basic_parallel_associativity by simp
+
+lemma weak_basic_parallel_commutativity: "P \<parallel> Q \<approx>\<^sub>\<flat> Q \<parallel> P"
+  using strong_basic_bisim_imp_weak_basic_bisim and basic_parallel_commutativity by simp
 
 end
