@@ -45,12 +45,12 @@ instance (Ord r, Fractional r) => Distribution r r (Disc r) where
 
     before = smearDisc $ \(r, p) (s, q) -> case compare r s of
         LT -> (r, p * q)
-        EQ -> (r, p * q * p / (p + q))
+        EQ -> (r, p * q / 2)
         GT -> (r, 0)
 
     residual = smearDisc $ \(r, p) (s, q) -> case compare r s of
         LT -> (s - r, p * q)
-        EQ -> (0, p * q * p / (p + q))
+        EQ -> (0, p * q / 2)
         GT -> (0, 0)
 
     endingAt t = flip before $ singleton t 1

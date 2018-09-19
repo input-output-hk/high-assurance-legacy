@@ -90,5 +90,3 @@ exactMixed r = Mixed (singleton r 1) mempty
 
 uniformMixed :: (Ord r, QAlg r, Fractional r) => r -> r -> Mixed r
 uniformMixed a b = Mixed mempty $ uniformPW a b
-
-

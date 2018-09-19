@@ -8,6 +8,7 @@ module Data.Polynomial.Class
     , ftf
     , ltf
     , startingAt
+    , massive
     ) where
 
 class ( Fractional prob
@@ -36,3 +37,8 @@ ltf x y = after x y <> after y x
 
 startingAt :: Distribution p t d => t -> d -> d
 startingAt t = revTime . endingAt (-t) . revTime
+
+massive :: (Eq p, Distribution p t d) => d -> Maybe d
+massive d = case mass d of
+    0 -> Nothing
+    m -> Just $ scale (recip m) d
