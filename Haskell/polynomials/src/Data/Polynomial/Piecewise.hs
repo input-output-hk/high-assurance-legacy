@@ -18,11 +18,11 @@ module Data.Polynomial.Piecewise
     , pw
     , mapPW
     , evalPW
-    , cdfPW
     , uniformPW
     ) where
 
 import Data.Foldable                  (foldl')
+import Data.Monoid                    (Sum (..))
 import Data.Polynomial.Class
 import Text.PrettyPrint.HughesPJClass hiding ((<>))
 import ToySolver.Data.Polynomial
@@ -61,8 +61,8 @@ instance (Ord r, QAlg r, Fractional r) => Distribution r r (Piecewise r) where
         0 -> Nothing
         m -> Just $ sum [meanPiece p | p <- pieces ps] / m
 
-    support (PW [])                 = Nothing
-    support (PW (Piece a _ _ : ps)) = let Piece _ b _ = last ps in Just (a, b)
+    support (PW [])                   = Nothing
+    support (PW ps@(Piece a _ _ : _)) = let Piece _ b _ = last ps in Just (a, b)
 
     scale = mapPW . scalePiece
 
@@ -135,12 +135,14 @@ instance (Ord r, QAlg r, Fractional r) => Distribution r r (Piecewise r) where
     endingAt t = pw . go . pieces
       where
         go []                     = []
-        go xs@(Piece a b p : xs')
-            | t <= a              = xs
-            | t >= b              = go xs'
-            | otherwise           = Piece t b p : xs'
+        go (x@(Piece a b p) : xs)
+            | t <= a              = []
+            | t >= b              = x : go xs
+            | otherwise           = [Piece a t p]
 
     revTime = PW . reverse . map revTimePiece . pieces
+
+    cdf ps = getSum . foldMap (\p -> Sum . cdfPiece p) (pieces ps)
 
 intPiece :: (Eq r, QAlg r) => Piece r -> r
 intPiece p = defint (pBeg p) (pEnd p) (pPol p)
@@ -240,18 +242,14 @@ convolvePiece p@(Piece xa xb xp) q@(Piece ya yb yp)
 -- xa + yb .. xb + ya : t - yb | t - ya
 -- xb + ya .. xb + yb : t - yb | xb
 
-cdfPiece :: (Eq r, QAlg r) => Piece r -> Piece r
-cdfPiece (Piece a b p) = Piece a b $ defint' (constant a) (var ()) p ()
-
-cdfPW :: (Ord r, QAlg r) => Piecewise r -> Piecewise r
-cdfPW = pw . go 0 . pieces
-  where
-    go _ []       = []
-    go c (x : xs) =
-        let Piece a b p = cdfPiece x
-            y           = Piece a b $ p + constant c
-            c'          = evalPiece b y
-        in  y : go c' xs
+cdfPiece :: (Ord r, QAlg r) => Piece r -> r -> r
+cdfPiece x@(Piece a b p) =
+    let m = intPiece x
+    in  \t -> case t of
+            _
+                | t <= a    -> 0
+                | t >= b    -> m
+                | otherwise -> defint a t p
 
 beforePiece :: (Eq r, QAlg r) => r -> r -> Polynomial r () -> Polynomial r () -> Piece r
 beforePiece a b p q =
@@ -330,4 +328,3 @@ defint' a b f v = s b - s a
 
 defint :: (Eq r, QAlg r) => r -> r -> Polynomial r () -> r
 defint a b f = eval (const 0) $ defint' (constant a) (constant b) f ()
-

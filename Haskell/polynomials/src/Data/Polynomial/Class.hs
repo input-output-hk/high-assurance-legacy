@@ -24,6 +24,7 @@ class ( Fractional prob
     residual :: dist -> dist -> dist
     endingAt :: time -> dist -> dist
     revTime  :: dist -> dist
+    cdf      :: dist -> time -> time
 
 revTime2 :: Distribution p t d => (d -> d -> d) -> d -> d -> d
 revTime2 op x y = revTime $ revTime x `op` revTime y

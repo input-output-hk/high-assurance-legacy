@@ -3,7 +3,11 @@
 {-# LANGUAGE ScopedTypeVariables   #-}
 
 module Data.Polynomial.Mixed
-    ( Mixed (..)
+    ( QAlg (..)
+    , evalPW
+    , foldDisc
+    , foldMapDisc
+    , Mixed (..)
     , exactMixed
     , uniformMixed
     ) where
@@ -51,13 +55,24 @@ instance (Ord r, QAlg r, Fractional r) => Distribution r r (Mixed r) where
     shift r (Mixed d ps) = Mixed (shift r d) (shift r ps)
 
     before (Mixed d ps) (Mixed e qs) =
-        Mixed (before d e)
-              (before ps qs <> foldMapDisc f d <> foldMapDisc g e)
+        Mixed (before d e   <> foldMapDisc f d)
+              (before ps qs <> foldMapDisc g e)
       where
-        f r p = scale p $ startingAt r qs
+        f r p = scale p $ singleton r $ mass $ startingAt r qs
         g r p = scale p $ endingAt r ps
 
     revTime (Mixed d ps) = Mixed (revTime d) (revTime ps)
+
+    endingAt t (Mixed d ps) = Mixed (endingAt t d) (endingAt t ps)
+
+    residual (Mixed d ps) (Mixed e qs) =
+        Mixed (residual d e)
+              (residual ps qs <> foldMapDisc f d <> foldMapDisc g e)
+      where
+        f r p = scale p $ shift (-r) $ startingAt r qs
+        g r p = scale p $ shift r $ revTime $ endingAt r ps
+
+    cdf (Mixed d ps) t = cdf d t + cdf ps t
 
 instance (Ord r, QAlg r, Fractional r) => Num (Mixed r) where
     (+) = (<>)

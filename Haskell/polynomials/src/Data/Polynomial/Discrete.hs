@@ -26,7 +26,7 @@ instance (Ord r, Num r) => Monoid (Disc r) where
 
 instance (Ord r, Fractional r) => Distribution r r (Disc r) where
 
-    mass = foldDisc (\acc r p -> acc + r * p) 0
+    mass = getSum . foldMapDisc (\_ p -> Sum p)
 
     mean d = case foldMapDisc (\r p -> (Sum $ r * p, Sum p)) d of
         (_, Sum 0)     -> Nothing
@@ -45,20 +45,19 @@ instance (Ord r, Fractional r) => Distribution r r (Disc r) where
 
     before = smearDisc $ \(r, p) (s, q) -> case compare r s of
         LT -> (r, p * q)
-        EQ -> (r, p / (p + q))
+        EQ -> (r, p * q * p / (p + q))
         GT -> (r, 0)
 
     residual = smearDisc $ \(r, p) (s, q) -> case compare r s of
         LT -> (s - r, p * q)
-        EQ -> (0, p / (p + q))
+        EQ -> (0, p * q * p / (p + q))
         GT -> (0, 0)
 
-    endingAt t = foldMapDisc (\r p -> case compare r t of
-        LT -> singleton r p
-        EQ -> singleton r (p / (p + 1))
-        GT -> mempty)
+    endingAt t = flip before $ singleton t 1
 
     revTime = foldMapDisc (\r p -> singleton (-r) p)
+
+    cdf d = getSum . foldMapDisc (\r p t -> Sum $ cdfSingleton r p t) d
 
 foldDisc :: (a -> r -> r -> a) -> a -> Disc r -> a
 foldDisc op a (Disc m) = foldl' (uncurry . op) a $ M.toList m
@@ -88,3 +87,8 @@ smearDisc op d = foldDisc f mempty
   where
     f x s q = foldDisc (g s q) x d
     g s q y r p = let (rs, pq) = op (r, p) (s, q) in insertDisc rs pq y
+
+cdfSingleton :: (Ord r, Num r) => r -> r -> r -> r
+cdfSingleton r p t
+    | t < r     = 0
+    | otherwise = p
