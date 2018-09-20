@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns               #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
 
@@ -10,14 +11,17 @@ module Graph
     , buildGraph
     , networkP
     , measureM
-    , measure
+    , probMDQ
+    , weighted
     ) where
 
 import           Control.Monad
+import           Control.Monad.Operational
 import           Control.Monad.State
 import           Data.DeltaQ
-import qualified Data.Map.Strict     as M
-import           Data.Maybe          (mapMaybe)
+import           Data.List.NonEmpty        (NonEmpty (..))
+import qualified Data.List.NonEmpty        as NE
+import           Data.Maybe                (mapMaybe)
 import           Process
 
 type Node = Int
@@ -122,13 +126,25 @@ measureM g@(n, _) dq = go [1..n] (exact now) <$> toQueue (networkP dq g)
                 then go (filter (/= node) ns) dq'' xs
                 else go ns                    dq'  xs
 
-weighted :: forall p t dq. DeltaQ p t dq => ProbM p dq -> dq
-weighted = go 1 . M.toList . runProbM
+probMDQ :: forall p t dq. DeltaQ p t dq => ProbM p dq -> dq
+probMDQ (ProbT prog) = go $ view prog
   where
-    go :: Prob p -> [(dq, Prob p)] -> dq
-    go _ []             = error "impossible case"
-    go _ [(dq, _)]      = dq
-    go w ((dq, p) : xs) = mix (p / w) dq $ go (w - p) xs
+    go :: ProgramView (ProbI p) dq -> dq
+    go (Return dq)            = dq
+    go (Coin p a b :>>= cont) =
+        let !dqa = goCont cont a
+            !dqb = goCont cont b
+            !dq' = mix p dqa dqb
+        in  dq'
+    go (Elements xs :>>= cont) = weighted $ goCont cont <$> xs
 
-measure :: DeltaQ p t dq => Graph -> dq -> dq
-measure g dq = weighted $ measureM g dq
+    goCont :: (a -> Program (ProbI p) dq) -> a -> dq
+    goCont cont = probMDQ . ProbT . cont
+
+weighted :: DeltaQ p t dq => NonEmpty dq -> dq
+weighted xs = go' (NE.length xs) xs
+  where
+    go' _  (dq :| [])       = dq
+    go' !n (dq :| (y : ys)) =
+        let !p = prob $ recip $ fromIntegral n
+        in  mix p dq $ go' (n - 1) (y :| ys)

@@ -16,7 +16,8 @@ module Data.DeltaQ.Probability
     , SamplingT (..)
     , sampleIO
     , sample
-    , ProbT
+    , ProbI (..)
+    , ProbT (..)
     , runProbT
     , ProbM
     , runProbM
