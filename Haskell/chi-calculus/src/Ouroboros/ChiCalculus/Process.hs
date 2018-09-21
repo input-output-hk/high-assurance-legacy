@@ -2,7 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 module Ouroboros.ChiCalculus.Process (
 
-    Process (Stop, Guard, (:<:), (:>:), (:|:), NewChannel, Letrec, PVar),
+    Process (Stop, (:?:), (:<:), (:>:), (:|:), NewChannel, Letrec, PVar),
     Channel,
     ClosedProcess,
     Interpretation,
@@ -25,6 +25,7 @@ import Data.Type.Natural (TypeNatural)
 import           Ouroboros.ChiCalculus.Data (VarData (dvar))
 import qualified Ouroboros.ChiCalculus.Data as Data (Interpretation)
 
+infixr 3 :?:
 infixr 3 :<:
 infixr 3 :>:
 infixr 2 :|:
@@ -38,7 +39,7 @@ data Process dat d p where
 
     Stop       :: Process dat d p
 
-    Guard      :: dat d Bool
+    (:?:)      :: dat d Bool
                -> Process dat d p
                -> Process dat d p
 

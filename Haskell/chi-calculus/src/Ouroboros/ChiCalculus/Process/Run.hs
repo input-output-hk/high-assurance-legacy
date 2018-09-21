@@ -25,7 +25,7 @@ run dataInter = void . forkIO . worker
     where
 
     worker Stop              = return ()
-    worker (Guard cond cnt)  = if eval cond then worker cnt else return ()
+    worker (cond :?: cnt)    = if eval cond then worker cnt else return ()
     worker (chan :<: val)    = putMVar (eval chan) (eval val)
     worker (chan :>: cnt)    = takeMVar (eval chan) >>= worker . cnt . Identity
     worker (prc1 :|: prc2)   = do
