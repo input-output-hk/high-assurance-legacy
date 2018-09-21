@@ -174,4 +174,8 @@ diningPhilosophers (toList -> staticPersons) =
     staticForks = map show [1 .. noOfPersons]
 
 defaultPhilosophers :: NonEmpty Person
-defaultPhilosophers = "Plato" :| ["Aristotle", "Bertrand Russell", "Karl Popper"]
+defaultPhilosophers = "Plato"            :|
+                      "Aristotle"        :
+                      "Bertrand Russell" :
+                      "Karl Popper"      :
+                      []
