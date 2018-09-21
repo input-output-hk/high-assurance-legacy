@@ -19,8 +19,8 @@ subsection \<open>Transfer\<close>
 
 text \<open>
   We introduce an operation \<open>transfer\<close> that turns a binary relation between processes into a binary
-  relation between processes again. A relation \<open>transfer \<X>\<close> relates two processes \<open>P\<close> and~\<open>Q\<close> if
-  and only if for each transition from~\<open>P\<close> there is a simulating transition from~\<open>Q\<close> such that the
+  relation between processes again. A relation \<open>transfer \<X>\<close> relates two processes \<open>p\<close> and~\<open>q\<close> if
+  and only if for each transition from~\<open>p\<close> there is a simulating transition from~\<open>q\<close> such that the
   target processes of the two transitions are in relation~\<open>\<X>\<close>. The \<open>transfer\<close> operation forms the
   backbone of our definition of simulation relations and is also used in our definition of
   bisimilarity.
@@ -29,7 +29,7 @@ text \<open>
 abbreviation
   transfer :: "('process \<Rightarrow> 'process \<Rightarrow> bool) \<Rightarrow> ('process \<Rightarrow> 'process \<Rightarrow> bool)"
 where
-  "transfer \<X> P Q \<equiv> \<forall>C. P \<longmapsto>C \<longrightarrow> (\<exists>D. Q \<longmapsto>D \<and> lift \<X> C D)"
+  "transfer \<X> p q \<equiv> \<forall>d. p \<longmapsto>d \<longrightarrow> (\<exists>e. q \<longmapsto>e \<and> lift \<X> d e)"
 
 text \<open>
   Monotonicity of \<^term>\<open>transfer\<close> follows from monotonicity of \<^term>\<open>lift\<close>.
@@ -186,8 +186,8 @@ coinductive
 and
   bisimilarity :: "'process \<Rightarrow> 'process \<Rightarrow> bool" (infix "\<sim>" 50)
 where
-  "transfer op \<sim> P Q \<Longrightarrow> P \<preceq> Q" |
-  "P \<sim> Q \<equiv> P \<preceq> Q \<and> Q \<preceq> P"
+  "transfer op \<sim> p q \<Longrightarrow> p \<preceq> q" |
+  "p \<sim> q \<equiv> p \<preceq> q \<and> q \<preceq> p"
 
 subsubsection \<open>Symmetry\<close>
 
@@ -198,7 +198,7 @@ text \<open>
   better our other symmetry-related lemmas and is more concise.
 \<close>
 
-lemma bisimilarity_symmetry_rule [sym]: "P \<sim> Q \<Longrightarrow> Q \<sim> P"
+lemma bisimilarity_symmetry_rule [sym]: "p \<sim> q \<Longrightarrow> q \<sim> p"
   by simp
 lemma bisimilarity_symmetry: "symp op \<sim>"
   using bisimilarity_symmetry_rule ..
@@ -245,24 +245,24 @@ text \<open>
 
 private lemma bisimulation_in_pre_bisimilarity: "bisim \<X> \<Longrightarrow> \<X> \<le> op \<preceq>"
 proof
-  fix P and Q
-  assume "bisim \<X>" and "\<X> P Q"
-  from `\<X> P Q` have "(\<X> \<squnion> \<X>\<inverse>\<inverse>) P Q"
+  fix p and q
+  assume "bisim \<X>" and "\<X> p q"
+  from `\<X> p q` have "(\<X> \<squnion> \<X>\<inverse>\<inverse>) p q"
     by simp
-  then show "P \<preceq> Q"
-  proof (coinduction arbitrary: P Q)
+  then show "p \<preceq> q"
+  proof (coinduction arbitrary: p q)
     case pre_bisimilarity
-    with `bisim \<X>` have "transfer (\<X> \<squnion> \<X>\<inverse>\<inverse>) P Q"
+    with `bisim \<X>` have "transfer (\<X> \<squnion> \<X>\<inverse>\<inverse>) p q"
       using symmetric_closure_of_bisimulation_is_simulation
       by blast
     moreover
     let
-      ?target_relation = "\<lambda>P Q.
-        ((\<exists>S T. P = S \<and> Q = T \<and> (\<X> \<squnion> \<X>\<inverse>\<inverse>) S T) \<or> P \<preceq> Q) \<and>
-        ((\<exists>S T. Q = S \<and> P = T \<and> (\<X> \<squnion> \<X>\<inverse>\<inverse>) S T) \<or> Q \<preceq> P)"
+      ?target_relation = "\<lambda>p q.
+        ((\<exists>s t. p = s \<and> q = t \<and> (\<X> \<squnion> \<X>\<inverse>\<inverse>) s t) \<or> p \<preceq> q) \<and>
+        ((\<exists>s t. q = s \<and> p = t \<and> (\<X> \<squnion> \<X>\<inverse>\<inverse>) s t) \<or> q \<preceq> p)"
     have "\<X> \<squnion> \<X>\<inverse>\<inverse> \<le> ?target_relation"
       by blast
-    ultimately have "transfer ?target_relation P Q"
+    ultimately have "transfer ?target_relation p q"
       using transfer_monotonicity
       by blast
     then show ?case by simp
@@ -323,23 +323,23 @@ text \<open>
 
 text \<open>
   Based on \<open>in_bisimilarity_standard\<close>, we define a method \<open>bisimilarity_standard\<close> for proving
-  statements of the form \<open>\<lbrakk> A\<^sub>1; \<dots>; A\<^sub>n \<rbrakk> \<Longrightarrow> S \<sim> T\<close>. For any binary process relation~\<open>\<X>\<close>, the
+  statements of the form \<open>\<lbrakk> A\<^sub>1; \<dots>; A\<^sub>n \<rbrakk> \<Longrightarrow> s \<sim> t\<close>. For any binary process relation~\<open>\<X>\<close>, the
   invocation \<open>(bisimilarity_standard \<X>)\<close> creates the following three cases:
 
-    \<^item> \<open>related\<close>, with premises \<open>A\<^sub>1\<close> to~\<open>A\<^sub>n\<close> and conclusion \<open>\<X> S T\<close>
+    \<^item> \<open>related\<close>, with premises \<open>A\<^sub>1\<close> to~\<open>A\<^sub>n\<close> and conclusion \<open>\<X> s t\<close>
 
-    \<^item> \<open>sym\<close>, with parameters \<open>P\<close> and~\<open>Q\<close>, premise \<open>\<X> P Q\<close>, and conclusion \<open>\<X> Q P\<close>
+    \<^item> \<open>sym\<close>, with parameters \<open>p\<close> and~\<open>q\<close>, premise \<open>\<X> p q\<close>, and conclusion \<open>\<X> q p\<close>
 
-    \<^item> \<open>sim\<close>, with parameters \<open>P\<close>, \<open>Q\<close>, and \<open>C\<close>, premises \<open>P \<longmapsto>C\<close> and \<open>\<X> P Q\<close>, and conclusion
-      \<open>\<exists>D. Q \<longmapsto>D \<and> lift \<X> C D\<close>
+    \<^item> \<open>sim\<close>, with parameters \<open>p\<close>, \<open>q\<close>, and \<open>d\<close>, premises \<open>p \<longmapsto>d\<close> and \<open>\<X> p q\<close>, and conclusion
+      \<open>\<exists>e. q \<longmapsto>e \<and> lift \<X> d e\<close>
 
   Note that, contrary to the \<open>symmetry\<close> and \<open>is_simulation\<close> cases of \<open>in_bisimilarity_standard\<close>, the
   \<open>sym\<close> and \<open>sim\<close> cases of \<open>bisimilarity_standard\<close> do not use the \<^term>\<open>symp\<close> and \<^term>\<open>sim\<close>
   predicates but are based directly on the underlying logical constructions. This often makes proofs
-  easier. Furthermore note that in the \<open>sim\<close> case the premise \<open>P \<longmapsto>C\<close> comes before the premise
-  \<open>\<X> P Q\<close>. In the common situation of an inductively defined \<open>transition\<close> relation, this
+  easier. Furthermore note that in the \<open>sim\<close> case the premise \<open>p \<longmapsto>d\<close> comes before the premise
+  \<open>\<X> p q\<close>. In the common situation of an inductively defined \<open>transition\<close> relation, this
   arrangement makes it possible to directly handle the \<open>sim\<close> case via induction on the derivation of
-  \<open>P \<longmapsto>C\<close>, by writing @{theory_text \<open>then show ?case proof induction \<dots> qed\<close>}.
+  \<open>p \<longmapsto>d\<close>, by writing @{theory_text \<open>then show ?case proof induction \<dots> qed\<close>}.
 \<close>
 
 context begin
@@ -352,11 +352,11 @@ text \<open>
 \<close>
 
 private lemma bisimilarity_standard_symp_intro:
-  assumes "(\<And>P Q. \<X> P Q \<Longrightarrow> \<X> Q P)"
+  assumes "(\<And>p q. \<X> p q \<Longrightarrow> \<X> q p)"
   shows "symp \<X>"
   using assms ..
 private lemma bisimilarity_standard_sim_intro:
-  assumes "(\<And>P Q C. \<lbrakk> P \<longmapsto>C; \<X> P Q \<rbrakk> \<Longrightarrow> \<exists>D. Q \<longmapsto>D \<and> lift \<X> C D)"
+  assumes "(\<And>p q d. \<lbrakk> p \<longmapsto>d; \<X> p q \<rbrakk> \<Longrightarrow> \<exists>e. q \<longmapsto>e \<and> lift \<X> d e)"
   shows "sim \<X>"
   using assms by blast
 
@@ -402,7 +402,7 @@ next
   case is_simulation
   show ?case by (fact equality_sim_propagation)
 qed
-lemma bisimilarity_reflexivity_rule [iff]: "P \<sim> P"
+lemma bisimilarity_reflexivity_rule [iff]: "p \<sim> p"
   using bisimilarity_reflexivity ..
 
 text \<open>
@@ -418,7 +418,7 @@ next
   case is_simulation
   show ?case by (simp add: bisimilarity_is_simulation composition_sim_propagation)
 qed
-lemma bisimilarity_transitivity_rule [trans]: "\<lbrakk> P \<sim> Q; Q \<sim> R \<rbrakk> \<Longrightarrow> P \<sim> R"
+lemma bisimilarity_transitivity_rule [trans]: "\<lbrakk> p \<sim> q; q \<sim> r \<rbrakk> \<Longrightarrow> p \<sim> r"
   using bisimilarity_transitivity ..
 
 subsection \<open>Conclusion\<close>

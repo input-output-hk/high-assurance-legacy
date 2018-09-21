@@ -11,25 +11,25 @@ text \<open>
   residuals. Instead we define a notion of residual axiomatically.
 
   Our definition is based on an operation \<open>lift\<close> that turns a binary relation between processes into
-  a binary relation between residuals. The idea is that \<open>lift \<X>\<close> relates two residuals \<open>C\<close> and~\<open>D\<close>
-  if and only if the labels of \<open>C\<close> and~\<open>D\<close> are identical and the target processes of \<open>C\<close> and~\<open>D\<close> are
+  a binary relation between residuals. The idea is that \<open>lift \<X>\<close> relates two residuals \<open>d\<close> and~\<open>e\<close>
+  if and only if the labels of \<open>d\<close> and~\<open>e\<close> are identical and the target processes of \<open>d\<close> and~\<open>e\<close> are
   in relation~\<open>\<X>\<close>. This idea comes from the definitions of simulation relations and related
   concepts.
 
   In the presence of scope openings there is no clear separation between the label and the target
   process of a residual because there are binding structures that span both of them. Using HOAS,
   such binding structures are represented by functions. For example, in a suitable HOAS variant of
-  the $\pi$-calculus, the residual of a transition $\openandsendexample$ is \<open>OpenAndSend x (\<lambda>y. Q)\<close>,
-  where \<open>OpenAndSend\<close> is a data constructor. The function \<open>\<lambda>y. Q\<close> does not belong to only the label
+  the $\pi$-calculus, the residual of a transition $\openandsendexample$ is \<open>OpenAndSend x (\<lambda>y. q)\<close>,
+  where \<open>OpenAndSend\<close> is a data constructor. The function \<open>\<lambda>y. q\<close> does not belong to only the label
   or the target process but constitutes part of the label and the complete target process.
 
   Nevertheless we can still identify a label and a target process in the term structure of such a
-  residual: in the above example the label is \<open>x (\<lambda>y. _)\<close> and the target process is~\<open>Q\<close>. Based on
+  residual: in the above example the label is \<open>x (\<lambda>y. _)\<close> and the target process is~\<open>q\<close>. Based on
   this observation, we can apply the idea about the \<open>lift\<close> operation to residuals with scope
   openings. For our $\pi$-calculus example, we define that a relation \<open>lift \<X>\<close> relates residuals
-  \<open>OpenAndSend x\<^sub>1 \<Q>\<^sub>1\<close> and \<open>OpenAndSend x\<^sub>2 \<Q>\<^sub>2\<close> if and only if \<open>x\<^sub>1 = x\<^sub>2\<close> and \<open>\<And>y. \<X> (\<Q>\<^sub>1 y) (\<Q>\<^sub>2 y)\<close>.
-  Since \<open>OpenAndSend x\<^sub>i \<Q>\<^sub>i\<close> is the same as \<open>OpenSend x\<^sub>i (\<lambda>y. \<Q>\<^sub>i y)\<close>, these conditions just mean that
-  the labels \<open>x\<^sub>1 (\<lambda>y. _)\<close> and \<open>x\<^sub>2 (\<lambda>y. _)\<close> are identical and the target processes \<open>\<Q>\<^sub>1 y\<close> and \<open>\<Q>\<^sub>2 y\<close>
+  \<open>OpenAndSend x\<^sub>1 Q\<^sub>1\<close> and \<open>OpenAndSend x\<^sub>2 Q\<^sub>2\<close> if and only if \<open>x\<^sub>1 = x\<^sub>2\<close> and \<open>\<And>y. \<X> (Q\<^sub>1 y) (Q\<^sub>2 y)\<close>.
+  Since \<open>OpenAndSend x\<^sub>i Q\<^sub>i\<close> is the same as \<open>OpenSend x\<^sub>i (\<lambda>y. Q\<^sub>i y)\<close>, these conditions just mean that
+  the labels \<open>x\<^sub>1 (\<lambda>y. _)\<close> and \<open>x\<^sub>2 (\<lambda>y. _)\<close> are identical and the target processes \<open>Q\<^sub>1 y\<close> and \<open>Q\<^sub>2 y\<close>
   are in relation~\<open>\<X>\<close> independently of~\<open>y\<close>; so those conditions are in line with our idea about
   \<open>lift\<close>. For other kinds of residuals, \<open>lift\<close> shall work analogously.
 

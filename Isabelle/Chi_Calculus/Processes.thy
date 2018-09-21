@@ -31,7 +31,7 @@ syntax
   "_Receive" :: "chan \<Rightarrow> pttrn \<Rightarrow> process \<Rightarrow> process"
   ("(3_ \<triangleright> _./ _)" [101, 0, 100] 100)
 translations
-  "c \<triangleright> x. P" \<rightleftharpoons> "CONST Receive c (\<lambda>x. P)"
+  "c \<triangleright> x. p" \<rightleftharpoons> "CONST Receive c (\<lambda>x. p)"
 
 text \<open>
   This is all for processes.
