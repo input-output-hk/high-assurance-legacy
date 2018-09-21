@@ -11,13 +11,15 @@ module Ouroboros.ChiCalculus.Data (
 
 import Data.Kind (Type)
 
-type ClosedData dat = forall (d :: Type -> Type) a . dat d a
+type ClosedData dat
+    = forall (c :: Type -> Type) (d :: Type -> Type) (a :: Type) . dat c d a
 
-type Interpretation dat d = forall a . dat d a -> d a
+type Interpretation dat (c :: Type -> Type) (d :: Type -> Type)
+    = forall a . dat c d a -> d a
 
-interpret :: Interpretation dat d -> ClosedData dat -> d a
+interpret :: Interpretation dat c d -> ClosedData dat -> d a
 interpret inter = inter
 
-class VarData dat where
+class VarData (dat :: (Type -> Type) -> (Type -> Type) -> Type -> Type) where
 
-    dvar :: d a -> dat d a
+    dvar :: d a -> dat c d a

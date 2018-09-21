@@ -38,9 +38,9 @@ Library
 
     Other-Extensions: FlexibleInstances
                       GADTs
-                      KindSignatures
                       OverloadedStrings
                       RankNTypes
+                      ScopedTypeVariables
                       ViewPatterns
 
     GHC-Options: -Wall

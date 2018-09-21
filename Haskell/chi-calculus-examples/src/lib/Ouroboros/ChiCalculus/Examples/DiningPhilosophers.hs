@@ -1,8 +1,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns #-}
 module Ouroboros.ChiCalculus.Examples.DiningPhilosophers (
 
@@ -24,7 +24,6 @@ import Control.Concurrent.MVar (newEmptyMVar, takeMVar, putMVar)
 import Control.Monad (forever, void)
 
 import Data.Functor.Identity (Identity (..))
-import Data.Kind (Type)
 import Data.List (zipWith5)
 import Data.List.NonEmpty (NonEmpty ((:|)), toList)
 import Data.String (IsString (fromString))
@@ -35,7 +34,6 @@ import Ouroboros.ChiCalculus.Data (
        )
 import Ouroboros.ChiCalculus.Process (
            Process (..),
-           Channel,
            ClosedProcess,
            interpret,
            parallel,
@@ -49,21 +47,21 @@ import Ouroboros.ChiCalculus.Process.Run (
 
 infixr 6 :<>:
 
-data LoggerMsg = LogMsg String (Channel ())
+data LoggerMsg c = LogMsg String (c ())
 
-data Data (d :: Type -> Type) (a :: Type) where
+data Data c d a where
 
-    StringLit :: String -> Data d String
+    StringLit :: String -> Data c d String
 
-    (:<>:)    :: Data d String -> Data d String -> Data d String
+    (:<>:)    :: Data c d String -> Data c d String -> Data c d String
 
-    Log       :: Data d String -> Data d (Channel ()) -> Data d LoggerMsg
+    Log       :: Data c d String -> Data c d (c ()) -> Data c d (LoggerMsg c)
 
-    Logger    :: Data d (Channel LoggerMsg)
+    Logger    :: Data c d (c (LoggerMsg c))
 
-    DVar      :: d a -> Data d a
+    DVar      :: d a -> Data c d a
 
-instance IsString (Data d String) where
+instance IsString (Data c d String) where
 
     fromString = StringLit
 
@@ -71,15 +69,15 @@ instance VarData Data where
 
     dvar = DVar
 
-log :: Data d String -> Process Data d p -> Process Data d p
+log :: Data c d String -> Process Data c d p -> Process Data c d p
 log line cnt = Logger <# Log line $ \ _ -> cnt
 
-eval :: Channel LoggerMsg -> Interpretation Data Identity
+eval :: forall c . c (LoggerMsg c) -> Interpretation Data c Identity
 eval logger = worker
 
     where
 
-    worker :: Interpretation Data Identity
+    worker :: Interpretation Data c Identity
     worker (StringLit staticStr) = Identity $ staticStr
     worker (str1 :<>: str2)      = Identity $ runIdentity (worker str1) <>
                                               runIdentity (worker str2)
@@ -102,9 +100,9 @@ type Fork = String
 type Person = String
 
 tableSector :: Fork
-            -> d (Channel Fork)
-            -> d (Channel Fork)
-            -> Process Data d p
+            -> d (c Fork)
+            -> d (c Fork)
+            -> Process Data c d p
 tableSector staticFork fromSector toSector =
     DVar fromSector :<: StringLit staticFork :|: worker
 
@@ -117,11 +115,11 @@ tableSector staticFork fromSector toSector =
         DVar fromSector :<: DVar fork :|: PVar turn
 
 philosopher :: Person
-            -> d (Channel Fork)
-            -> d (Channel Fork)
-            -> d (Channel Fork)
-            -> d (Channel Fork)
-            -> Process Data d p
+            -> d (c Fork)
+            -> d (c Fork)
+            -> d (c Fork)
+            -> d (c Fork)
+            -> Process Data c d p
 philosopher staticPerson fromFst fromSnd toFst toSnd =
     pfix $ \ turn ->
     let

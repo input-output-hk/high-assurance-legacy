@@ -19,7 +19,7 @@ import Numeric.Natural (Natural)
 
 import Ouroboros.ChiCalculus.Process (Process (..), Interpretation)
 
-expr :: Interpretation (Const Text) Text
+expr :: Interpretation c (Const Text) Text
 expr dataInter prc = worker prc `runReader` VarIndexes 0 0 0
 
     where

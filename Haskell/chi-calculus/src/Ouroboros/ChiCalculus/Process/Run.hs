@@ -10,7 +10,7 @@ module Ouroboros.ChiCalculus.Process.Run (
 import Prelude hiding (map)
 
 import Control.Concurrent (forkIO)
-import Control.Concurrent.MVar (putMVar, takeMVar, newEmptyMVar)
+import Control.Concurrent.MVar (MVar, putMVar, takeMVar, newEmptyMVar)
 import Control.Monad (void)
 
 import Data.Function (fix)
@@ -19,7 +19,7 @@ import Data.List.FixedLength (ensureSpine, map)
 
 import Ouroboros.ChiCalculus.Process (Process (..), Interpretation)
 
-run :: Interpretation Identity (IO ())
+run :: Interpretation MVar Identity (IO ())
 run dataInter = void . forkIO . worker
 
     where

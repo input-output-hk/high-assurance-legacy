@@ -3,7 +3,6 @@
 module Ouroboros.ChiCalculus.Process (
 
     Process (Stop, (:?:), (:<:), (:>:), (:|:), NewChannel, Letrec, PVar),
-    Channel,
     ClosedProcess,
     Interpretation,
     interpret,
@@ -15,7 +14,6 @@ module Ouroboros.ChiCalculus.Process (
 
 ) where
 
-import Control.Concurrent.MVar (MVar)
 import Control.Monad (replicateM)
 import Control.Monad.Trans.Cont (cont, runCont)
 
@@ -35,66 +33,64 @@ infix  3 <#
     Processes of the χ-calculus with support for @letrec@ constructions. This
     definition uses parametric higher-order abstract syntax (PHOAS).
 -}
-data Process dat d p where
+data Process dat c d p where
 
-    Stop       :: Process dat d p
+    Stop       :: Process dat c d p
 
-    (:?:)      :: dat d Bool
-               -> Process dat d p
-               -> Process dat d p
+    (:?:)      :: dat c d Bool
+               -> Process dat c d p
+               -> Process dat c d p
 
-    (:<:)      :: dat d (Channel a)
-               -> dat d a
-               -> Process dat d p
+    (:<:)      :: dat c d (c a)
+               -> dat c d a
+               -> Process dat c d p
 
-    (:>:)      :: dat d (Channel a)
-               -> (d a -> Process dat d p)
-               -> Process dat d p
+    (:>:)      :: dat c d (c a)
+               -> (d a -> Process dat c d p)
+               -> Process dat c d p
 
-    (:|:)      :: Process dat d p
-               -> Process dat d p
-               -> Process dat d p
+    (:|:)      :: Process dat c d p
+               -> Process dat c d p
+               -> Process dat c d p
 
-    NewChannel :: (d (Channel a) -> Process dat d p)
-               -> Process dat d p
+    NewChannel :: (d (c a) -> Process dat c d p)
+               -> Process dat c d p
 
     Letrec     :: TypeNatural n
-               => (List n p -> List n (Process dat d p))
-               -> (List n p -> Process dat d p)
-               -> Process dat d p
+               => (List n p -> List n (Process dat c d p))
+               -> (List n p -> Process dat c d p)
+               -> Process dat c d p
 
     PVar       :: p
-               -> Process dat d p
+               -> Process dat c d p
 
-type Channel = MVar
+type ClosedProcess dat = forall c d p . Process dat c d p
 
-type ClosedProcess dat = forall d p . Process dat d p
+type Interpretation c d p
+    = forall dat . Data.Interpretation dat c d -> Process dat c d p -> p
 
-type Interpretation d p = forall dat .
-                          Data.Interpretation dat d -> Process dat d p -> p
-
-interpret :: Interpretation d p
-          -> Data.Interpretation dat d
+interpret :: Interpretation c d p
+          -> Data.Interpretation dat c d
           -> ClosedProcess dat
           -> p
 interpret inter = inter
 
-parallel :: [Process dat d p] -> Process dat d p
+parallel :: [Process dat c d p] -> Process dat c d p
 parallel = foldr (:|:) Stop
 
-newChannels :: Int -> ([d (Channel a)] -> Process dat d p) -> Process dat d p
+newChannels :: Int -> ([d (c a)] -> Process dat c d p) -> Process dat c d p
 newChannels count = runCont $ replicateM count $ cont NewChannel
 
-plet :: Process dat d p -> (p -> Process dat d p) -> Process dat d p
+plet :: Process dat c d p -> (p -> Process dat c d p) -> Process dat c d p
 plet prc fun = Letrec (const (singleton prc)) (fun . fromSingleton)
 
-pfix :: (p -> Process dat d p) -> Process dat d p
+pfix :: (p -> Process dat c d p) -> Process dat c d p
 pfix fun = Letrec (singleton . fun . fromSingleton) (PVar . fromSingleton)
 
 (<#) :: VarData dat
-     => dat d (Channel m)
-     -> (dat d (Channel a) -> dat d m)
-     -> (d a -> Process dat d p)
-     -> Process dat d p
+     => dat c d (c m)
+     -> (dat c d (c a) -> dat c d m)
+     -> (d a -> Process dat c d p)
+     -> Process dat c d p
 (obj <# msg) cnt = NewChannel $ \ resp ->
                    obj :<: msg (dvar resp) :|: dvar resp :>: cnt
