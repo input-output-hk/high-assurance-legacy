@@ -1,6 +1,5 @@
 import Data.DeltaQ
 import Data.List              (intercalate)
-import Data.Polynomial        (uniformMixed)
 import Data.Polynomial.Charts
 import Graph
 
@@ -40,4 +39,4 @@ ex :: Int -> Mixed
 ex = exact . Finite . fromIntegral
 
 un :: Int -> Int -> Mixed
-un a b = Mixed $ uniformMixed (fromIntegral a) (fromIntegral b)
+un a b = uniformMixed (fromIntegral a) (fromIntegral b)

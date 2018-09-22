@@ -3,7 +3,12 @@
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE TypeSynonymInstances       #-}
 
-module Data.DeltaQ.Mixed where
+module Data.DeltaQ.Mixed
+    ( Q (..)
+    , Mixed (..)
+    , uniformMixed
+    , meanMixed
+    ) where
 
 import           Data.DeltaQ.Core
 import           Data.DeltaQ.Probability
@@ -11,7 +16,10 @@ import           Data.Maybe              (fromJust)
 import qualified Data.Polynomial         as P
 
 newtype Q = Q {getQ :: Rational}
-    deriving (Show, Eq, Ord, Num, Fractional, Real)
+    deriving (Eq, Ord, Num, Fractional, Real)
+
+instance Show Q where
+    show = show . getQ
 
 instance Semigroup Q where
     Q x <> Q y = Q $ x + y
@@ -58,3 +66,14 @@ instance DeltaQ Rational Q Mixed where
                           , Mixed $ fromJust $ P.massive b
                           , Mixed $ fromJust $ P.massive $ P.residual x y
                           )
+
+uniformMixed :: Rational -> Rational -> Mixed
+uniformMixed a b
+    | a < b     = Mixed $ P.uniformMixed a b
+    | a > b     = never
+    | otherwise = exact $ Finite $ Q a
+
+meanMixed :: Mixed -> Ext Q
+meanMixed (Mixed x) = case P.mean x of
+    Nothing -> Infinity
+    Just t  -> Finite $ Q t

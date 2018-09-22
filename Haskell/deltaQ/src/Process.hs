@@ -13,11 +13,12 @@ module Process
     , ChannelState (..)
     , Message (..)
     , Environment (..)
-    , ToQueue
-    , toQueue
+    , ToTrace
+    , toTrace
     ) where
 
 import           Data.DeltaQ
+import           Data.DeltaQ.PList
 import           Data.IntMap.Strict (IntMap)
 import qualified Data.IntMap.Strict as IM
 import           Data.List.NonEmpty (NonEmpty (..), (<|))
@@ -29,6 +30,9 @@ newtype PrCont dq a = PrCont {runPrCont :: a -> Process dq}
 
 instance Show (PrCont dq a) where
     show = const "PrCont[..]"
+
+infix 6 :<:, :>:
+infix 5 :|:
 
 data Process dq =
       Stop
@@ -110,41 +114,39 @@ newChan env =
         env'   = env {envChSts = chsts'}
     in  (env', ch)
 
-class ToQueue dq a | a -> dq where
-    toQueue' :: forall p t m.
+class ToTrace dq a | a -> dq where
+    toTrace' :: forall p t m.
                 (DeltaQ p t dq, MonadProb p m)
              => a
-             -> dq
              -> Environment p t dq m
-             -> m [(dq, Message)]
+             -> MList m (dq, Message)
 
-toQueue :: (DeltaQ p t dq, MonadProb p m, ToQueue dq a) => a -> m [(dq, Message)]
-toQueue p = toQueue' p (exact now) emptyEnvironment
+toTrace :: (DeltaQ p t dq, MonadProb p m, ToTrace dq a) => a -> MList m (dq, Message)
+toTrace p = toTrace' p emptyEnvironment
 
-instance ToQueue dq (Process dq) where
+instance ToTrace dq (Process dq) where
 
-    toQueue' :: forall p t m.
+    toTrace' :: forall p t m.
                 (DeltaQ p t dq, MonadProb p m)
              => Process dq
-             -> dq
              -> Environment p t dq m
-             -> m [(dq, Message)]
-    toQueue' p dq env = stepProcess p env >>= go dq
+             -> MList m (dq, Message)
+    toTrace' p env = MList $ stepProcess p env >>= go (exact now)
       where
-        go :: dq -> Environment p t dq m -> m [(dq, Message)]
-        go dq' env' = do
+        go :: dq -> Environment p t dq m -> m (Maybe ((dq, Message), MList m (dq, Message)))
+        go dq env' = do
             m <- dequeue $ envMsgs env'
             case m of
-                Nothing             -> return []
-                Just (dq'', msg, q) -> do
+                Nothing              -> return Nothing
+                Just (dqMsg, msg, q) -> do
+                    let dq' = dq <> dqMsg
                     (env'', mp)    <- processMessage msg $ env' {envMsgs = q}
                     env'''         <- case mp of
                         Nothing -> return env''
                         Just p' -> stepProcess p' env''
-                    xs             <- go (dq' <> dq'') env'''
-                    return $ if msgChan msg `IM.member` envChSts env
-                        then (dq', msg) : xs
-                        else xs
+                    if msgChan msg `IM.member` envChSts env
+                        then getMList $ mcons (dq', msg) $ MList $ go (exact now) env'''
+                        else go dq' env'''
 
 processMessage :: forall p t dq m .
                   (DeltaQ p t dq, MonadProb p m)
@@ -166,8 +168,8 @@ processMessage (Message ch msg) env = do
                 (c' : cs'') -> Waiting $ c' :| cs''
         return (chst, Just $ runPrCont c msg)
 
-instance ToQueue dq a => ToQueue dq (Chan -> a) where
+instance ToTrace dq a => ToTrace dq (Chan -> a) where
 
-    toQueue' f dq env =
+    toTrace' f env =
         let (env', ch) = newChan env
-        in  toQueue' (f ch) dq env'
+        in  toTrace' (f ch) env'

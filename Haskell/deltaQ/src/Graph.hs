@@ -19,6 +19,7 @@ import           Control.Monad
 import           Control.Monad.Operational
 import           Control.Monad.State
 import           Data.DeltaQ
+import           Data.DeltaQ.PList
 import           Data.List.NonEmpty        (NonEmpty (..))
 import qualified Data.List.NonEmpty        as NE
 import           Data.Maybe                (mapMaybe)
@@ -115,16 +116,20 @@ measureM :: forall p t dq m. (DeltaQ p t dq, MonadProb p m)
          => Graph
          -> dq
          -> m dq
-measureM g@(n, _) dq = go [1..n] (exact now) <$> toQueue (networkP dq g)
+measureM g@(n, _) dq = go [1..n] (exact now) $ toTrace (networkP dq g)
   where
-    go :: [Int] -> dq -> [(dq, Message)] -> dq
-    go [] dq' _                  = dq'
-    go _  _   []                 = never
-    go ns dq' ((dq'', msg) : xs) =
-        let node = read (msgPayload msg)
-        in  if node `elem` ns
-                then go (filter (/= node) ns) dq'' xs
-                else go ns                    dq'  xs
+    go :: [Int] -> dq -> MList m (dq, Message) -> m dq
+    go [] clock _         = return clock
+    go ns clock (MList l) = do
+        m <- l
+        case m of
+            Nothing                -> return never
+            Just ((dq', msg), l') -> do
+                let node   = read (msgPayload msg)
+                    clock' = clock <> dq'
+                if node `elem` ns
+                    then go (filter (/= node) ns) clock' l'
+                    else go ns                    clock' l'
 
 probMDQ :: forall p t dq. DeltaQ p t dq => ProbM p dq -> dq
 probMDQ (ProbT prog) = go $ view prog

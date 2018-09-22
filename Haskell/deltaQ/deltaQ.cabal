@@ -27,10 +27,12 @@ Library
     Exposed-Modules:   Data.DeltaQ
                      , Data.DeltaQ.Core
                      , Data.DeltaQ.Mixed
+                     , Data.DeltaQ.PList
                      , Data.DeltaQ.Probability
                      , Data.DeltaQ.Queue
                      , Graph
                      , Process
+                     , SimpleTest
 
     Build-Depends: base                >= 4.10 && < 5,
                    containers         ^>= 0.5,
