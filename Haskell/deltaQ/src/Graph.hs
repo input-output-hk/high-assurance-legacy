@@ -10,19 +10,15 @@ module Graph
     , addEdge
     , buildGraph
     , networkP
-    , measureM
-    , probMDQ
-    , weighted
+    , measure
     ) where
 
 import           Control.Monad
-import           Control.Monad.Operational
 import           Control.Monad.State
 import           Data.DeltaQ
 import           Data.DeltaQ.PList
-import           Data.List.NonEmpty        (NonEmpty (..))
-import qualified Data.List.NonEmpty        as NE
-import           Data.Maybe                (mapMaybe)
+import           Data.Maybe          (mapMaybe)
+import qualified Data.Polynomial     as P
 import           Process
 
 type Node = Int
@@ -112,44 +108,30 @@ networkP dq g@(n, _) lg = go n []
     go 0 ns = nodesP dq g ns lg
     go m ns = Nu $ PrCont (\inp -> go (m - 1) ((m, inp) : ns))
 
-measureM :: forall p t dq m. (DeltaQ p t dq, MonadProb p m)
-         => Graph
-         -> dq
-         -> m dq
-measureM g@(n, _) dq = go [1..n] (exact now) $ toTrace (networkP dq g)
+measure :: Mixed -> Graph -> Mixed
+measure dq g@(i, _) = accPList'
+                    $ mapPList'
+                    $ toPList'
+                    $ toPList
+                    $ toTrace
+                    $ networkP dq g
   where
-    go :: [Int] -> dq -> MList m (dq, Message) -> m dq
-    go [] clock _         = return clock
-    go ns clock (MList l) = do
-        m <- l
-        case m of
-            Nothing                -> return never
-            Just ((dq', msg), l') -> do
-                let node   = read (msgPayload msg)
-                    clock' = clock <> dq'
-                if node `elem` ns
-                    then go (filter (/= node) ns) clock' l'
-                    else go ns                    clock' l'
+    mapPList' :: PList' Rational (Mixed, Message)
+              -> PList' Rational (P.Mixed Rational, Int)
+    mapPList' = fmap $ \(Mixed dq', Message _ msg) -> (dq', read msg)
 
-probMDQ :: forall p t dq. DeltaQ p t dq => ProbM p dq -> dq
-probMDQ (ProbT prog) = go $ view prog
-  where
-    go :: ProgramView (ProbI p) dq -> dq
-    go (Return dq)            = dq
-    go (Coin p a b :>>= cont) =
-        let !dqa = goCont cont a
-            !dqb = goCont cont b
-            !dq' = mix p dqa dqb
-        in  dq'
-    go (Elements xs :>>= cont) = weighted $ goCont cont <$> xs
-
-    goCont :: (a -> Program (ProbI p) dq) -> a -> dq
-    goCont cont = probMDQ . ProbT . cont
-
-weighted :: DeltaQ p t dq => NonEmpty dq -> dq
-weighted xs = go' (NE.length xs) xs
-  where
-    go' _  (dq :| [])       = dq
-    go' !n (dq :| (y : ys)) =
-        let !p = prob $ recip $ fromIntegral n
-        in  mix p dq $ go' (n - 1) (y :| ys)
+    accPList' :: PList' Rational (P.Mixed Rational, Int) -> Mixed
+    accPList' = go [1..i] Mixed
+      where
+        go :: [Int]
+           -> (P.Mixed Rational -> Mixed)
+           -> PList' Rational (P.Mixed Rational, Int)
+           -> Mixed
+        go [] cont _                               = cont 1
+        go _  cont (PList' [])                     = cont 0
+        go ns cont (PList' ((p, (d, n), l') : xs)) =
+            let cont' dq' =
+                    let !x          = P.scale (getProb p) (d * dq')
+                        cont'' dq'' = let !y = x + dq'' in cont y
+                    in  go ns cont'' $ PList' xs
+            in  go (filter (/= n) ns) cont' l'

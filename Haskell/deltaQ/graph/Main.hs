@@ -21,7 +21,7 @@ testGraph = mapM_ $ \xs -> do
     print xs
     let dq     = mix 0.5 never $ un 5 15
         (g, s) = graphFromList xs
-        resEx  = probMDQ $ measureM g dq
+        resEx  = measure dq g
     print resEx
     toFileMixed s $ getMixed resEx
 

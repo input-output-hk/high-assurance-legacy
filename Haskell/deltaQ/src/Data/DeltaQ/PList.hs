@@ -7,6 +7,8 @@ module Data.DeltaQ.PList
     , mcons
     , mflatten
     , PList (..)
+    , PTerm (..)
+    , PList' (..)
     , toPList
     , toPList'
     ) where
@@ -39,22 +41,24 @@ data PTerm p a = PTerm !(Prob p) (PList p a)
     deriving (Show, Eq, Ord)
 
 scalePTerm :: (Ord p, Num p) => Prob p -> PTerm p a -> PTerm p a
-scalePTerm p (PTerm q xs) = PTerm (p * q) $ scalePList p xs
+scalePTerm p (PTerm q xs) = PTerm (p * q) xs
 
-addPTerms :: (Ord p, Num p, Ord a) => PTerm p a -> PTerm p a -> PTerm p a
-addPTerms (PTerm p xs) (PTerm q ys) = PTerm (p + q) $ addPLists xs ys
+addPTerms :: (Ord p, Fractional p, Ord a) => PTerm p a -> PTerm p a -> PTerm p a
+addPTerms (PTerm p xs) (PTerm q ys) = PTerm (p + q)
+                                    $ addPLists (scalePList (p / (p + q)) xs)
+                                                (scalePList (q / (p + q)) ys)
 
-newtype PList p a = PList (Map a (PTerm p a))
+newtype PList p a = PList {getPList :: Map a (PTerm p a)}
     deriving (Show, Eq, Ord)
 
 scalePList :: (Ord p, Num p) => Prob p -> PList p a -> PList p a
 scalePList p (PList m) = PList $ scalePTerm p <$> m
 
-addPLists :: (Ord p, Num p, Ord a) => PList p a -> PList p a -> PList p a
+addPLists :: (Ord p, Fractional p, Ord a) => PList p a -> PList p a -> PList p a
 addPLists (PList m) (PList n) = PList $ M.unionWith addPTerms m n
 
-newtype PList' p a = PList' [(Prob p, a, PList' p a)]
-    deriving (Show, Eq, Ord)
+newtype PList' p a = PList' {getPList' :: [(Prob p, a, PList' p a)]}
+    deriving (Show, Eq, Ord, Functor)
 
 toPList' :: forall p a. Ord p => PList p a -> PList' p a
 toPList' (PList m) = PList' $ sortBy g $ map f $ M.toList m
