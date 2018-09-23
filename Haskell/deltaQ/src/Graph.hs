@@ -11,6 +11,7 @@ module Graph
     , buildGraph
     , networkP
     , measure
+    , graphIO
     ) where
 
 import           Control.Monad
@@ -19,7 +20,9 @@ import           Data.DeltaQ
 import           Data.DeltaQ.PList
 import           Data.Maybe          (mapMaybe)
 import qualified Data.Polynomial     as P
+import           Pipes
 import           Process
+import           Text.Printf         (printf)
 
 type Node = Int
 type Graph = (Int, [(Node, Node)])
@@ -135,3 +138,50 @@ measure dq g@(i, _) = accPList'
                         cont'' dq'' = let !y = x + dq'' in cont y
                     in  go ns cont'' $ PList' xs
             in  go (filter (/= n) ns) cont' l'
+
+stepState :: (Mixed, Message) -> (Mixed, [Int]) -> PState Mixed (Mixed, [Int])
+stepState (dq, Message _ msg) (acc, ns) =
+    let n    = read msg
+        acc' = acc <> dq
+    in  case filter (/= n) ns of
+            []  -> Success acc'
+            ns' -> Undecided (acc', ns')
+
+initState :: Int -> (Mixed, [Int])
+initState n = (exact now, [1..n])
+
+pipeGraph :: Monad m => Mixed -> Graph -> Producer (Prob Rational, Maybe Mixed) m ()
+pipeGraph dq g@(n, _) = pipePList'
+    stepState
+    (initState n)
+    (toPList' $ toPList $ toTrace $ networkP dq g)
+
+consumer :: Monad m
+         => (Rational -> Rational -> Mixed -> m ())
+         -> (Mixed -> m ())
+         -> Consumer (Prob Rational, Maybe Mixed) m ()
+consumer report process = go 0 0 0
+  where
+    go !s !f !d = do
+        (p, m) <- await
+        let (s', f', d') = case m of
+                Nothing        -> (s, f + getProb p, d)
+                Just (Mixed e) -> (s + getProb p, f, d + e)
+        lift $ report s' f' (Mixed d')
+        when (s' + f' == 1) $ lift $ process $ Mixed d'
+        go s' f' d'
+
+graphIO :: Mixed -> Graph -> (Mixed -> IO ()) -> IO ()
+graphIO dq g process = runEffect $ pipeGraph dq g >-> consumer report process'
+  where
+    report :: Rational -> Rational -> Mixed -> IO ()
+    report s f _ = do
+        let s' = fromRational s :: Double
+            f' = fromRational f :: Double
+        printf "%6.4f %6.4f %6.4f\n" (s' + f') s' f'
+
+    process' :: Mixed -> IO ()
+    process' res = do
+        let massd = fromRational $ getProb $ mass res :: Double
+        printf "mass: %6.4f\n" massd
+        process res

@@ -40,6 +40,7 @@ Library
                    MonadRandom        ^>= 0.5,
                    mtl                ^>= 2.2,
                    operational        ^>= 0.2,
+                   pipes              ^>= 4.3,
                    polynomials,
                    semigroups         ^>= 0.18,
                    transformers       ^>= 0.5

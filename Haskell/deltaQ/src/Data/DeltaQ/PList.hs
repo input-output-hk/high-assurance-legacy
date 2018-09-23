@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns        #-}
 {-# LANGUAGE DeriveFunctor       #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -11,8 +12,12 @@ module Data.DeltaQ.PList
     , PList' (..)
     , toPList
     , toPList'
+    , printPList'
+    , PState (..)
+    , pipePList'
     ) where
 
+import           Control.Monad
 import           Control.Monad.Operational
 import           Data.DeltaQ.Probability
 import           Data.Foldable             (foldl')
@@ -20,6 +25,8 @@ import           Data.List                 (sortBy)
 import qualified Data.List.NonEmpty        as NE
 import           Data.Map.Strict           (Map)
 import qualified Data.Map.Strict           as M
+import           Pipes
+import           Text.Printf               (printf)
 
 newtype MList m a = MList {getMList :: m (Maybe (a, MList m a))}
     deriving Functor
@@ -88,6 +95,32 @@ toPList (MList (ProbT l)) = go $ view l
     go' :: Program (ProbI p) (Maybe (a, MList (ProbM p) a)) -> PList p a
     go' = toPList . MList . ProbT
 
-test :: MList (ProbM Rational) Char
-test = MList $ coin 0.3 (Just ('x', MList $ return $ Just ('y', MList $ return Nothing)))
-                        (Just ('x', MList $ return $ Just ('z', MList $ return Nothing)))
+printPList' :: forall p a. (Show p, Show a) => PList' p a -> IO ()
+printPList' = go 0
+  where
+    go :: Int -> PList' p a -> IO ()
+    go i (PList' xs) = forM_ xs $ \(p, a, l) -> do
+        printf "%s %s %s\n" (replicate i ' ') (show p) (show a)
+        go (i + 1) l
+
+data PState s t = Failure | Success s | Undecided t
+    deriving (Show, Eq, Ord)
+
+pipePList' :: (Ord p, Num p, Monad m)
+           => (a -> t -> PState s t)
+           -> t
+           -> PList' p a
+           -> Producer (Prob p, Maybe s) m ()
+pipePList' step = go 1
+  where
+    go p t (PList' xs) = go' p t xs
+
+    go' !p t xs = do
+        let !r = sum [q | (q, _, _) <- xs]
+        when (r < 1) $ yield (p * (1 - r), Nothing)
+        forM_ xs $ \(q, a, l) -> do
+            let !p' = p * q
+            case step a t of
+                Failure      -> yield (p', Nothing)
+                Success s    -> yield (p', Just s)
+                Undecided t' -> go p' t' l
