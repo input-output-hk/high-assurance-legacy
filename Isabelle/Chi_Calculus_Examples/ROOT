@@ -5,5 +5,6 @@ session Chi_Calculus_Examples (ouroboros) = Chi_Calculus +
   theories
     Square_Numbers_Server
     Broadcaster
+    Synchronous_Communication
   document_files
     "root.tex"
