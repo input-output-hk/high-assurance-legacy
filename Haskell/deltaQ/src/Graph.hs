@@ -116,9 +116,6 @@ stepState (_, dqAbs, Message _ msg) ns =
         []  -> Success dqAbs
         ns' -> Undecided ns'
 
-initState :: Int -> [Int]
-initState n = [1..n]
-
 pipeGraph :: Monad m
           => Mixed
           -> Graph
