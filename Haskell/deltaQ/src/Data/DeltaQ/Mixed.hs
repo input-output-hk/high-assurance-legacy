@@ -67,6 +67,8 @@ instance DeltaQ Rational Q Mixed where
                           , Mixed $ fromJust $ P.massive $ P.residual x y
                           )
 
+    after (Mixed x) (Mixed y) = Mixed <$> P.massive (P.after x y)
+
 uniformMixed :: Rational -> Rational -> Mixed
 uniformMixed a b
     | a < b     = Mixed $ P.uniformMixed a b

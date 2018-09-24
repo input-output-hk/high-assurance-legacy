@@ -10,7 +10,6 @@ module Graph
     , addEdge
     , buildGraph
     , networkP
-    , measure
     , graphIO
     ) where
 
@@ -111,49 +110,22 @@ networkP dq g@(n, _) lg = go n []
     go 0 ns = nodesP dq g ns lg
     go m ns = Nu $ PrCont (\inp -> go (m - 1) ((m, inp) : ns))
 
-measure :: Mixed -> Graph -> Mixed
-measure dq g@(i, _) = accPList'
-                    $ mapPList'
-                    $ toPList'
-                    $ toPList
-                    $ toTrace
-                    $ networkP dq g
-  where
-    mapPList' :: PList' Rational (Mixed, Message)
-              -> PList' Rational (P.Mixed Rational, Int)
-    mapPList' = fmap $ \(Mixed dq', Message _ msg) -> (dq', read msg)
+stepState :: (Mixed, Mixed, Message) -> [Int] -> PState Mixed [Int]
+stepState (_, dqAbs, Message _ msg) ns =
+    case filter (/= read msg) ns of
+        []  -> Success dqAbs
+        ns' -> Undecided ns'
 
-    accPList' :: PList' Rational (P.Mixed Rational, Int) -> Mixed
-    accPList' = go [1..i] Mixed
-      where
-        go :: [Int]
-           -> (P.Mixed Rational -> Mixed)
-           -> PList' Rational (P.Mixed Rational, Int)
-           -> Mixed
-        go [] cont _                               = cont 1
-        go _  cont (PList' [])                     = cont 0
-        go ns cont (PList' ((p, (d, n), l') : xs)) =
-            let cont' dq' =
-                    let !x          = P.scale (getProb p) (d * dq')
-                        cont'' dq'' = let !y = x + dq'' in cont y
-                    in  go ns cont'' $ PList' xs
-            in  go (filter (/= n) ns) cont' l'
+initState :: Int -> [Int]
+initState n = [1..n]
 
-stepState :: (Mixed, Message) -> (Mixed, [Int]) -> PState Mixed (Mixed, [Int])
-stepState (dq, Message _ msg) (acc, ns) =
-    let n    = read msg
-        acc' = acc <> dq
-    in  case filter (/= n) ns of
-            []  -> Success acc'
-            ns' -> Undecided (acc', ns')
-
-initState :: Int -> (Mixed, [Int])
-initState n = (exact now, [1..n])
-
-pipeGraph :: Monad m => Mixed -> Graph -> Producer (Prob Rational, Maybe Mixed) m ()
+pipeGraph :: Monad m
+          => Mixed
+          -> Graph
+          -> Producer (Prob Rational, Maybe Mixed) m ()
 pipeGraph dq g@(n, _) = pipePList'
     stepState
-    (initState n)
+    [1..n]
     (toPList' $ toPList $ toTrace $ networkP dq g)
 
 consumer :: Monad m
@@ -164,9 +136,10 @@ consumer report process = go 0 0 0
   where
     go !s !f !d = do
         (p, m) <- await
-        let (s', f', d') = case m of
-                Nothing        -> (s, f + getProb p, d)
-                Just (Mixed e) -> (s + getProb p, f, d + e)
+        let p' = getProb p
+            (s', f', d') = case m of
+                Nothing        -> (s, f + p', d)
+                Just (Mixed e) -> (s + p', f, d + P.scale p' e)
         lift $ report s' f' (Mixed d')
         when (s' + f' == 1) $ lift $ process $ Mixed d'
         go s' f' d'

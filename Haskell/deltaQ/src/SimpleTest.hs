@@ -9,22 +9,22 @@ import           Text.Printf       (printf)
 
 proc :: Chan -> Process Mixed
 proc logChan =
-        logChan :<: (exact $ Finite 10, "A")
+        logChan :<: (exact $ Finite 20, "A")
     :|: Nu (PrCont $ \ch ->
                 ch :<: (uniformMixed 3 7, "b")
             :|: (ch :>: PrCont (const $
                     logChan :<: (exact now, "B")
                 :|: logChan :<: (uniformMixed 3 7, "C"))))
 
-runProc :: (Chan -> Process Mixed) -> [(Rational, [(Mixed, Message)])]
+runProc :: (Chan -> Process Mixed) -> [(Rational, [(Mixed, Mixed, Message)])]
 runProc = map (first getProb . swap) . M.toList . runProbM . mflatten . toTrace
 
 swap :: (a, b) -> (b, a)
 swap (a, b) = (b, a)
 
-printChunk :: [(Mixed, Message)] -> IO ()
-printChunk = mapM_ $ \(Mixed m, Message _ pl) ->
-    printf "%s: %s\n" pl (show m)
+printChunk :: [(Mixed, Mixed, Message)] -> IO ()
+printChunk = mapM_ $ \(Mixed mRel, Mixed mAbs, Message _ pl) ->
+    printf "%s: %s\n   %s\n" pl (show mRel) (show mAbs)
 
 runProcIO :: (Chan -> Process Mixed) -> IO ()
 runProcIO = mapM_ (\(p, chunk) -> do

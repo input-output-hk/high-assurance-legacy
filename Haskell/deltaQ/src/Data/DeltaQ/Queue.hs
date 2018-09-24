@@ -5,53 +5,57 @@
 module Data.DeltaQ.Queue
     ( Queue (..)
     , emptyQueue
+    , dequeue
     , enqueue
-    , filterQueue
     ) where
 
 import Data.DeltaQ.Core
 import Data.DeltaQ.Probability
 
-newtype Queue p t dq m a = Queue {dequeue :: m (Maybe (dq, a, Queue p t dq m a))}
-    deriving Functor
+newtype Queue p t dq m a = Queue ([(a, dq, dq)] -> m (Maybe (a, dq, dq, Queue p t dq m a)))
 
 instance Show (Queue p t dq m a) where
     show = const "Queue"
 
-emptyQueue :: Monad m => Queue p t dq m a
-emptyQueue = Queue $ return Nothing
+enqueue' :: a -> dq -> dq -> Queue p t dq m a -> Queue p t dq m a
+enqueue' a dqRel dqAbs (Queue f) = Queue $ \xs -> f ((a, dqRel, dqAbs) : xs)
+
+dequeue :: Queue p t dq m a -> m (Maybe (a, dq, dq, Queue p t dq m a))
+dequeue (Queue f) = f []
+
+emptyQueue :: (DeltaQ p t dq, MonadProb p m) => Queue p t dq m a
+emptyQueue = Queue $ foldr f (return Nothing)
+  where
+    f (a, dqaRel, dqaAbs) x = do
+        m <- x
+        case m of
+            Nothing -> return $ Just (a, dqaRel, dqaAbs, emptyQueue)
+            Just (b, dqbRel, dqbAbs, q) ->
+                case before dqaRel dqbRel of
+                    Nothing -> do
+                        let Just (_, _, dqaRel') = before dqbRel dqaRel
+                            Just dqaAbs'         = after dqaAbs dqbAbs
+                        return $ Just (b, dqbRel, dqbAbs, enqueue' a dqaRel' dqaAbs' q)
+                    Just (1, _, dqbRel') ->
+                        return $ Just (a, dqaRel, dqaAbs, enqueue' b dqbRel' dqbAbs q)
+                    Just (p, dqaRel1, dqbRel1) -> do
+                        let Just (_, dqaAbs1, _)       = before dqaAbs dqbAbs
+                            Just dqbAbs1               = after dqbAbs dqaAbs
+                            Just (_, dqbRel2, dqaRel2) = before dqbRel dqaRel
+                            Just (_, dqbAbs2, _)       = before dqbAbs dqaAbs
+                            Just dqaAbs2               = after dqaAbs dqbAbs
+                        coin p
+                            (Just (a, dqaRel1, dqaAbs1, enqueue' b dqbRel1 dqbAbs1 q))
+                            (Just (b, dqbRel2, dqbAbs2, enqueue' a dqaRel2 dqaAbs2 q))
 
 enqueue :: (DeltaQ p t dq, MonadProb p m)
-        => dq
-        -> a
+        => a
+        -> dq
+        -> dq
         -> Queue p t dq m a
         -> Queue p t dq m a
-enqueue dqa a q = case massive dqa of
-    Nothing        -> q
-    Just (p, dqa') -> Queue $ do
-        m <- dequeue q
-        coinM (1 - p) (return m) $ Just <$> case m of
-            Nothing           -> return (dqa', a, emptyQueue)
-            Just (dqb, b, q') -> case before dqa' dqb of
-                Nothing               -> do
-                    let Just (_, _, dqa'') = before dqb dqa'
-                        q''                = enqueue dqa'' a q'
-                    return (dqb, b, q'')
-                Just (pa, dqa'', dqb') -> coin pa
-                    (dqa'', a, Queue $ return $ Just (dqb', b, q'))
-                    (let Just (_, dqb'', dqa''') = before dqb dqa'
-                     in  (dqb'', b, enqueue dqa''' a q'))
-
-filterQueue :: (DeltaQ p t dq, Monad m)
-            => (a -> Bool)
-            -> Queue p t dq m a
-            -> Queue p t dq m a
-filterQueue p = go mempty
-  where
-    go dq q = Queue $ do
-        m <- dequeue q
-        case m of
-            Nothing           -> return Nothing
-            Just (dq', a, q')
-                | p a         -> return $ Just (dq <> dq', a, go mempty q')
-                | otherwise   -> dequeue $ go (dq <> dq') q'
+enqueue a dqRel dqAbs (Queue f) = Queue $ \xs -> case massive dqRel of
+    Nothing          -> f xs
+    Just (p, dqRel') ->
+        let Just (_, dqAbs') = massive dqAbs
+        in  coinM p (f $ (a, dqRel', dqAbs') : xs) (f xs)

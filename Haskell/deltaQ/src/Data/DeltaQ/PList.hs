@@ -116,11 +116,11 @@ pipePList' step = go 1
     go p t (PList' xs) = go' p t xs
 
     go' !p t xs = do
-        let !r = sum [q | (q, _, _) <- xs]
-        when (r < 1) $ yield (p * (1 - r), Nothing)
+        let !s = sum [q | (q, _, _) <- xs]
+        when (s < 1) $ yield (p * (1 - s), Nothing)
         forM_ xs $ \(q, a, l) -> do
             let !p' = p * q
             case step a t of
                 Failure      -> yield (p', Nothing)
-                Success s    -> yield (p', Just s)
+                Success x    -> yield (p', Just x)
                 Undecided t' -> go p' t' l
