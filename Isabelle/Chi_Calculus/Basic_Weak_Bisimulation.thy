@@ -661,7 +661,6 @@ lemma weak_basic_parallel_preservation: "P \<approx>\<^sub>\<flat> Q \<Longright
 lemma weak_basic_new_channel_preservation: "(\<And>a. \<P> a \<approx>\<^sub>\<flat> \<Q> a) \<Longrightarrow> \<nu> a. \<P> a \<approx>\<^sub>\<flat> \<nu> a. \<Q> a" sorry
 
 (*** Structural congruence laws ***)
-(* TODO: Prove them. *)
 
 lemma weak_basic_parallel_scope_extension: "\<nu> a. \<P> a \<parallel> Q \<approx>\<^sub>\<flat> \<nu> a. (\<P> a \<parallel> Q)"
   using strong_basic_bisim_imp_weak_basic_bisim and basic_parallel_scope_extension by simp
