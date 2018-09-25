@@ -1,6 +1,5 @@
 import Data.DeltaQ
-import Data.List              (intercalate)
-import Data.Polynomial.Charts
+import Data.List   (intercalate)
 import Graph
 
 graphs :: [[(Int, Int)]]
@@ -19,9 +18,9 @@ graphs =
 testGraph :: [[(Int, Int)]] -> IO ()
 testGraph = mapM_ $ \xs -> do
     print xs
-    let dq     = mix 0.5 never $ un 5 15
-        (g, s) = graphFromList xs
-    graphIO dq g $ \res -> toFileMixed s (getMixed res)
+    let dq     = mix 0.5 never $ uniformMixed 0.5 1.5
+        (g, _) = graphFromList xs
+    graphIO dq 10 g $ const (return ()) -- \res -> toFileMixed s (getMixed res)
 
 main :: IO ()
 main = testGraph graphs

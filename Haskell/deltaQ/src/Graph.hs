@@ -17,8 +17,9 @@ import           Control.Monad
 import           Control.Monad.State
 import           Data.DeltaQ
 import           Data.DeltaQ.PList
+import           Data.IntMap.Strict  (IntMap)
+import qualified Data.IntMap.Strict  as IM
 import           Data.Maybe          (mapMaybe)
-import qualified Data.Polynomial     as P
 import           Pipes
 import           Process
 import           Text.Printf         (printf)
@@ -99,7 +100,22 @@ nodesP dq g@(n, _) ns lg = go n
     findChan :: Node -> Chan
     findChan m = head $ map snd $ filter (\(k, _) -> k == m) ns
 
-networkP :: forall p t dq. DeltaQ p t dq
+ticker :: forall p t dq. (Num t, DeltaQ p t dq) => Chan -> Process dq
+ticker lg = Nu $ PrCont $ \ch ->
+        ch :<: (dq1, ".")
+    :|: listener ch
+  where
+    listener :: Chan -> Process dq
+    listener ch = ch :>: (PrCont $ const $
+            lg  :<: (dq0, "TICK")
+        :|: ch :<: (dq1, ".")
+        :|: listener ch)
+
+    dq0, dq1 :: dq
+    dq0 = exact now
+    dq1 = exact (Finite 1)
+
+networkP :: forall p t dq. (DeltaQ p t dq, Num t)
          => dq
          -> Graph
          -> Chan
@@ -107,51 +123,59 @@ networkP :: forall p t dq. DeltaQ p t dq
 networkP dq g@(n, _) lg = go n []
   where
     go :: Node -> [(Node, Chan)] -> Process dq
-    go 0 ns = nodesP dq g ns lg
+    go 0 ns = nodesP dq g ns lg :|: ticker lg
     go m ns = Nu $ PrCont (\inp -> go (m - 1) ((m, inp) : ns))
 
-stepState :: (Mixed, Mixed, Message) -> [Int] -> PState Mixed [Int]
-stepState (_, dqAbs, Message _ msg) ns =
+stepState :: Int
+          -> (Mixed, Message)
+          -> ([Int], Int)
+          -> PState Int ([Int], Int)
+stepState timeout (_, Message _ "TICK") (ns, t)
+    | t == timeout - 1 = Failure
+    | otherwise        = Undecided (ns, t + 1)
+stepState _       (_, Message _ msg)    (ns, t) =
     case filter (/= read msg) ns of
-        []  -> Success dqAbs
-        ns' -> Undecided ns'
+        []  -> Success $ t + 1
+        ns' -> Undecided (ns', t)
 
 pipeGraph :: Monad m
           => Mixed
+          -> Int
           -> Graph
-          -> Producer (Prob Rational, Maybe Mixed) m ()
-pipeGraph dq g@(n, _) = pipePList'
-    stepState
-    [1..n]
+          -> Producer (Prob Rational, Maybe Int) m ()
+pipeGraph dq timeout g@(n, _) = pipePList'
+    (stepState timeout)
+    ([1..n], 0)
     (toPList' $ toPList $ toTrace $ networkP dq g)
 
-consumer :: Monad m
-         => (Rational -> Rational -> Mixed -> m ())
-         -> (Mixed -> m ())
-         -> Consumer (Prob Rational, Maybe Mixed) m ()
-consumer report process = go 0 0 0
+consumer :: forall m. Monad m
+         => (Rational -> Rational -> Maybe Int -> IntMap Rational -> m ())
+         -> (IntMap Rational -> m ())
+         -> Consumer (Prob Rational, Maybe Int) m ()
+consumer report process = go 0 0 IM.empty
   where
     go !s !f !d = do
         (p, m) <- await
         let p' = getProb p
             (s', f', d') = case m of
-                Nothing        -> (s, f + p', d)
-                Just (Mixed e) -> (s + p', f, d + P.scale p' e)
-        lift $ report s' f' (Mixed d')
-        when (s' + f' == 1) $ lift $ process $ Mixed d'
+                Nothing -> (s, f + p', d)
+                Just t  -> (s + p', f, IM.insertWith (+) t p' d)
+        lift $ report s' f' m d'
+        when (s' + f' == 1) $ lift $ process d'
         go s' f' d'
 
-graphIO :: Mixed -> Graph -> (Mixed -> IO ()) -> IO ()
-graphIO dq g process = runEffect $ pipeGraph dq g >-> consumer report process'
+graphIO :: Mixed -> Int -> Graph -> (IntMap Rational -> IO ()) -> IO ()
+graphIO dq timeout g process =
+    runEffect $ pipeGraph dq timeout g >-> consumer report process'
   where
-    report :: Rational -> Rational -> Mixed -> IO ()
-    report s f _ = do
+    report :: Rational -> Rational -> Maybe Int -> IntMap Rational -> IO ()
+    report s f m _ = do
         let s' = fromRational s :: Double
             f' = fromRational f :: Double
-        printf "%6.4f %6.4f %6.4f\n" (s' + f') s' f'
+        printf "%6.4f %6.4f %6.4f %s\n" (s' + f') s' f' (show m)
 
-    process' :: Mixed -> IO ()
+    process' :: IntMap Rational -> IO ()
     process' res = do
-        let massd = fromRational $ getProb $ mass res :: Double
-        printf "mass: %6.4f\n" massd
+        forM_ (IM.toList res) $ \(t, p) ->
+            printf "%3d: %6.4f\n" t (fromRational p :: Double)
         process res
