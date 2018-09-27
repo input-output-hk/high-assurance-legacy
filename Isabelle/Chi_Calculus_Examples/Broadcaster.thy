@@ -60,20 +60,14 @@ text \<open>
   so far, and forwards incoming values to those parties along their associated channels.
 \<close>
 
-(*
-  The following cannot be defined because of limitations of \<open>corec\<close>. One the guard construct is
-  there, we will not use Isabelle’s case distinction anyhow.
-*)
-
-axiomatization broadcast :: "'a::countable channel list \<Rightarrow> 'a broadcaster_cmd channel \<Rightarrow> process"
-(*
+corec
+  broadcast :: "'a::countable channel list \<Rightarrow> 'a broadcaster_cmd channel \<Rightarrow> process"
 where
   "broadcast chans cmds =
     cmds \<triangleright>\<degree> cmd. (
-      case cmd of
-        Reg chan  \<Rightarrow> broadcast (chan # chans) cmds |
-        Input val \<Rightarrow> foldr (\<lambda> chan p. chan \<triangleleft>\<degree> val \<parallel> p) chans \<zero>)"
-*)
+      (\<exists>chan. cmd = Reg chan) ? broadcast ((THE chan. cmd = Reg chan) # chans) cmds \<parallel>
+      (\<exists>val. cmd = Input val) ? foldr (\<lambda> chan p. chan \<triangleleft>\<degree> (THE val. cmd = Input val) \<parallel> p) chans \<zero>
+    )"
 
 text \<open>
   Now, given the three processes defined above, we assemble them into the broadcasting server 
