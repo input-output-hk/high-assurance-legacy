@@ -7,6 +7,7 @@ begin
 text \<open>
   The definition of the type of processes is fairly straightforward.
 \<close>
+(* FIXME: Discuss the differences to the Haskell version. *)
 
 codatatype process =
   Stop ("\<zero>") |
