@@ -65,11 +65,12 @@ corec
 where
   "broadcast chans cmds =
     cmds \<triangleright>\<degree> cmd. (
-      (\<exists>chan. cmd = Reg chan) ?
-        broadcast ((THE chan. cmd = Reg chan) # chans) cmds
+      (\<exists>chan. cmd = Reg chan) ? (let chan = THE chan. cmd = Reg chan in
+        broadcast (chan # chans) cmds
+      )
       \<parallel>
-      (\<exists>val. cmd = Input val) ? (
-        foldr (\<lambda> chan p. chan \<triangleleft>\<degree> (THE val. cmd = Input val) \<parallel> p) chans \<zero>
+      (\<exists>val. cmd = Input val) ? (let val = THE val. cmd = Input val in
+        foldr (\<lambda> chan p. chan \<triangleleft>\<degree> val \<parallel> p) chans \<zero>
         \<parallel>
         broadcast chans cmds
       )
