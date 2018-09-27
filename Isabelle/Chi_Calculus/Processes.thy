@@ -34,6 +34,13 @@ translations
   "c \<triangleright> x. p" \<rightleftharpoons> "CONST Receive c (\<lambda>x. p)"
 
 text \<open>
+  We define guarding of processes at the host-language level.
+\<close>
+
+abbreviation guard :: "[bool, process] \<Rightarrow> process" (infixr "?" 100) where
+  "w ? p \<equiv> if w then p else \<zero>"
+
+text \<open>
   This is all for processes.
 \<close>
 
