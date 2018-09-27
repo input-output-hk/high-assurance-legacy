@@ -1,5 +1,5 @@
 theory Basic_Weak_Bisimulation
-  imports Basic_Transition_System
+  imports Typed_Basic_Transition_System
 begin
 
 (* Sequence of \<tau>-transitions: \<Longrightarrow>\<^sub>\<flat> *)
@@ -554,6 +554,26 @@ proof -
     ultimately show ?case by blast
   qed
 qed
+
+(* TODO: Prove it. *)
+lemma pre_weak_basic_receive_preservation: "(\<And>x. \<X> (\<P> x) (\<Q> x)) \<Longrightarrow> c \<triangleright>\<degree> x. \<P> x \<leadsto>\<^sub>\<flat><\<X>> c \<triangleright>\<degree> x. \<Q> x" sorry
+
+(* TODO: Prove it. *)
+lemma pre_weak_basic_parallel_preservation:
+  assumes "P \<leadsto>\<^sub>\<flat><\<X>> Q"
+  and     "\<X> P Q"
+  and     "\<And>S T U. \<X> S T \<Longrightarrow> \<Y> (S \<parallel> U) (T \<parallel> U)"
+  and     "\<And>\<S> \<T> x. (\<And>x. \<Y> (\<S> x) (\<T> x)) \<Longrightarrow> \<Y> (\<nu>\<degree> x. \<S> x) (\<nu>\<degree> x. \<T> x)"
+  shows   "(P \<parallel> R) \<leadsto>\<^sub>\<flat><\<Y>> (Q \<parallel> R)"
+  sorry
+
+(* TODO: Prove it. *)
+lemma pre_weak_basic_new_channel_preservation:
+  assumes "\<And>x. \<P> x \<leadsto>\<^sub>\<flat><\<X>> \<Q> x"
+  and     "\<And>\<R> \<S> y. (\<And>x. \<X> (\<R> x) (\<S> x)) \<Longrightarrow> \<Y> (\<nu>\<degree> y. \<R> y) (\<nu>\<degree> y. \<S> y)"
+  and     "\<X> \<le> \<Y>"
+  shows   "\<nu>\<degree> x. \<P> x \<leadsto>\<^sub>\<flat><\<Y>> \<nu>\<degree> x. \<Q> x"
+  sorry
 
 (** Weak basic bisimulation **)
 
