@@ -12,7 +12,7 @@ where
 corec
   receiver :: "['a::countable channel, 'a::countable channel] \<Rightarrow> process"
 where
-  "receiver outm out = outm  \<triangleright>\<degree> x. (out \<triangleleft>\<degree> x \<parallel> receiver out outm)"
+  "receiver outm out = outm  \<triangleright>\<degree> x. (out \<triangleleft>\<degree> x \<parallel> receiver outm out)"
 
 corec
   medium :: "['a::countable channel, 'a::countable channel] \<Rightarrow> process"
