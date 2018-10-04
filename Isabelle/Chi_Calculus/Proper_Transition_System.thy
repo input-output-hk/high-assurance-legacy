@@ -152,7 +152,7 @@ subsection \<open>Residuals\<close>
 text \<open>
   There are two kinds of residuals in the proper transition system: simple residuals, written
   \<open>\<lparr>\<delta>\<rparr> q\<close> where \<open>\<delta>\<close> is an action, and output residuals, written
-  \<open>\<lparr>c \<triangleleft> \<nu> a\<^sub>1 \<dots> a\<^sub>n. \<v> a\<^sub>1 \<dots> a\<^sub>n\<rparr> Q a\<^sub>1 \<dots> a\<^sub>n\<close> where \<open>c\<close> is a channel and the \<open>a\<^sub>i\<close> are channel variables.
+  \<open>\<lparr>c \<triangleleft> \<nu> a\<^sub>1 \<dots> a\<^sub>n. V a\<^sub>1 \<dots> a\<^sub>n\<rparr> Q a\<^sub>1 \<dots> a\<^sub>n\<close> where \<open>c\<close> is a channel and the \<open>a\<^sub>i\<close> are channel variables.
 \<close>
 
 datatype proper_residual =
