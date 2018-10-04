@@ -11,8 +11,8 @@ text \<open>
 \<close>
 
 locale transition_system =
-  residual lift for lift :: "('process \<Rightarrow> 'process \<Rightarrow> bool) \<Rightarrow> ('residual \<Rightarrow> 'residual \<Rightarrow> bool)" +
-  fixes transition :: "'process \<Rightarrow> 'residual \<Rightarrow> bool" (infix "\<longmapsto>" 50)
+  residual lift for lift :: "(['process, 'process] \<Rightarrow> bool) \<Rightarrow> (['residual, 'residual] \<Rightarrow> bool)" +
+  fixes transition :: "['process, 'residual] \<Rightarrow> bool" (infix "\<longmapsto>" 50)
 begin
 
 subsection \<open>Transfer\<close>
@@ -27,7 +27,7 @@ text \<open>
 \<close>
 
 abbreviation
-  transfer :: "('process \<Rightarrow> 'process \<Rightarrow> bool) \<Rightarrow> ('process \<Rightarrow> 'process \<Rightarrow> bool)"
+  transfer :: "(['process, 'process] \<Rightarrow> bool) \<Rightarrow> (['process, 'process] \<Rightarrow> bool)"
 where
   "transfer \<X> p q \<equiv> \<forall>d. p \<longmapsto>d \<longrightarrow> (\<exists>e. q \<longmapsto>e \<and> lift \<X> d e)"
 
@@ -82,7 +82,7 @@ text \<open>
 \<close>
 
 abbreviation
-  sim :: "('process \<Rightarrow> 'process \<Rightarrow> bool) \<Rightarrow> bool"
+  sim :: "(['process, 'process] \<Rightarrow> bool) \<Rightarrow> bool"
 where
   "sim \<X> \<equiv> \<X> \<le> transfer \<X>"
 
@@ -110,7 +110,7 @@ text \<open>
 \<close>
 
 abbreviation
-  bisim :: "('process \<Rightarrow> 'process \<Rightarrow> bool) \<Rightarrow> bool"
+  bisim :: "(['process, 'process] \<Rightarrow> bool) \<Rightarrow> bool"
 where
   "bisim \<X> \<equiv> sim \<X> \<and> sim \<X>\<inverse>\<inverse>"
 
@@ -172,9 +172,9 @@ text \<open>
 \<close>
 
 coinductive
-  pre_bisimilarity :: "'process \<Rightarrow> 'process \<Rightarrow> bool" (infix "\<preceq>" 50)
+  pre_bisimilarity :: "['process, 'process] \<Rightarrow> bool" (infix "\<preceq>" 50)
 and
-  bisimilarity :: "'process \<Rightarrow> 'process \<Rightarrow> bool" (infix "\<sim>" 50)
+  bisimilarity :: "['process, 'process] \<Rightarrow> bool" (infix "\<sim>" 50)
 where
   "transfer op \<sim> p q \<Longrightarrow> p \<preceq> q" |
   "p \<sim> q \<equiv> p \<preceq> q \<and> q \<preceq> p"
@@ -354,7 +354,7 @@ text \<open>
   With the help of these auxiliary lemmas we define the proof method.
 \<close>
 
-method bisimilarity_standard for \<X> :: "'process \<Rightarrow> 'process \<Rightarrow> bool" = (
+method bisimilarity_standard for \<X> :: "['process, 'process] \<Rightarrow> bool" = (
   (
     intro predicate2D [of \<X> "op \<sim>", rotated];
       match conclusion in
