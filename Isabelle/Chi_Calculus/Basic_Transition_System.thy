@@ -210,26 +210,10 @@ text \<open>
   We introduce concise notation for some of the derived predicates of the transition system.
 \<close>
 
-abbreviation
-  basic_sim :: "(process \<Rightarrow> process \<Rightarrow> bool) \<Rightarrow> bool"
-  ("sim\<^sub>\<flat>")
-where
-  "sim\<^sub>\<flat> \<equiv> basic.sim"
-abbreviation
-  basic_bisim :: "(process \<Rightarrow> process \<Rightarrow> bool) \<Rightarrow> bool"
-  ("bisim\<^sub>\<flat>")
-where
-  "bisim\<^sub>\<flat> \<equiv> basic.bisim"
-abbreviation
-  basic_pre_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool"
-  (infix "\<lesssim>\<^sub>\<flat>" 50)
-where
-  "op \<lesssim>\<^sub>\<flat> \<equiv> basic.pre_bisimilarity"
-abbreviation
-  basic_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool"
-  (infix "\<sim>\<^sub>\<flat>" 50)
-where
-  "op \<sim>\<^sub>\<flat> \<equiv> basic.bisimilarity"
+notation basic.sim ("sim\<^sub>\<flat>")
+notation basic.bisim ("bisim\<^sub>\<flat>")
+notation basic.pre_bisimilarity (infix "\<lesssim>\<^sub>\<flat>" 50)
+notation basic.bisimilarity (infix "\<sim>\<^sub>\<flat>" 50)
 
 subsection \<open>Fundamental Properties of the Transition System\<close>
 

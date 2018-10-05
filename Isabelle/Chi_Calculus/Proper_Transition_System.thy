@@ -290,26 +290,10 @@ text \<open>
   We introduce concise notation for some of the derived predicates of the transition system.
 \<close>
 
-abbreviation
-  proper_sim :: "(process \<Rightarrow> process \<Rightarrow> bool) \<Rightarrow> bool"
-  ("sim\<^sub>\<sharp>")
-where
-  "sim\<^sub>\<sharp> \<equiv> proper.sim"
-abbreviation
-  proper_bisim :: "(process \<Rightarrow> process \<Rightarrow> bool) \<Rightarrow> bool"
-  ("bisim\<^sub>\<sharp>")
-where
-  "bisim\<^sub>\<sharp> \<equiv> proper.bisim"
-abbreviation
-  proper_pre_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool"
-  (infix "\<lesssim>\<^sub>\<sharp>" 50)
-where
-  "op \<lesssim>\<^sub>\<sharp> \<equiv> proper.pre_bisimilarity"
-abbreviation
-  proper_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool"
-  (infix "\<sim>\<^sub>\<sharp>" 50)
-where
-  "op \<sim>\<^sub>\<sharp> \<equiv> proper.bisimilarity"
+notation proper.sim ("sim\<^sub>\<sharp>")
+notation proper.bisim ("bisim\<^sub>\<sharp>")
+notation proper.pre_bisimilarity (infix "\<lesssim>\<^sub>\<sharp>" 50)
+notation proper.bisimilarity (infix "\<sim>\<^sub>\<sharp>" 50)
 
 subsection \<open>Fundamental Properties of the Transition System\<close>
 
