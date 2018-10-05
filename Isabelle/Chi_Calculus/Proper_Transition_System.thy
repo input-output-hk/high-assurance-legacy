@@ -482,7 +482,7 @@ proof (standard, intro allI, intro impI)
           basic_transitions_from_receive and
           basic_residual.inject(1) and
           basic_action.inject(1) and
-          io_action.inject(1)
+          io_action.inject(2)
         by smt
       from `basic_action_of \<delta> = c \<triangleright> v` have "c \<triangleright> x. \<nu> a. P x a \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. P v a"
         using receiving
