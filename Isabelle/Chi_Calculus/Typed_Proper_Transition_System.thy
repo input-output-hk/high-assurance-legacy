@@ -32,10 +32,10 @@ abbreviation
 where
   "\<lparr>\<cc> \<triangleleft>\<degree> \<kk> \<equiv> \<lparr>untyped_channel \<cc> \<triangleleft> untyped_output_rest \<kk>"
 
-lemma typed_output_without_opening: "p \<longmapsto>\<^sub>\<flat>\<lbrace>\<cc> \<triangleleft>\<degree> \<vv>\<rbrace> q \<Longrightarrow> p \<longmapsto>\<^sub>\<sharp>\<lparr>\<cc> \<triangleleft>\<degree> \<vv>\<rparr> q"
+lemma typed_output_without_opening: "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<cc> \<triangleleft>\<degree> \<vv>\<rbrace> q \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>\<cc> \<triangleleft>\<degree> \<vv>\<rparr> q"
   by (simp add: output_without_opening)
 lemma typed_output_with_opening:
-  "\<lbrakk>p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<QQ> \<aa>; \<And>\<aa>. \<QQ> \<aa> \<longmapsto>\<^sub>\<sharp>\<lparr>\<cc> \<triangleleft>\<degree> \<KK> \<aa>\<rbrakk> \<Longrightarrow> p \<longmapsto>\<^sub>\<sharp>\<lparr>\<cc> \<triangleleft>\<degree> \<nu>\<degree>\<aa>. \<KK> \<aa>"
+  "\<lbrakk>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<QQ> \<aa>; \<And>\<aa>. \<QQ> \<aa> \<rightarrow>\<^sub>\<sharp>\<lparr>\<cc> \<triangleleft>\<degree> \<KK> \<aa>\<rbrakk> \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>\<cc> \<triangleleft>\<degree> \<nu>\<degree>\<aa>. \<KK> \<aa>"
   by (simp add: output_with_opening)
 
 end

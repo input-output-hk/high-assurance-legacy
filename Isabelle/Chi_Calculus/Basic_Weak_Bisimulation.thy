@@ -7,30 +7,30 @@ begin
 abbreviation tau_sequence :: "process \<Rightarrow> process \<Rightarrow> bool"
   (infix "\<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat>" 50)
 where
-  "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q \<equiv> (p, q) \<in> {(p, q) | p q. p \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q}^*"
+  "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q \<equiv> (p, q) \<in> {(p, q) | p q. p \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q}^*"
 
 lemma tau_sequence_refl: "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p"
   by simp
 
-lemma tau_sequence_non_empty: "\<lbrakk> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q; p \<noteq> q \<rbrakk> \<Longrightarrow> \<exists>r. p \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> r \<and> r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
+lemma tau_sequence_non_empty: "\<lbrakk> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q; p \<noteq> q \<rbrakk> \<Longrightarrow> \<exists>r. p \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> r \<and> r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
   by (smt Pair_inject converse_rtranclE mem_Collect_eq)
 
 lemma tau_sequence_trans: "\<lbrakk> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r; r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
   by simp
 
-lemma tau_transition_is_tau_sequence: "p \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q \<Longrightarrow> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
+lemma tau_transition_is_tau_sequence: "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q \<Longrightarrow> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
   by auto
 
-lemma append_tau_transition_to_tau_sequence_is_tau_sequence:  "\<lbrakk> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r; r \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
+lemma append_tau_transition_to_tau_sequence_is_tau_sequence:  "\<lbrakk> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r; r \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
   by (metis (mono_tags, lifting) mem_Collect_eq rtrancl.simps)
 
-lemma prepend_tau_transition_to_tau_sequence_is_tau_sequence: "\<lbrakk> p \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> r; r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
+lemma prepend_tau_transition_to_tau_sequence_is_tau_sequence: "\<lbrakk> p \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> r; r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
   by (simp add: rtrancl_into_trancl2 trancl_into_rtrancl)
 
 lemma tau_sequence_induction[consumes 1, case_names tau_seq_refl tau_seq_step]:
   assumes "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
   and     "\<PP> p"
-  and     "\<And>r s. \<lbrakk> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r; r \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> s; \<PP> r \<rbrakk> \<Longrightarrow> \<PP> s"
+  and     "\<And>r s. \<lbrakk> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r; r \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> s; \<PP> r \<rbrakk> \<Longrightarrow> \<PP> s"
   shows   "\<PP> q"
   using assms
   by (induction rule: rtrancl_induct) auto
@@ -44,7 +44,7 @@ proof (induction rule: tau_sequence_induction)
   then show ?case by simp
 next
   case (tau_seq_step r p')
-  then have "r \<parallel> q \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> p' \<parallel> q"
+  then have "r \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> p' \<parallel> q"
     using tau_seq_step.hyps(2) by (simp add: acting_left)
   then show ?case
     using tau_seq_step.IH and append_tau_transition_to_tau_sequence_is_tau_sequence by simp
@@ -56,7 +56,7 @@ proof (induction rule: tau_sequence_induction)
   then show ?case by simp
 next
   case (tau_seq_step r q')
-  then have "p \<parallel> r \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> p \<parallel> q'"
+  then have "p \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> p \<parallel> q'"
     using tau_seq_step.hyps(2) by (simp add: acting_right)
   then show ?case
     using tau_seq_step.IH and append_tau_transition_to_tau_sequence_is_tau_sequence by simp
@@ -79,7 +79,7 @@ proof (induction rule: tau_sequence_induction)
   then show ?case by simp
 next
   case (tau_seq_step r p')
-  then have "\<nu> a. r  \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<nu> a. p'"
+  then have "\<nu> a. r  \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<nu> a. p'"
     using tau_seq_step(2) by (simp add: acting_scope)
   then show ?case
     using tau_seq_step.IH and append_tau_transition_to_tau_sequence_is_tau_sequence by simp
@@ -102,66 +102,66 @@ definition
   where
    "p \<Longrightarrow>\<^sub>\<flat>d \<equiv>
       case d of
-        \<lbrace>\<alpha>\<rbrace> q     \<Rightarrow> \<exists>r s. p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r \<and> r \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s \<and> s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q |
-        Opening Q \<Rightarrow> \<exists>r P. p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r \<and> r \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<and> (\<forall>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a)"
+        \<lbrace>\<alpha>\<rbrace> q     \<Rightarrow> \<exists>r s. p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r \<and> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s \<and> s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q |
+        Opening Q \<Rightarrow> \<exists>r P. p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r \<and> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<and> (\<forall>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a)"
 
-lemma weak_tau_respecting_basic_transition_acting_intro: "\<lbrakk> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r; r \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s; s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q"
+lemma weak_tau_respecting_basic_transition_acting_intro: "\<lbrakk> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r; r \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s; s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q"
   using weak_tau_respecting_basic_transition_def by force
 
-lemma weak_tau_respecting_basic_transition_opening_intro: "\<lbrakk> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r; r \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a; \<And>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
+lemma weak_tau_respecting_basic_transition_opening_intro: "\<lbrakk> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r; r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a; \<And>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
   using weak_tau_respecting_basic_transition_def by force
 
-lemma weak_tau_respecting_basic_transition_acting_elim: "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q \<Longrightarrow> \<exists>r s. p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r \<and> r \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s \<and> s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
+lemma weak_tau_respecting_basic_transition_acting_elim: "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q \<Longrightarrow> \<exists>r s. p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r \<and> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s \<and> s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
   by (simp split: basic_residual.split add: weak_tau_respecting_basic_transition_def)
 
-lemma weak_tau_respecting_basic_transition_opening_elim: "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<Longrightarrow> \<exists>r P. p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r \<and> r \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<and> (\<forall>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a)"
+lemma weak_tau_respecting_basic_transition_opening_elim: "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<Longrightarrow> \<exists>r P. p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r \<and> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<and> (\<forall>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a)"
   by (simp split: basic_residual.split add: weak_tau_respecting_basic_transition_def)
 
-lemma weak_tau_respecting_basic_transition_single_acting: "p \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q"
+lemma weak_tau_respecting_basic_transition_single_acting: "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q"
   using weak_tau_respecting_basic_transition_acting_intro by blast
 
-lemma weak_tau_respecting_basic_transition_single_opening: "p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
+lemma weak_tau_respecting_basic_transition_single_opening: "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
   using weak_tau_respecting_basic_transition_opening_intro by blast
 
 lemma weak_tau_respecting_basic_transition_tau: "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q \<Longrightarrow> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
 proof -
   assume "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q"
-  then obtain r and s where "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" and "r \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> s" and "s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
+  then obtain r and s where "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" and "r \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> s" and "s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
     using weak_tau_respecting_basic_transition_acting_elim by fastforce
-  then have "r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s" using \<open>r \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> s\<close> and tau_transition_is_tau_sequence by simp
+  then have "r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s" using \<open>r \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> s\<close> and tau_transition_is_tau_sequence by simp
   then show ?thesis using \<open>p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r\<close> and \<open>s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q\<close> by (simp add: tau_sequence_trans)
 qed
 
 lemma prepend_tau_sequence_to_weak_tau_respecting_basic_transition_acting: "\<lbrakk> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r; r \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q"
 proof -
   assume "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" and "r \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q"
-  then obtain s and t where "r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s" and "s \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t" and "t \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q" using weak_tau_respecting_basic_transition_acting_elim by fastforce
+  then obtain s and t where "r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s" and "s \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t" and "t \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q" using weak_tau_respecting_basic_transition_acting_elim by fastforce
   then have "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s" using \<open>p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r\<close> and \<open>r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s\<close> by (simp add: tau_sequence_trans)
-  then show ?thesis using \<open>s \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t\<close> and \<open>t \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q\<close> by (simp add: weak_tau_respecting_basic_transition_acting_intro)
+  then show ?thesis using \<open>s \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t\<close> and \<open>t \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q\<close> by (simp add: weak_tau_respecting_basic_transition_acting_intro)
 qed
 
 lemma prepend_tau_sequence_to_weak_tau_respecting_basic_transition_opening: "\<lbrakk> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r; r \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
 proof -
   assume "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" and "r \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
-  then obtain s and P where "r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s" and "s \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a" and "\<forall>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a" using weak_tau_respecting_basic_transition_opening_elim by fastforce
+  then obtain s and P where "r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s" and "s \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a" and "\<forall>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a" using weak_tau_respecting_basic_transition_opening_elim by fastforce
   then have "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s" using \<open>p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r\<close> and \<open>r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s\<close> by (simp add: tau_sequence_trans)
-  then show ?thesis using \<open>s \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a\<close> and \<open>\<forall>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a\<close> by (simp add: weak_tau_respecting_basic_transition_opening_intro)
+  then show ?thesis using \<open>s \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a\<close> and \<open>\<forall>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a\<close> by (simp add: weak_tau_respecting_basic_transition_opening_intro)
 qed
 
 lemma append_tau_sequence_to_weak_tau_respecting_basic_transition_acting: "\<lbrakk> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> r; r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q"
 proof -
   assume "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> r" and "r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q"
-  then obtain s and t where "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s" and "s \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t" and "t \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" using weak_tau_respecting_basic_transition_acting_elim by fastforce
+  then obtain s and t where "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s" and "s \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t" and "t \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" using weak_tau_respecting_basic_transition_acting_elim by fastforce
   then have "t \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q" using \<open>r \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q\<close> and \<open>p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s\<close> by (simp add: tau_sequence_trans)
-  then show ?thesis using \<open>s \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t\<close> and \<open>p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s\<close> by (simp add: weak_tau_respecting_basic_transition_acting_intro)
+  then show ?thesis using \<open>s \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t\<close> and \<open>p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s\<close> by (simp add: weak_tau_respecting_basic_transition_acting_intro)
 qed
 
 lemma append_tau_sequence_to_weak_tau_respecting_basic_transition_opening: "\<lbrakk> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a; \<And>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
 proof -
   assume "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a" and "\<And>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a"
-  then obtain s and S where "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s" and "s \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> S a" and "\<forall>a. S a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P a" using weak_tau_respecting_basic_transition_opening_elim by fastforce
+  then obtain s and S where "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s" and "s \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> S a" and "\<forall>a. S a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P a" using weak_tau_respecting_basic_transition_opening_elim by fastforce
   then have "\<And>a. S a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a" using \<open>\<And>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a\<close> and \<open>\<forall>a. S a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P a\<close> using tau_sequence_trans by fastforce
-  then show ?thesis using \<open>s \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> S a\<close> and \<open>p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s\<close> using weak_tau_respecting_basic_transition_opening_intro by fastforce
+  then show ?thesis using \<open>s \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> S a\<close> and \<open>p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> s\<close> using weak_tau_respecting_basic_transition_opening_intro by fastforce
 qed
 
 (** Lifted weak \<tau>-respecting basic operational semantics **)
@@ -175,14 +175,14 @@ lemma weak_tau_respecting_basic_transition_receiving: "m \<triangleright> x. P x
 lemma weak_tau_respecting_basic_transition_communication: "\<lbrakk> \<eta> \<bowtie> \<mu>; p \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'; q \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q' \<rbrakk> \<Longrightarrow> p \<parallel> q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> p' \<parallel> q'"
 proof -
   assume "\<eta> \<bowtie> \<mu>" and "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'" and "q \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q'"
-  then obtain r and s where "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" and "r \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> s" and "s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p'"
+  then obtain r and s where "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" and "r \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> s" and "s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p'"
     using weak_tau_respecting_basic_transition_acting_elim and \<open>p \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'\<close> by fastforce
-  moreover obtain t and u where "q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> t" and "t \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> u" and "u \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q'"
+  moreover obtain t and u where "q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> t" and "t \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> u" and "u \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q'"
     using weak_tau_respecting_basic_transition_acting_elim and \<open>q \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q'\<close> by fastforce
   ultimately show ?thesis
   proof -
-    have "r \<parallel> t \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> s \<parallel> u"
-      using \<open>\<eta> \<bowtie> \<mu>\<close> and \<open>r \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> s\<close> and \<open>t \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> u\<close> using communication by fastforce
+    have "r \<parallel> t \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> s \<parallel> u"
+      using \<open>\<eta> \<bowtie> \<mu>\<close> and \<open>r \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> s\<close> and \<open>t \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> u\<close> using communication by fastforce
     moreover have "p \<parallel> q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r \<parallel> t"
       using \<open>p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r\<close> and \<open>q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> t\<close> and tau_sequence_parallel_preservation by simp
     moreover have "s \<parallel> u \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p' \<parallel> q'"
@@ -198,12 +198,12 @@ lemma weak_tau_respecting_basic_transition_opening: "\<nu> a. P a \<Longrightarr
 lemma weak_tau_respecting_basic_transition_acting_left: "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p' \<Longrightarrow> p \<parallel> q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p' \<parallel> q"
 proof -
   assume "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p'"
-  then obtain r and s where "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" and "r \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s" and "s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p'"
+  then obtain r and s where "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" and "r \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s" and "s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p'"
     using weak_tau_respecting_basic_transition_acting_elim by fastforce
   then have "p \<parallel> q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r \<parallel> q"
     using tau_sequence_parallel_preservation and \<open>p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r\<close> by fastforce
-  moreover have "r \<parallel> q \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s \<parallel> q"
-    using acting_left and \<open>r \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s\<close> by fastforce
+  moreover have "r \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s \<parallel> q"
+    using acting_left and \<open>r \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s\<close> by fastforce
   moreover have "s \<parallel> q  \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p' \<parallel> q"
     using tau_sequence_parallel_preservation_left and \<open>s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p'\<close> by simp
   ultimately show ?thesis
@@ -213,12 +213,12 @@ qed
 lemma weak_tau_respecting_basic_transition_acting_right: "q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q' \<Longrightarrow> p \<parallel> q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p \<parallel> q'"
 proof -
   assume "q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q'"
-  then obtain r and s where "q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" and "r \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s" and "s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q'"
+  then obtain r and s where "q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" and "r \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s" and "s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q'"
     using weak_tau_respecting_basic_transition_acting_elim by fastforce
   then have "p \<parallel> q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p \<parallel> r"
     using tau_sequence_parallel_preservation and \<open>q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r\<close> by fastforce
-  moreover have "p \<parallel> r \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p \<parallel> s"
-    using acting_right and \<open>r \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s\<close> by fastforce
+  moreover have "p \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p \<parallel> s"
+    using acting_right and \<open>r \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s\<close> by fastforce
   moreover have "p \<parallel> s  \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p \<parallel> q'"
     using tau_sequence_parallel_preservation_right and \<open>s \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q'\<close> by simp
   ultimately show ?thesis
@@ -228,12 +228,12 @@ qed
 lemma weak_tau_respecting_basic_transition_opening_left: "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<Longrightarrow> p \<parallel> q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<parallel> q"
 proof -
   assume "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a"
-  then obtain r and Q where "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" and "r \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a" and "\<forall>a. Q a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P a"
+  then obtain r and Q where "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" and "r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a" and "\<forall>a. Q a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P a"
     using weak_tau_respecting_basic_transition_opening_elim by fastforce
   then have "p \<parallel> q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r \<parallel> q"
     using tau_sequence_parallel_preservation and \<open>p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r\<close> by fastforce
-  moreover have "r \<parallel> q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<parallel> q"
-    using opening_left and \<open>r \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a\<close> by fastforce
+  moreover have "r \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<parallel> q"
+    using opening_left and \<open>r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a\<close> by fastforce
   moreover have "\<And>a. Q a \<parallel> q  \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P a \<parallel> q"
     using tau_sequence_parallel_preservation_left and \<open>\<forall>a. Q a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> P a\<close> by fastforce
   ultimately show ?thesis
@@ -243,12 +243,12 @@ qed
 lemma weak_basic_transition_opening_right: "q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<Longrightarrow> p \<parallel> q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> p \<parallel> Q a"
 proof -
   assume "q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
-  then obtain r and P where "q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" and "r \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a" and "\<forall>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a"
+  then obtain r and P where "q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r" and "r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a" and "\<forall>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a"
     using weak_tau_respecting_basic_transition_opening_elim by fastforce
   then have "p \<parallel> q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p \<parallel> r"
     using tau_sequence_parallel_preservation and \<open>q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r\<close> by fastforce
-  moreover have "p \<parallel> r \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> p \<parallel> P a"
-    using opening_right and \<open>r \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a\<close> by fastforce
+  moreover have "p \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> p \<parallel> P a"
+    using opening_right and \<open>r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a\<close> by fastforce
   moreover have "\<And>a. p \<parallel> P a  \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p \<parallel> Q a"
     using tau_sequence_parallel_preservation_right and \<open>\<forall>a. P a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a\<close> by fastforce
   ultimately show ?thesis
@@ -273,24 +273,24 @@ definition weak_basic_transition :: "process \<Rightarrow> basic_residual \<Righ
         \<lbrace>\<alpha>\<rbrace> q \<Rightarrow> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q \<or> (\<alpha> = \<tau> \<and> p = q) |
         Opening Q \<Rightarrow> p \<Longrightarrow>\<^sub>\<flat> Opening Q"
 
-lemma prepend_tau_transition_to_weak_basic_transition: "\<lbrakk> p \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> r; r \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> q"
+lemma prepend_tau_transition_to_weak_basic_transition: "\<lbrakk> p \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> r; r \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> q"
 proof -
-  assume "p \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> r" and "r \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> q"
+  assume "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> r" and "r \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> q"
   then have "r \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q \<or> \<alpha> = \<tau> \<and> r = q"
     by (simp add: weak_basic_transition_def)
   then have "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q \<or> \<alpha> = \<tau> \<and> p = q"
-    using \<open>p \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> r\<close> and prepend_tau_sequence_to_weak_tau_respecting_basic_transition_acting and weak_tau_respecting_basic_transition_single_acting by blast
+    using \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> r\<close> and prepend_tau_sequence_to_weak_tau_respecting_basic_transition_acting and weak_tau_respecting_basic_transition_single_acting by blast
   then show ?thesis
     by (simp add: weak_basic_transition_def)
 qed
 
-lemma append_tau_transition_to_weak_basic_transition: "\<lbrakk> p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> r; r \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> q"
+lemma append_tau_transition_to_weak_basic_transition: "\<lbrakk> p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> r; r \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> q"
 proof -
-  assume "r \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q" and "p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> r"
+  assume "r \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q" and "p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> r"
   then have "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> r \<or> \<alpha> = \<tau> \<and> p = r"
     by (simp add: weak_basic_transition_def)
   then have "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q \<or> \<alpha> = \<tau> \<and> p = q"
-    using \<open>r \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q\<close> and append_tau_sequence_to_weak_tau_respecting_basic_transition_acting and weak_tau_respecting_basic_transition_single_acting by blast
+    using \<open>r \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q\<close> and append_tau_sequence_to_weak_tau_respecting_basic_transition_acting and weak_tau_respecting_basic_transition_single_acting by blast
   then show ?thesis
     by (simp add: weak_basic_transition_def)
 qed
@@ -336,7 +336,7 @@ lemma weak_basic_transition_induction
   using assms
   by (auto simp add: weak_basic_transition_def)
 
-lemma weak_basic_transition_single_acting: "p \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> q"
+lemma weak_basic_transition_single_acting: "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> q"
   using weak_tau_respecting_basic_transition_acting_intro and weak_basic_transition_step_intro by fastforce
 
 lemma prepend_tau_sequence_to_weak_basic_transition: "\<lbrakk> p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> r; r \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> q"
@@ -416,9 +416,9 @@ definition weak_basic_simulation :: "process \<Rightarrow> (process \<Rightarrow
   ("_ \<leadsto>\<^sub>\<flat><_> _" [80, 80, 80] 80)
   where
     "p \<leadsto>\<^sub>\<flat><\<X>> q \<equiv>
-      (\<forall>\<alpha> q'. q \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q' \<longrightarrow> (\<exists>p'. p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> p' \<and> \<X> p' q'))
+      (\<forall>\<alpha> q'. q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q' \<longrightarrow> (\<exists>p'. p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> p' \<and> \<X> p' q'))
       \<and>
-      (\<forall>Q. q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<longrightarrow> (\<exists>P. p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<and> (\<forall>a. \<X> (P a) (Q a))))"
+      (\<forall>Q. q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<longrightarrow> (\<exists>P. p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<and> (\<forall>a. \<X> (P a) (Q a))))"
 
 abbreviation
   is_weak_basic_sim
@@ -430,16 +430,16 @@ lemma weak_basic_sim_monotonicity: "\<X> \<le> \<Y> \<Longrightarrow> p \<leadst
 
 lemma weak_basic_sim_cases
   [case_names acting opening]:
-  assumes acting:  "\<And>\<alpha> q'. q \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q' \<Longrightarrow> \<exists>p'. p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> p' \<and> \<X> p' q'"
-  and     opening: "\<And>Q. q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<Longrightarrow> \<exists>P. p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<and> (\<forall>a. \<X> (P a) (Q a))"
+  assumes acting:  "\<And>\<alpha> q'. q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q' \<Longrightarrow> \<exists>p'. p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> p' \<and> \<X> p' q'"
+  and     opening: "\<And>Q. q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<Longrightarrow> \<exists>P. p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<and> (\<forall>a. \<X> (P a) (Q a))"
   shows            "p \<leadsto>\<^sub>\<flat><\<X>> q"
   using assms
   by (simp add: weak_basic_simulation_def)
 
-lemma weak_basic_sim_acting_elim: "\<lbrakk> p \<leadsto>\<^sub>\<flat><\<X>> q; q \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q' \<rbrakk> \<Longrightarrow> \<exists>p'. p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> p' \<and> \<X> p' q'"
+lemma weak_basic_sim_acting_elim: "\<lbrakk> p \<leadsto>\<^sub>\<flat><\<X>> q; q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q' \<rbrakk> \<Longrightarrow> \<exists>p'. p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> p' \<and> \<X> p' q'"
   by (simp add: weak_basic_simulation_def)
 
-lemma weak_basic_sim_opening_elim: "\<lbrakk> p \<leadsto>\<^sub>\<flat><\<X>> q; q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<rbrakk> \<Longrightarrow> \<exists>P. p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<and> (\<forall>a. \<X> (P a) (Q a))"
+lemma weak_basic_sim_opening_elim: "\<lbrakk> p \<leadsto>\<^sub>\<flat><\<X>> q; q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<rbrakk> \<Longrightarrow> \<exists>P. p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<and> (\<forall>a. \<X> (P a) (Q a))"
   by (simp add: weak_basic_simulation_def)
 
 lemma weak_basic_sim_reflexivity: "(\<And>p. \<X> p p) \<Longrightarrow> p \<leadsto>\<^sub>\<flat><\<X>> p"
@@ -460,7 +460,7 @@ next
   have "\<exists>p'. p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p' \<and> \<X> p' q'" using tau_seq_step.prems and tau_seq_step.IH by simp
   then obtain p' where A\<^sub>4: "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p'" and A\<^sub>5: "\<X> p' q'" by auto
   then have "p' \<leadsto>\<^sub>\<flat><\<X>> q'" using A\<^sub>5 and A\<^sub>3 by simp
-  moreover have A\<^sub>6: "q' \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q''" by fact
+  moreover have A\<^sub>6: "q' \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q''" by fact
   ultimately obtain p'' where A\<^sub>7: "p' \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<tau>\<rbrace> p''" and A\<^sub>8: "\<X> p'' q''" by (blast dest: weak_basic_sim_acting_elim)
   then have "p' \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p''" using A\<^sub>7 and weak_basic_tau_transition_is_tau_sequence by blast
   then have "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p''" using A\<^sub>4 by simp
@@ -491,7 +491,7 @@ proof -
   next
     case weak_basic_tran_step
     have "q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q'" by fact
-    then obtain q\<^sub>2 and q\<^sub>3 where A\<^sub>4: "q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q\<^sub>2" and A\<^sub>5: "q\<^sub>2 \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q\<^sub>3" and A\<^sub>6: "q\<^sub>3 \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q'"
+    then obtain q\<^sub>2 and q\<^sub>3 where A\<^sub>4: "q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q\<^sub>2" and A\<^sub>5: "q\<^sub>2 \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q\<^sub>3" and A\<^sub>6: "q\<^sub>3 \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q'"
       by (blast dest: weak_tau_respecting_basic_transition_acting_elim)
     then have "\<exists>p\<^sub>2. p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p\<^sub>2 \<and> \<X> p\<^sub>2 q\<^sub>2" using A\<^sub>4 and A\<^sub>2 and A\<^sub>1 and weak_basic_sim_tau_sequence by blast
     then obtain p\<^sub>2 where A\<^sub>7: "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p\<^sub>2" and A\<^sub>8: "\<X> p\<^sub>2 q\<^sub>2" by auto
@@ -513,7 +513,7 @@ lemma weak_basic_sim_opening_elim2:
   using assms
 proof -
   assume "q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
-  then obtain q\<^sub>2 and Q\<^sub>3 where A\<^sub>4: "q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q\<^sub>2" and A\<^sub>5: "q\<^sub>2 \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q\<^sub>3 a" and A\<^sub>6: "\<forall>a. Q\<^sub>3 a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a"
+  then obtain q\<^sub>2 and Q\<^sub>3 where A\<^sub>4: "q \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> q\<^sub>2" and A\<^sub>5: "q\<^sub>2 \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q\<^sub>3 a" and A\<^sub>6: "\<forall>a. Q\<^sub>3 a \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a"
     by (blast dest: weak_tau_respecting_basic_transition_opening_elim)
   then have "\<exists>p\<^sub>2. p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p\<^sub>2 \<and> \<X> p\<^sub>2 q\<^sub>2" using A\<^sub>4 and A\<^sub>2 and A\<^sub>1 and weak_basic_sim_tau_sequence by blast
   then obtain p\<^sub>2 where A\<^sub>7: "p \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> p\<^sub>2" and A\<^sub>8: "\<X> p\<^sub>2 q\<^sub>2" by auto
@@ -538,7 +538,7 @@ proof -
   show ?thesis
   proof (induction rule: weak_basic_sim_cases)
     case (acting \<alpha> q')
-    then have "r \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q'" by simp
+    then have "r \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q'" by simp
     then obtain q\<^sub>2 where A\<^sub>5: "q \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> q\<^sub>2" and A\<^sub>6: "\<Y> q\<^sub>2 q'" using A\<^sub>1 by (blast dest: weak_basic_sim_acting_elim)
     then have "\<exists>p'. p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> p' \<and> \<X> p' q\<^sub>2" using A\<^sub>3 and A\<^sub>4 and A\<^sub>5 by (blast intro: weak_basic_sim_acting_elim2)
     then obtain p' where A\<^sub>7: "p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> p'" and A\<^sub>8: "\<X> p' q\<^sub>2" by auto
@@ -546,7 +546,7 @@ proof -
     then show ?case using A\<^sub>7 by auto
   next
     case (opening Q)
-    then have "r \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a" by simp
+    then have "r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a" by simp
     then obtain Q' where A\<^sub>9: "q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q' a" and A\<^sub>1\<^sub>0: "\<forall>a. \<Y> (Q' a) (Q a)" using A\<^sub>1 by (blast dest: weak_basic_sim_opening_elim)
     then obtain P' where A\<^sub>1\<^sub>1: "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P' a" and A\<^sub>1\<^sub>2: "\<forall>a. \<X> (P' a) (Q' a)"
       using A\<^sub>3 and A\<^sub>4 and A\<^sub>9 using weak_basic_sim_opening_elim2 by blast

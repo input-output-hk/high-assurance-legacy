@@ -172,28 +172,28 @@ text \<open>
 
 inductive
   basic_transition :: "process \<Rightarrow> basic_residual \<Rightarrow> bool"
-  (infix "\<longmapsto>\<^sub>\<flat>" 50)
+  (infix "\<rightarrow>\<^sub>\<flat>" 50)
 where
   sending:
-    "c \<triangleleft> v \<longmapsto>\<^sub>\<flat>\<lbrace>c \<triangleleft> v\<rbrace> \<zero>" |
+    "c \<triangleleft> v \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> v\<rbrace> \<zero>" |
   receiving:
-    "c \<triangleright> x. P x \<longmapsto>\<^sub>\<flat>\<lbrace>c \<triangleright> v\<rbrace> P v" |
+    "c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleright> v\<rbrace> P v" |
   communication:
-    "\<lbrakk> \<eta> \<bowtie> \<mu>; p \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'; q \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q' \<rbrakk> \<Longrightarrow> p \<parallel> q \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> p' \<parallel> q'" |
+    "\<lbrakk> \<eta> \<bowtie> \<mu>; p \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'; q \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q' \<rbrakk> \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> p' \<parallel> q'" |
   opening:
-    "\<nu> a. P a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a" |
+    "\<nu> a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a" |
   acting_left:
-    "p \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p' \<Longrightarrow> p \<parallel> q \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p' \<parallel> q" |
+    "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p' \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p' \<parallel> q" |
   acting_right:
-    "q \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q' \<Longrightarrow> p \<parallel> q \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p \<parallel> q'" |
+    "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q' \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p \<parallel> q'" |
   opening_left:
-    "p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<Longrightarrow> p \<parallel> q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<parallel> q" |
+    "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<parallel> q" |
   opening_right:
-    "q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<Longrightarrow> p \<parallel> q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> p \<parallel> Q a" |
+    "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> p \<parallel> Q a" |
   scoped_acting:
-    "\<lbrakk> p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a; \<And>a. Q a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> R a \<rbrakk> \<Longrightarrow> p \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. R a" |
+    "\<lbrakk> p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a; \<And>a. Q a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> R a \<rbrakk> \<Longrightarrow> p \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. R a" |
   scoped_opening:
-    "\<lbrakk> p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a; \<And>a. Q a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> R a b \<rbrakk> \<Longrightarrow> p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. R a b"
+    "\<lbrakk> p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a; \<And>a. Q a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> R a b \<rbrakk> \<Longrightarrow> p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. R a b"
 
 text \<open>
   Note that \<open>scoped_acting\<close> and\<open>scoped_opening\<close> are the rules that perform closing.
@@ -244,9 +244,9 @@ text \<open>
   by combining \<open>opening\<close> with the closing rules.
 \<close>
 
-lemma acting_scope: "(\<And>a. P a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q a) \<Longrightarrow> \<nu> a. P a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. Q a"
+lemma acting_scope: "(\<And>a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q a) \<Longrightarrow> \<nu> a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. Q a"
   using opening by (intro scoped_acting)
-lemma opening_scope: "(\<And>a. P a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q a b) \<Longrightarrow> \<nu> a. P a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. Q a b"
+lemma opening_scope: "(\<And>a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q a b) \<Longrightarrow> \<nu> a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. Q a b"
   using opening by (intro scoped_opening)
 
 text \<open>
@@ -254,10 +254,10 @@ text \<open>
   \<open>scoped_acting\<close> and \<open>scoped_opening\<close> have to be taken into account.
 \<close>
 
-lemma no_basic_transitions_from_stop: "\<not> \<zero> \<longmapsto>\<^sub>\<flat>d"
+lemma no_basic_transitions_from_stop: "\<not> \<zero> \<rightarrow>\<^sub>\<flat>d"
 proof
   fix d
-  assume "\<zero> \<longmapsto>\<^sub>\<flat>d"
+  assume "\<zero> \<rightarrow>\<^sub>\<flat>d"
   then show False by (induction "\<zero>" d)
 qed
 
@@ -265,10 +265,10 @@ text \<open>
   Only certain transitions are possible from send and receive processes.
 \<close>
 
-lemma basic_transitions_from_send: "c \<triangleleft> v \<longmapsto>\<^sub>\<flat>d \<Longrightarrow> d = \<lbrace>c \<triangleleft> v\<rbrace> \<zero>"
+lemma basic_transitions_from_send: "c \<triangleleft> v \<rightarrow>\<^sub>\<flat>d \<Longrightarrow> d = \<lbrace>c \<triangleleft> v\<rbrace> \<zero>"
 proof -
   fix c and v and d
-  assume "c \<triangleleft> v \<longmapsto>\<^sub>\<flat>d"
+  assume "c \<triangleleft> v \<rightarrow>\<^sub>\<flat>d"
   then show "d = \<lbrace>c \<triangleleft> v\<rbrace> \<zero>"
   proof (induction "c \<triangleleft> v :: process" d)
     case sending
@@ -282,7 +282,7 @@ proof -
   qed
 qed
 lemma basic_transitions_from_receive:
-  assumes "c \<triangleright> x. P x \<longmapsto>\<^sub>\<flat>d"
+  assumes "c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>d"
   obtains v where "d = \<lbrace>c \<triangleright> v\<rbrace> P v"
 using assms proof (induction "c \<triangleright> x. P x" d)
   case receiving
@@ -299,9 +299,9 @@ text \<open>
   No opening transitions are possible from send and receive processes.
 \<close>
 
-lemma no_opening_transitions_from_send: "\<not> c \<triangleleft> v \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
+lemma no_opening_transitions_from_send: "\<not> c \<triangleleft> v \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
   using basic_transitions_from_send by fastforce
-lemma no_opening_transitions_from_receive: "\<not> c \<triangleright> x. P x \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
+lemma no_opening_transitions_from_receive: "\<not> c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
   using basic_transitions_from_receive by fastforce
 
 subsection \<open>Concrete Bisimilarities\<close>
@@ -312,35 +312,35 @@ private lemma sim_scoped_acting_intro:
   assumes with_new_channel:
     "\<And>P Q. (\<And>a. \<X> (P a) (Q a)) \<Longrightarrow> \<X> (\<nu> a. P a) (\<nu> a. Q a)"
   assumes step_1:
-    "\<And>t. \<X> s t \<Longrightarrow> \<exists>e\<^sub>1. t \<longmapsto>\<^sub>\<flat>e\<^sub>1 \<and> basic_lift \<X> (\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a) e\<^sub>1"
+    "\<And>t. \<X> s t \<Longrightarrow> \<exists>e\<^sub>1. t \<rightarrow>\<^sub>\<flat>e\<^sub>1 \<and> basic_lift \<X> (\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a) e\<^sub>1"
   assumes step_2:
-    "\<And>a t\<^sub>1. \<X> (S\<^sub>1 a) t\<^sub>1 \<Longrightarrow> \<exists>e\<^sub>2. t\<^sub>1 \<longmapsto>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<alpha>\<rbrace> S\<^sub>2 a) e\<^sub>2"
+    "\<And>a t\<^sub>1. \<X> (S\<^sub>1 a) t\<^sub>1 \<Longrightarrow> \<exists>e\<^sub>2. t\<^sub>1 \<rightarrow>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<alpha>\<rbrace> S\<^sub>2 a) e\<^sub>2"
   assumes initial_relation:
     "\<X> s t"
   shows
-    "\<exists>e\<^sub>2. t \<longmapsto>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<alpha>\<rbrace> \<nu> a. S\<^sub>2 a) e\<^sub>2"
+    "\<exists>e\<^sub>2. t \<rightarrow>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<alpha>\<rbrace> \<nu> a. S\<^sub>2 a) e\<^sub>2"
 proof -
   from step_1 and `\<X> s t`
-  obtain T\<^sub>1 where "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and "\<And>a. \<X> (S\<^sub>1 a) (T\<^sub>1 a)"
+  obtain T\<^sub>1 where "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and "\<And>a. \<X> (S\<^sub>1 a) (T\<^sub>1 a)"
     using
       basic_lift.cases and
       basic_residual.distinct(1) and
       basic_residual.inject(2)
     by (metis (full_types))
-  obtain T\<^sub>2 where "\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a" and "\<And>a. \<X> (S\<^sub>2 a) (T\<^sub>2 a)"
+  obtain T\<^sub>2 where "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a" and "\<And>a. \<X> (S\<^sub>2 a) (T\<^sub>2 a)"
   proof -
     from step_2 and `\<And>a. \<X> (S\<^sub>1 a) (T\<^sub>1 a)`
-    have "\<forall>a. \<exists>h. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> h \<and> \<X> (S\<^sub>2 a) h"
+    have "\<forall>a. \<exists>h. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> h \<and> \<X> (S\<^sub>2 a) h"
       using
         basic_lift.cases and
         basic_residual.inject(1) and
         basic_residual.distinct(2)
       by smt
-    then have "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a \<and> \<X> (S\<^sub>2 a) (T\<^sub>2 a)"
+    then have "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a \<and> \<X> (S\<^sub>2 a) (T\<^sub>2 a)"
       by (fact choice)
     with that show ?thesis by blast
   qed
-  from `t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a` have "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. T\<^sub>2 a"
+  from `t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a` have "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. T\<^sub>2 a"
     by (fact basic_transition.scoped_acting)
   with `\<And>a. \<X> (S\<^sub>2 a) (T\<^sub>2 a)` show ?thesis
     using with_new_channel and acting_lift
@@ -351,35 +351,35 @@ private lemma sim_scoped_opening_intro:
   assumes with_new_channel:
     "\<And>P Q. (\<And>a. \<X> (P a) (Q a)) \<Longrightarrow> \<X> (\<nu> a. P a) (\<nu> a. Q a)"
   assumes step_1:
-    "\<And>t. \<X> s t \<Longrightarrow> \<exists>e\<^sub>1. t \<longmapsto>\<^sub>\<flat>e\<^sub>1 \<and> basic_lift \<X> (\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a) e\<^sub>1"
+    "\<And>t. \<X> s t \<Longrightarrow> \<exists>e\<^sub>1. t \<rightarrow>\<^sub>\<flat>e\<^sub>1 \<and> basic_lift \<X> (\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a) e\<^sub>1"
   assumes step_2:
-    "\<And>a t\<^sub>1. \<X> (S\<^sub>1 a) t\<^sub>1 \<Longrightarrow> \<exists>e\<^sub>2. t\<^sub>1 \<longmapsto>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<nu> b\<rbrace> S\<^sub>2 a b) e\<^sub>2"
+    "\<And>a t\<^sub>1. \<X> (S\<^sub>1 a) t\<^sub>1 \<Longrightarrow> \<exists>e\<^sub>2. t\<^sub>1 \<rightarrow>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<nu> b\<rbrace> S\<^sub>2 a b) e\<^sub>2"
   assumes initial_relation:
     "\<X> s t"
   shows
-    "\<exists>e\<^sub>2. t \<longmapsto>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<nu> b\<rbrace> \<nu> a. S\<^sub>2 a b) e\<^sub>2"
+    "\<exists>e\<^sub>2. t \<rightarrow>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<nu> b\<rbrace> \<nu> a. S\<^sub>2 a b) e\<^sub>2"
 proof -
   from step_1 and `\<X> s t`
-  obtain T\<^sub>1 where "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and "\<And>a. \<X> (S\<^sub>1 a) (T\<^sub>1 a)"
+  obtain T\<^sub>1 where "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and "\<And>a. \<X> (S\<^sub>1 a) (T\<^sub>1 a)"
     using
       basic_lift.cases and
       basic_residual.distinct(1) and
       basic_residual.inject(2)
     by (metis (full_types))
-  obtain T\<^sub>2 where "\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b" and "\<And>a b. \<X> (S\<^sub>2 a b) (T\<^sub>2 a b)"
+  obtain T\<^sub>2 where "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b" and "\<And>a b. \<X> (S\<^sub>2 a b) (T\<^sub>2 a b)"
   proof -
     from step_2 and `\<And>a. \<X> (S\<^sub>1 a) (T\<^sub>1 a)`
-    have "\<forall>a. \<exists>H. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> H b \<and> (\<forall>b. \<X> (S\<^sub>2 a b) (H b))"
+    have "\<forall>a. \<exists>H. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> H b \<and> (\<forall>b. \<X> (S\<^sub>2 a b) (H b))"
       using
         basic_lift.cases and
         basic_residual.distinct(1) and
         basic_residual.inject(2)
       by smt
-    then have "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b \<and> (\<forall>b. \<X> (S\<^sub>2 a b) (T\<^sub>2 a b))"
+    then have "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b \<and> (\<forall>b. \<X> (S\<^sub>2 a b) (T\<^sub>2 a b))"
       by (fact choice)
     with that show ?thesis by blast
   qed
-  from `t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b` have "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. T\<^sub>2 a b"
+  from `t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b` have "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. T\<^sub>2 a b"
     by (fact basic_transition.scoped_opening)
   with `\<And>a b. \<X> (S\<^sub>2 a b) (T\<^sub>2 a b)` show ?thesis
     using with_new_channel and opening_lift
@@ -388,8 +388,8 @@ qed
 
 private method solve_sim_scoped uses with_new_channel = (
   match conclusion in
-    "\<exists>e\<^sub>2. _ \<longmapsto>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift _ (\<lbrace>_\<rbrace> \<nu> a. _ a) e\<^sub>2" \<Rightarrow> \<open>
-      match premises in "s \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a" for s and S\<^sub>1 \<Rightarrow> \<open>
+    "\<exists>e\<^sub>2. _ \<rightarrow>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift _ (\<lbrace>_\<rbrace> \<nu> a. _ a) e\<^sub>2" \<Rightarrow> \<open>
+      match premises in "s \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a" for s and S\<^sub>1 \<Rightarrow> \<open>
         match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>
           intro sim_scoped_acting_intro [where s = s and S\<^sub>1 = S\<^sub>1],
           simp add: with_new_channel,
@@ -397,8 +397,8 @@ private method solve_sim_scoped uses with_new_channel = (
         \<close>
       \<close>
     \<close> \<bar>
-    "\<exists>e\<^sub>2. _ \<longmapsto>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift _ (\<lbrace>\<nu> b\<rbrace> \<nu> a. _ a b) e\<^sub>2" \<Rightarrow> \<open>
-      match premises in "s \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a" for s and S\<^sub>1 \<Rightarrow> \<open>
+    "\<exists>e\<^sub>2. _ \<rightarrow>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift _ (\<lbrace>\<nu> b\<rbrace> \<nu> a. _ a b) e\<^sub>2" \<Rightarrow> \<open>
+      match premises in "s \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a" for s and S\<^sub>1 \<Rightarrow> \<open>
         match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>
           intro sim_scoped_opening_intro [where s = s and S\<^sub>1 = S\<^sub>1],
           simp add: with_new_channel,
@@ -420,8 +420,8 @@ private lemma basic_pre_receive_preservation: "(\<And>x. P x \<sim>\<^sub>\<flat
 proof (standard, intro allI, intro impI)
   assume "\<And>x. P x \<sim>\<^sub>\<flat> Q x"
   fix d
-  assume "c \<triangleright> x. P x \<longmapsto>\<^sub>\<flat>d"
-  then show "\<exists>e. c \<triangleright> x. Q x \<longmapsto>\<^sub>\<flat>e \<and> basic_lift op \<sim>\<^sub>\<flat> d e"
+  assume "c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>d"
+  then show "\<exists>e. c \<triangleright> x. Q x \<rightarrow>\<^sub>\<flat>e \<and> basic_lift op \<sim>\<^sub>\<flat> d e"
   proof cases
     case receiving
     with `\<And>x. P x \<sim>\<^sub>\<flat> Q x` show ?thesis
@@ -461,14 +461,14 @@ next
     from communication.prems show ?case
     proof cases
       case (without_new_channel q)
-      from `p \<sim>\<^sub>\<flat> q` and `p \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'` obtain q' where "q \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> q'" and "p' \<sim>\<^sub>\<flat> q'"
+      from `p \<sim>\<^sub>\<flat> q` and `p \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'` obtain q' where "q \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> q'" and "p' \<sim>\<^sub>\<flat> q'"
         using 
           basic.pre_bisimilarity.cases and
           basic_residual.inject(1) and
           basic_residual.distinct(2) and
           basic_lift.cases
         by smt
-      from `\<eta> \<bowtie> \<mu>` and `q \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> q'` and `r \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> r'` have "q \<parallel> r \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q' \<parallel> r'"
+      from `\<eta> \<bowtie> \<mu>` and `q \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> q'` and `r \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> r'` have "q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q' \<parallel> r'"
         by (fact basic_transition.communication)
       with `t = q \<parallel> r` and `p' \<sim>\<^sub>\<flat> q'` show ?thesis
         using parallel_preservation_aux.without_new_channel and acting_lift
@@ -488,14 +488,14 @@ next
     from acting_left.prems show ?case
     proof cases
       case (without_new_channel q)
-      from `p \<sim>\<^sub>\<flat> q` and `p \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p'` obtain q' where "q \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q'" and "p' \<sim>\<^sub>\<flat> q'"
+      from `p \<sim>\<^sub>\<flat> q` and `p \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p'` obtain q' where "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q'" and "p' \<sim>\<^sub>\<flat> q'"
         using 
           basic.pre_bisimilarity.cases and
           basic_residual.inject(1) and
           basic_residual.distinct(2) and
           basic_lift.cases
         by smt
-      from `q \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q'` have "q \<parallel> r \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q' \<parallel> r"
+      from `q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q'` have "q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q' \<parallel> r"
         by (fact basic_transition.acting_left)
       with `t = q \<parallel> r` and `p' \<sim>\<^sub>\<flat> q'` show ?thesis
         using parallel_preservation_aux.without_new_channel and acting_lift
@@ -518,15 +518,15 @@ next
     from opening_left.prems show ?case
     proof cases
       case (without_new_channel q)
-      from `p \<sim>\<^sub>\<flat> q` and `p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a`
-      obtain Q where "q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a" and "\<And>a. P a \<sim>\<^sub>\<flat> Q a"
+      from `p \<sim>\<^sub>\<flat> q` and `p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a`
+      obtain Q where "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a" and "\<And>a. P a \<sim>\<^sub>\<flat> Q a"
         using 
           basic.pre_bisimilarity.cases and
           basic_residual.distinct(1) and
           basic_residual.inject(2) and
           basic_lift.cases
         by smt
-      from `q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a` have "q \<parallel> r \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<parallel> r"
+      from `q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a` have "q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<parallel> r"
         by (fact basic_transition.opening_left)
       with `t = q \<parallel> r` and `\<And>a. P a \<sim>\<^sub>\<flat> Q a` show ?thesis
         using parallel_preservation_aux.without_new_channel and opening_lift
@@ -537,11 +537,11 @@ next
     from opening_right.prems show ?case
     proof cases
       case (without_new_channel q)
-      from `r \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> R a` have "q \<parallel> r \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> q \<parallel> R a"
+      from `r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> R a` have "q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> q \<parallel> R a"
         by (fact basic_transition.opening_right)
       from `p \<sim>\<^sub>\<flat> q` have "\<And>a. parallel_preservation_aux (p \<parallel> R a) (q \<parallel> R a)"
         by (fact parallel_preservation_aux.without_new_channel)
-      with `t = q \<parallel> r` and `q \<parallel> r \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> q \<parallel> R a` show ?thesis
+      with `t = q \<parallel> r` and `q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> q \<parallel> R a` show ?thesis
         using opening_lift
         by (metis (no_types, lifting))
     qed
@@ -578,7 +578,7 @@ next
   then show ?case by induction (simp_all add: new_channel_preservation_aux.intros)
 next
   case (sim s t d)
-  from this and `s \<longmapsto>\<^sub>\<flat>d` show ?case
+  from this and `s \<rightarrow>\<^sub>\<flat>d` show ?case
   proof (basic_sim_induction t with_new_channel: new_channel_preservation_aux.with_new_channel)
     case sending
     from sending.prems show ?case
@@ -646,8 +646,8 @@ private method parallel_scope_extension_subaux_opening_left_conveyance =
 
 private lemma parallel_scope_extension_subaux_opening_conveyance:
   assumes initial_relation: "parallel_scope_extension_subaux q p t"
-  assumes transition: "p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a"
-  shows "\<exists>T. t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. parallel_scope_extension_subaux q (P a) (T a))"
+  assumes transition: "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a"
+  shows "\<exists>T. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. parallel_scope_extension_subaux q (P a) (T a))"
 using transition and initial_relation and transition
 proof (induction (no_simp) p "\<lbrace>\<nu> a\<rbrace> P a" arbitrary: P t)
   case (opening P P' t)
@@ -671,28 +671,28 @@ next
   from
     scoped_opening.IH(1) and
     `parallel_scope_extension_subaux q p t` and
-    `p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P\<^sub>1 a`
+    `p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P\<^sub>1 a`
   obtain T\<^sub>1 where
-    "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
+    "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
     "\<And>a. parallel_scope_extension_subaux q (P\<^sub>1 a) (T\<^sub>1 a)"
     by blast
   obtain T\<^sub>2 where
-    "\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b" and
+    "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b" and
     "\<And>a b. parallel_scope_extension_subaux q (P\<^sub>2 a b) (T\<^sub>2 a b)"
   proof -
     from
       scoped_opening.IH(2) and
       `\<And>a. parallel_scope_extension_subaux q (P\<^sub>1 a) (T\<^sub>1 a)` and
-      `\<And>a. P\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> P\<^sub>2 a b`
+      `\<And>a. P\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> P\<^sub>2 a b`
     have "
-      \<forall>a. \<exists>H. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> H b \<and> (\<forall>b. parallel_scope_extension_subaux q (P\<^sub>2 a b) (H b))"
+      \<forall>a. \<exists>H. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> H b \<and> (\<forall>b. parallel_scope_extension_subaux q (P\<^sub>2 a b) (H b))"
       by blast
     then have "
-      \<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b \<and> (\<forall>b. parallel_scope_extension_subaux q (P\<^sub>2 a b) (T\<^sub>2 a b))"
+      \<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b \<and> (\<forall>b. parallel_scope_extension_subaux q (P\<^sub>2 a b) (T\<^sub>2 a b))"
       by (fact choice)
     with that show ?thesis by blast
   qed
-  from `t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b` have "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. T\<^sub>2 a b"
+  from `t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b` have "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. T\<^sub>2 a b"
     by (fact basic_transition.scoped_opening)
   with
     `\<lbrace>\<nu> b\<rbrace> \<nu> a. P\<^sub>2 a b = \<lbrace>\<nu> b\<rbrace> P' b` and
@@ -745,8 +745,8 @@ next
     case (communication \<eta> \<mu> p p' q q' t)
     from communication.prems have "parallel_scope_extension_subaux q p t"
       by (fact parallel_scope_extension_aux_without_new_channel_normalization)
-    from `p \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'` and this and communication.hyps
-    have "\<exists>t'. t \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> t' \<and> parallel_scope_extension_subaux q' p' t'"
+    from `p \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'` and this and communication.hyps
+    have "\<exists>t'. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> t' \<and> parallel_scope_extension_subaux q' p' t'"
     proof (induction (no_simp) p "\<lbrace>IO \<eta>\<rbrace> p'" arbitrary: p' t)
       case sending
       from sending.prems show ?case
@@ -767,14 +767,14 @@ next
       case (scoped_acting p P\<^sub>1 \<beta> P\<^sub>2 p' t)
       from `\<lbrace>\<beta>\<rbrace> \<nu> a. P\<^sub>2 a = \<lbrace>IO \<eta>\<rbrace> p'` have "\<beta> = IO \<eta>" and "p' = \<nu> a. P\<^sub>2 a"
         by simp_all
-      from `parallel_scope_extension_subaux q p t` and `p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P\<^sub>1 a`
+      from `parallel_scope_extension_subaux q p t` and `p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P\<^sub>1 a`
       obtain T\<^sub>1 where
-        "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
+        "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
         "\<And>a. parallel_scope_extension_subaux q (P\<^sub>1 a) (T\<^sub>1 a)"
         using parallel_scope_extension_subaux_opening_conveyance
         by blast
       obtain T\<^sub>2 where
-        "\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a" and
+        "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a" and
         "\<And>a. parallel_scope_extension_subaux q' (P\<^sub>2 a) (T\<^sub>2 a)"
       proof -
         from
@@ -782,16 +782,16 @@ next
           scoped_acting.IH(2) and
           `\<And>a. parallel_scope_extension_subaux q (P\<^sub>1 a) (T\<^sub>1 a)` and
           `\<eta> \<bowtie> \<mu>` and
-          `\<And>a. P\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<beta>\<rbrace> P\<^sub>2 a` and
-          `q \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q'`
-        have "\<forall>a. \<exists>h. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> h \<and> parallel_scope_extension_subaux q' (P\<^sub>2 a) h"
+          `\<And>a. P\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<beta>\<rbrace> P\<^sub>2 a` and
+          `q \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q'`
+        have "\<forall>a. \<exists>h. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> h \<and> parallel_scope_extension_subaux q' (P\<^sub>2 a) h"
           by blast
         then have
-          "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a \<and> parallel_scope_extension_subaux q' (P\<^sub>2 a) (T\<^sub>2 a)"
+          "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a \<and> parallel_scope_extension_subaux q' (P\<^sub>2 a) (T\<^sub>2 a)"
           by (fact choice)
         with that show ?thesis by blast
       qed
-      from `t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a` have "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<nu> a. T\<^sub>2 a"
+      from `t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a` have "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<nu> a. T\<^sub>2 a"
         by (fact basic_transition.scoped_acting)
       with `p' = \<nu> a. P\<^sub>2 a` and `\<And>a. parallel_scope_extension_subaux q' (P\<^sub>2 a) (T\<^sub>2 a)`
       show ?case
@@ -827,8 +827,8 @@ next
     case (acting_left p \<alpha> p' q t)
     from acting_left.prems have "parallel_scope_extension_subaux q p t"
       by (fact parallel_scope_extension_aux_without_new_channel_normalization)
-    from `p \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p'` and this and acting_left.hyps
-    have "\<exists>t'. t \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t' \<and> parallel_scope_extension_subaux q p' t'"
+    from `p \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p'` and this and acting_left.hyps
+    have "\<exists>t'. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t' \<and> parallel_scope_extension_subaux q p' t'"
     proof (induction (no_simp) p "\<lbrace>\<alpha>\<rbrace> p'" arbitrary: p' t)
       case sending
       from sending.prems show ?case
@@ -853,29 +853,29 @@ next
       case (scoped_acting p P\<^sub>1 \<beta> P\<^sub>2 p' t)
       from `\<lbrace>\<beta>\<rbrace> \<nu> a. P\<^sub>2 a = \<lbrace>\<alpha>\<rbrace> p'` have "\<beta> = \<alpha>" and "p' = \<nu> a. P\<^sub>2 a"
         by simp_all
-      from `parallel_scope_extension_subaux q p t` and `p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P\<^sub>1 a`
+      from `parallel_scope_extension_subaux q p t` and `p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P\<^sub>1 a`
       obtain T\<^sub>1 where
-        "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
+        "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
         "\<And>a. parallel_scope_extension_subaux q (P\<^sub>1 a) (T\<^sub>1 a)"
         using parallel_scope_extension_subaux_opening_conveyance
         by blast
       obtain T\<^sub>2 where
-        "\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a" and
+        "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a" and
         "\<And>a. parallel_scope_extension_subaux q (P\<^sub>2 a) (T\<^sub>2 a)"
       proof -
         from
           `\<beta> = \<alpha>` and
           scoped_acting.IH(2) and
           `\<And>a. parallel_scope_extension_subaux q (P\<^sub>1 a) (T\<^sub>1 a)` and
-          `\<And>a. P\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<beta>\<rbrace> P\<^sub>2 a`
-        have "\<forall>a. \<exists>h. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> h \<and> parallel_scope_extension_subaux q (P\<^sub>2 a) h"
+          `\<And>a. P\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<beta>\<rbrace> P\<^sub>2 a`
+        have "\<forall>a. \<exists>h. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> h \<and> parallel_scope_extension_subaux q (P\<^sub>2 a) h"
           by blast
         then have
-          "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a \<and> parallel_scope_extension_subaux q (P\<^sub>2 a) (T\<^sub>2 a)"
+          "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a \<and> parallel_scope_extension_subaux q (P\<^sub>2 a) (T\<^sub>2 a)"
           by (fact choice)
         with that show ?thesis by blast
       qed
-      from `t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a` have "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. T\<^sub>2 a"
+      from `t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a` have "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. T\<^sub>2 a"
         by (fact basic_transition.scoped_acting)
       with `p' = \<nu> a. P\<^sub>2 a` and `\<And>a. parallel_scope_extension_subaux q (P\<^sub>2 a) (T\<^sub>2 a)`
       show ?case
@@ -890,7 +890,7 @@ next
     from acting_right.prems have "parallel_scope_extension_subaux q p t"
       by (fact parallel_scope_extension_aux_without_new_channel_normalization)
     from this and acting_right.hyps
-    have "\<exists>t'. t \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t' \<and> parallel_scope_extension_subaux q' p t'"
+    have "\<exists>t'. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t' \<and> parallel_scope_extension_subaux q' p t'"
     proof induction
       case without_new_channel
       then show ?case
@@ -901,10 +901,10 @@ next
     next
       case (with_new_channel q P T)
       then have "
-        \<forall>a. \<exists>h. T a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> h \<and> parallel_scope_extension_subaux q' (P a) h"
+        \<forall>a. \<exists>h. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> h \<and> parallel_scope_extension_subaux q' (P a) h"
         by simp
       then have "
-        \<exists>T'. \<forall>a. T a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T' a \<and> parallel_scope_extension_subaux q' (P a) (T' a)"
+        \<exists>T'. \<forall>a. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T' a \<and> parallel_scope_extension_subaux q' (P a) (T' a)"
         by (fact choice)
       then show ?case
         using acting_scope and parallel_scope_extension_subaux.with_new_channel
@@ -928,7 +928,7 @@ next
     from opening_right.prems have "parallel_scope_extension_subaux q p t"
       by (fact parallel_scope_extension_aux_without_new_channel_normalization)
     from this and opening_right.hyps
-    have "\<exists>T. t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. parallel_scope_extension_subaux (Q a) p (T a))"
+    have "\<exists>T. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. parallel_scope_extension_subaux (Q a) p (T a))"
     proof induction
       case without_new_channel
       then show ?case
@@ -939,10 +939,10 @@ next
     next
       case (with_new_channel q P T)
       then have "
-        \<forall>a. \<exists>H. T a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> H b \<and> (\<forall>b. parallel_scope_extension_subaux (Q b) (P a) (H b))"
+        \<forall>a. \<exists>H. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> H b \<and> (\<forall>b. parallel_scope_extension_subaux (Q b) (P a) (H b))"
         by simp
       then have "
-        \<exists>T'. \<forall>a. T a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T' a b \<and> (\<forall>b. parallel_scope_extension_subaux (Q b) (P a) (T' a b))"
+        \<exists>T'. \<forall>a. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T' a b \<and> (\<forall>b. parallel_scope_extension_subaux (Q b) (P a) (T' a b))"
         by (fact choice)
       then show ?case
         using opening_scope and parallel_scope_extension_subaux.with_new_channel
@@ -963,8 +963,8 @@ context begin
 private lemma basic_pre_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<preceq>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
 proof (standard, intro allI, intro impI)
   fix d
-  assume "\<nu> b. \<nu> a. P a b \<longmapsto>\<^sub>\<flat>d"
-  then have "\<nu> a. \<nu> b. P a b \<longmapsto>\<^sub>\<flat>d"
+  assume "\<nu> b. \<nu> a. P a b \<rightarrow>\<^sub>\<flat>d"
+  then have "\<nu> a. \<nu> b. P a b \<rightarrow>\<^sub>\<flat>d"
   proof (induction "\<nu> b. \<nu> a. P a b" d)
     case opening
     show ?case using basic_transition.opening by (intro opening_scope)
@@ -975,7 +975,7 @@ proof (standard, intro allI, intro impI)
     case scoped_opening
     then show ?case by (simp add: basic_transition.scoped_opening)
   qed
-  then show "\<exists>e. \<nu> a. \<nu> b. P a b \<longmapsto>\<^sub>\<flat>e \<and> basic_lift op \<sim>\<^sub>\<flat> d e"
+  then show "\<exists>e. \<nu> a. \<nu> b. P a b \<rightarrow>\<^sub>\<flat>e \<and> basic_lift op \<sim>\<^sub>\<flat> d e"
     using basic.bisimilarity_reflexivity and basic.lift_reflexivity_propagation and reflpD
     by smt
 qed
@@ -1014,7 +1014,7 @@ next
   then show ?case by induction (simp_all add: parallel_unit_aux.intros)
 next
   case (sim s t d)
-  from this and `s \<longmapsto>\<^sub>\<flat>d` show ?case
+  from this and `s \<rightarrow>\<^sub>\<flat>d` show ?case
   proof (basic_sim_induction t with_new_channel: parallel_unit_aux.with_new_channel)
     case sending
     from sending.prems show ?case
@@ -1092,8 +1092,8 @@ where
 
 private lemma nested_parallel_commutativity_subaux_opening_conveyance:
   assumes initial_relation: "nested_parallel_commutativity_subaux r u t"
-  assumes transition: "u \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> U a"
-  shows "\<exists>T. t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. nested_parallel_commutativity_subaux r (U a) (T a))"
+  assumes transition: "u \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> U a"
+  shows "\<exists>T. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. nested_parallel_commutativity_subaux r (U a) (T a))"
 using transition and initial_relation
 proof (induction u "\<lbrace>\<nu> a\<rbrace> U a" arbitrary: U t)
   case (opening U t)
@@ -1109,7 +1109,7 @@ next
   from opening_left.prems show ?case
   proof cases
     case without_new_channel
-    with `p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a` show ?thesis
+    with `p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a` show ?thesis
       using
         basic_transition.opening_left and
         nested_parallel_commutativity_subaux.without_new_channel
@@ -1120,7 +1120,7 @@ next
   from opening_right.prems show ?case
   proof cases
     case without_new_channel
-    with `q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a` show ?thesis
+    with `q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a` show ?thesis
       using
         basic_transition.opening_right and
         nested_parallel_commutativity_subaux.without_new_channel
@@ -1130,23 +1130,23 @@ next
   case (scoped_opening u U\<^sub>1 U\<^sub>2 t)
   from scoped_opening.hyps(2) and `nested_parallel_commutativity_subaux r u t`
   obtain T\<^sub>1 where
-    "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
+    "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
     "\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>1 a) (T\<^sub>1 a)"
     by blast
   obtain T\<^sub>2 where
-    "\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b" and
+    "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b" and
     "\<And>a b. nested_parallel_commutativity_subaux r (U\<^sub>2 a b) (T\<^sub>2 a b)"
   proof -
     from scoped_opening.hyps(4) and `\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>1 a) (T\<^sub>1 a)`
     have "
-      \<forall>a. \<exists>H. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> H b \<and> (\<forall>b. nested_parallel_commutativity_subaux r (U\<^sub>2 a b) (H b))"
+      \<forall>a. \<exists>H. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> H b \<and> (\<forall>b. nested_parallel_commutativity_subaux r (U\<^sub>2 a b) (H b))"
       by blast
     then have "
-      \<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b \<and> (\<forall>b. nested_parallel_commutativity_subaux r (U\<^sub>2 a b) (T\<^sub>2 a b))"
+      \<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b \<and> (\<forall>b. nested_parallel_commutativity_subaux r (U\<^sub>2 a b) (T\<^sub>2 a b))"
       by (fact choice)
     with that show ?thesis by blast
   qed
-  from `t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b` have "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. T\<^sub>2 a b"
+  from `t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b` have "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. T\<^sub>2 a b"
     by (fact basic_transition.scoped_opening)
   with `\<And>a b. nested_parallel_commutativity_subaux r (U\<^sub>2 a b) (T\<^sub>2 a b)` show ?case
     using nested_parallel_commutativity_subaux.with_new_channel
@@ -1198,14 +1198,14 @@ next
     case (communication \<eta> \<mu> u u' r r' t)
     from communication.prems have "nested_parallel_commutativity_subaux r u t"
       by (fact nested_parallel_commutativity_aux_without_new_channel_normalization)
-    with `u \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> u'`
-    have "\<exists>t'. t \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> t' \<and> nested_parallel_commutativity_subaux r' u' t'"
+    with `u \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> u'`
+    have "\<exists>t'. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> t' \<and> nested_parallel_commutativity_subaux r' u' t'"
     proof (induction u "\<lbrace>IO \<eta>\<rbrace> u'" arbitrary: u' t)
       case (acting_left p p' q t)
       from acting_left.prems show ?case
       proof cases
         case without_new_channel
-        with `\<eta> \<bowtie> \<mu>` and `p \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'` and `r \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> r'` show ?thesis
+        with `\<eta> \<bowtie> \<mu>` and `p \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'` and `r \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> r'` show ?thesis
           using
             basic_transition.communication and
             basic_transition.acting_left and
@@ -1217,7 +1217,7 @@ next
       from acting_right.prems show ?case
       proof cases
         case without_new_channel
-        with `\<eta> \<bowtie> \<mu>` and `q \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> q'` and `r \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> r'` show ?thesis
+        with `\<eta> \<bowtie> \<mu>` and `q \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> q'` and `r \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> r'` show ?thesis
           using
             communication_symmetry_rule and
             basic_transition.acting_right and
@@ -1227,27 +1227,27 @@ next
       qed
     next
       case (scoped_acting u U\<^sub>1 U\<^sub>2 t)
-      from `nested_parallel_commutativity_subaux r u t` and `u \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> U\<^sub>1 a`
+      from `nested_parallel_commutativity_subaux r u t` and `u \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> U\<^sub>1 a`
       obtain T\<^sub>1 where
-        "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
+        "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
         "\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>1 a) (T\<^sub>1 a)"
         using nested_parallel_commutativity_subaux_opening_conveyance
         by blast
       obtain T\<^sub>2 where
-        "\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a" and
+        "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a" and
         "\<And>a. nested_parallel_commutativity_subaux r' (U\<^sub>2 a) (T\<^sub>2 a)"
       proof -
         from
           scoped_acting.hyps(3) and
           `\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>1 a) (T\<^sub>1 a)`
-        have "\<forall>a. \<exists>h. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> h \<and> nested_parallel_commutativity_subaux r' (U\<^sub>2 a) h"
+        have "\<forall>a. \<exists>h. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> h \<and> nested_parallel_commutativity_subaux r' (U\<^sub>2 a) h"
           by blast
         then have
-          "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a \<and> nested_parallel_commutativity_subaux r' (U\<^sub>2 a) (T\<^sub>2 a)"
+          "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a \<and> nested_parallel_commutativity_subaux r' (U\<^sub>2 a) (T\<^sub>2 a)"
           by (fact choice)
         with that show ?thesis by blast
       qed
-      from `t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a` have "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<nu> a. T\<^sub>2 a"
+      from `t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a` have "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<nu> a. T\<^sub>2 a"
         by (fact basic_transition.scoped_acting)
       with `\<And>a. nested_parallel_commutativity_subaux r' (U\<^sub>2 a) (T\<^sub>2 a)`
       show ?case
@@ -1283,14 +1283,14 @@ next
     case (acting_left u \<alpha> u' r t)
     from acting_left.prems have "nested_parallel_commutativity_subaux r u t"
       by (fact nested_parallel_commutativity_aux_without_new_channel_normalization)
-    with `u \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> u'`
-    have "\<exists>t'. t \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t' \<and> nested_parallel_commutativity_subaux r u' t'"
+    with `u \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> u'`
+    have "\<exists>t'. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t' \<and> nested_parallel_commutativity_subaux r u' t'"
     proof (induction u "\<lbrace>\<alpha>\<rbrace> u'" arbitrary: u' t)
       case (communication \<eta> \<mu> p p' q q' t)
       from communication.prems show ?case
       proof cases
         case without_new_channel
-        with `\<tau> = \<alpha>` and `\<eta> \<bowtie> \<mu>` and `p \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'` and `q \<longmapsto>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q'` show ?thesis
+        with `\<tau> = \<alpha>` and `\<eta> \<bowtie> \<mu>` and `p \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'` and `q \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q'` show ?thesis
           using
             basic_transition.acting_left and
             basic_transition.communication and
@@ -1302,7 +1302,7 @@ next
       from acting_left.prems show ?case
       proof cases
         case without_new_channel
-        with `p \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p'` show ?thesis
+        with `p \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p'` show ?thesis
           using
             basic_transition.acting_left and
             nested_parallel_commutativity_subaux.without_new_channel
@@ -1313,7 +1313,7 @@ next
       from acting_right.prems show ?case
       proof cases
         case without_new_channel
-        with `q \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q'` show ?thesis
+        with `q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q'` show ?thesis
           using
             basic_transition.acting_right and
             nested_parallel_commutativity_subaux.without_new_channel
@@ -1321,27 +1321,27 @@ next
       qed
     next
       case (scoped_acting u U\<^sub>1 U\<^sub>2 t)
-      from `nested_parallel_commutativity_subaux r u t` and `u \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> U\<^sub>1 a`
+      from `nested_parallel_commutativity_subaux r u t` and `u \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> U\<^sub>1 a`
       obtain T\<^sub>1 where
-        "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
+        "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
         "\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>1 a) (T\<^sub>1 a)"
         using nested_parallel_commutativity_subaux_opening_conveyance
         by blast
       obtain T\<^sub>2 where
-        "\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a" and
+        "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a" and
         "\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>2 a) (T\<^sub>2 a)"
       proof -
         from
           scoped_acting.hyps(3) and
           `\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>1 a) (T\<^sub>1 a)`
-        have "\<forall>a. \<exists>h. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> h \<and> nested_parallel_commutativity_subaux r (U\<^sub>2 a) h"
+        have "\<forall>a. \<exists>h. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> h \<and> nested_parallel_commutativity_subaux r (U\<^sub>2 a) h"
           by blast
         then have
-          "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a \<and> nested_parallel_commutativity_subaux r (U\<^sub>2 a) (T\<^sub>2 a)"
+          "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a \<and> nested_parallel_commutativity_subaux r (U\<^sub>2 a) (T\<^sub>2 a)"
           by (fact choice)
         with that show ?thesis by blast
       qed
-      from `t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a` have "t \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. T\<^sub>2 a"
+      from `t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a` and `\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a` have "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. T\<^sub>2 a"
         by (fact basic_transition.scoped_acting)
       with `\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>2 a) (T\<^sub>2 a)`
       show ?case
@@ -1356,7 +1356,7 @@ next
     from acting_right.prems have "nested_parallel_commutativity_subaux r u t"
       by (fact nested_parallel_commutativity_aux_without_new_channel_normalization)
     from this and acting_right.hyps
-    have "\<exists>t'. t \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t' \<and> nested_parallel_commutativity_subaux r' u t'"
+    have "\<exists>t'. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t' \<and> nested_parallel_commutativity_subaux r' u t'"
     proof induction
       case without_new_channel
       then show ?case
@@ -1368,10 +1368,10 @@ next
     next
       case (with_new_channel r U T)
       then have "
-        \<forall>a. \<exists>h. T a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> h \<and> nested_parallel_commutativity_subaux r' (U a) h"
+        \<forall>a. \<exists>h. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> h \<and> nested_parallel_commutativity_subaux r' (U a) h"
         by simp
       then have "
-        \<exists>T'. \<forall>a. T a \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T' a \<and> nested_parallel_commutativity_subaux r' (U a) (T' a)"
+        \<exists>T'. \<forall>a. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T' a \<and> nested_parallel_commutativity_subaux r' (U a) (T' a)"
         by (fact choice)
       then show ?case
         using acting_scope and nested_parallel_commutativity_subaux.with_new_channel
@@ -1395,7 +1395,7 @@ next
     from opening_right.prems have "nested_parallel_commutativity_subaux r u t"
       by (fact nested_parallel_commutativity_aux_without_new_channel_normalization)
     from this and opening_right.hyps
-    have "\<exists>T. t \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. nested_parallel_commutativity_subaux (R a) u (T a))"
+    have "\<exists>T. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. nested_parallel_commutativity_subaux (R a) u (T a))"
     proof induction
       case without_new_channel
       then show ?case
@@ -1407,11 +1407,11 @@ next
     next
       case (with_new_channel r U T)
       then have "
-        \<forall>a. \<exists>H. T a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> H b \<and> (\<forall>b. nested_parallel_commutativity_subaux (R b) (U a) (H b))"
+        \<forall>a. \<exists>H. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> H b \<and> (\<forall>b. nested_parallel_commutativity_subaux (R b) (U a) (H b))"
         by simp
       then have "
         \<exists>T'. \<forall>a.
-        T a \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T' a b \<and> (\<forall>b. nested_parallel_commutativity_subaux (R b) (U a) (T' a b))"
+        T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T' a b \<and> (\<forall>b. nested_parallel_commutativity_subaux (R b) (U a) (T' a b))"
         by (fact choice)
       then show ?case
         using opening_scope and nested_parallel_commutativity_subaux.with_new_channel

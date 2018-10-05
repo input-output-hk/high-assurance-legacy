@@ -32,23 +32,23 @@ lemma typed_ltr: "typed_basic_out \<cc> \<vv> \<bowtie> typed_basic_in \<cc> \<v
 lemma typed_rtl: "typed_basic_in \<cc> \<vv> \<bowtie> typed_basic_out \<cc> \<vv>"
   by (fact rtl)
 
-lemma typed_sending: "\<cc> \<triangleleft>\<degree> \<vv> \<longmapsto>\<^sub>\<flat>\<lbrace>\<cc> \<triangleleft>\<degree> \<vv>\<rbrace> \<zero>"
+lemma typed_sending: "\<cc> \<triangleleft>\<degree> \<vv> \<rightarrow>\<^sub>\<flat>\<lbrace>\<cc> \<triangleleft>\<degree> \<vv>\<rbrace> \<zero>"
   by (fact sending)
-lemma typed_receiving: "\<cc> \<triangleright>\<degree> \<xx>. \<PP> \<xx> \<longmapsto>\<^sub>\<flat>\<lbrace>\<cc> \<triangleright>\<degree> \<vv>\<rbrace> \<PP> \<vv>"
+lemma typed_receiving: "\<cc> \<triangleright>\<degree> \<xx>. \<PP> \<xx> \<rightarrow>\<^sub>\<flat>\<lbrace>\<cc> \<triangleright>\<degree> \<vv>\<rbrace> \<PP> \<vv>"
   using receiving and typed_untyped_value
   by metis
-lemma typed_opening: "\<nu>\<degree>\<aa>. \<PP> \<aa> \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<PP> \<aa>"
+lemma typed_opening: "\<nu>\<degree>\<aa>. \<PP> \<aa> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<PP> \<aa>"
   by (fact opening)
-lemma typed_opening_left: "p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<PP> \<aa> \<Longrightarrow> p \<parallel> q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<PP> \<aa> \<parallel> q"
+lemma typed_opening_left: "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<PP> \<aa> \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<PP> \<aa> \<parallel> q"
   by (fact opening_left)
-lemma typed_opening_right: "q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<QQ> \<aa> \<Longrightarrow> p \<parallel> q \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> p \<parallel> \<QQ> \<aa>"
+lemma typed_opening_right: "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<QQ> \<aa> \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> p \<parallel> \<QQ> \<aa>"
   by (fact opening_right)
-lemma typed_scoped_acting: "\<lbrakk>p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<QQ> \<aa>; \<And>\<aa>. \<QQ> \<aa> \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<RR> \<aa>\<rbrakk> \<Longrightarrow> p \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu>\<degree>\<aa>. \<RR> \<aa>"
+lemma typed_scoped_acting: "\<lbrakk>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<QQ> \<aa>; \<And>\<aa>. \<QQ> \<aa> \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<RR> \<aa>\<rbrakk> \<Longrightarrow> p \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu>\<degree>\<aa>. \<RR> \<aa>"
   by (simp add: scoped_acting)
-lemma typed_scoped_opening: "\<lbrakk>p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<QQ> \<aa>; \<And>\<aa>. \<QQ> \<aa> \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<bb>\<rbrace> \<RR> \<aa> \<bb>\<rbrakk> \<Longrightarrow> p \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<bb>\<rbrace> \<nu>\<degree>\<aa>. \<RR> \<aa> \<bb>"
+lemma typed_scoped_opening: "\<lbrakk>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<QQ> \<aa>; \<And>\<aa>. \<QQ> \<aa> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<bb>\<rbrace> \<RR> \<aa> \<bb>\<rbrakk> \<Longrightarrow> p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<bb>\<rbrace> \<nu>\<degree>\<aa>. \<RR> \<aa> \<bb>"
   by (simp add: scoped_opening)
 
-lemma typed_opening_scope: "(\<And>\<aa>. \<PP> \<aa> \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<bb>\<rbrace> \<QQ> \<aa> \<bb>) \<Longrightarrow> \<nu>\<degree>\<aa>. \<PP> \<aa> \<longmapsto>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<bb>\<rbrace> \<nu>\<degree>\<aa>. \<QQ> \<aa> \<bb>"
+lemma typed_opening_scope: "(\<And>\<aa>. \<PP> \<aa> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<bb>\<rbrace> \<QQ> \<aa> \<bb>) \<Longrightarrow> \<nu>\<degree>\<aa>. \<PP> \<aa> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<bb>\<rbrace> \<nu>\<degree>\<aa>. \<QQ> \<aa> \<bb>"
   by (simp add: opening_scope)
 
 end
