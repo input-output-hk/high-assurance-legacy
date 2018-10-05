@@ -222,9 +222,9 @@ where
   "bisim\<^sub>\<flat> \<equiv> basic.bisim"
 abbreviation
   basic_pre_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool"
-  (infix "\<preceq>\<^sub>\<flat>" 50)
+  (infix "\<lesssim>\<^sub>\<flat>" 50)
 where
-  "op \<preceq>\<^sub>\<flat> \<equiv> basic.pre_bisimilarity"
+  "op \<lesssim>\<^sub>\<flat> \<equiv> basic.pre_bisimilarity"
 abbreviation
   basic_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool"
   (infix "\<sim>\<^sub>\<flat>" 50)
@@ -416,7 +416,7 @@ end
 
 context begin
 
-private lemma basic_pre_receive_preservation: "(\<And>x. P x \<sim>\<^sub>\<flat> Q x) \<Longrightarrow> c \<triangleright> x. P x \<preceq>\<^sub>\<flat> c \<triangleright> x. Q x"
+private lemma basic_pre_receive_preservation: "(\<And>x. P x \<sim>\<^sub>\<flat> Q x) \<Longrightarrow> c \<triangleright> x. P x \<lesssim>\<^sub>\<flat> c \<triangleright> x. Q x"
 proof (standard, intro allI, intro impI)
   assume "\<And>x. P x \<sim>\<^sub>\<flat> Q x"
   fix d
@@ -960,7 +960,7 @@ end
 
 context begin
 
-private lemma basic_pre_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<preceq>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
+private lemma basic_pre_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<lesssim>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
 proof (standard, intro allI, intro impI)
   fix d
   assume "\<nu> b. \<nu> a. P a b \<rightarrow>\<^sub>\<flat>d"

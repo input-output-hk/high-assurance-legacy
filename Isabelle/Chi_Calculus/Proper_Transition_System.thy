@@ -302,9 +302,9 @@ where
   "bisim\<^sub>\<sharp> \<equiv> proper.bisim"
 abbreviation
   proper_pre_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool"
-  (infix "\<preceq>\<^sub>\<sharp>" 50)
+  (infix "\<lesssim>\<^sub>\<sharp>" 50)
 where
-  "op \<preceq>\<^sub>\<sharp> \<equiv> proper.pre_bisimilarity"
+  "op \<lesssim>\<^sub>\<sharp> \<equiv> proper.pre_bisimilarity"
 abbreviation
   proper_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool"
   (infix "\<sim>\<^sub>\<sharp>" 50)
@@ -425,7 +425,7 @@ lemma proper_new_channel_preservation: "(\<And>a. P a \<sim>\<^sub>\<sharp> Q a)
 
 context begin
 
-private lemma proper_pre_receive_scope_extension_ltr: "c \<triangleright> x. \<nu> a. P x a \<preceq>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. P x a"
+private lemma proper_pre_receive_scope_extension_ltr: "c \<triangleright> x. \<nu> a. P x a \<lesssim>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. P x a"
 proof (standard, intro allI, intro impI)
   fix d
   assume "c \<triangleright> x. \<nu> a. P x a \<rightarrow>\<^sub>\<sharp>d"
@@ -464,7 +464,7 @@ next
   then show ?case using no_opening_transitions_from_receive by metis
 qed
 
-private lemma proper_pre_receive_scope_extension_rtl: "\<nu> a. c \<triangleright> x. P x a \<preceq>\<^sub>\<sharp> c \<triangleright> x. \<nu> a. P x a"
+private lemma proper_pre_receive_scope_extension_rtl: "\<nu> a. c \<triangleright> x. P x a \<lesssim>\<^sub>\<sharp> c \<triangleright> x. \<nu> a. P x a"
 proof (standard, intro allI, intro impI)
   fix d
   assume "\<nu> a. c \<triangleright> x. P x a \<rightarrow>\<^sub>\<sharp>d"
@@ -599,11 +599,11 @@ qed
 
 private lemma proper_stop_scope_redundancy: "\<zero> \<sim>\<^sub>\<sharp> \<nu> a. \<zero>"
 proof
-  show "\<zero> \<preceq>\<^sub>\<sharp> \<nu> a. \<zero>"
+  show "\<zero> \<lesssim>\<^sub>\<sharp> \<nu> a. \<zero>"
     using no_proper_transitions_from_stop
     by (blast intro: proper.pre_bisimilarity.intros)
 next
-  show "\<nu> a. \<zero> \<preceq>\<^sub>\<sharp> \<zero>"
+  show "\<nu> a. \<zero> \<lesssim>\<^sub>\<sharp> \<zero>"
     using no_proper_transitions_from_new_channel_stop
     by (blast intro: proper.pre_bisimilarity.intros)
 qed

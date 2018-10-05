@@ -172,12 +172,12 @@ text \<open>
 \<close>
 
 coinductive
-  pre_bisimilarity :: "['process, 'process] \<Rightarrow> bool" (infix "\<preceq>" 50)
+  pre_bisimilarity :: "['process, 'process] \<Rightarrow> bool" (infix "\<lesssim>" 50)
 and
   bisimilarity :: "['process, 'process] \<Rightarrow> bool" (infix "\<sim>" 50)
 where
-  "transfer op \<sim> p q \<Longrightarrow> p \<preceq> q" |
-  "p \<sim> q \<equiv> p \<preceq> q \<and> q \<preceq> p"
+  "transfer op \<sim> p q \<Longrightarrow> p \<lesssim> q" |
+  "p \<sim> q \<equiv> p \<lesssim> q \<and> q \<lesssim> p"
 
 subsubsection \<open>Symmetry\<close>
 
@@ -207,7 +207,7 @@ text \<open>
 
 lemma bisimilarity_is_simulation: "sim op \<sim>"
 proof -
-  have "op \<sim> \<le> op \<preceq>"
+  have "op \<sim> \<le> op \<lesssim>"
     by blast
   also have "\<dots> \<le> transfer op \<sim>"
     by (blast elim: pre_bisimilarity.cases)
@@ -233,13 +233,13 @@ text \<open>
   \emph{pre}-bisimilarity.
 \<close>
 
-private lemma bisimulation_in_pre_bisimilarity: "bisim \<X> \<Longrightarrow> \<X> \<le> op \<preceq>"
+private lemma bisimulation_in_pre_bisimilarity: "bisim \<X> \<Longrightarrow> \<X> \<le> op \<lesssim>"
 proof
   fix p and q
   assume "bisim \<X>" and "\<X> p q"
   from `\<X> p q` have "(\<X> \<squnion> \<X>\<inverse>\<inverse>) p q"
     by simp
-  then show "p \<preceq> q"
+  then show "p \<lesssim> q"
   proof (coinduction arbitrary: p q)
     case pre_bisimilarity
     with `bisim \<X>` have "transfer (\<X> \<squnion> \<X>\<inverse>\<inverse>) p q"
@@ -248,8 +248,8 @@ proof
     moreover
     let
       ?target_relation = "\<lambda>p q.
-        ((\<exists>s t. p = s \<and> q = t \<and> (\<X> \<squnion> \<X>\<inverse>\<inverse>) s t) \<or> p \<preceq> q) \<and>
-        ((\<exists>s t. q = s \<and> p = t \<and> (\<X> \<squnion> \<X>\<inverse>\<inverse>) s t) \<or> q \<preceq> p)"
+        ((\<exists>s t. p = s \<and> q = t \<and> (\<X> \<squnion> \<X>\<inverse>\<inverse>) s t) \<or> p \<lesssim> q) \<and>
+        ((\<exists>s t. q = s \<and> p = t \<and> (\<X> \<squnion> \<X>\<inverse>\<inverse>) s t) \<or> q \<lesssim> p)"
     have "\<X> \<squnion> \<X>\<inverse>\<inverse> \<le> ?target_relation"
       by blast
     ultimately have "transfer ?target_relation p q"
@@ -266,12 +266,12 @@ text \<open>
 lemma bisimulation_in_bisimilarity: "bisim \<X> \<Longrightarrow> \<X> \<le> op \<sim>"
 proof -
   assume "bisim \<X>"
-  from `bisim \<X>` have "\<X> \<le> op \<preceq>"
+  from `bisim \<X>` have "\<X> \<le> op \<lesssim>"
     by (fact bisimulation_in_pre_bisimilarity)
   moreover
   from `bisim \<X>` have "bisim \<X>\<inverse>\<inverse>"
     by (fact conversion_bisim_propagation)
-  then have "\<X>\<inverse>\<inverse> \<le> op \<preceq>"
+  then have "\<X>\<inverse>\<inverse> \<le> op \<lesssim>"
     by (fact bisimulation_in_pre_bisimilarity)
   ultimately show "\<X> \<le> op \<sim>"
     by blast
