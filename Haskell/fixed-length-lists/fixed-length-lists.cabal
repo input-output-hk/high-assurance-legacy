@@ -1,42 +1,42 @@
-Name:          fixed-length-lists
-Version:       0.0.0.0
-Cabal-Version: >= 2.0
-Build-Type:    Simple
-License:       MIT
-License-File:  LICENSE
-Copyright:     © 2018 IOHK
-Author:        Wolfgang Jeltsch
-Maintainer:    wolfgang@well-typed.com
-Stability:     provisional
-Homepage:      https://github.com/input-output-hk/ouroboros-spec/Haskell/fixed-length-lists
-Bug-Reports:   https://github.com/input-output-hk/ouroboros-spec/issues
-Synopsis:      Lists whose lengths are fixed via a type parameter
-Description:   This package defines a type of lists that has an additional type
+cabal-version: 2.2
+name:          fixed-length-lists
+version:       0.0.0.0
+build-type:    Simple
+license:       MIT
+license-file:  LICENSE
+copyright:     © 2018 IOHK
+author:        Wolfgang Jeltsch
+maintainer:    wolfgang@well-typed.com
+stability:     provisional
+homepage:      https://github.com/input-output-hk/ouroboros-spec/Haskell/fixed-length-lists
+bug-reports:   https://github.com/input-output-hk/ouroboros-spec/issues
+synopsis:      Lists whose lengths are fixed via a type parameter
+description:   This package defines a type of lists that has an additional type
                parameter specifying list lengths. Such a type is often
                misleadingly called @Vec@.
-Category:      Data
-Tested-With:   GHC == 8.4.2
+category:      Data
+tested-with:   GHC == 8.4.2
 
-Source-Repository head
+source-repository head
 
-    Type:     git
-    Location: https://github.com/input-output-hk/ouroboros-spec.git
-    Branch:   master
-    Subdir:   Haskell/fixed-length-lists
+    type:     git
+    location: https://github.com/input-output-hk/ouroboros-spec.git
+    branch:   master
+    subdir:   Haskell/fixed-length-lists
 
-Library
+library
 
-    Exposed-Modules: Data.List.FixedLength
+    exposed-modules: Data.List.FixedLength
                      Data.Type.Natural
 
-    Build-Depends: base >= 4.10 && < 5
+    build-depends: base >= 4.10 && < 5
 
-    HS-Source-Dirs: src
+    hs-source-dirs: src
 
-    Default-Language: Haskell2010
+    default-language: Haskell2010
 
-    Other-Extensions: DataKinds
+    other-extensions: DataKinds
                       RankNTypes
                       TypeFamilies
 
-    GHC-Options: -Wall
+    ghc-options: -Wall

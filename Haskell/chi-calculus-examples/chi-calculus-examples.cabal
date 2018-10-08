@@ -1,72 +1,72 @@
-Name:          chi-calculus-examples
-Version:       0.0.0.0
-Cabal-Version: >= 2.0
-Build-Type:    Simple
-License:       MIT
-License-File:  LICENSE
-Copyright:     © 2018 IOHK
-Author:        Wolfgang Jeltsch
-Maintainer:    wolfgang@well-typed.com
-Stability:     provisional
-Homepage:      https://github.com/input-output-hk/ouroboros-spec/Haskell/chi-calculus-examples
-Bug-Reports:   https://github.com/input-output-hk/ouroboros-spec/issues
-Synopsis:      χ-calculus examples
-Description:   The χ-calculus is a process calculus that is used in the
+cabal-version: 2.2
+name:          chi-calculus-examples
+version:       0.0.0.0
+build-type:    Simple
+license:       MIT
+license-file:  LICENSE
+copyright:     © 2018 IOHK
+author:        Wolfgang Jeltsch
+maintainer:    wolfgang@well-typed.com
+stability:     provisional
+homepage:      https://github.com/input-output-hk/ouroboros-spec/Haskell/chi-calculus-examples
+bug-reports:   https://github.com/input-output-hk/ouroboros-spec/issues
+synopsis:      χ-calculus examples
+description:   The χ-calculus is a process calculus that is used in the
                high-assurance implementation of the Ouroboros Genesis protocol.
                This package contains examples of χ-calculus programs.
-Category:      Concurrency
-Tested-With:   GHC == 8.4.2
+category:      Concurrency
+tested-with:   GHC == 8.4.2
 
-Source-Repository head
+source-repository head
 
-    Type:     git
-    Location: https://github.com/input-output-hk/ouroboros-spec.git
-    Branch:   master
-    Subdir:   Haskell/chi-calculus-examples
+    type:     git
+    location: https://github.com/input-output-hk/ouroboros-spec.git
+    branch:   master
+    subdir:   Haskell/chi-calculus-examples
 
-Library
+library
 
-    Exposed-Modules: Ouroboros.ChiCalculus.Examples.DiningPhilosophers
+    exposed-modules: Ouroboros.ChiCalculus.Examples.DiningPhilosophers
                      Ouroboros.ChiCalculus.Examples.Reverser
 
-    Build-Depends: base          >= 4.10 && < 5,
+    build-depends: base          >= 4.10 && < 5,
                    chi-calculus ^>= 0.0
 
-    HS-Source-Dirs: src/lib
+    hs-source-dirs: src/lib
 
-    Default-Language: Haskell2010
+    default-language: Haskell2010
 
-    Other-Extensions: FlexibleInstances
+    other-extensions: FlexibleInstances
                       GADTs
                       OverloadedStrings
                       RankNTypes
                       ScopedTypeVariables
                       ViewPatterns
 
-    GHC-Options: -Wall
+    ghc-options: -Wall
 
-Executable Reverser
+executable Reverser
 
-    Main-Is: Reverser.hs
+    main-is: Reverser.hs
 
-    Build-Depends: base                   >= 4.10 && < 5,
+    build-depends: base                   >= 4.10 && < 5,
                    chi-calculus-examples ^>= 0.0
 
-    HS-Source-Dirs: src/exe
+    hs-source-dirs: src/exe
 
-    Default-Language: Haskell2010
+    default-language: Haskell2010
 
-    GHC-Options: -Wall
+    ghc-options: -Wall
 
-Executable DiningPhilosophers
+executable DiningPhilosophers
 
-    Main-Is: DiningPhilosophers.hs
+    main-is: DiningPhilosophers.hs
 
-    Build-Depends: base                   >= 4.10 && < 5,
+    build-depends: base                   >= 4.10 && < 5,
                    chi-calculus-examples ^>= 0.0
 
-    HS-Source-Dirs: src/exe
+    hs-source-dirs: src/exe
 
-    Default-Language: Haskell2010
+    default-language: Haskell2010
 
-    GHC-Options: -Wall
+    ghc-options: -Wall
