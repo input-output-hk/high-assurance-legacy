@@ -8,8 +8,8 @@ copyright:     © 2018 IOHK
 author:        Wolfgang Jeltsch
 maintainer:    wolfgang@well-typed.com
 stability:     provisional
-homepage:      https://github.com/input-output-hk/ouroboros-spec/Haskell/fixed-length-lists
-bug-reports:   https://github.com/input-output-hk/ouroboros-spec/issues
+homepage:      https://github.com/input-output-hk/fm-ouroboros/Haskell/fixed-length-lists
+bug-reports:   https://github.com/input-output-hk/fm-ouroboros/issues
 synopsis:      Lists whose lengths are fixed via a type parameter
 description:   This package defines a type of lists that has an additional type
                parameter specifying list lengths. Such a type is often
@@ -20,7 +20,7 @@ tested-with:   GHC == 8.4.2
 source-repository head
 
     type:     git
-    location: https://github.com/input-output-hk/ouroboros-spec.git
+    location: https://github.com/input-output-hk/fm-ouroboros.git
     branch:   master
     subdir:   Haskell/fixed-length-lists
 

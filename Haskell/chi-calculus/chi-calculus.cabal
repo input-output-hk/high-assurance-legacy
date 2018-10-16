@@ -8,8 +8,8 @@ copyright:     © 2018 IOHK
 author:        Wolfgang Jeltsch
 maintainer:    wolfgang@well-typed.com
 stability:     provisional
-homepage:      https://github.com/input-output-hk/ouroboros-spec/Haskell/chi-calculus
-bug-reports:   https://github.com/input-output-hk/ouroboros-spec/issues
+homepage:      https://github.com/input-output-hk/fm-ouroboros/Haskell/chi-calculus
+bug-reports:   https://github.com/input-output-hk/fm-ouroboros/issues
 synopsis:      The χ-calculus
 description:   The χ-calculus is a process calculus that is used in the
                high-assurance implementation of the Ouroboros Genesis protocol.
@@ -21,7 +21,7 @@ tested-with:   GHC == 8.4.2
 source-repository head
 
     type:     git
-    location: https://github.com/input-output-hk/ouroboros-spec.git
+    location: https://github.com/input-output-hk/fm-ouroboros.git
     branch:   master
     subdir:   Haskell/chi-calculus
 
