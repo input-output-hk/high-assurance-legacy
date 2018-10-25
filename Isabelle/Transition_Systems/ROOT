@@ -8,6 +8,7 @@ session Transition_Systems (ouroboros) = HOL +
     "HOL-Library"
   theories
     Residuals
+    Simulation_Systems
     Transition_Systems
   document_files
     "root.tex"
