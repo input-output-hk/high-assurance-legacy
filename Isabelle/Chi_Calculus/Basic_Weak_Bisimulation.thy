@@ -658,7 +658,7 @@ lemma weak_basic_bisim_reflexivity: "P \<approx>\<^sub>\<flat> P"
 proof -
   have "P = P" by simp
   then show ?thesis
-    using weak_basic_bisim_weak_coinduct_aux and weak_basic_sim_reflexivity by blast
+    using weak_basic_bisim_proof_method and weak_basic_sim_reflexivity by blast
 qed
 
 lemma weak_basic_bisim_symmetry [sym]: "P \<approx>\<^sub>\<flat> Q \<Longrightarrow> Q \<approx>\<^sub>\<flat> P"
@@ -670,7 +670,7 @@ proof -
   let ?\<X> = "op \<approx>\<^sub>\<flat> OO op \<approx>\<^sub>\<flat>"
   have "?\<X> P R" using \<open>P \<approx>\<^sub>\<flat> Q\<close> and \<open>Q \<approx>\<^sub>\<flat> R\<close> by blast
   then show ?thesis
-  proof (coinduct rule: weak_basic_bisim_weak_coinduct)
+  proof (coinduct rule: weak_basic_bisim_proof_method)
     case (sim P R)
     then obtain Q where "P \<approx>\<^sub>\<flat> Q" and "Q \<approx>\<^sub>\<flat> R" using \<open>?\<X> P R\<close> by auto
     then have "Q \<leadsto>\<^sub>\<flat><op \<approx>\<^sub>\<flat>> R" using weak_basic_bisim_elim1 by auto
