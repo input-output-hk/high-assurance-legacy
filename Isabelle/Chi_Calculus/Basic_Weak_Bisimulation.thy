@@ -29,9 +29,9 @@ lemma prepend_tau_transition_to_tau_sequence_is_tau_sequence: "\<lbrakk> P \<lon
 
 lemma tau_sequence_induction[consumes 1, case_names tau_seq_refl tau_seq_step]:
   assumes "P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> Q"
-  and     "\<PP> P"
-  and     "\<And>R S. \<lbrakk> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R; R \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> S; \<PP> R \<rbrakk> \<Longrightarrow> \<PP> S"
-  shows   "\<PP> Q"
+  and     "Prop P"
+  and     "\<And>R S. \<lbrakk> P \<Longrightarrow>\<^sup>\<tau>\<^sub>\<flat> R; R \<longmapsto>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> S; Prop R \<rbrakk> \<Longrightarrow> Prop S"
+  shows   "Prop Q"
   using assms
   by (induction rule: rtrancl_induct) auto
 
@@ -166,10 +166,10 @@ qed
 
 (** Lifted weak \<tau>-respecting basic operational semantics **)
 
-lemma weak_tau_respecting_basic_transition_sending: "m \<triangleleft> V \<Longrightarrow>\<^sub>\<flat>\<lbrace>m \<triangleleft> V\<rbrace> send_cont m V"
-  using weak_tau_respecting_basic_transition_def and sending sorry
+lemma weak_tau_respecting_basic_transition_sending: "c \<triangleleft> V \<Longrightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> V\<rbrace> \<zero>"
+  using weak_tau_respecting_basic_transition_def and sending by force
 
-lemma weak_tau_respecting_basic_transition_receiving: "m \<triangleright> x. \<P> x \<Longrightarrow>\<^sub>\<flat>\<lbrace>m \<triangleright> V\<rbrace> \<P> V"
+lemma weak_tau_respecting_basic_transition_receiving: "c \<triangleright> x. \<P> x \<Longrightarrow>\<^sub>\<flat>\<lbrace>c \<triangleright> V\<rbrace> \<P> V"
   using weak_tau_respecting_basic_transition_def and receiving by force
 
 lemma weak_tau_respecting_basic_transition_communication: "\<lbrakk> \<eta> \<bowtie> \<mu>; P \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> P'; Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> Q' \<rbrakk> \<Longrightarrow> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> P' \<parallel> Q'"
@@ -330,9 +330,9 @@ lemma weak_basic_transition_step_elim: "\<lbrakk> P \<noteq> Q; P \<Longrightarr
 lemma weak_basic_transition_induction
   [consumes 1, case_names weak_basic_tran_refl weak_basic_tran_step]:
   assumes "P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> Q"
-  and     "\<PP> \<tau> P"
-  and     "P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q \<Longrightarrow> \<PP> \<alpha> Q"
-  shows   "\<PP> \<alpha> Q"
+  and     "Prop \<tau> P"
+  and     "P \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q \<Longrightarrow> Prop \<alpha> Q"
+  shows   "Prop \<alpha> Q"
   using assms
   by (auto simp add: weak_basic_transition_def)
 
@@ -393,10 +393,10 @@ qed
 
 (** Lifted weak basic operational semantics **)
 
-lemma weak_basic_transition_sending: "m \<triangleleft> V \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>m \<triangleleft> V\<rbrace> send_cont m V"
+lemma weak_basic_transition_sending: "c \<triangleleft> V \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>c \<triangleleft> V\<rbrace> \<zero>"
   by (simp add: weak_tau_respecting_basic_transition_sending weak_basic_transition_def)
 
-lemma weak_basic_transition_receiving: "m \<triangleright> x. \<P> x \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>m \<triangleright> V\<rbrace> \<P> V"
+lemma weak_basic_transition_receiving: "c \<triangleright> x. \<P> x \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>c \<triangleright> V\<rbrace> \<P> V"
   by (simp add: weak_tau_respecting_basic_transition_receiving weak_basic_transition_def)
 
 lemma weak_basic_transition_communication: "\<lbrakk> \<eta> \<bowtie> \<mu>; P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>IO \<eta>\<rbrace> P'; Q \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>IO \<mu>\<rbrace> Q' \<rbrakk> \<Longrightarrow> P \<parallel> Q \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<tau>\<rbrace> P' \<parallel> Q'"
@@ -413,7 +413,7 @@ lemma weak_basic_transition_acting_right: "Q \<Longrightarrow>\<^sub>\<flat>\<^s
 (** Weak basic simulation **)
 
 definition weak_basic_simulation :: "process \<Rightarrow> (process \<Rightarrow> process \<Rightarrow> bool) \<Rightarrow> process \<Rightarrow> bool"
-  ("_ \<leadsto>\<^sub>\<flat><_> _" [80, 80, 80] 80)
+  ("_ \<leadsto>\<^sub>\<flat><_> _" [50, 50, 50] 50)
   where
     "P \<leadsto>\<^sub>\<flat><\<X>> Q \<equiv>
       (\<forall>\<alpha> Q'. Q \<longmapsto>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q' \<longrightarrow> (\<exists>P'. P \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> P' \<and> \<X> P' Q'))
@@ -559,12 +559,12 @@ qed
 lemma pre_weak_basic_receive_preservation: "(\<And>x. \<X> (\<P> x) (\<Q> x)) \<Longrightarrow> c \<triangleright>\<degree> x. \<P> x \<leadsto>\<^sub>\<flat><\<X>> c \<triangleright>\<degree> x. \<Q> x" sorry
 
 (* TODO: Prove it. *)
-lemma pre_weak_basic_parallel_preservation:
+lemma pre_left_weak_basic_parallel_preservation:
   assumes "P \<leadsto>\<^sub>\<flat><\<X>> Q"
   and     "\<X> P Q"
-  and     "\<And>S T U. \<X> S T \<Longrightarrow> \<Y> (S \<parallel> U) (T \<parallel> U)"
-  and     "\<And>\<S> \<T> x. (\<And>x. \<Y> (\<S> x) (\<T> x)) \<Longrightarrow> \<Y> (\<nu>\<degree> x. \<S> x) (\<nu>\<degree> x. \<T> x)"
-  shows   "(P \<parallel> R) \<leadsto>\<^sub>\<flat><\<Y>> (Q \<parallel> R)"
+  and     "\<And>S T U. \<X> S T \<Longrightarrow> \<Y> (U \<parallel> S) (U \<parallel> T)"
+  and     "\<And>\<S> \<T>. (\<And>x. \<Y> (\<S> x) (\<T> x)) \<Longrightarrow> \<Y> (\<nu>\<degree> x. \<S> x) (\<nu>\<degree> x. \<T> x)"
+  shows   "R \<parallel> P \<leadsto>\<^sub>\<flat><\<Y>> R \<parallel> Q"
   sorry
 
 (* TODO: Prove it. *)
@@ -577,14 +577,13 @@ lemma pre_weak_basic_new_channel_preservation:
 
 (** Weak basic bisimulation **)
 
-lemma weak_basic_sim_monotonicity_aux: "\<X> \<le> \<Y> \<Longrightarrow> P \<leadsto>\<^sub>\<flat><\<X>> Q \<longrightarrow> P \<leadsto>\<^sub>\<flat><\<Y>> Q"
+lemma weak_basic_sim_monotonicity_aux [mono]: "\<X> \<le> \<Y> \<Longrightarrow> P \<leadsto>\<^sub>\<flat><\<X>> Q \<longrightarrow> P \<leadsto>\<^sub>\<flat><\<Y>> Q"
   by (auto intro: weak_basic_sim_monotonicity)
 
 coinductive
   weak_basic_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool" (infixr "\<approx>\<^sub>\<flat>" 50)
 where
   step: "\<lbrakk> P \<leadsto>\<^sub>\<flat><op \<approx>\<^sub>\<flat>> Q; Q \<approx>\<^sub>\<flat> P \<rbrakk> \<Longrightarrow> P \<approx>\<^sub>\<flat> Q"
-monos weak_basic_sim_monotonicity_aux
 
 (*** Primitive inference rules (coinduction, introduction and elimination) ***)
 
@@ -652,10 +651,10 @@ proof -
     using weak_basic_bisim_weak_coinduct_aux and weak_basic_sim_reflexivity by blast
 qed
 
-lemma weak_basic_bisim_symmetry: "P \<approx>\<^sub>\<flat> Q \<Longrightarrow> Q \<approx>\<^sub>\<flat> P"
+lemma weak_basic_bisim_symmetry [sym]: "P \<approx>\<^sub>\<flat> Q \<Longrightarrow> Q \<approx>\<^sub>\<flat> P"
   using weak_basic_bisim_elim2 by auto
 
-lemma weak_basic_bisim_transitivity: "\<lbrakk> P \<approx>\<^sub>\<flat> Q; Q \<approx>\<^sub>\<flat> R \<rbrakk> \<Longrightarrow> P \<approx>\<^sub>\<flat> R"
+lemma weak_basic_bisim_transitivity [trans]: "\<lbrakk> P \<approx>\<^sub>\<flat> Q; Q \<approx>\<^sub>\<flat> R \<rbrakk> \<Longrightarrow> P \<approx>\<^sub>\<flat> R"
 proof -
   assume "P \<approx>\<^sub>\<flat> Q" and "Q \<approx>\<^sub>\<flat> R"
   let ?\<X> = "op \<approx>\<^sub>\<flat> OO op \<approx>\<^sub>\<flat>"
