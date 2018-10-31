@@ -135,6 +135,20 @@ proof (intro ext)
     qed
   qed
 qed
+lemma output_rest_lift_conversion_preservation:
+  "output_rest_lift \<X>\<inverse>\<inverse> = (output_rest_lift \<X>)\<inverse>\<inverse>"
+proof (intro ext)
+  fix k and l
+  show "output_rest_lift \<X>\<inverse>\<inverse> l k \<longleftrightarrow> (output_rest_lift \<X>)\<inverse>\<inverse> l k"
+  proof
+    assume "output_rest_lift \<X>\<inverse>\<inverse> l k"
+    then show "(output_rest_lift \<X>)\<inverse>\<inverse> l k" by induction (simp_all add: output_rest_lift.intros)
+  next
+    assume "(output_rest_lift \<X>)\<inverse>\<inverse> l k"
+    then have "output_rest_lift \<X> k l" by (fact conversepD)
+    then show "output_rest_lift \<X>\<inverse>\<inverse> l k" by induction (simp_all add: output_rest_lift.intros)
+  qed
+qed
 
 text \<open>
   Consequently, \<^type>\<open>output_rest\<close> and \<^const>\<open>output_rest_lift\<close> form a residual structure.
@@ -144,7 +158,8 @@ interpretation output_rest: residual output_rest_lift
   by unfold_locales (
     fact output_rest_lift_monotonicity,
     fact output_rest_lift_equality_preservation,
-    fact output_rest_lift_composition_preservation
+    fact output_rest_lift_composition_preservation,
+    fact output_rest_lift_conversion_preservation
   )
 
 subsection \<open>Residuals\<close>
@@ -249,6 +264,21 @@ proof (intro ext)
     qed
   qed
 qed
+lemma proper_lift_conversion_preservation: "proper_lift \<X>\<inverse>\<inverse> = (proper_lift \<X>)\<inverse>\<inverse>"
+proof (intro ext)
+  fix d and e
+  show "proper_lift \<X>\<inverse>\<inverse> e d \<longleftrightarrow> (proper_lift \<X>)\<inverse>\<inverse> e d"
+  proof
+    assume "proper_lift \<X>\<inverse>\<inverse> e d"
+    then show "(proper_lift \<X>)\<inverse>\<inverse> e d"
+      by induction (simp_all add: output_rest_lift_conversion_preservation proper_lift.intros)
+  next
+    assume "(proper_lift \<X>)\<inverse>\<inverse> e d"
+    then have "proper_lift \<X> d e" by (fact conversepD)
+    then show "proper_lift \<X>\<inverse>\<inverse> e d"
+      by induction (metis conversepI output_rest_lift_conversion_preservation proper_lift.intros)+
+  qed
+qed
 
 text \<open>
   Consequently, \<^type>\<open>proper_residual\<close> and \<^const>\<open>proper_lift\<close> form a residual structure.
@@ -258,7 +288,8 @@ interpretation proper: residual proper_lift
   by unfold_locales (
     fact proper_lift_monotonicity,
     fact proper_lift_equality_preservation,
-    fact proper_lift_composition_preservation
+    fact proper_lift_composition_preservation,
+    fact proper_lift_conversion_preservation
   )
 
 subsection \<open>Transition System\<close>

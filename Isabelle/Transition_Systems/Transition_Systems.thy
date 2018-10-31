@@ -38,6 +38,11 @@ lemma transfer_reverse_weak_composition_preservation:
   by (fastforce simp add: lift_composition_preservation)
 
 text \<open>
+  There is no reverse weak preservation law for conversion because of the fundamental asymmetry in
+  the definition of \<^const>\<open>transfer\<close>.
+\<close>
+
+text \<open>
   Propagation laws for reflexivity and transitivity follow from the corresponding \<^term>\<open>lift\<close>
   propagation laws.
 \<close>
@@ -48,6 +53,11 @@ lemma transfer_reflexivity_propagation: "reflp \<X>  \<Longrightarrow> reflp (tr
 lemma transfer_transitivity_propagation: "transp \<X> \<Longrightarrow> transp (transfer \<X>)"
   using lift_transitivity_propagation and transp_def
   by smt
+
+text \<open>
+  There is no propagation law for symmetry because of the fundamental asymmetry in the definition
+  of \<^const>\<open>transfer\<close>.
+\<close>
 
 subsection \<open>Simulation Relations\<close>
 

@@ -47,6 +47,8 @@ locale residual =
     "lift op = = op ="
   assumes lift_composition_preservation:
     "lift (\<X> OO \<Y>) = lift \<X> OO lift \<Y>"
+  assumes lift_conversion_preservation:
+    "lift \<X>\<inverse>\<inverse> = (lift \<X>)\<inverse>\<inverse>"
 begin
 
 text \<open>
@@ -61,8 +63,8 @@ lemma lift_reverse_weak_supremum_preservation: "lift (\<X> \<squnion> \<Y>) \<ge
   by (simp add: lift_monotonicity)
 
 text \<open>
-  Propagation laws for reflexivity and transitivity each follow from monotonicity and one of the
-  preservation axioms.
+  Propagation laws for reflexivity, transitivity, and symmetry each follow from monotonicity and one
+  of the preservation axioms.
 \<close>
 
 lemma lift_reflexivity_propagation: "reflp \<X> \<Longrightarrow> reflp (lift \<X>)"
@@ -70,6 +72,9 @@ lemma lift_reflexivity_propagation: "reflp \<X> \<Longrightarrow> reflp (lift \<
   by metis
 lemma lift_transitivity_propagation: "transp \<X> \<Longrightarrow> transp (lift \<X>)"
   using transp_relcompp and lift_monotonicity and lift_composition_preservation
+  by metis
+lemma lift_symmetry_propagation: "symp \<X> \<Longrightarrow> symp (lift \<X>)"
+  using symp_conversep and lift_monotonicity and lift_conversion_preservation
   by metis
 
 text \<open>

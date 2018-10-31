@@ -123,6 +123,19 @@ proof (intro ext)
     qed
   qed
 qed
+lemma basic_lift_conversion_preservation: "basic_lift \<X>\<inverse>\<inverse> = (basic_lift \<X>)\<inverse>\<inverse>"
+proof (intro ext)
+  fix d and e
+  show "basic_lift \<X>\<inverse>\<inverse> e d \<longleftrightarrow> (basic_lift \<X>)\<inverse>\<inverse> e d"
+  proof
+    assume "basic_lift \<X>\<inverse>\<inverse> e d"
+    then show "(basic_lift \<X>)\<inverse>\<inverse> e d" by induction (simp_all add: basic_lift.intros)
+  next
+    assume "(basic_lift \<X>)\<inverse>\<inverse> e d"
+    then have "basic_lift \<X> d e" by (fact conversepD)
+    then show "basic_lift \<X>\<inverse>\<inverse> e d" by induction (simp_all add: basic_lift.intros)
+  qed
+qed
 
 text \<open>
   Consequently, \<^type>\<open>basic_residual\<close> and \<^const>\<open>basic_lift\<close> form a residual structure.
@@ -132,7 +145,8 @@ interpretation basic: residual basic_lift
   by unfold_locales (
     fact basic_lift_monotonicity,
     fact basic_lift_equality_preservation,
-    fact basic_lift_composition_preservation
+    fact basic_lift_composition_preservation,
+    fact basic_lift_conversion_preservation
   )
 
 subsection \<open>Communication\<close>
