@@ -587,7 +587,11 @@ where
 
 (*** Primitive inference rules (coinduction, introduction and elimination) ***)
 
-lemma weak_basic_bisim_coinduct_aux[consumes 1, case_names weak_basic_bisim, case_conclusion weak_basic_bisim step]:
+(**** Up-to techniques for the bisimilarity proof method. ****)
+
+(* Bisimulation up-to \<union>. *)
+
+lemma weak_basic_bisim_up_to_union_aux[consumes 1, case_names weak_basic_bisim, case_conclusion weak_basic_bisim step]:
   assumes related: "\<X> P Q"
   and     step:    "\<And>P Q. \<X> P Q \<Longrightarrow> P \<leadsto>\<^sub>\<flat><(\<X> \<squnion> op \<approx>\<^sub>\<flat>)> Q \<and> (\<X> \<squnion> op \<approx>\<^sub>\<flat>) Q P"
   shows            "P \<approx>\<^sub>\<flat> Q"
@@ -597,37 +601,43 @@ proof -
     by (coinduct, force dest: step simp add: aux)
 qed
 
-lemma weak_basic_bisim_weak_coinduct_aux[consumes 1, case_names weak_basic_bisim, case_conclusion weak_basic_bisim step]:
-  assumes related: "\<X> P Q"
-  and     step:    "\<And>P Q. \<X> P Q \<Longrightarrow> P \<leadsto>\<^sub>\<flat><\<X>> Q \<and> \<X> Q P"
-  shows            "P \<approx>\<^sub>\<flat> Q"
-  using related
-proof (coinduct rule: weak_basic_bisim_coinduct_aux)
-  case (weak_basic_bisim P Q)
-  from step[OF this] show ?case using weak_basic_sim_monotonicity by blast
-qed
-
-lemma weak_basic_bisim_coinduct[consumes 1, case_names sim sym]:
+lemma weak_basic_bisim_up_to_union[consumes 1, case_names sim sym]:
   assumes "\<X> P Q"
   and     "\<And>R S. \<X> R S \<Longrightarrow> R \<leadsto>\<^sub>\<flat><(\<X> \<squnion> op \<approx>\<^sub>\<flat>)> S"
   and     "\<And>R S. \<X> R S \<Longrightarrow> \<X> S R"
   shows   "P \<approx>\<^sub>\<flat> Q"
   using assms
-by (coinduct rule: weak_basic_bisim_coinduct_aux) auto
+by (coinduct rule: weak_basic_bisim_up_to_union_aux) auto
 
-lemma weak_basic_bisim_weak_coinduct[consumes 1, case_names sim sym]:
+(**** Basic bisimilarity proof method. *****)
+
+lemma weak_basic_bisim_proof_method_aux[consumes 1, case_names weak_basic_bisim, case_conclusion weak_basic_bisim step]:
+  assumes related: "\<X> P Q"
+  and     step:    "\<And>P Q. \<X> P Q \<Longrightarrow> P \<leadsto>\<^sub>\<flat><\<X>> Q \<and> \<X> Q P"
+  shows            "P \<approx>\<^sub>\<flat> Q"
+  using related
+proof (coinduct rule: weak_basic_bisim_up_to_union_aux)
+  case (weak_basic_bisim P Q)
+  from step[OF this] show ?case using weak_basic_sim_monotonicity by blast
+qed
+
+lemma weak_basic_bisim_proof_method[consumes 1, case_names sim sym]:
   assumes "\<X> P Q"
   and     "\<And>P Q. \<X> P Q \<Longrightarrow> P \<leadsto>\<^sub>\<flat><\<X>> Q"
   and     "\<And>P Q. \<X> P Q \<Longrightarrow> \<X> Q P"
   shows   "P \<approx>\<^sub>\<flat> Q"
   using assms
-by (coinduct rule: weak_basic_bisim_weak_coinduct_aux) auto
+by (coinduct rule: weak_basic_bisim_proof_method_aux) auto
+
+(**** Elimination rules. *****)
 
 lemma weak_basic_bisim_elim1: "P \<approx>\<^sub>\<flat> Q \<Longrightarrow> P \<leadsto>\<^sub>\<flat><op \<approx>\<^sub>\<flat>> Q"
   by (auto dest: weak_basic_bisimilarity.cases)
 
 lemma weak_basic_bisim_elim2: "P \<approx>\<^sub>\<flat> Q \<Longrightarrow> Q \<approx>\<^sub>\<flat> P"
   by (auto dest: weak_basic_bisimilarity.cases)
+
+(**** Introduction rule. *****)
 
 lemma weak_basic_bisim_intro: "\<lbrakk> P \<leadsto>\<^sub>\<flat><op \<approx>\<^sub>\<flat>> Q; Q \<approx>\<^sub>\<flat> P \<rbrakk> \<Longrightarrow> P \<approx>\<^sub>\<flat> Q"
   by (auto intro: weak_basic_bisimilarity.intros)
