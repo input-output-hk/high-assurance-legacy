@@ -596,9 +596,10 @@ lemma weak_basic_bisim_proof_method_aux[consumes 1, case_names weak_basic_bisim,
   and     step:    "\<And>P Q. \<X> P Q \<Longrightarrow> P \<leadsto>\<^sub>\<flat><\<X>> Q \<and> \<X> Q P"
   shows            "P \<approx>\<^sub>\<flat> Q"
   using related
-proof (coinduct rule: weak_basic_bisim_up_to_union_aux)
-  case (weak_basic_bisim P Q)
-  from step[OF this] show ?case using weak_basic_sim_monotonicity by blast
+proof (coinduct rule: weak_basic_bisimilarity.coinduct)
+  case weak_basic_bisimilarity
+  then show ?case
+    by (metis (no_types, lifting) local.step predicate2I weak_basic_sim_monotonicity_aux)
 qed
 
 lemma weak_basic_bisim_proof_method[consumes 1, case_names sim sym]:
