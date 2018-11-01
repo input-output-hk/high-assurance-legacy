@@ -68,33 +68,6 @@ abbreviation
 where
   "sim \<X> \<equiv> \<X> \<le> transfer \<X>"
 
-text \<open>
-  There is an alternative definition that only uses operations on relations.
-\<close>
-
-lemma sim_alternative_definition: "sim \<X> \<longleftrightarrow> \<X>\<inverse>\<inverse> OO op \<rightharpoonup> \<le> op \<rightharpoondown> OO lift \<X>\<inverse>\<inverse>"
-proof
-  assume "sim \<X>"
-  show "\<X>\<inverse>\<inverse> OO op \<rightharpoonup> \<le> op \<rightharpoondown> OO lift \<X>\<inverse>\<inverse>"
-  proof
-    fix q and d
-    assume "(\<X>\<inverse>\<inverse> OO op \<rightharpoonup>) q d"
-    then obtain p where "\<X> p q" and "p \<rightharpoonup> d" by blast
-    with `sim \<X>` obtain e where "q \<rightharpoondown> e" and "lift \<X> d e" by blast
-    then show "(op \<rightharpoondown> OO lift \<X>\<inverse>\<inverse>) q d" using lift_conversion_preservation by fastforce
-  qed
-next
-  assume assm: "\<X>\<inverse>\<inverse> OO op \<rightharpoonup> \<le> op \<rightharpoondown> OO lift \<X>\<inverse>\<inverse>"
-  show "sim \<X>"
-  proof (standard, intro allI, intro impI)
-    fix p and q and d
-    assume "\<X> p q" and "p \<rightharpoonup> d"
-    then have "(\<X>\<inverse>\<inverse> OO op \<rightharpoonup>) q d" by blast
-    with assm have "(op \<rightharpoondown> OO lift \<X>\<inverse>\<inverse>) q d" by blast
-    then show "\<exists>e. q \<rightharpoondown> e \<and> lift \<X> d e" using lift_conversion_preservation by fastforce
-  qed
-qed
-
 subsection \<open>Bisimulation Relations\<close>
 
 text \<open>
