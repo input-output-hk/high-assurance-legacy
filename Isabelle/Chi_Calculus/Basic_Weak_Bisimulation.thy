@@ -589,6 +589,20 @@ where
 
 (**** Up-to techniques for the bisimilarity proof method. ****)
 
+(* Bisimulation up-to (strong) bisimilarity. *)
+
+lemma weak_basic_bisim_up_to_strong_bisim[consumes 1, case_names sim sym]:
+  assumes "\<X> P Q"
+  and     "\<And>R S. \<X> R S \<Longrightarrow> R \<leadsto>\<^sub>\<flat><(op \<sim>\<^sub>\<flat> OO \<X> OO op \<sim>\<^sub>\<flat>)> S"
+  and     "\<And>R S. \<X> R S \<Longrightarrow> \<X> S R"
+  shows   "P \<approx>\<^sub>\<flat> Q"
+  using assms
+proof -
+  have "op \<sim>\<^sub>\<flat> OO \<X> OO op \<sim>\<^sub>\<flat> \<le> op \<approx>\<^sub>\<flat>" sorry (* TODO: Prove it. *)
+  then show ?thesis
+    using `\<X> P Q` by blast 
+qed
+
 (**** Basic bisimilarity proof method. *****)
 
 lemma weak_basic_bisim_proof_method_aux[consumes 1, case_names weak_basic_bisim, case_conclusion weak_basic_bisim step]:
