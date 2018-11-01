@@ -589,26 +589,6 @@ where
 
 (**** Up-to techniques for the bisimilarity proof method. ****)
 
-(* Bisimulation up-to \<union>. *)
-
-lemma weak_basic_bisim_up_to_union_aux[consumes 1, case_names weak_basic_bisim, case_conclusion weak_basic_bisim step]:
-  assumes related: "\<X> P Q"
-  and     step:    "\<And>P Q. \<X> P Q \<Longrightarrow> P \<leadsto>\<^sub>\<flat><(\<X> \<squnion> op \<approx>\<^sub>\<flat>)> Q \<and> (\<X> \<squnion> op \<approx>\<^sub>\<flat>) Q P"
-  shows            "P \<approx>\<^sub>\<flat> Q"
-proof -
-  have aux: "\<X> \<squnion> op \<approx>\<^sub>\<flat> = (\<lambda>P Q. \<X> P Q \<or> P \<approx>\<^sub>\<flat> Q)" by blast
-  show ?thesis using related
-    by (coinduct, force dest: step simp add: aux)
-qed
-
-lemma weak_basic_bisim_up_to_union[consumes 1, case_names sim sym]:
-  assumes "\<X> P Q"
-  and     "\<And>R S. \<X> R S \<Longrightarrow> R \<leadsto>\<^sub>\<flat><(\<X> \<squnion> op \<approx>\<^sub>\<flat>)> S"
-  and     "\<And>R S. \<X> R S \<Longrightarrow> \<X> S R"
-  shows   "P \<approx>\<^sub>\<flat> Q"
-  using assms
-by (coinduct rule: weak_basic_bisim_up_to_union_aux) auto
-
 (**** Basic bisimilarity proof method. *****)
 
 lemma weak_basic_bisim_proof_method_aux[consumes 1, case_names weak_basic_bisim, case_conclusion weak_basic_bisim step]:
