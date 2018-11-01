@@ -1,7 +1,7 @@
 section \<open>Simulation Systems\<close>
 
 theory Simulation_Systems
-  imports Residuals "HOL-Eisbach.Eisbach"
+  imports Residuals
 begin
 
 text \<open>
@@ -37,6 +37,13 @@ text \<open>
 lemma transfer_monotonicity [mono]: "\<X> \<le> \<Y> \<Longrightarrow> transfer \<X> \<le> transfer \<Y>"
   using lift_monotonicity
   by blast
+
+text \<open>
+  Using \<open>transfer_monotonicity\<close>, we define a proof method for reasoning under \<^term>\<open>transfer\<close>.
+  This method works analogously to \<open>under_lift\<close>.
+\<close>
+
+method under_transfer = (elim predicate2D [OF transfer_monotonicity, OF predicate2I, rotated])
 
 text \<open>
   (Reverse) weak preservation laws for the binary infimum and supremum operations follow from just
