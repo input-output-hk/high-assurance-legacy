@@ -188,7 +188,7 @@ lemma weak_tau_respecting_proper_transition_simple: "p \<Longrightarrow>\<^sub>\
 
 lemma weak_tau_respecting_proper_transition_output_without_opening: "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> v\<rbrace> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> v\<rparr> q"
   (* TODO: Find a better proof. *)
-  using output_without_opening weak_tau_respecting_basic_transition_acting_elim weak_tau_respecting_proper_transition_output_without_opening_intro by blast
+  using output_without_opening weak_tau_respecting_basic_transition_acting_elim weak_tau_respecting_proper_transition_output_without_opening_intro sorry
 
 (** Weak proper transition \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ **)
 
