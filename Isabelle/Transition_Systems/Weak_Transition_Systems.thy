@@ -62,7 +62,7 @@ next
         by blast
       let ?IH_2_core = "\<lambda>p\<^sub>1 d\<^sub>2. \<forall>q\<^sub>1. \<X> p\<^sub>1 q\<^sub>1 \<longrightarrow> (\<exists>e\<^sub>2. q\<^sub>1 \<Rightarrow> e\<^sub>2 \<and> lift \<X> d\<^sub>2 e\<^sub>2)"
       from composed_transition.IH(2) have "absorb ?IH_2_core d\<^sub>1 d'"
-        by under_absorb (elim conjunct2)
+        by under_absorb (fact conjunct2)
       with `lift \<X> d\<^sub>1 e\<^sub>1` have "(lift \<X>\<inverse>\<inverse> OO absorb ?IH_2_core) e\<^sub>1 d'"
         using lift_conversion_preservation
         by fastforce
