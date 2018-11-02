@@ -13,5 +13,7 @@ session Chi_Calculus (ouroboros) = Transition_Systems +
     Typed_Processes
     Typed_Basic_Transition_System
     Typed_Proper_Transition_System
+    Basic_Weak_Bisimulation
+    Proper_Weak_Bisimulation
   document_files
     "root.tex"
