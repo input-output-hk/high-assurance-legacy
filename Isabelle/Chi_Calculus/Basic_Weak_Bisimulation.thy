@@ -583,7 +583,7 @@ lemma weak_basic_sim_monotonicity_aux [mono]: "\<X> \<le> \<Y> \<Longrightarrow>
 coinductive
   weak_basic_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool" (infixr "\<approx>\<^sub>\<flat>" 50)
 where
-  step: "\<lbrakk> p \<leadsto>\<^sub>\<flat><op \<approx>\<^sub>\<flat>> q; q \<approx>\<^sub>\<flat> p \<rbrakk> \<Longrightarrow> p \<approx>\<^sub>\<flat> q"
+  step: "\<lbrakk> p \<leadsto>\<^sub>\<flat><(\<approx>\<^sub>\<flat>)> q; q \<approx>\<^sub>\<flat> p \<rbrakk> \<Longrightarrow> p \<approx>\<^sub>\<flat> q"
 
 (*** Primitive inference rules (coinduction, introduction and elimination) ***)
 
@@ -593,12 +593,12 @@ where
 
 lemma weak_basic_bisim_up_to_strong_bisim[consumes 1, case_names sim sym]:
   assumes "\<X> p q"
-  and     "\<And>r s. \<X> r s \<Longrightarrow> r \<leadsto>\<^sub>\<flat><(op \<sim>\<^sub>\<flat> OO \<X> OO op \<sim>\<^sub>\<flat>)> s"
+  and     "\<And>r s. \<X> r s \<Longrightarrow> r \<leadsto>\<^sub>\<flat><((\<sim>\<^sub>\<flat>) OO \<X> OO (\<sim>\<^sub>\<flat>))> s"
   and     "\<And>r s. \<X> r s \<Longrightarrow> \<X> s r"
   shows   "p \<approx>\<^sub>\<flat> q"
   using assms
 proof -
-  have "op \<sim>\<^sub>\<flat> OO \<X> OO op \<sim>\<^sub>\<flat> \<le> op \<approx>\<^sub>\<flat>" sorry (* TODO: Prove it. *)
+  have "(\<sim>\<^sub>\<flat>) OO \<X> OO (\<sim>\<^sub>\<flat>) \<le> (\<approx>\<^sub>\<flat>)" sorry (* TODO: Prove it. *)
   then show ?thesis
     using `\<X> p q` by blast 
 qed
@@ -626,7 +626,7 @@ by (coinduct rule: weak_basic_bisim_proof_method_aux) auto
 
 (**** Elimination rules. *****)
 
-lemma weak_basic_bisim_elim1: "p \<approx>\<^sub>\<flat> q \<Longrightarrow> p \<leadsto>\<^sub>\<flat><op \<approx>\<^sub>\<flat>> q"
+lemma weak_basic_bisim_elim1: "p \<approx>\<^sub>\<flat> q \<Longrightarrow> p \<leadsto>\<^sub>\<flat><(\<approx>\<^sub>\<flat>)> q"
   by (auto dest: weak_basic_bisimilarity.cases)
 
 lemma weak_basic_bisim_elim2: "p \<approx>\<^sub>\<flat> q \<Longrightarrow> q \<approx>\<^sub>\<flat> p"
@@ -634,7 +634,7 @@ lemma weak_basic_bisim_elim2: "p \<approx>\<^sub>\<flat> q \<Longrightarrow> q \
 
 (**** Introduction rule. *****)
 
-lemma weak_basic_bisim_intro: "\<lbrakk> p \<leadsto>\<^sub>\<flat><op \<approx>\<^sub>\<flat>> q; q \<approx>\<^sub>\<flat> p \<rbrakk> \<Longrightarrow> p \<approx>\<^sub>\<flat> q"
+lemma weak_basic_bisim_intro: "\<lbrakk> p \<leadsto>\<^sub>\<flat><(\<approx>\<^sub>\<flat>)> q; q \<approx>\<^sub>\<flat> p \<rbrakk> \<Longrightarrow> p \<approx>\<^sub>\<flat> q"
   by (auto intro: weak_basic_bisimilarity.intros)
 
 (*** Weak bisimilarity includes strong bisimilarity ***)
@@ -662,13 +662,13 @@ lemma weak_basic_bisim_symmetry [sym]: "p \<approx>\<^sub>\<flat> q \<Longrighta
 lemma weak_basic_bisim_transitivity [trans]: "\<lbrakk> p \<approx>\<^sub>\<flat> q; q \<approx>\<^sub>\<flat> r \<rbrakk> \<Longrightarrow> p \<approx>\<^sub>\<flat> r"
 proof -
   assume "p \<approx>\<^sub>\<flat> q" and "q \<approx>\<^sub>\<flat> r"
-  let ?\<X> = "op \<approx>\<^sub>\<flat> OO op \<approx>\<^sub>\<flat>"
+  let ?\<X> = "(\<approx>\<^sub>\<flat>) OO (\<approx>\<^sub>\<flat>)"
   have "?\<X> p r" using \<open>p \<approx>\<^sub>\<flat> q\<close> and \<open>q \<approx>\<^sub>\<flat> r\<close> by blast
   then show ?thesis
   proof (coinduct rule: weak_basic_bisim_proof_method)
     case (sim p r)
     then obtain q where "p \<approx>\<^sub>\<flat> q" and "q \<approx>\<^sub>\<flat> r" using \<open>?\<X> p r\<close> by auto
-    then have "q \<leadsto>\<^sub>\<flat><op \<approx>\<^sub>\<flat>> r" using weak_basic_bisim_elim1 by auto
+    then have "q \<leadsto>\<^sub>\<flat><(\<approx>\<^sub>\<flat>)> r" using weak_basic_bisim_elim1 by auto
     moreover have "?\<X> \<le> ?\<X>" by simp
     ultimately show ?case using weak_basic_bisim_elim1 and weak_basic_sim_transitivity and \<open>p \<approx>\<^sub>\<flat> q\<close> by blast
   next

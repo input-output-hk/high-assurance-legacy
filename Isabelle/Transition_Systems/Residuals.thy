@@ -1,7 +1,7 @@
 section \<open>Residuals\label{residuals}\<close>
 
 theory Residuals
-  imports Main "HOL-Eisbach.Eisbach" "HOL-Library.Lattice_Syntax"
+  imports Main "HOL-Library.Lattice_Syntax" "HOL-Eisbach.Eisbach"
 begin
 
 text \<open>
@@ -44,7 +44,7 @@ locale residual =
   assumes lift_monotonicity [mono]:
     "\<X> \<le> \<Y> \<Longrightarrow> lift \<X> \<le> lift \<Y>"
   assumes lift_equality_preservation:
-    "lift op = = op ="
+    "lift (=) = (=)"
   assumes lift_composition_preservation:
     "lift (\<X> OO \<Y>) = lift \<X> OO lift \<Y>"
   assumes lift_conversion_preservation:

@@ -61,17 +61,17 @@ proof
   assume "basic_lift \<X> d e" and "\<X> \<le> \<Y>"
   then show "basic_lift \<Y> d e" by induction (blast intro: basic_lift.intros)+
 qed
-lemma basic_lift_equality_preservation: "basic_lift op = = op ="
+lemma basic_lift_equality_preservation: "basic_lift (=) = (=)"
 proof (intro ext)
   fix d\<^sub>1 and d\<^sub>2
-  show "basic_lift op = d\<^sub>1 d\<^sub>2 \<longleftrightarrow> d\<^sub>1 = d\<^sub>2"
+  show "basic_lift (=) d\<^sub>1 d\<^sub>2 \<longleftrightarrow> d\<^sub>1 = d\<^sub>2"
   proof
-    assume "basic_lift op = d\<^sub>1 d\<^sub>2"
+    assume "basic_lift (=) d\<^sub>1 d\<^sub>2"
     then show "d\<^sub>1 = d\<^sub>2"
       by induction simp_all
   next
     assume "d\<^sub>1 = d\<^sub>2"
-    then show "basic_lift op = d\<^sub>1 d\<^sub>2"
+    then show "basic_lift (=) d\<^sub>1 d\<^sub>2"
       by (induction d\<^sub>1 arbitrary: d\<^sub>2) (blast intro: basic_lift.intros)+
   qed
 qed
@@ -174,7 +174,7 @@ text \<open>
 
 lemma communication_symmetry_rule [sym]: "\<eta> \<bowtie> \<mu> \<Longrightarrow> \<mu> \<bowtie> \<eta>"
   using communication.simps by metis
-lemma communication_symmetry: "symp op \<bowtie>"
+lemma communication_symmetry: "symp (\<bowtie>)"
   using communication_symmetry_rule ..
 
 subsection \<open>Transition System\<close>
@@ -419,7 +419,7 @@ proof (standard, intro allI, intro impI)
   assume "\<And>x. P x \<sim>\<^sub>\<flat> Q x"
   fix d
   assume "c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>d"
-  then show "\<exists>e. c \<triangleright> x. Q x \<rightarrow>\<^sub>\<flat>e \<and> basic_lift op \<sim>\<^sub>\<flat> d e"
+  then show "\<exists>e. c \<triangleright> x. Q x \<rightarrow>\<^sub>\<flat>e \<and> basic_lift (\<sim>\<^sub>\<flat>) d e"
   proof cases
     case receiving
     with `\<And>x. P x \<sim>\<^sub>\<flat> Q x` show ?thesis
@@ -973,7 +973,7 @@ proof (standard, intro allI, intro impI)
     case scoped_opening
     then show ?case by (simp add: basic_transition.scoped_opening)
   qed
-  then show "\<exists>e. \<nu> a. \<nu> b. P a b \<rightarrow>\<^sub>\<flat>e \<and> basic_lift op \<sim>\<^sub>\<flat> d e"
+  then show "\<exists>e. \<nu> a. \<nu> b. P a b \<rightarrow>\<^sub>\<flat>e \<and> basic_lift (\<sim>\<^sub>\<flat>) d e"
     using basic.bisimilarity_reflexivity and basic.lift_reflexivity_propagation and reflpD
     by smt
 qed

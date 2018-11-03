@@ -131,7 +131,7 @@ coinductive
 and
   bisimilarity :: "['process, 'process] \<Rightarrow> bool" (infix "\<sim>" 50)
 where
-  "transfer op \<sim> p q \<Longrightarrow> p \<lesssim> q" |
+  "transfer (\<sim>) p q \<Longrightarrow> p \<lesssim> q" |
   "p \<sim> q \<equiv> p \<lesssim> q \<and> q \<lesssim> p"
 
 subsubsection \<open>Symmetry\<close>
@@ -139,13 +139,13 @@ subsubsection \<open>Symmetry\<close>
 text \<open>
   Symmetry follows directly from the definition of bisimilarity. We introduce two symmetry lemmas:
   one that is phrased using \<open>\<Longrightarrow>\<close> and thus better fits Isabelle's proof tools and one that is
-  phrased using the \<^const>\<open>symp\<close> predicate from the @{theory Relation} theory and thus fits
+  phrased using the \<^const>\<open>symp\<close> predicate from the @{theory HOL.Relation} theory and thus fits
   better our other symmetry-related lemmas and is more concise.
 \<close>
 
 lemma bisimilarity_symmetry_rule [sym]: "p \<sim> q \<Longrightarrow> q \<sim> p"
   by simp
-lemma bisimilarity_symmetry: "symp op \<sim>"
+lemma bisimilarity_symmetry: "symp (\<sim>)"
   using bisimilarity_symmetry_rule ..
 
 subsubsection \<open>Bisimilarity as the Greatest Bisimulation Relation\<close>
@@ -154,11 +154,11 @@ text \<open>
   Bisimilarity is a simulation relation.
 \<close>
 
-lemma bisimilarity_is_simulation: "sim op \<sim>"
+lemma bisimilarity_is_simulation: "sim (\<sim>)"
 proof -
-  have "op \<sim> \<le> op \<lesssim>"
+  have "(\<sim>) \<le> (\<lesssim>)"
     by blast
-  also have "\<dots> \<le> transfer op \<sim>"
+  also have "\<dots> \<le> transfer (\<sim>)"
     by (blast elim: pre_bisimilarity.cases)
   finally show ?thesis .
 qed
@@ -167,7 +167,7 @@ text \<open>
   Bisimilarity is a bisimulation relation.
 \<close>
 
-lemma bisimilarity_is_bisimulation: "bisim op \<sim>"
+lemma bisimilarity_is_bisimulation: "bisim (\<sim>)"
   using bisimilarity_symmetry and bisimilarity_is_simulation
   by (fact symmetric_simulation_is_bisimulation)
 
@@ -182,7 +182,7 @@ text \<open>
   \emph{pre}-bisimilarity.
 \<close>
 
-private lemma bisimulation_in_pre_bisimilarity: "bisim \<X> \<Longrightarrow> \<X> \<le> op \<lesssim>"
+private lemma bisimulation_in_pre_bisimilarity: "bisim \<X> \<Longrightarrow> \<X> \<le> (\<lesssim>)"
 proof
   fix p and q
   assume "bisim \<X>" and "\<X> p q"
@@ -212,17 +212,17 @@ text \<open>
   With the help of this auxiliary lemma we show the actual statement.
 \<close>
 
-lemma bisimulation_in_bisimilarity: "bisim \<X> \<Longrightarrow> \<X> \<le> op \<sim>"
+lemma bisimulation_in_bisimilarity: "bisim \<X> \<Longrightarrow> \<X> \<le> (\<sim>)"
 proof -
   assume "bisim \<X>"
-  from `bisim \<X>` have "\<X> \<le> op \<lesssim>"
+  from `bisim \<X>` have "\<X> \<le> (\<lesssim>)"
     by (fact bisimulation_in_pre_bisimilarity)
   moreover
   from `bisim \<X>` have "bisim \<X>\<inverse>\<inverse>"
     by (fact conversion_bisim_propagation)
-  then have "\<X>\<inverse>\<inverse> \<le> op \<lesssim>"
+  then have "\<X>\<inverse>\<inverse> \<le> (\<lesssim>)"
     by (fact bisimulation_in_pre_bisimilarity)
-  ultimately show "\<X> \<le> op \<sim>"
+  ultimately show "\<X> \<le> (\<sim>)"
     by blast
 qed
 
@@ -236,7 +236,7 @@ text \<open>
   From the previous lemmas follows that bisimilarity is the greatest bisimulation relation.
 \<close>
 
-lemma bisimilarity_is_greatest_bisimulation: "op \<sim> = (GREATEST \<X>. bisim \<X>)"
+lemma bisimilarity_is_greatest_bisimulation: "(\<sim>) = (GREATEST \<X>. bisim \<X>)"
   using bisimilarity_is_bisimulation and bisimulation_in_bisimilarity
   by (simp add: Greatest_equality)
 
@@ -245,8 +245,8 @@ subsubsection \<open>Proof Methods\<close>
 text \<open>
   Any symmetric simulation relation is a bisimulation relation and thus a subrelation of
   bisimilarity. Based on this fact, we define a standard method for proving statements of the form
-  \<^term>\<open>\<X> \<le> op \<sim>\<close>. This method creates two cases: \<open>symmetry\<close>, with conclusion \<^term>\<open>symp \<X>\<close>,
-  and \<open>is_simulation\<close>, with conclusion \<^term>\<open>sim \<X>\<close>.
+  \<^term>\<open>\<X> \<le> (\<sim>)\<close>. This method creates two cases: \<open>symmetry\<close>, with conclusion \<^term>\<open>symp \<X>\<close>, and
+  \<open>is_simulation\<close>, with conclusion \<^term>\<open>sim \<X>\<close>.
 \<close>
 
 method in_bisimilarity_standard = (
@@ -300,10 +300,10 @@ text \<open>
 
 method bisimilarity_standard for \<X> :: "['process, 'process] \<Rightarrow> bool" = (
   (
-    intro predicate2D [of \<X> "op \<sim>", rotated];
+    intro predicate2D [of \<X> "(\<sim>)", rotated];
       match conclusion in
         "\<X> _ _" \<Rightarrow> \<open>succeed\<close> \<bar>
-        "\<X> \<le> op \<sim>" \<Rightarrow> \<open>
+        "\<X> \<le> (\<sim>)" \<Rightarrow> \<open>
           (match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>succeed\<close> | succeed);
             in_bisimilarity_standard;
               match conclusion in

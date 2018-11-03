@@ -31,7 +31,7 @@ text \<open>
 \<close>
 
 lemma transfer_reverse_weak_equality_preservation:
-  "transfer op = \<ge> op ="
+  "transfer (=) \<ge> (=)"
   by (simp add: lift_equality_preservation refl_ge_eq)
 lemma transfer_reverse_weak_composition_preservation:
   "transfer (\<X> OO \<Y>) \<ge> transfer \<X> OO transfer \<Y>"
@@ -66,7 +66,7 @@ text \<open>
   of \<^const>\<open>transfer\<close>.
 \<close>
 
-lemma equality_sim_propagation: "sim op ="
+lemma equality_sim_propagation: "sim (=)"
   by (fact transfer_reverse_weak_equality_preservation)
 lemma composition_sim_propagation: "\<lbrakk> sim \<X>; sim \<Y> \<rbrakk> \<Longrightarrow> sim (\<X> OO \<Y>)"
 proof -
@@ -83,7 +83,7 @@ text \<open>
   \<^const>\<open>sim\<close>.
 \<close>
 
-lemma equality_bisim_propagation: "bisim op ="
+lemma equality_bisim_propagation: "bisim (=)"
   by (simp add: equality_sim_propagation)
 lemma composition_bisim_propagation: "\<lbrakk> bisim \<X>; bisim \<Y> \<rbrakk> \<Longrightarrow> bisim (\<X> OO \<Y>)"
   by (simp add: composition_sim_propagation converse_relcompp)
@@ -103,10 +103,10 @@ subsubsection \<open>Reflexivity and Transitivity\<close>
 text \<open>
   Reflexivity follows from equality propagation for \<^const>\<open>sim\<close>. Analogously to our handling of
   symmetry, we introduce two reflexivity lemmas: one that is phrased using the \<^const>\<open>reflp\<close>
-  predicate from the @{theory Relation} theory and one that is phrased more explicitly.
+  predicate from the @{theory HOL.Relation} theory and one that is phrased more explicitly.
 \<close>
 
-lemma bisimilarity_reflexivity: "reflp op \<sim>"
+lemma bisimilarity_reflexivity: "reflp (\<sim>)"
 unfolding reflp_eq proof in_bisimilarity_standard
   case symmetry
   show ?case by (simp add: sympI)
@@ -122,7 +122,7 @@ text \<open>
   lemmas.
 \<close>
 
-lemma bisimilarity_transitivity: "transp op \<sim>"
+lemma bisimilarity_transitivity: "transp (\<sim>)"
 unfolding transp_relcompp proof in_bisimilarity_standard
   case symmetry
   show ?case by (blast intro: sympI)

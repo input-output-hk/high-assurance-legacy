@@ -18,7 +18,7 @@ notation strong.bisimilarity (infix "\<sim>" 50)
 inductive weak_transition :: "['process, 'residual] \<Rightarrow> bool" (infix "\<Rightarrow>" 50) where
   strong_transition: "p \<rightarrow> d \<Longrightarrow> p \<Rightarrow> d" |
   silent_transition: "silent p d \<Longrightarrow> p \<Rightarrow> d" |
-  composed_transition: "\<lbrakk>p \<Rightarrow> d; absorb op \<Rightarrow> d e\<rbrakk> \<Longrightarrow> p \<Rightarrow> e"
+  composed_transition: "\<lbrakk>p \<Rightarrow> d; absorb (\<Rightarrow>) d e\<rbrakk> \<Longrightarrow> p \<Rightarrow> e"
 
 sublocale weak: transition_system lift weak_transition
   by intro_locales
@@ -69,7 +69,7 @@ next
       then have "absorb (\<X>\<inverse>\<inverse> OO ?IH_2_core) e\<^sub>1 d'"
         using absorb_pre_naturality
         by metis
-      then have "absorb (op \<Rightarrow> OO lift \<X>\<inverse>\<inverse>) e\<^sub>1 d'"
+      then have "absorb ((\<Rightarrow>) OO lift \<X>\<inverse>\<inverse>) e\<^sub>1 d'"
       proof under_absorb
         fix q\<^sub>1 and d\<^sub>2
         assume "(\<X>\<inverse>\<inverse> OO ?IH_2_core) q\<^sub>1 d\<^sub>2"
@@ -77,13 +77,13 @@ next
           by blast
         then obtain e\<^sub>2 where "q\<^sub>1 \<Rightarrow> e\<^sub>2" and "lift \<X> d\<^sub>2 e\<^sub>2"
           by blast
-        then show "(op \<Rightarrow> OO lift \<X>\<inverse>\<inverse>) q\<^sub>1 d\<^sub>2"
+        then show "((\<Rightarrow>) OO lift \<X>\<inverse>\<inverse>) q\<^sub>1 d\<^sub>2"
           using lift_conversion_preservation
           by fastforce
       qed
-      then have "(absorb op \<Rightarrow> OO lift \<X>\<inverse>\<inverse>) e\<^sub>1 d'"
+      then have "(absorb (\<Rightarrow>) OO lift \<X>\<inverse>\<inverse>) e\<^sub>1 d'"
         by (simp add: absorb_post_naturality)
-      then obtain e' where "absorb op \<Rightarrow> e\<^sub>1 e'" and "lift \<X> d' e'"
+      then obtain e' where "absorb (\<Rightarrow>) e\<^sub>1 e'" and "lift \<X> d' e'"
         using lift_conversion_preservation
         by fastforce
       with `q \<Rightarrow> e\<^sub>1` show ?case
@@ -113,11 +113,11 @@ proof -
 qed
 lemma strong_bisimulation_is_weak_bisimulation: "strong.bisim \<X> \<Longrightarrow> weak.bisim \<X>"
   using strong_simulation_is_weak_simulation by blast
-lemma strong_bisimilarity_in_weak_bisimilarity: "op \<sim> \<le> op \<approx>"
+lemma strong_bisimilarity_in_weak_bisimilarity: "(\<sim>) \<le> (\<approx>)"
 proof -
-  have "strong.bisim op \<sim>" by (fact strong.bisimilarity_is_bisimulation)
-  then have "weak.bisim op \<sim>" by (fact strong_bisimulation_is_weak_bisimulation)
-  then show "op \<sim> \<le> op \<approx>" by (fact weak.bisimulation_in_bisimilarity)
+  have "strong.bisim (\<sim>)" by (fact strong.bisimilarity_is_bisimulation)
+  then have "weak.bisim (\<sim>)" by (fact strong_bisimulation_is_weak_bisimulation)
+  then show "(\<sim>) \<le> (\<approx>)" by (fact weak.bisimulation_in_bisimilarity)
 qed
 
 end

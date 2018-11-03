@@ -12,7 +12,7 @@ locale weak_residual =
   assumes left_neutrality:
     "silent OO absorb \<I> = \<I>"
   assumes right_neutrality:
-    "absorb silent = op ="
+    "absorb silent = (=)"
   assumes associativity:
     "absorb \<I> OO absorb \<J> = absorb (\<I> OO absorb \<J>)"
   assumes lift_conversion_preservation:
@@ -38,7 +38,7 @@ proof unfold_locales
   then show "absorb (\<X> OO silent) \<le> absorb (\<Y> OO silent)"
     by (fact absorb_monotonicity)
 next
-  show "absorb (op = OO silent) = op ="
+  show "absorb ((=) OO silent) = (=)"
     by (simp add: eq_OO right_neutrality)
 next
   fix \<X> :: "['process, 'process] \<Rightarrow> bool" and \<Y>

@@ -69,17 +69,17 @@ proof
   then show "output_rest_lift \<Y> k l" by induction (blast intro: output_rest_lift.intros)+
 qed
 lemma output_rest_lift_equality_preservation:
-  "output_rest_lift op = = op ="
+  "output_rest_lift (=) = (=)"
 proof (intro ext)
   fix k\<^sub>1 and k\<^sub>2
-  show "output_rest_lift op = k\<^sub>1 k\<^sub>2 \<longleftrightarrow> k\<^sub>1 = k\<^sub>2"
+  show "output_rest_lift (=) k\<^sub>1 k\<^sub>2 \<longleftrightarrow> k\<^sub>1 = k\<^sub>2"
   proof
-    assume "output_rest_lift op = k\<^sub>1 k\<^sub>2"
+    assume "output_rest_lift (=) k\<^sub>1 k\<^sub>2"
     then show "k\<^sub>1 = k\<^sub>2"
       by induction (simp_all add: ext)
   next
     assume "k\<^sub>1 = k\<^sub>2"
-    then show "output_rest_lift op = k\<^sub>1 k\<^sub>2"
+    then show "output_rest_lift (=) k\<^sub>1 k\<^sub>2"
       by (induction k\<^sub>1 arbitrary: k\<^sub>2) (blast intro: output_rest_lift.intros)+
   qed
 qed
@@ -204,17 +204,17 @@ proof
     then show ?case using output_rest_lift_monotonicity by (blast intro: proper_lift.output_lift)
   qed
 qed
-lemma proper_lift_equality_preservation: "proper_lift op = = op ="
+lemma proper_lift_equality_preservation: "proper_lift (=) = (=)"
 proof (intro ext)
   fix d\<^sub>1 and d\<^sub>2
-  show "proper_lift op = d\<^sub>1 d\<^sub>2 \<longleftrightarrow> d\<^sub>1 = d\<^sub>2"
+  show "proper_lift (=) d\<^sub>1 d\<^sub>2 \<longleftrightarrow> d\<^sub>1 = d\<^sub>2"
   proof
-    assume "proper_lift op = d\<^sub>1 d\<^sub>2"
+    assume "proper_lift (=) d\<^sub>1 d\<^sub>2"
     then show "d\<^sub>1 = d\<^sub>2"
       by induction (simp_all add: output_rest_lift_equality_preservation)
   next
     assume "d\<^sub>1 = d\<^sub>2"
-    then show "proper_lift op = d\<^sub>1 d\<^sub>2" by
+    then show "proper_lift (=) d\<^sub>1 d\<^sub>2" by
       (induction d\<^sub>1 arbitrary: d\<^sub>2)
       (metis output_rest_lift_equality_preservation proper_lift.intros)+
   qed
@@ -338,11 +338,11 @@ qed
 
 subsection \<open>Relationships between Basic and Proper Bisimilarity\<close>
 
-lemma basic_bisimilarity_is_proper_simulation: "sim\<^sub>\<sharp> op \<sim>\<^sub>\<flat>"
+lemma basic_bisimilarity_is_proper_simulation: "sim\<^sub>\<sharp> (\<sim>\<^sub>\<flat>)"
 proof (intro predicate2I, intro allI, intro impI)
   fix p and q and d
   assume "p \<rightarrow>\<^sub>\<sharp>d" and "p \<sim>\<^sub>\<flat> q"
-  then show "\<exists>e. q \<rightarrow>\<^sub>\<sharp>e \<and> proper_lift op \<sim>\<^sub>\<flat> d e"
+  then show "\<exists>e. q \<rightarrow>\<^sub>\<sharp>e \<and> proper_lift (\<sim>\<^sub>\<flat>) d e"
   proof (induction arbitrary: q)
     case (simple p \<delta> p' q)
     from `p \<sim>\<^sub>\<flat> q` and `p \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> p'`
@@ -374,10 +374,10 @@ proof (intro predicate2I, intro allI, intro impI)
     obtain Q where "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a" and "\<And>a. P a \<sim>\<^sub>\<flat> Q a"
     proof -
       from `p \<sim>\<^sub>\<flat> q` and `p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a`
-      obtain e where "q \<rightarrow>\<^sub>\<flat>e" and "basic_lift op \<sim>\<^sub>\<flat> (\<lbrace>\<nu> a\<rbrace> P a) e"
+      obtain e where "q \<rightarrow>\<^sub>\<flat>e" and "basic_lift (\<sim>\<^sub>\<flat>) (\<lbrace>\<nu> a\<rbrace> P a) e"
         using basic.bisimilarity_is_simulation
         by blast
-      from `basic_lift op \<sim>\<^sub>\<flat> (\<lbrace>\<nu> a\<rbrace> P a) e` and `q \<rightarrow>\<^sub>\<flat>e` and that show ?thesis
+      from `basic_lift (\<sim>\<^sub>\<flat>) (\<lbrace>\<nu> a\<rbrace> P a) e` and `q \<rightarrow>\<^sub>\<flat>e` and that show ?thesis
         by cases simp
     qed
     (*
@@ -395,32 +395,32 @@ proof (intro predicate2I, intro allI, intro impI)
               basic_residual.inject(2)
             by smt
     *)
-    obtain L where "\<And>a. Q a \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> L a" and "\<And>a. output_rest_lift op \<sim>\<^sub>\<flat> (K a) (L a)"
+    obtain L where "\<And>a. Q a \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> L a" and "\<And>a. output_rest_lift (\<sim>\<^sub>\<flat>) (K a) (L a)"
     proof -
       from output_with_opening.IH and `\<And>a. P a \<sim>\<^sub>\<flat> Q a`
-      have "\<forall>a. \<exists>l. Q a \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> l \<and> output_rest_lift op \<sim>\<^sub>\<flat> (K a) l"
+      have "\<forall>a. \<exists>l. Q a \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> l \<and> output_rest_lift (\<sim>\<^sub>\<flat>) (K a) l"
         using
           proper_lift.cases and
           proper_residual.distinct(1) and
           proper_residual.inject(2)
         by smt
-      then have "\<exists>L. \<forall>a. Q a \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> L a \<and> output_rest_lift op \<sim>\<^sub>\<flat> (K a) (L a)"
+      then have "\<exists>L. \<forall>a. Q a \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> L a \<and> output_rest_lift (\<sim>\<^sub>\<flat>) (K a) (L a)"
         by (fact choice)
       with that show ?thesis by blast
     qed
     from `q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a` and `\<And>a. Q a \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> L a` have "q \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<nu> a. L a"
       by (fact proper_transition.output_with_opening)
-    with `\<And>a. output_rest_lift op \<sim>\<^sub>\<flat> (K a) (L a)` show ?case
+    with `\<And>a. output_rest_lift (\<sim>\<^sub>\<flat>) (K a) (L a)` show ?case
       using with_opening_lift and output_lift
       by smt
   qed
 qed
 
-lemma basic_bisimilarity_is_proper_bisimulation: "bisim\<^sub>\<sharp> op \<sim>\<^sub>\<flat>"
+lemma basic_bisimilarity_is_proper_bisimulation: "bisim\<^sub>\<sharp> (\<sim>\<^sub>\<flat>)"
   using basic.bisimilarity_symmetry and basic_bisimilarity_is_proper_simulation
   by (fact proper.symmetric_simulation_is_bisimulation)
 
-lemma basic_bisimilarity_in_proper_bisimilarity: "op \<sim>\<^sub>\<flat> \<le> op \<sim>\<^sub>\<sharp>"
+lemma basic_bisimilarity_in_proper_bisimilarity: "(\<sim>\<^sub>\<flat>) \<le> (\<sim>\<^sub>\<sharp>)"
   using basic_bisimilarity_is_proper_bisimulation
   by (fact proper.bisimulation_in_bisimilarity)
 
@@ -444,7 +444,7 @@ private lemma proper_pre_receive_scope_extension_ltr: "c \<triangleright> x. \<n
 proof (standard, intro allI, intro impI)
   fix d
   assume "c \<triangleright> x. \<nu> a. P x a \<rightarrow>\<^sub>\<sharp>d"
-  then show "\<exists>e. \<nu> a. c \<triangleright> x. P x a \<rightarrow>\<^sub>\<sharp>e \<and> proper_lift op \<sim>\<^sub>\<sharp> d e"
+  then show "\<exists>e. \<nu> a. c \<triangleright> x. P x a \<rightarrow>\<^sub>\<sharp>e \<and> proper_lift (\<sim>\<^sub>\<sharp>) d e"
   proof cases
     case (simple \<delta> q)
     from `c \<triangleright> x. \<nu> a. P x a \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> q`
@@ -483,7 +483,7 @@ private lemma proper_pre_receive_scope_extension_rtl: "\<nu> a. c \<trianglerigh
 proof (standard, intro allI, intro impI)
   fix d
   assume "\<nu> a. c \<triangleright> x. P x a \<rightarrow>\<^sub>\<sharp>d"
-  then show "\<exists>e. c \<triangleright> x. \<nu> a. P x a \<rightarrow>\<^sub>\<sharp>e \<and> proper_lift op \<sim>\<^sub>\<sharp> d e"
+  then show "\<exists>e. c \<triangleright> x. \<nu> a. P x a \<rightarrow>\<^sub>\<sharp>e \<and> proper_lift (\<sim>\<^sub>\<sharp>) d e"
   proof cases
     case (simple \<delta> r)
     from `\<nu> a. c \<triangleright> x. P x a \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> r` show ?thesis

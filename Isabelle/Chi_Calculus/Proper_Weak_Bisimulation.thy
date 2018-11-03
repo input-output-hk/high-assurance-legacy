@@ -9,7 +9,7 @@ lemma proper_tau_trans_is_basic_tau_trans: "(p \<rightarrow>\<^sub>\<sharp>\<lpa
 abbreviation
   proper_tau_sequence :: "process \<Rightarrow> process \<Rightarrow> bool" (infix "\<Rightarrow>\<^sup>\<tau>" 50)
 where
-  "op \<Rightarrow>\<^sup>\<tau> \<equiv> op \<Rightarrow>\<^sup>\<tau>\<^sub>\<flat>"
+  "(\<Rightarrow>\<^sup>\<tau>) \<equiv> (\<Rightarrow>\<^sup>\<tau>\<^sub>\<flat>)"
 
 (* Weak Semantics *)
 
@@ -428,17 +428,17 @@ lemma weak_proper_sim_monotonicity_aux: "\<X> \<le> \<Y> \<Longrightarrow> p \<l
 coinductive
   weak_proper_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool" (infixr "\<approx>\<^sub>\<sharp>" 50)
 where
-  step: "\<lbrakk> p \<leadsto>\<^sub>\<sharp><op \<approx>\<^sub>\<sharp>> q; q \<approx>\<^sub>\<sharp> p \<rbrakk> \<Longrightarrow> p \<approx>\<^sub>\<sharp> q"
+  step: "\<lbrakk> p \<leadsto>\<^sub>\<sharp><(\<approx>\<^sub>\<sharp>)> q; q \<approx>\<^sub>\<sharp> p \<rbrakk> \<Longrightarrow> p \<approx>\<^sub>\<sharp> q"
 monos weak_proper_sim_monotonicity_aux
 
 (*** Primitive inference rules (coinduction, introduction and elimination) ***)
 
 lemma weak_proper_bisim_coinduct_aux[consumes 1, case_names weak_proper_bisim, case_conclusion weak_proper_bisim step]:
   assumes related: "\<X> p q"
-  and     step:    "\<And>p q. \<X> p q \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><(\<X> \<squnion> op \<approx>\<^sub>\<sharp>)> q \<and> (\<X> \<squnion> op \<approx>\<^sub>\<sharp>) q p"
+  and     step:    "\<And>p q. \<X> p q \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><(\<X> \<squnion> (\<approx>\<^sub>\<sharp>))> q \<and> (\<X> \<squnion> (\<approx>\<^sub>\<sharp>)) q p"
   shows            "p \<approx>\<^sub>\<sharp> q"
 proof -
-  have aux: "\<X> \<squnion> op \<approx>\<^sub>\<sharp> = (\<lambda>p q. \<X> p q \<or> p \<approx>\<^sub>\<sharp> q)" by blast
+  have aux: "\<X> \<squnion> (\<approx>\<^sub>\<sharp>) = (\<lambda>p q. \<X> p q \<or> p \<approx>\<^sub>\<sharp> q)" by blast
   show ?thesis using related
     by (coinduct, force dest: step simp add: aux)
 qed
@@ -455,7 +455,7 @@ qed
 
 lemma weak_proper_bisim_coinduct[consumes 1, case_names sim sym]:
   assumes "\<X> p q"
-  and     "\<And>r s. \<X> r s \<Longrightarrow> r \<leadsto>\<^sub>\<sharp><(\<X> \<squnion> op \<approx>\<^sub>\<sharp>)> s"
+  and     "\<And>r s. \<X> r s \<Longrightarrow> r \<leadsto>\<^sub>\<sharp><(\<X> \<squnion> (\<approx>\<^sub>\<sharp>))> s"
   and     "\<And>r s. \<X> r s \<Longrightarrow> \<X> s r"
   shows   "p \<approx>\<^sub>\<sharp> q"
   using assms
@@ -469,13 +469,13 @@ lemma weak_proper_bisim_weak_coinduct[consumes 1, case_names sim sym]:
   using assms
 by (coinduct rule: weak_proper_bisim_weak_coinduct_aux) auto
 
-lemma weak_proper_bisim_elim1: "p \<approx>\<^sub>\<sharp> q \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><op \<approx>\<^sub>\<sharp>> q"
+lemma weak_proper_bisim_elim1: "p \<approx>\<^sub>\<sharp> q \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><(\<approx>\<^sub>\<sharp>)> q"
   by (auto dest: weak_proper_bisimilarity.cases)
 
 lemma weak_proper_bisim_elim2: "p \<approx>\<^sub>\<sharp> q \<Longrightarrow> q \<approx>\<^sub>\<sharp> p"
   by (auto dest: weak_proper_bisimilarity.cases)
 
-lemma weak_basic_bisim_intro: "\<lbrakk> p \<leadsto>\<^sub>\<sharp><op \<approx>\<^sub>\<sharp>> q; q \<approx>\<^sub>\<sharp> p \<rbrakk> \<Longrightarrow> p \<approx>\<^sub>\<sharp> q"
+lemma weak_basic_bisim_intro: "\<lbrakk> p \<leadsto>\<^sub>\<sharp><(\<approx>\<^sub>\<sharp>)> q; q \<approx>\<^sub>\<sharp> p \<rbrakk> \<Longrightarrow> p \<approx>\<^sub>\<sharp> q"
   by (auto intro: weak_proper_bisimilarity.intros)
 
 (*** Weak bisimilarity includes strong bisimilarity ***)
@@ -503,13 +503,13 @@ lemma weak_proper_bisim_symmetry: "p \<approx>\<^sub>\<sharp> q \<Longrightarrow
 lemma weak_proper_bisim_transitivity: "\<lbrakk> p \<approx>\<^sub>\<sharp> q; q \<approx>\<^sub>\<sharp> r \<rbrakk> \<Longrightarrow> p \<approx>\<^sub>\<sharp> r"
 proof -
   assume "p \<approx>\<^sub>\<sharp> q" and "q \<approx>\<^sub>\<sharp> r"
-  let ?\<X> = "op \<approx>\<^sub>\<sharp> OO op \<approx>\<^sub>\<sharp>"
+  let ?\<X> = "(\<approx>\<^sub>\<sharp>) OO (\<approx>\<^sub>\<sharp>)"
   have "?\<X> p r" using \<open>p \<approx>\<^sub>\<sharp> q\<close> and \<open>q \<approx>\<^sub>\<sharp> r\<close> by blast
   then show ?thesis
   proof (coinduct rule: weak_proper_bisim_weak_coinduct)
     case (sim p r)
     then obtain q where "p \<approx>\<^sub>\<sharp> q" and "q \<approx>\<^sub>\<sharp> r" using \<open>?\<X> p r\<close> by auto
-    then have "q \<leadsto>\<^sub>\<sharp><op \<approx>\<^sub>\<sharp>> r" using weak_proper_bisim_elim1 by auto
+    then have "q \<leadsto>\<^sub>\<sharp><(\<approx>\<^sub>\<sharp>)> r" using weak_proper_bisim_elim1 by auto
     moreover have "?\<X> \<le> ?\<X>" by simp
     ultimately show ?case using weak_proper_bisim_elim1 and weak_proper_sim_transitivity and \<open>p \<approx>\<^sub>\<sharp> q\<close> by blast
   next
