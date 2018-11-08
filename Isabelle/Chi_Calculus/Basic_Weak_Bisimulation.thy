@@ -640,7 +640,7 @@ lemma weak_basic_bisim_intro: "\<lbrakk> p \<leadsto>\<^sub>\<flat><(\<approx>\<
 (*** Weak bisimilarity includes strong bisimilarity ***)
 
 (* TODO: Prove it. *)
-lemma strong_basic_sim_imp_weak_basic_sim: "p \<lesssim>\<^sub>\<flat> q \<Longrightarrow> p \<leadsto>\<^sub>\<flat><\<X>> q"
+lemma strong_basic_sim_imp_weak_basic_sim: "p \<lesssim>\<^sub>\<flat> q \<Longrightarrow> p \<leadsto>\<^sub>\<flat><(\<approx>\<^sub>\<flat>)> q"
   sorry
 
 (* TODO: Prove it. *)
