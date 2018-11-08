@@ -278,6 +278,9 @@ lemma weak_proper_transition_induction
 lemma weak_proper_transition_single_simple: "p \<rightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<delta>\<rparr> q"
   using weak_tau_respecting_proper_transition_simple_intro and weak_proper_transition_step_intro by fastforce
 
+lemma weak_proper_transition_single_output_without_opening: "p \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> v\<rparr> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>c \<triangleleft> v\<rparr> q"
+  using weak_proper_transition_def and weak_tau_respecting_proper_transition_single_output_without_opening by simp
+
 lemma prepend_tau_sequence_to_weak_proper_transition: "\<lbrakk> p \<Rightarrow>\<^sup>\<tau> r; r \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<delta>\<rparr> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<delta>\<rparr> q"
 proof -
   assume "p \<Rightarrow>\<^sup>\<tau> r" and "r \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<delta>\<rparr> q"
@@ -334,7 +337,7 @@ qed
 
 lemma weak_proper_transition_simple: "p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>basic_action_of \<delta>\<rbrace> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<delta>\<rparr> q"
   (* TODO: Find a nicer proof. *)
-  by (smt basic_action.distinct(1) basic_action_of.simps(1) basic_residual.simps(5) proper_action.exhaust proper_residual.simps(5) weak_basic_transition_def weak_proper_transition_def weak_tau_respecting_proper_transition_simple) 
+  by (smt basic_action.distinct(1) basic_action_of.simps(1) basic_residual.simps(5) proper_action.exhaust proper_residual.simps(5) weak_basic_transition_def weak_proper_transition_def weak_tau_respecting_proper_transition_simple)
 
 lemma weak_proper_transition_output_without_opening: "p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>c \<triangleleft> v\<rbrace> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>c \<triangleleft> v\<rparr> q"
   by (simp add: weak_basic_transition_def weak_proper_transition_def weak_tau_respecting_proper_transition_output_without_opening)
@@ -353,7 +356,17 @@ proof -
     then have "c \<triangleleft> v \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> v\<rparr> \<zero>" using proper_transition.output_without_opening by simp
     then show ?thesis using weak_tau_respecting_proper_transition_single_output_without_opening by simp
   qed
-  then show ?thesis  by (simp add: weak_proper_transition_def)
+  then show ?thesis by (simp add: weak_proper_transition_def)
+qed
+
+lemma weak_proper_transition_receiving: "c \<triangleright> x. P x \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>c \<triangleright> v\<rparr> P v"
+proof -
+  have "c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleright> v\<rbrace> P v"
+    using receiving by simp
+  then have "c \<triangleright> x. P x \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleright> v\<rparr> P v"
+    using proper_transition.simple by simp
+  then show ?thesis
+    using weak_proper_transition_single_simple by simp
 qed
 
 (* Weak proper bisimilarity *)
@@ -422,52 +435,52 @@ lemma pre_weak_proper_new_channel_preservation:
 
 (** Weak proper bisimulation **)
 
-lemma weak_proper_sim_monotonicity_aux: "\<X> \<le> \<Y> \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><\<X>> q \<longrightarrow> p \<leadsto>\<^sub>\<sharp><\<Y>> q"
+lemma weak_proper_sim_monotonicity_aux [mono]: "\<X> \<le> \<Y> \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><\<X>> q \<longrightarrow> p \<leadsto>\<^sub>\<sharp><\<Y>> q"
   using weak_proper_sim_monotonicity by simp
 
 coinductive
   weak_proper_bisimilarity :: "process \<Rightarrow> process \<Rightarrow> bool" (infixr "\<approx>\<^sub>\<sharp>" 50)
 where
   step: "\<lbrakk> p \<leadsto>\<^sub>\<sharp><(\<approx>\<^sub>\<sharp>)> q; q \<approx>\<^sub>\<sharp> p \<rbrakk> \<Longrightarrow> p \<approx>\<^sub>\<sharp> q"
-monos weak_proper_sim_monotonicity_aux
 
 (*** Primitive inference rules (coinduction, introduction and elimination) ***)
 
-lemma weak_proper_bisim_coinduct_aux[consumes 1, case_names weak_proper_bisim, case_conclusion weak_proper_bisim step]:
-  assumes related: "\<X> p q"
-  and     step:    "\<And>p q. \<X> p q \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><(\<X> \<squnion> (\<approx>\<^sub>\<sharp>))> q \<and> (\<X> \<squnion> (\<approx>\<^sub>\<sharp>)) q p"
-  shows            "p \<approx>\<^sub>\<sharp> q"
-proof -
-  have aux: "\<X> \<squnion> (\<approx>\<^sub>\<sharp>) = (\<lambda>p q. \<X> p q \<or> p \<approx>\<^sub>\<sharp> q)" by blast
-  show ?thesis using related
-    by (coinduct, force dest: step simp add: aux)
-qed
+(**** Up-to techniques for the bisimilarity proof method. ****)
 
-lemma weak_proper_bisim_weak_coinduct_aux[consumes 1, case_names weak_proper_bisim, case_conclusion weak_proper_bisim step]:
-  assumes related: "\<X> p q"
-  and     step:    "\<And>p q. \<X> p q \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><\<X>> q \<and> \<X> q p"
-  shows            "p \<approx>\<^sub>\<sharp> q"
-  using related
-proof (coinduct rule: weak_proper_bisim_coinduct_aux)
-  case (weak_proper_bisim p q)
-  from step[OF this] show ?case using weak_proper_sim_monotonicity by blast
-qed
+(* Bisimulation up-to (strong) bisimilarity. *)
 
-lemma weak_proper_bisim_coinduct[consumes 1, case_names sim sym]:
+lemma weak_proper_bisim_up_to_strong_bisim[consumes 1, case_names sim sym]:
   assumes "\<X> p q"
-  and     "\<And>r s. \<X> r s \<Longrightarrow> r \<leadsto>\<^sub>\<sharp><(\<X> \<squnion> (\<approx>\<^sub>\<sharp>))> s"
+  and     "\<And>r s. \<X> r s \<Longrightarrow> r \<leadsto>\<^sub>\<sharp><((\<sim>\<^sub>\<sharp>) OO \<X> OO (\<sim>\<^sub>\<sharp>))> s"
   and     "\<And>r s. \<X> r s \<Longrightarrow> \<X> s r"
   shows   "p \<approx>\<^sub>\<sharp> q"
   using assms
-by (coinduct rule: weak_proper_bisim_coinduct_aux) auto
+proof -
+  have "(\<sim>\<^sub>\<sharp>) OO \<X> OO (\<sim>\<^sub>\<sharp>) \<le> (\<approx>\<^sub>\<sharp>)" sorry (* TODO: Prove it. *)
+  then show ?thesis
+    using `\<X> p q` by blast
+qed
 
-lemma weak_proper_bisim_weak_coinduct[consumes 1, case_names sim sym]:
+(**** Basic bisimilarity proof method. *****)
+
+lemma weak_proper_bisim_proof_method_aux[consumes 1, case_names weak_proper_bisim, case_conclusion weak_proper_bisim step]:
+  assumes related: "\<X> p q"
+  and     step:    "\<And>p q. \<X> p q \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><\<X>> q \<and> \<X> q p"
+  shows            "p \<approx>\<^sub>\<sharp> q"
+  using assms
+proof (coinduct rule: weak_proper_bisimilarity.coinduct)
+  case weak_proper_bisimilarity
+  then show ?case
+    by (smt step predicate2D predicate2I proper_lift_monotonicity)
+qed
+
+lemma weak_proper_bisim_proof_method[consumes 1, case_names sim sym]:
   assumes "\<X> p q"
   and     "\<And>p q. \<X> p q \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><\<X>> q"
   and     "\<And>p q. \<X> p q \<Longrightarrow> \<X> q p"
   shows   "p \<approx>\<^sub>\<sharp> q"
   using assms
-by (coinduct rule: weak_proper_bisim_weak_coinduct_aux) auto
+by (coinduct rule: weak_proper_bisim_proof_method_aux) auto
 
 lemma weak_proper_bisim_elim1: "p \<approx>\<^sub>\<sharp> q \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><(\<approx>\<^sub>\<sharp>)> q"
   by (auto dest: weak_proper_bisimilarity.cases)
@@ -481,7 +494,7 @@ lemma weak_basic_bisim_intro: "\<lbrakk> p \<leadsto>\<^sub>\<sharp><(\<approx>\
 (*** Weak bisimilarity includes strong bisimilarity ***)
 
 (* TODO: Prove it. *)
-lemma strong_proper_sim_imp_weak_proper_sim: "p \<lesssim>\<^sub>\<sharp> q \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><\<X>> q"
+lemma strong_proper_sim_imp_weak_proper_sim: "p \<lesssim>\<^sub>\<sharp> q \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><(\<approx>\<^sub>\<sharp>)> q"
   sorry
 
 (* TODO: Prove it. *)
@@ -494,19 +507,19 @@ lemma weak_proper_bisim_reflexivity: "p \<approx>\<^sub>\<sharp> p"
 proof -
   have "p = p" by simp
   then show ?thesis
-    using weak_proper_bisim_weak_coinduct_aux and weak_proper_sim_reflexivity by blast
+    using weak_proper_bisim_proof_method_aux and weak_proper_sim_reflexivity by blast
 qed
 
-lemma weak_proper_bisim_symmetry: "p \<approx>\<^sub>\<sharp> q \<Longrightarrow> q \<approx>\<^sub>\<sharp> p"
+lemma weak_proper_bisim_symmetry [sym]: "p \<approx>\<^sub>\<sharp> q \<Longrightarrow> q \<approx>\<^sub>\<sharp> p"
   using weak_proper_bisim_elim2 by auto
 
-lemma weak_proper_bisim_transitivity: "\<lbrakk> p \<approx>\<^sub>\<sharp> q; q \<approx>\<^sub>\<sharp> r \<rbrakk> \<Longrightarrow> p \<approx>\<^sub>\<sharp> r"
+lemma weak_proper_bisim_transitivity [trans]: "\<lbrakk> p \<approx>\<^sub>\<sharp> q; q \<approx>\<^sub>\<sharp> r \<rbrakk> \<Longrightarrow> p \<approx>\<^sub>\<sharp> r"
 proof -
   assume "p \<approx>\<^sub>\<sharp> q" and "q \<approx>\<^sub>\<sharp> r"
   let ?\<X> = "(\<approx>\<^sub>\<sharp>) OO (\<approx>\<^sub>\<sharp>)"
   have "?\<X> p r" using \<open>p \<approx>\<^sub>\<sharp> q\<close> and \<open>q \<approx>\<^sub>\<sharp> r\<close> by blast
   then show ?thesis
-  proof (coinduct rule: weak_proper_bisim_weak_coinduct)
+  proof (coinduct rule: weak_proper_bisim_proof_method)
     case (sim p r)
     then obtain q where "p \<approx>\<^sub>\<sharp> q" and "q \<approx>\<^sub>\<sharp> r" using \<open>?\<X> p r\<close> by auto
     then have "q \<leadsto>\<^sub>\<sharp><(\<approx>\<^sub>\<sharp>)> r" using weak_proper_bisim_elim1 by auto
@@ -548,6 +561,4 @@ lemma weak_proper_parallel_commutativity: "p \<parallel> q \<approx>\<^sub>\<sha
 lemma weak_proper_scope_redundancy: "p \<approx>\<^sub>\<sharp> \<nu> a. p"
   using strong_proper_bisim_imp_weak_proper_bisim and proper_scope_redundancy by simp
 
-
 end
-
