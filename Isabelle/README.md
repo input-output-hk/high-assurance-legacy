@@ -1,10 +1,22 @@
+Requirements
+============
+
+You need Isabelle2018 to use the Isabelle developments in this
+directory. You can obtain Isabelle2018 from the [Isabelle
+website][isabelle].
+
+[isabelle]:
+    http://isabelle.in.tum.de/
+    "Isabelle"
+
+
 Setup
 =====
 
-In order to use the Isabelle developments in this directory, please add
-the path of this directory to the file `$ISABELLE_HOME_USER/ROOTS`. You
-can find out the value of `$ISABELLE_HOME_USER` by running the following
-command:
+To make the Isabelle developments in this directory available to your
+Isabelle installation, please add the path of this directory to the file
+`$ISABELLE_HOME_USER/ROOTS`. You can find out the value of
+`$ISABELLE_HOME_USER` by running the following command:
 
     isabelle getenv ISABELLE_HOME_USER
 
