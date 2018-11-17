@@ -15,7 +15,7 @@ description:   This package defines a type of lists that has an additional type
                parameter specifying list lengths. Such a type is often
                misleadingly called @Vec@.
 category:      Data
-tested-with:   GHC == 8.4.2
+tested-with:   GHC == 8.6.2
 
 source-repository head
 
