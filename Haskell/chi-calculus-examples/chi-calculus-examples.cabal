@@ -36,6 +36,8 @@ library
 
     default-language: Haskell2010
 
+    default-extensions: NoStarIsType
+
     other-extensions: FlexibleInstances
                       GADTs
                       OverloadedStrings
@@ -56,6 +58,8 @@ executable Reverser
 
     default-language: Haskell2010
 
+    default-extensions: NoStarIsType
+
     ghc-options: -Wall
 
 executable DiningPhilosophers
@@ -68,5 +72,7 @@ executable DiningPhilosophers
     hs-source-dirs: src/exe
 
     default-language: Haskell2010
+
+    default-extensions: NoStarIsType
 
     ghc-options: -Wall

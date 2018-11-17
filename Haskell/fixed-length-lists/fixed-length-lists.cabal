@@ -35,6 +35,8 @@ library
 
     default-language: Haskell2010
 
+    default-extensions: NoStarIsType
+
     other-extensions: DataKinds
                       RankNTypes
                       TypeFamilies
