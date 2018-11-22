@@ -1,4 +1,4 @@
-chapter Cardano
+chapter Ouroboros
 
 session Transition_Systems (ouroboros) = HOL +
   description

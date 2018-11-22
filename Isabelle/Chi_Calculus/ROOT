@@ -1,4 +1,4 @@
-chapter Cardano
+chapter Ouroboros
 
 session Chi_Calculus (ouroboros) = Transition_Systems +
   description \<open>Formalization of the \<chi>-calculus.\<close>
