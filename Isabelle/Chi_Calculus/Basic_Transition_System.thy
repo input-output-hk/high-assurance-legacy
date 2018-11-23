@@ -218,7 +218,7 @@ text \<open>
 \<close>
 
 interpretation basic: transition_system basic_lift basic_transition
-  by unfold_locales
+  by intro_locales
 
 text \<open>
   We introduce concise notation for some of the derived predicates of the transition system.

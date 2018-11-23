@@ -315,7 +315,7 @@ text \<open>
 \<close>
 
 interpretation proper: transition_system proper_lift proper_transition
-  by unfold_locales
+  by intro_locales
 
 text \<open>
   We introduce concise notation for some of the derived predicates of the transition system.
