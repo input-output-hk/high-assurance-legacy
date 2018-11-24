@@ -54,7 +54,7 @@ instance (TypeNatural n, Eq a) => Eq (List n a) where
 
         z = Equal $ \ Empty Empty -> True
 
-        s h = Equal $ \ (x ::: xs) (y ::: ys) -> x == y || plainEqual h xs ys
+        s h = Equal $ \ (x ::: xs) (y ::: ys) -> x == y && plainEqual h xs ys
 
 newtype Compare a n = Compare {
     plainCompare :: List n a -> List n a -> Ordering
