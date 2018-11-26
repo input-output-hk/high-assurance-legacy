@@ -19,6 +19,11 @@ locale weak_residual =
     "absorb (\<X>\<inverse>\<inverse> OO silent) = (absorb (\<X> OO silent))\<inverse>\<inverse>"
 begin
 
+(* NOTE:
+  The absorb_monotonicity axiom is not only for deriving lift_monotonicity but also for making the
+  inductive definition of weak_transition work.
+*)
+
 text \<open>
   Using \<open>absorb_monotonicity\<close>, we define a proof method for reasoning under \<^term>\<open>absorb\<close>. This
   method works analogously to \<open>under_lift\<close> and \<open>under_transfer\<close>.
