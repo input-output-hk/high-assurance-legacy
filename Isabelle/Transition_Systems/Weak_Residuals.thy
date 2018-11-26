@@ -15,7 +15,7 @@ locale weak_residual =
     "absorb silent = (=)"
   assumes associativity:
     "absorb \<I> OO absorb \<J> = absorb (\<I> OO absorb \<J>)"
-  assumes lift_conversion_preservation:
+  assumes derived_lift_conversion_preservation:
     "absorb (\<X>\<inverse>\<inverse> OO silent) = (absorb (\<X> OO silent))\<inverse>\<inverse>"
 begin
 
@@ -54,7 +54,7 @@ next
 next
   fix \<X>
   show "absorb (\<X>\<inverse>\<inverse> OO silent) = (absorb (\<X> OO silent))\<inverse>\<inverse>"
-    by (fact lift_conversion_preservation)
+    by (fact derived_lift_conversion_preservation)
 qed
 
 lemma silent_naturality: "\<X> OO silent = silent OO lift \<X>"
