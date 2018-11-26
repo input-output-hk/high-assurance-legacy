@@ -29,12 +29,14 @@ notation weak.bisimilarity (infix "\<approx>" 50)
 sublocale mixed: simulation_system lift strong_transition weak_transition
   by intro_locales
 
-lemma weak_simulation_equivalence: "weak.sim \<X> \<longleftrightarrow> mixed.sim \<X>"
-proof
+lemma weak_sim_equals_mixed_sim: "weak.sim = mixed.sim"
+proof (intro ext, intro iffI)
+  fix \<X>
   assume "\<X> \<le> weak.transfer \<X>" 
   also have "\<dots> \<le> mixed.transfer \<X>" by (blast intro: strong_transition)
   finally show "\<X> \<le> mixed.transfer \<X>" .
 next
+  fix \<X>
   assume "\<X> \<le> mixed.transfer \<X>"
   show "\<X> \<le> weak.transfer \<X>"
   proof (intro le_funI, intro le_boolI, intro allI, intro impI)
@@ -91,25 +93,24 @@ next
     qed
   qed
 qed
-lemma weak_bisimulation_equivalence: "weak.bisim \<X> \<longleftrightarrow> mixed.bisim \<X>"
-  by (simp add: weak_simulation_equivalence)
-lemma weak_bisimilarity_equality: "weak.bisimilarity = mixed.bisimilarity"
+lemma weak_bisim_equals_mixed_bisim: "weak.bisim = mixed.bisim"
+  by (simp add: fun_cong [OF weak_sim_equals_mixed_sim])
+lemma weak_bisimilarity_equals_mixed_bisimilarity: "weak.bisimilarity = mixed.bisimilarity"
 proof -
   have "weak.bisimilarity = (GREATEST \<X>. weak.bisim \<X>)"
     by (fact weak.bisimilarity_is_greatest_bisimulation)
   also have "\<dots> = (GREATEST \<X>. mixed.bisim \<X>)"
-    by (simp add: weak_bisimulation_equivalence)
+    by (simp add: weak_bisim_equals_mixed_bisim)
   also have "\<dots> = mixed.bisimilarity"
     by (simp add: mixed.bisimilarity_is_greatest_bisimulation)
   finally show ?thesis .
 qed
-
 lemma strong_simulation_is_weak_simulation: "strong.sim \<X> \<Longrightarrow> weak.sim \<X>"
 proof -
   assume "\<X> \<le> strong.transfer \<X>"
   also have "\<dots> \<le> mixed.transfer \<X>" by (blast intro: strong_transition)
   finally have "mixed.sim \<X>" .
-  then show "weak.sim \<X>" by (simp add: weak_simulation_equivalence)
+  then show "weak.sim \<X>" by (simp add: fun_cong [OF weak_sim_equals_mixed_sim])
 qed
 lemma strong_bisimulation_is_weak_bisimulation: "strong.bisim \<X> \<Longrightarrow> weak.bisim \<X>"
   using strong_simulation_is_weak_simulation by blast
