@@ -28,10 +28,10 @@ text \<open>
   this observation, we can apply the idea about the \<open>lift\<close> operation to residuals with scope
   openings. For our $\pi$-calculus example, we define that a relation \<open>lift \<X>\<close> relates residuals
   \<open>OpenAndSend x\<^sub>1 Q\<^sub>1\<close> and \<open>OpenAndSend x\<^sub>2 Q\<^sub>2\<close> if and only if \<open>x\<^sub>1 = x\<^sub>2\<close> and \<open>\<And>y. \<X> (Q\<^sub>1 y) (Q\<^sub>2 y)\<close>.
-  Since \<open>OpenAndSend x\<^sub>i Q\<^sub>i\<close> is the same as \<open>OpenSend x\<^sub>i (\<lambda>y. Q\<^sub>i y)\<close>, these conditions just mean that
-  the labels \<open>x\<^sub>1 (\<lambda>y. _)\<close> and \<open>x\<^sub>2 (\<lambda>y. _)\<close> are identical and the target processes \<open>Q\<^sub>1 y\<close> and \<open>Q\<^sub>2 y\<close>
-  are in relation~\<open>\<X>\<close> independently of~\<open>y\<close>; so those conditions are in line with our idea about
-  \<open>lift\<close>. For other kinds of residuals, \<open>lift\<close> shall work analogously.
+  Since \<open>OpenAndSend x\<^sub>i Q\<^sub>i\<close> is the same as \<open>OpenAndSend x\<^sub>i (\<lambda>y. Q\<^sub>i y)\<close>, these conditions just mean
+  that the labels \<open>x\<^sub>1 (\<lambda>y. _)\<close> and \<open>x\<^sub>2 (\<lambda>y. _)\<close> are identical and the target processes \<open>Q\<^sub>1 y\<close> and
+  \<open>Q\<^sub>2 y\<close> are in relation~\<open>\<X>\<close> independently of~\<open>y\<close>; so those conditions are in line with our idea
+  about \<open>lift\<close>. For other kinds of residuals, \<open>lift\<close> shall work analogously.
 
   We choose the residual axioms such that they are naturally fulfilled by \<open>lift\<close> operations that
   work as described above. Our axioms may be fulfilled also by other kinds of \<open>lift\<close> operations and
