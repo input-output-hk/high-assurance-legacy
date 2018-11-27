@@ -13,7 +13,7 @@ where
 
 (* Weak Semantics *)
 
-(** Weak \<tau>-respecting proper transition \<Longrightarrow>\<^sub>\<sharp> d **)
+(** Weak \<tau>-respecting proper transition \<Longrightarrow>\<^sub>\<sharp> c **)
 
 inductive
   weak_tau_respecting_proper_transition :: "process \<Rightarrow> proper_residual \<Rightarrow> bool"
@@ -195,8 +195,8 @@ lemma weak_tau_respecting_proper_transition_output_without_opening: "p \<Longrig
 definition weak_proper_transition :: "process \<Rightarrow> proper_residual \<Rightarrow> bool"
   (infix "\<Longrightarrow>\<^sub>\<sharp>\<^sup>^" 50)
   where
-   "p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<equiv>
-      case d of
+   "p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ c \<equiv>
+      case c of
         \<lparr>\<delta>\<rparr> q \<Rightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q \<or> (\<delta> = \<tau> \<and> p = q) |
         \<lparr>a \<triangleleft> x\<rparr> q \<Rightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q |
         Output a K \<Rightarrow> p \<Longrightarrow>\<^sub>\<sharp> Output a K"
@@ -377,7 +377,7 @@ abbreviation
   weak_proper_simulation :: "process \<Rightarrow> (process \<Rightarrow> process \<Rightarrow> bool) \<Rightarrow> process \<Rightarrow> bool"
   ("_ \<leadsto>\<^sub>\<sharp><_> _" [50, 50, 50] 50)
 where
-  "p \<leadsto>\<^sub>\<sharp><\<X>> q \<equiv> \<forall>d. p \<rightarrow>\<^sub>\<sharp> d \<longrightarrow> (\<exists>e. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ e \<and> proper_lift \<X> d e)"
+  "p \<leadsto>\<^sub>\<sharp><\<X>> q \<equiv> \<forall>c. p \<rightarrow>\<^sub>\<sharp> c \<longrightarrow> (\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> proper_lift \<X> c d)"
 
 abbreviation
   is_weak_proper_sim
@@ -390,11 +390,11 @@ lemma weak_proper_sim_monotonicity: "\<X> \<le> \<Y> \<Longrightarrow> p \<leads
 (*** Introduction and elimination rules. ***)
 
 (* TODO: Is this needed? *)
-lemma weak_proper_sim_intro: "(\<And>d. p \<rightarrow>\<^sub>\<sharp> d \<and> (\<exists>e. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ e \<and> proper_lift \<X> d e)) \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><\<X>> q"
+lemma weak_proper_sim_intro: "(\<And>c. p \<rightarrow>\<^sub>\<sharp> c \<and> (\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> proper_lift \<X> c d)) \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><\<X>> q"
   by simp
 
 (* TODO: Is this needed? *)
-lemma weak_proper_sim_elim: "\<lbrakk> p \<leadsto>\<^sub>\<sharp><\<X>> q; p \<rightarrow>\<^sub>\<sharp> d \<rbrakk> \<Longrightarrow> \<exists>e. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ e \<and> proper_lift \<X> d e"
+lemma weak_proper_sim_elim: "\<lbrakk> p \<leadsto>\<^sub>\<sharp><\<X>> q; p \<rightarrow>\<^sub>\<sharp> c \<rbrakk> \<Longrightarrow> \<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> proper_lift \<X> c d"
   by simp
 
 (*** Simulation is a pre-order relation. ***)

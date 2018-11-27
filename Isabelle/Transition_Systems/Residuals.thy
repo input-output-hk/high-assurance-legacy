@@ -11,8 +11,8 @@ text \<open>
   residuals. Instead we define a notion of residual axiomatically.
 
   Our definition is based on an operation \<open>lift\<close> that turns a binary relation between processes into
-  a binary relation between residuals. The idea is that \<open>lift \<X>\<close> relates two residuals \<open>d\<close> and~\<open>e\<close>
-  if and only if the labels of \<open>d\<close> and~\<open>e\<close> are identical and the target processes of \<open>d\<close> and~\<open>e\<close> are
+  a binary relation between residuals. The idea is that \<open>lift \<X>\<close> relates two residuals \<open>c\<close> and~\<open>d\<close>
+  if and only if the labels of \<open>c\<close> and~\<open>d\<close> are identical and the target processes of \<open>c\<close> and~\<open>d\<close> are
   in relation~\<open>\<X>\<close>. This idea comes from the definitions of simulation relations and related
   concepts.
 
@@ -53,8 +53,8 @@ begin
 
 text \<open>
   Using \<open>lift_monotonicity\<close>, we define a proof method for reasoning under \<^term>\<open>lift\<close>. This
-  method expects a fact of the form \<^term>\<open>lift \<X> d e\<close> and a goal of the form
-  \<^term>\<open>lift \<Y> d e\<close> and generates the subgoal \<^term>\<open>\<And>p q. \<X> p q \<Longrightarrow> \<Y> p q\<close>.
+  method expects a fact of the form \<^term>\<open>lift \<X> c d\<close> and a goal of the form
+  \<^term>\<open>lift \<Y> c d\<close> and generates the subgoal \<^term>\<open>\<And>p q. \<X> p q \<Longrightarrow> \<Y> p q\<close>.
 \<close>
 
 method under_lift = (elim predicate2D [OF lift_monotonicity, OF predicate2I, rotated])

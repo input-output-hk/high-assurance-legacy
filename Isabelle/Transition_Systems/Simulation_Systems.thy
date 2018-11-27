@@ -28,7 +28,7 @@ text \<open>
 abbreviation
   transfer :: "(['process, 'process] \<Rightarrow> bool) \<Rightarrow> (['process, 'process] \<Rightarrow> bool)"
 where
-  "transfer \<X> p q \<equiv> \<forall>d. p \<rightharpoonup> d \<longrightarrow> (\<exists>e. q \<rightharpoondown> e \<and> lift \<X> d e)"
+  "transfer \<X> p q \<equiv> \<forall>c. p \<rightharpoonup> c \<longrightarrow> (\<exists>d. q \<rightharpoondown> d \<and> lift \<X> c d)"
 
 text \<open>
   Monotonicity of \<^term>\<open>transfer\<close> follows from monotonicity of \<^term>\<open>lift\<close>.
@@ -264,16 +264,16 @@ text \<open>
 
     \<^item> \<open>sym\<close>, with parameters \<open>p\<close> and~\<open>q\<close>, premise \<open>\<X> p q\<close>, and conclusion \<open>\<X> q p\<close>
 
-    \<^item> \<open>sim\<close>, with parameters \<open>p\<close>, \<open>q\<close>, and \<open>d\<close>, premises \<open>p \<rightharpoonup> d\<close> and \<open>\<X> p q\<close>, and conclusion
-      \<open>\<exists>e. q \<rightharpoondown> e \<and> lift \<X> d e\<close>
+    \<^item> \<open>sim\<close>, with parameters \<open>p\<close>, \<open>q\<close>, and \<open>c\<close>, premises \<open>p \<rightharpoonup> c\<close> and \<open>\<X> p q\<close>, and conclusion
+      \<open>\<exists>d. q \<rightharpoondown> d \<and> lift \<X> c d\<close>
 
   Note that, contrary to the \<open>symmetry\<close> and \<open>is_simulation\<close> cases of \<open>in_bisimilarity_standard\<close>, the
   \<open>sym\<close> and \<open>sim\<close> cases of \<open>bisimilarity_standard\<close> do not use the \<^term>\<open>symp\<close> and \<^term>\<open>sim\<close>
   predicates but are based directly on the underlying logical constructions. This often makes proofs
-  easier. Furthermore note that in the \<open>sim\<close> case the premise \<open>p \<rightharpoonup> d\<close> comes before the premise
+  easier. Furthermore note that in the \<open>sim\<close> case the premise \<open>p \<rightharpoonup> c\<close> comes before the premise
   \<open>\<X> p q\<close>. In the common situation of an inductively defined \<open>original_transition\<close> relation, this
   arrangement makes it possible to directly handle the \<open>sim\<close> case via induction on the derivation of
-  \<open>p \<rightharpoonup> d\<close>, by writing @{theory_text \<open>then show ?case proof induction \<dots> qed\<close>}.
+  \<open>p \<rightharpoonup> c\<close>, by writing @{theory_text \<open>then show ?case proof induction \<dots> qed\<close>}.
 \<close>
 
 context begin
@@ -290,7 +290,7 @@ private lemma bisimilarity_standard_symp_intro:
   shows "symp \<X>"
   using assms ..
 private lemma bisimilarity_standard_sim_intro:
-  assumes "(\<And>p q d. \<lbrakk> p \<rightharpoonup> d; \<X> p q \<rbrakk> \<Longrightarrow> \<exists>e. q \<rightharpoondown> e \<and> lift \<X> d e)"
+  assumes "(\<And>p q c. \<lbrakk> p \<rightharpoonup> c; \<X> p q \<rbrakk> \<Longrightarrow> \<exists>d. q \<rightharpoondown> d \<and> lift \<X> c d)"
   shows "sim \<X>"
   using assms by blast
 

@@ -12,7 +12,7 @@ inductive
     "([process, basic_residual] \<Rightarrow> bool) \<Rightarrow> ([basic_residual, basic_residual] \<Rightarrow> bool)"
 where
   downward_absorption:
-    "\<I> p d \<Longrightarrow> superficial_basic_absorb \<I> (\<lbrace>\<tau>\<rbrace> p) d" |
+    "\<I> p c \<Longrightarrow> superficial_basic_absorb \<I> (\<lbrace>\<tau>\<rbrace> p) c" |
   acting_upward_absorption:
     "\<I> p (\<lbrace>\<tau>\<rbrace> q) \<Longrightarrow> superficial_basic_absorb \<I> (\<lbrace>\<alpha>\<rbrace> p) (\<lbrace>\<alpha>\<rbrace> q)" |
   opening_upward_absorption:
@@ -30,28 +30,28 @@ next
   fix \<I>
   show "superficial_basic_silent OO superficial_basic_absorb \<I> = \<I>"
   proof (intro ext, intro iffI)
-    fix p and d
-    assume "(superficial_basic_silent OO superficial_basic_absorb \<I>) p d"
-    then show "\<I> p d"
+    fix p and c
+    assume "(superficial_basic_silent OO superficial_basic_absorb \<I>) p c"
+    then show "\<I> p c"
       by (blast elim: superficial_basic_silent.cases superficial_basic_absorb.cases)
   next
-    fix p and d
-    assume "\<I> p d"
-    then show "(superficial_basic_silent OO superficial_basic_absorb \<I>) p d"
+    fix p and c
+    assume "\<I> p c"
+    then show "(superficial_basic_silent OO superficial_basic_absorb \<I>) p c"
       by (blast intro: silent_acting_is_silent downward_absorption)
   qed
 next
   show "superficial_basic_absorb superficial_basic_silent = (=)"
   proof (intro ext, intro iffI)
-    fix d and e
-    assume "superficial_basic_absorb superficial_basic_silent d e"
-    then show "d = e"
+    fix c and d
+    assume "superficial_basic_absorb superficial_basic_silent c d"
+    then show "c = d"
       by cases (simp_all add: superficial_basic_silent.simps ext)
   next
-    fix d :: basic_residual and e
-    assume "d = e"
-    then show "superficial_basic_absorb superficial_basic_silent d e"
-      by (cases d) (blast intro: silent_acting_is_silent upward_absorption)+
+    fix c :: basic_residual and d
+    assume "c = d"
+    then show "superficial_basic_absorb superficial_basic_silent c d"
+      by (cases c) (blast intro: silent_acting_is_silent upward_absorption)+
   qed
 next
   fix \<I> and \<J>
@@ -59,11 +59,11 @@ next
   let ?rhs = "superficial_basic_absorb (\<I> OO superficial_basic_absorb \<J>)"
   show "?lhs = ?rhs"
   proof (intro ext, intro iffI)
-    fix d and f
-    assume "(superficial_basic_absorb \<I> OO superficial_basic_absorb \<J>) d f"
-    then obtain e where "superficial_basic_absorb \<I> d e" and "superficial_basic_absorb \<J> e f"
+    fix c and e
+    assume "(superficial_basic_absorb \<I> OO superficial_basic_absorb \<J>) c e"
+    then obtain d where "superficial_basic_absorb \<I> c d" and "superficial_basic_absorb \<J> d e"
       by blast
-    then show "superficial_basic_absorb (\<I> OO superficial_basic_absorb \<J>) d f"
+    then show "superficial_basic_absorb (\<I> OO superficial_basic_absorb \<J>) c e"
     proof induction
       case downward_absorption
       then show ?case
@@ -84,12 +84,12 @@ next
         )
     qed
   next
-    fix d and f
-    assume "superficial_basic_absorb (\<I> OO superficial_basic_absorb \<J>) d f"
-    then show "(superficial_basic_absorb \<I> OO superficial_basic_absorb \<J>) d f"
-    proof (induction "\<I> OO superficial_basic_absorb \<J>" d f)
-      case (downward_absorption p f)
-      then obtain e where "\<I> p e" and "superficial_basic_absorb \<J> e f"
+    fix c and e
+    assume "superficial_basic_absorb (\<I> OO superficial_basic_absorb \<J>) c e"
+    then show "(superficial_basic_absorb \<I> OO superficial_basic_absorb \<J>) c e"
+    proof (induction "\<I> OO superficial_basic_absorb \<J>" c e)
+      case (downward_absorption p e)
+      then obtain d where "\<I> p d" and "superficial_basic_absorb \<J> d e"
         by blast
       then show ?case
         by (blast intro: superficial_basic_absorb.downward_absorption)
@@ -115,12 +115,12 @@ next
   let ?rhs = "(superficial_basic_absorb (\<X> OO superficial_basic_silent))\<inverse>\<inverse>"
   show "?lhs = ?rhs"
   proof (intro ext, intro iffI)
-    fix d and e
-    assume "superficial_basic_absorb (\<X>\<inverse>\<inverse> OO superficial_basic_silent) e d"
-    then show "(superficial_basic_absorb (\<X> OO superficial_basic_silent))\<inverse>\<inverse> e d"
-    proof (induction "\<X>\<inverse>\<inverse> OO superficial_basic_silent" e d)
-      case (downward_absorption q d)
-      then obtain p where "\<X> p q" and "d = \<lbrace>\<tau>\<rbrace> p"
+    fix c and d
+    assume "superficial_basic_absorb (\<X>\<inverse>\<inverse> OO superficial_basic_silent) d c"
+    then show "(superficial_basic_absorb (\<X> OO superficial_basic_silent))\<inverse>\<inverse> d c"
+    proof (induction "\<X>\<inverse>\<inverse> OO superficial_basic_silent" d c)
+      case (downward_absorption q c)
+      then obtain p where "\<X> p q" and "c = \<lbrace>\<tau>\<rbrace> p"
         by (blast elim: superficial_basic_silent.cases)
       then show ?case
         by (blast intro: silent_acting_is_silent superficial_basic_absorb.downward_absorption)
@@ -138,14 +138,14 @@ next
         by (blast intro: silent_acting_is_silent superficial_basic_absorb.opening_upward_absorption)
     qed
   next
-    fix e and d
-    assume "(superficial_basic_absorb (\<X> OO superficial_basic_silent))\<inverse>\<inverse> e d"
-    then have "(superficial_basic_absorb (\<X> OO superficial_basic_silent)) d e"
+    fix d and c
+    assume "(superficial_basic_absorb (\<X> OO superficial_basic_silent))\<inverse>\<inverse> d c"
+    then have "(superficial_basic_absorb (\<X> OO superficial_basic_silent)) c d"
       by blast
-    then show "superficial_basic_absorb (\<X>\<inverse>\<inverse> OO superficial_basic_silent) e d"
-    proof (induction "\<X> OO superficial_basic_silent" d e)
-      case (downward_absorption p e)
-      then obtain q where "\<X> p q" and "e = \<lbrace>\<tau>\<rbrace> q"
+    then show "superficial_basic_absorb (\<X>\<inverse>\<inverse> OO superficial_basic_silent) d c"
+    proof (induction "\<X> OO superficial_basic_silent" c d)
+      case (downward_absorption p d)
+      then obtain q where "\<X> p q" and "d = \<lbrace>\<tau>\<rbrace> q"
         by (blast elim: superficial_basic_silent.cases)
       then show ?case
         by (blast intro: silent_acting_is_silent superficial_basic_absorb.downward_absorption)
@@ -167,17 +167,17 @@ qed
 
 lemma superficial_basic_lift_equals_basic_lift: "superficial_basic.lift = basic_lift"
 proof (intro ext, intro iffI)
-  fix \<X> and d and e
-  assume "superficial_basic_absorb (\<X> OO superficial_basic_silent) d e"
-  then show "basic_lift \<X> d e"
+  fix \<X> and c and d
+  assume "superficial_basic_absorb (\<X> OO superficial_basic_silent) c d"
+  then show "basic_lift \<X> c d"
     by (blast
       elim: superficial_basic_absorb.cases superficial_basic_silent.cases
       intro: basic_lift.intros
     )
 next
-  fix \<X> and d and e
-  assume "basic_lift \<X> d e"
-  then show "superficial_basic_absorb (\<X> OO superficial_basic_silent) d e"
+  fix \<X> and c and d
+  assume "basic_lift \<X> c d"
+  then show "superficial_basic_absorb (\<X> OO superficial_basic_silent) c d"
     by (blast elim: basic_lift.cases intro: silent_acting_is_silent upward_absorption)
 qed
 

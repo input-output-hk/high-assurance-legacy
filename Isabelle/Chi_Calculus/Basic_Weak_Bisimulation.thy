@@ -87,21 +87,21 @@ qed
 
 (* Weak Semantics *)
 
-(** Weak \<tau>-respecting basic transition \<Longrightarrow>\<^sub>\<flat> d **)
+(** Weak \<tau>-respecting basic transition \<Longrightarrow>\<^sub>\<flat> c **)
 (** NOTE: Note that even though the transition p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a appears to contain a binder into Q a, in
 reality it does not. The binder occurs inside the definition, where a binds into P a. The process
 P a then does a \<tau>-sequence to Q a, which "a" does not bind into, unless P a = Q a. Formally, one can
 still reason about "a" as a binder: there is no way that any new names can be introduced by a \<tau>-sequence;
 the name "a" can be communicated within the process, but if so it occurs free in an output-prefix in p. **)
-(** TODO: Perhaps I can define a weak basic transition without using a residual, i.e. as
+(** TODO: Perhaps I can define a weak basic transition without using a residual, i.d. as
  weak_tau_respecting_basic_transition :: process \<Rightarrow> process \<Rightarrow> [IO action|chan] \<Rightarrow> process **)
 
 definition
   weak_tau_respecting_basic_transition :: "process \<Rightarrow> basic_residual \<Rightarrow> bool"
   (infix "\<Longrightarrow>\<^sub>\<flat>" 50)
   where
-   "p \<Longrightarrow>\<^sub>\<flat> d \<equiv>
-      case d of
+   "p \<Longrightarrow>\<^sub>\<flat> c \<equiv>
+      case c of
         \<lbrace>\<alpha>\<rbrace> q     \<Rightarrow> \<exists>r s. p \<Rightarrow>\<^sup>\<tau>\<^sub>\<flat> r \<and> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> s \<and> s \<Rightarrow>\<^sup>\<tau>\<^sub>\<flat> q |
         Opening Q \<Rightarrow> \<exists>r P. p \<Rightarrow>\<^sup>\<tau>\<^sub>\<flat> r \<and> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<and> (\<forall>a. P a \<Rightarrow>\<^sup>\<tau>\<^sub>\<flat> Q a)"
 
@@ -268,8 +268,8 @@ lemma weak_tau_respecting_basic_transition_scoped_opening: "\<lbrakk> p \<Longri
 definition weak_basic_transition :: "process \<Rightarrow> basic_residual \<Rightarrow> bool"
   (infix "\<Longrightarrow>\<^sub>\<flat>\<^sup>^" 50)
   where
-   "p \<Longrightarrow>\<^sub>\<flat>\<^sup>^ d \<equiv>
-      case d of
+   "p \<Longrightarrow>\<^sub>\<flat>\<^sup>^ c \<equiv>
+      case c of
         \<lbrace>\<alpha>\<rbrace> q \<Rightarrow> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q \<or> (\<alpha> = \<tau> \<and> p = q) |
         Opening Q \<Rightarrow> p \<Longrightarrow>\<^sub>\<flat> Opening Q"
 

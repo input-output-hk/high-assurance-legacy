@@ -57,31 +57,31 @@ text \<open>
 
 lemma basic_lift_monotonicity: "\<X> \<le> \<Y> \<Longrightarrow> basic_lift \<X> \<le> basic_lift \<Y>"
 proof
-  fix d and e
-  assume "basic_lift \<X> d e" and "\<X> \<le> \<Y>"
-  then show "basic_lift \<Y> d e" by induction (blast intro: basic_lift.intros)+
+  fix c and d
+  assume "basic_lift \<X> c d" and "\<X> \<le> \<Y>"
+  then show "basic_lift \<Y> c d" by induction (blast intro: basic_lift.intros)+
 qed
 lemma basic_lift_equality_preservation: "basic_lift (=) = (=)"
 proof (intro ext)
-  fix d\<^sub>1 and d\<^sub>2
-  show "basic_lift (=) d\<^sub>1 d\<^sub>2 \<longleftrightarrow> d\<^sub>1 = d\<^sub>2"
+  fix c\<^sub>1 and c\<^sub>2
+  show "basic_lift (=) c\<^sub>1 c\<^sub>2 \<longleftrightarrow> c\<^sub>1 = c\<^sub>2"
   proof
-    assume "basic_lift (=) d\<^sub>1 d\<^sub>2"
-    then show "d\<^sub>1 = d\<^sub>2"
+    assume "basic_lift (=) c\<^sub>1 c\<^sub>2"
+    then show "c\<^sub>1 = c\<^sub>2"
       by induction simp_all
   next
-    assume "d\<^sub>1 = d\<^sub>2"
-    then show "basic_lift (=) d\<^sub>1 d\<^sub>2"
-      by (induction d\<^sub>1 arbitrary: d\<^sub>2) (blast intro: basic_lift.intros)+
+    assume "c\<^sub>1 = c\<^sub>2"
+    then show "basic_lift (=) c\<^sub>1 c\<^sub>2"
+      by (induction c\<^sub>1 arbitrary: c\<^sub>2) (blast intro: basic_lift.intros)+
   qed
 qed
 lemma basic_lift_composition_preservation: "basic_lift (\<X> OO \<Y>) = basic_lift \<X> OO basic_lift \<Y>"
 proof (intro ext)
-  fix d and f
-  show "basic_lift (\<X> OO \<Y>) d f \<longleftrightarrow> (basic_lift \<X> OO basic_lift \<Y>) d f"
+  fix c and e
+  show "basic_lift (\<X> OO \<Y>) c e \<longleftrightarrow> (basic_lift \<X> OO basic_lift \<Y>) c e"
   proof
-    assume "basic_lift (\<X> OO \<Y>) d f"
-    then show "(basic_lift \<X> OO basic_lift \<Y>) d f"
+    assume "basic_lift (\<X> OO \<Y>) c e"
+    then show "(basic_lift \<X> OO basic_lift \<Y>) c e"
     proof induction
       case (acting_lift p r \<alpha>)
       then obtain q where "\<X> p q" and "\<Y> q r" by (elim relcomppE)
@@ -97,10 +97,10 @@ proof (intro ext)
       then show ?case by (blast intro: basic_lift.opening_lift)
     qed
   next
-    assume "(basic_lift \<X> OO basic_lift \<Y>) d f"
-    then obtain e where "basic_lift \<X> d e" and "basic_lift \<Y> e f" by (elim relcomppE)
-    then show "basic_lift (\<X> OO \<Y>) d f"
-    proof (induction e arbitrary: d f rule: basic_residual.induct)
+    assume "(basic_lift \<X> OO basic_lift \<Y>) c e"
+    then obtain d where "basic_lift \<X> c d" and "basic_lift \<Y> d e" by (elim relcomppE)
+    then show "basic_lift (\<X> OO \<Y>) c e"
+    proof (induction d arbitrary: c e rule: basic_residual.induct)
       case Acting
       then show ?case
         using
@@ -125,15 +125,15 @@ proof (intro ext)
 qed
 lemma basic_lift_conversion_preservation: "basic_lift \<X>\<inverse>\<inverse> = (basic_lift \<X>)\<inverse>\<inverse>"
 proof (intro ext)
-  fix d and e
-  show "basic_lift \<X>\<inverse>\<inverse> e d \<longleftrightarrow> (basic_lift \<X>)\<inverse>\<inverse> e d"
+  fix c and d
+  show "basic_lift \<X>\<inverse>\<inverse> d c \<longleftrightarrow> (basic_lift \<X>)\<inverse>\<inverse> d c"
   proof
-    assume "basic_lift \<X>\<inverse>\<inverse> e d"
-    then show "(basic_lift \<X>)\<inverse>\<inverse> e d" by induction (simp_all add: basic_lift.intros)
+    assume "basic_lift \<X>\<inverse>\<inverse> d c"
+    then show "(basic_lift \<X>)\<inverse>\<inverse> d c" by induction (simp_all add: basic_lift.intros)
   next
-    assume "(basic_lift \<X>)\<inverse>\<inverse> e d"
-    then have "basic_lift \<X> d e" by (fact conversepD)
-    then show "basic_lift \<X>\<inverse>\<inverse> e d" by induction (simp_all add: basic_lift.intros)
+    assume "(basic_lift \<X>)\<inverse>\<inverse> d c"
+    then have "basic_lift \<X> c d" by (fact conversepD)
+    then show "basic_lift \<X>\<inverse>\<inverse> d c" by induction (simp_all add: basic_lift.intros)
   qed
 qed
 
@@ -252,23 +252,23 @@ text \<open>
   \<open>scoped_acting\<close> and \<open>scoped_opening\<close> have to be taken into account.
 \<close>
 
-lemma no_basic_transitions_from_stop: "\<not> \<zero> \<rightarrow>\<^sub>\<flat>d"
+lemma no_basic_transitions_from_stop: "\<not> \<zero> \<rightarrow>\<^sub>\<flat>c"
 proof
-  fix d
-  assume "\<zero> \<rightarrow>\<^sub>\<flat>d"
-  then show False by (induction "\<zero>" d)
+  fix c
+  assume "\<zero> \<rightarrow>\<^sub>\<flat>c"
+  then show False by (induction "\<zero>" c)
 qed
 
 text \<open>
   Only certain transitions are possible from send and receive processes.
 \<close>
 
-lemma basic_transitions_from_send: "a \<triangleleft> x \<rightarrow>\<^sub>\<flat>d \<Longrightarrow> d = \<lbrace>a \<triangleleft> x\<rbrace> \<zero>"
+lemma basic_transitions_from_send: "a \<triangleleft> x \<rightarrow>\<^sub>\<flat>c \<Longrightarrow> c = \<lbrace>a \<triangleleft> x\<rbrace> \<zero>"
 proof -
-  fix a and x and d
-  assume "a \<triangleleft> x \<rightarrow>\<^sub>\<flat>d"
-  then show "d = \<lbrace>a \<triangleleft> x\<rbrace> \<zero>"
-  proof (induction "a \<triangleleft> x :: process" d)
+  fix a and x and c
+  assume "a \<triangleleft> x \<rightarrow>\<^sub>\<flat>c"
+  then show "c = \<lbrace>a \<triangleleft> x\<rbrace> \<zero>"
+  proof (induction "a \<triangleleft> x :: process" c)
     case sending
     show ?case by (fact refl)
   next
@@ -280,9 +280,9 @@ proof -
   qed
 qed
 lemma basic_transitions_from_receive:
-  assumes "a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>d"
-  obtains x where "d = \<lbrace>a \<triangleright> x\<rbrace> P x"
-using assms proof (induction "a \<triangleright> x. P x" d)
+  assumes "a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>c"
+  obtains x where "c = \<lbrace>a \<triangleright> x\<rbrace> P x"
+using assms proof (induction "a \<triangleright> x. P x" c)
   case receiving
   then show ?case by simp
 next
@@ -310,13 +310,13 @@ private lemma sim_scoped_acting_intro:
   assumes with_new_channel:
     "\<And>P Q. (\<And>a. \<X> (P a) (Q a)) \<Longrightarrow> \<X> (\<nu> a. P a) (\<nu> a. Q a)"
   assumes step_1:
-    "\<And>t. \<X> s t \<Longrightarrow> \<exists>e\<^sub>1. t \<rightarrow>\<^sub>\<flat>e\<^sub>1 \<and> basic_lift \<X> (\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a) e\<^sub>1"
+    "\<And>t. \<X> s t \<Longrightarrow> \<exists>d\<^sub>1. t \<rightarrow>\<^sub>\<flat>d\<^sub>1 \<and> basic_lift \<X> (\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a) d\<^sub>1"
   assumes step_2:
-    "\<And>a t\<^sub>1. \<X> (S\<^sub>1 a) t\<^sub>1 \<Longrightarrow> \<exists>e\<^sub>2. t\<^sub>1 \<rightarrow>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<alpha>\<rbrace> S\<^sub>2 a) e\<^sub>2"
+    "\<And>a t\<^sub>1. \<X> (S\<^sub>1 a) t\<^sub>1 \<Longrightarrow> \<exists>d\<^sub>2. t\<^sub>1 \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<alpha>\<rbrace> S\<^sub>2 a) d\<^sub>2"
   assumes initial_relation:
     "\<X> s t"
   shows
-    "\<exists>e\<^sub>2. t \<rightarrow>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<alpha>\<rbrace> \<nu> a. S\<^sub>2 a) e\<^sub>2"
+    "\<exists>d\<^sub>2. t \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<alpha>\<rbrace> \<nu> a. S\<^sub>2 a) d\<^sub>2"
 proof -
   from step_1 and `\<X> s t`
   obtain T\<^sub>1 where "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and "\<And>a. \<X> (S\<^sub>1 a) (T\<^sub>1 a)"
@@ -349,13 +349,13 @@ private lemma sim_scoped_opening_intro:
   assumes with_new_channel:
     "\<And>P Q. (\<And>a. \<X> (P a) (Q a)) \<Longrightarrow> \<X> (\<nu> a. P a) (\<nu> a. Q a)"
   assumes step_1:
-    "\<And>t. \<X> s t \<Longrightarrow> \<exists>e\<^sub>1. t \<rightarrow>\<^sub>\<flat>e\<^sub>1 \<and> basic_lift \<X> (\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a) e\<^sub>1"
+    "\<And>t. \<X> s t \<Longrightarrow> \<exists>d\<^sub>1. t \<rightarrow>\<^sub>\<flat>d\<^sub>1 \<and> basic_lift \<X> (\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a) d\<^sub>1"
   assumes step_2:
-    "\<And>a t\<^sub>1. \<X> (S\<^sub>1 a) t\<^sub>1 \<Longrightarrow> \<exists>e\<^sub>2. t\<^sub>1 \<rightarrow>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<nu> b\<rbrace> S\<^sub>2 a b) e\<^sub>2"
+    "\<And>a t\<^sub>1. \<X> (S\<^sub>1 a) t\<^sub>1 \<Longrightarrow> \<exists>d\<^sub>2. t\<^sub>1 \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<nu> b\<rbrace> S\<^sub>2 a b) d\<^sub>2"
   assumes initial_relation:
     "\<X> s t"
   shows
-    "\<exists>e\<^sub>2. t \<rightarrow>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<nu> b\<rbrace> \<nu> a. S\<^sub>2 a b) e\<^sub>2"
+    "\<exists>d\<^sub>2. t \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<nu> b\<rbrace> \<nu> a. S\<^sub>2 a b) d\<^sub>2"
 proof -
   from step_1 and `\<X> s t`
   obtain T\<^sub>1 where "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and "\<And>a. \<X> (S\<^sub>1 a) (T\<^sub>1 a)"
@@ -386,7 +386,7 @@ qed
 
 private method solve_sim_scoped uses with_new_channel = (
   match conclusion in
-    "\<exists>e\<^sub>2. _ \<rightarrow>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift _ (\<lbrace>_\<rbrace> \<nu> a. _ a) e\<^sub>2" \<Rightarrow> \<open>
+    "\<exists>d\<^sub>2. _ \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift _ (\<lbrace>_\<rbrace> \<nu> a. _ a) d\<^sub>2" \<Rightarrow> \<open>
       match premises in "s \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a" for s and S\<^sub>1 \<Rightarrow> \<open>
         match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>
           intro sim_scoped_acting_intro [where s = s and S\<^sub>1 = S\<^sub>1],
@@ -395,7 +395,7 @@ private method solve_sim_scoped uses with_new_channel = (
         \<close>
       \<close>
     \<close> \<bar>
-    "\<exists>e\<^sub>2. _ \<rightarrow>\<^sub>\<flat>e\<^sub>2 \<and> basic_lift _ (\<lbrace>\<nu> b\<rbrace> \<nu> a. _ a b) e\<^sub>2" \<Rightarrow> \<open>
+    "\<exists>d\<^sub>2. _ \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift _ (\<lbrace>\<nu> b\<rbrace> \<nu> a. _ a b) d\<^sub>2" \<Rightarrow> \<open>
       match premises in "s \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a" for s and S\<^sub>1 \<Rightarrow> \<open>
         match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>
           intro sim_scoped_opening_intro [where s = s and S\<^sub>1 = S\<^sub>1],
@@ -417,9 +417,9 @@ context begin
 private lemma basic_pre_receive_preservation: "(\<And>x. P x \<sim>\<^sub>\<flat> Q x) \<Longrightarrow> a \<triangleright> x. P x \<lesssim>\<^sub>\<flat> a \<triangleright> x. Q x"
 proof (standard, intro allI, intro impI)
   assume "\<And>x. P x \<sim>\<^sub>\<flat> Q x"
-  fix d
-  assume "a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>d"
-  then show "\<exists>e. a \<triangleright> x. Q x \<rightarrow>\<^sub>\<flat>e \<and> basic_lift (\<sim>\<^sub>\<flat>) d e"
+  fix c
+  assume "a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>c"
+  then show "\<exists>d. a \<triangleright> x. Q x \<rightarrow>\<^sub>\<flat>d \<and> basic_lift (\<sim>\<^sub>\<flat>) c d"
   proof cases
     case receiving
     with `\<And>x. P x \<sim>\<^sub>\<flat> Q x` show ?thesis
@@ -452,7 +452,7 @@ next
   case sym
   then show ?case by induction (simp_all add: parallel_preservation_aux.intros)
 next
-  case (sim s t d)
+  case (sim s t c)
   then show ?case
   proof (basic_sim_induction t with_new_channel: parallel_preservation_aux.with_new_channel)
     case (communication \<eta> \<mu> p p' r r' t)
@@ -575,8 +575,8 @@ next
   case sym
   then show ?case by induction (simp_all add: new_channel_preservation_aux.intros)
 next
-  case (sim s t d)
-  from this and `s \<rightarrow>\<^sub>\<flat>d` show ?case
+  case (sim s t c)
+  from this and `s \<rightarrow>\<^sub>\<flat>c` show ?case
   proof (basic_sim_induction t with_new_channel: new_channel_preservation_aux.with_new_channel)
     case sending
     from sending.prems show ?case
@@ -737,7 +737,7 @@ next
   case sym
   then show ?case by induction (simp_all add: parallel_scope_extension_aux.intros)
 next
-  case (sim s t d)
+  case (sim s t c)
   then show ?case
   proof (basic_sim_induction t with_new_channel: parallel_scope_extension_aux.with_new_channel)
     case (communication \<eta> \<mu> p p' q q' t)
@@ -960,10 +960,10 @@ context begin
 
 private lemma basic_pre_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<lesssim>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
 proof (standard, intro allI, intro impI)
-  fix d
-  assume "\<nu> b. \<nu> a. P a b \<rightarrow>\<^sub>\<flat>d"
-  then have "\<nu> a. \<nu> b. P a b \<rightarrow>\<^sub>\<flat>d"
-  proof (induction "\<nu> b. \<nu> a. P a b" d)
+  fix c
+  assume "\<nu> b. \<nu> a. P a b \<rightarrow>\<^sub>\<flat>c"
+  then have "\<nu> a. \<nu> b. P a b \<rightarrow>\<^sub>\<flat>c"
+  proof (induction "\<nu> b. \<nu> a. P a b" c)
     case opening
     show ?case using basic_transition.opening by (intro opening_scope)
   next
@@ -973,7 +973,7 @@ proof (standard, intro allI, intro impI)
     case scoped_opening
     then show ?case by (simp add: basic_transition.scoped_opening)
   qed
-  then show "\<exists>e. \<nu> a. \<nu> b. P a b \<rightarrow>\<^sub>\<flat>e \<and> basic_lift (\<sim>\<^sub>\<flat>) d e"
+  then show "\<exists>d. \<nu> a. \<nu> b. P a b \<rightarrow>\<^sub>\<flat>d \<and> basic_lift (\<sim>\<^sub>\<flat>) c d"
     using basic.bisimilarity_reflexivity and basic.lift_reflexivity_propagation and reflpD
     by smt
 qed
@@ -1011,8 +1011,8 @@ next
   case sym
   then show ?case by induction (simp_all add: parallel_unit_aux.intros)
 next
-  case (sim s t d)
-  from this and `s \<rightarrow>\<^sub>\<flat>d` show ?case
+  case (sim s t c)
+  from this and `s \<rightarrow>\<^sub>\<flat>c` show ?case
   proof (basic_sim_induction t with_new_channel: parallel_unit_aux.with_new_channel)
     case sending
     from sending.prems show ?case
@@ -1190,7 +1190,7 @@ next
   case sym
   then show ?case by induction (simp_all add: nested_parallel_commutativity_aux.intros)
 next
-  case (sim s t d)
+  case (sim s t c)
   then show ?case
   proof (basic_sim_induction t with_new_channel: nested_parallel_commutativity_aux.with_new_channel)
     case (communication \<eta> \<mu> u u' r r' t)

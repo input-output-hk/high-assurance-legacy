@@ -16,9 +16,9 @@ notation strong.pre_bisimilarity (infix "\<lesssim>" 50)
 notation strong.bisimilarity (infix "\<sim>" 50)
 
 inductive weak_transition :: "['process, 'residual] \<Rightarrow> bool" (infix "\<Rightarrow>" 50) where
-  strong_transition: "p \<rightarrow> d \<Longrightarrow> p \<Rightarrow> d" |
-  silent_transition: "silent p d \<Longrightarrow> p \<Rightarrow> d" |
-  composed_transition: "\<lbrakk>p \<Rightarrow> d; absorb (\<Rightarrow>) d e\<rbrakk> \<Longrightarrow> p \<Rightarrow> e"
+  strong_transition: "p \<rightarrow> c \<Longrightarrow> p \<Rightarrow> c" |
+  silent_transition: "silent p c \<Longrightarrow> p \<Rightarrow> c" |
+  composed_transition: "\<lbrakk>p \<Rightarrow> c; absorb (\<Rightarrow>) c d\<rbrakk> \<Longrightarrow> p \<Rightarrow> d"
 
 sublocale weak: transition_system lift weak_transition
   by intro_locales
@@ -40,55 +40,55 @@ next
   assume "\<X> \<le> mixed.transfer \<X>"
   show "\<X> \<le> weak.transfer \<X>"
   proof (intro le_funI, intro le_boolI, intro allI, intro impI)
-    fix p and q and d
-    assume "p \<Rightarrow> d" and "\<X> p q"
-    then show "\<exists>e. q \<Rightarrow> e \<and> lift \<X> d e"
+    fix p and q and c
+    assume "p \<Rightarrow> c" and "\<X> p q"
+    then show "\<exists>d. q \<Rightarrow> d \<and> lift \<X> c d"
     proof (induction arbitrary: q)
-      case (strong_transition p d q)
+      case (strong_transition p c q)
       with `\<X> \<le> mixed.transfer \<X>` show ?case by blast
     next
-      case (silent_transition p d q)
-      then have "(\<X>\<inverse>\<inverse> OO silent) q d"
+      case (silent_transition p c q)
+      then have "(\<X>\<inverse>\<inverse> OO silent) q c"
         by blast
-      then have "(silent OO lift \<X>\<inverse>\<inverse>) q d"
+      then have "(silent OO lift \<X>\<inverse>\<inverse>) q c"
         using silent_naturality
         by fastforce
-      then obtain e where "silent q e" and "lift \<X> d e"
+      then obtain d where "silent q d" and "lift \<X> c d"
         using lift_conversion_preservation
         by fastforce
       then show ?case
         by (blast intro: weak_transition.silent_transition)
     next
-      case (composed_transition p d\<^sub>1 d' q)
-      from composed_transition.IH(1) and `\<X> p q` obtain e\<^sub>1 where "q \<Rightarrow> e\<^sub>1" and "lift \<X> d\<^sub>1 e\<^sub>1"
+      case (composed_transition p c\<^sub>1 c' q)
+      from composed_transition.IH(1) and `\<X> p q` obtain d\<^sub>1 where "q \<Rightarrow> d\<^sub>1" and "lift \<X> c\<^sub>1 d\<^sub>1"
         by blast
-      let ?IH_2_core = "\<lambda>p\<^sub>1 d\<^sub>2. \<forall>q\<^sub>1. \<X> p\<^sub>1 q\<^sub>1 \<longrightarrow> (\<exists>e\<^sub>2. q\<^sub>1 \<Rightarrow> e\<^sub>2 \<and> lift \<X> d\<^sub>2 e\<^sub>2)"
-      from composed_transition.IH(2) have "absorb ?IH_2_core d\<^sub>1 d'"
+      let ?IH_2_core = "\<lambda>p\<^sub>1 c\<^sub>2. \<forall>q\<^sub>1. \<X> p\<^sub>1 q\<^sub>1 \<longrightarrow> (\<exists>d\<^sub>2. q\<^sub>1 \<Rightarrow> d\<^sub>2 \<and> lift \<X> c\<^sub>2 d\<^sub>2)"
+      from composed_transition.IH(2) have "absorb ?IH_2_core c\<^sub>1 c'"
         by under_absorb (fact conjunct2)
-      with `lift \<X> d\<^sub>1 e\<^sub>1` have "(lift \<X>\<inverse>\<inverse> OO absorb ?IH_2_core) e\<^sub>1 d'"
+      with `lift \<X> c\<^sub>1 d\<^sub>1` have "(lift \<X>\<inverse>\<inverse> OO absorb ?IH_2_core) d\<^sub>1 c'"
         using lift_conversion_preservation
         by fastforce
-      then have "absorb (\<X>\<inverse>\<inverse> OO ?IH_2_core) e\<^sub>1 d'"
+      then have "absorb (\<X>\<inverse>\<inverse> OO ?IH_2_core) d\<^sub>1 c'"
         using absorb_pre_naturality
         by metis
-      then have "absorb ((\<Rightarrow>) OO lift \<X>\<inverse>\<inverse>) e\<^sub>1 d'"
+      then have "absorb ((\<Rightarrow>) OO lift \<X>\<inverse>\<inverse>) d\<^sub>1 c'"
       proof under_absorb
-        fix q\<^sub>1 and d\<^sub>2
-        assume "(\<X>\<inverse>\<inverse> OO ?IH_2_core) q\<^sub>1 d\<^sub>2"
-        then obtain p\<^sub>1 where "\<X> p\<^sub>1 q\<^sub>1" and "?IH_2_core p\<^sub>1 d\<^sub>2"
+        fix q\<^sub>1 and c\<^sub>2
+        assume "(\<X>\<inverse>\<inverse> OO ?IH_2_core) q\<^sub>1 c\<^sub>2"
+        then obtain p\<^sub>1 where "\<X> p\<^sub>1 q\<^sub>1" and "?IH_2_core p\<^sub>1 c\<^sub>2"
           by blast
-        then obtain e\<^sub>2 where "q\<^sub>1 \<Rightarrow> e\<^sub>2" and "lift \<X> d\<^sub>2 e\<^sub>2"
+        then obtain d\<^sub>2 where "q\<^sub>1 \<Rightarrow> d\<^sub>2" and "lift \<X> c\<^sub>2 d\<^sub>2"
           by blast
-        then show "((\<Rightarrow>) OO lift \<X>\<inverse>\<inverse>) q\<^sub>1 d\<^sub>2"
+        then show "((\<Rightarrow>) OO lift \<X>\<inverse>\<inverse>) q\<^sub>1 c\<^sub>2"
           using lift_conversion_preservation
           by fastforce
       qed
-      then have "(absorb (\<Rightarrow>) OO lift \<X>\<inverse>\<inverse>) e\<^sub>1 d'"
+      then have "(absorb (\<Rightarrow>) OO lift \<X>\<inverse>\<inverse>) d\<^sub>1 c'"
         by (simp add: absorb_post_naturality)
-      then obtain e' where "absorb (\<Rightarrow>) e\<^sub>1 e'" and "lift \<X> d' e'"
+      then obtain d' where "absorb (\<Rightarrow>) d\<^sub>1 d'" and "lift \<X> c' d'"
         using lift_conversion_preservation
         by fastforce
-      with `q \<Rightarrow> e\<^sub>1` show ?case
+      with `q \<Rightarrow> d\<^sub>1` show ?case
         by (blast intro: weak_transition.composed_transition)
     qed
   qed
