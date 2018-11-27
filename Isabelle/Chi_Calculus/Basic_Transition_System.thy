@@ -328,7 +328,7 @@ proof -
   obtain T\<^sub>2 where "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a" and "\<And>a. \<X> (S\<^sub>2 a) (T\<^sub>2 a)"
   proof -
     from step_2 and `\<And>a. \<X> (S\<^sub>1 a) (T\<^sub>1 a)`
-    have "\<forall>a. \<exists>h. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> h \<and> \<X> (S\<^sub>2 a) h"
+    have "\<forall>a. \<exists>v. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> v \<and> \<X> (S\<^sub>2 a) v"
       using
         basic_lift.cases and
         basic_residual.inject(1) and
@@ -367,7 +367,7 @@ proof -
   obtain T\<^sub>2 where "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b" and "\<And>a b. \<X> (S\<^sub>2 a b) (T\<^sub>2 a b)"
   proof -
     from step_2 and `\<And>a. \<X> (S\<^sub>1 a) (T\<^sub>1 a)`
-    have "\<forall>a. \<exists>H. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> H b \<and> (\<forall>b. \<X> (S\<^sub>2 a b) (H b))"
+    have "\<forall>a. \<exists>V. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> V b \<and> (\<forall>b. \<X> (S\<^sub>2 a b) (V b))"
       using
         basic_lift.cases and
         basic_residual.distinct(1) and
@@ -683,7 +683,7 @@ next
       `\<And>a. parallel_scope_extension_subaux q (P\<^sub>1 a) (T\<^sub>1 a)` and
       `\<And>a. P\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> P\<^sub>2 a b`
     have "
-      \<forall>a. \<exists>H. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> H b \<and> (\<forall>b. parallel_scope_extension_subaux q (P\<^sub>2 a b) (H b))"
+      \<forall>a. \<exists>V. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> V b \<and> (\<forall>b. parallel_scope_extension_subaux q (P\<^sub>2 a b) (V b))"
       by blast
     then have "
       \<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b \<and> (\<forall>b. parallel_scope_extension_subaux q (P\<^sub>2 a b) (T\<^sub>2 a b))"
@@ -782,7 +782,7 @@ next
           `\<eta> \<bowtie> \<mu>` and
           `\<And>a. P\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<beta>\<rbrace> P\<^sub>2 a` and
           `q \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q'`
-        have "\<forall>a. \<exists>h. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> h \<and> parallel_scope_extension_subaux q' (P\<^sub>2 a) h"
+        have "\<forall>a. \<exists>v. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> v \<and> parallel_scope_extension_subaux q' (P\<^sub>2 a) v"
           by blast
         then have
           "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a \<and> parallel_scope_extension_subaux q' (P\<^sub>2 a) (T\<^sub>2 a)"
@@ -866,7 +866,7 @@ next
           scoped_acting.IH(2) and
           `\<And>a. parallel_scope_extension_subaux q (P\<^sub>1 a) (T\<^sub>1 a)` and
           `\<And>a. P\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<beta>\<rbrace> P\<^sub>2 a`
-        have "\<forall>a. \<exists>h. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> h \<and> parallel_scope_extension_subaux q (P\<^sub>2 a) h"
+        have "\<forall>a. \<exists>v. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> v \<and> parallel_scope_extension_subaux q (P\<^sub>2 a) v"
           by blast
         then have
           "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a \<and> parallel_scope_extension_subaux q (P\<^sub>2 a) (T\<^sub>2 a)"
@@ -899,7 +899,7 @@ next
     next
       case (with_new_channel q P T)
       then have "
-        \<forall>a. \<exists>h. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> h \<and> parallel_scope_extension_subaux q' (P a) h"
+        \<forall>a. \<exists>v. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> v \<and> parallel_scope_extension_subaux q' (P a) v"
         by simp
       then have "
         \<exists>T'. \<forall>a. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T' a \<and> parallel_scope_extension_subaux q' (P a) (T' a)"
@@ -937,7 +937,7 @@ next
     next
       case (with_new_channel q P T)
       then have "
-        \<forall>a. \<exists>H. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> H b \<and> (\<forall>b. parallel_scope_extension_subaux (Q b) (P a) (H b))"
+        \<forall>a. \<exists>V. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> V b \<and> (\<forall>b. parallel_scope_extension_subaux (Q b) (P a) (V b))"
         by simp
       then have "
         \<exists>T'. \<forall>a. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T' a b \<and> (\<forall>b. parallel_scope_extension_subaux (Q b) (P a) (T' a b))"
@@ -1137,7 +1137,7 @@ next
   proof -
     from scoped_opening.hyps(4) and `\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>1 a) (T\<^sub>1 a)`
     have "
-      \<forall>a. \<exists>H. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> H b \<and> (\<forall>b. nested_parallel_commutativity_subaux r (U\<^sub>2 a b) (H b))"
+      \<forall>a. \<exists>V. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> V b \<and> (\<forall>b. nested_parallel_commutativity_subaux r (U\<^sub>2 a b) (V b))"
       by blast
     then have "
       \<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b \<and> (\<forall>b. nested_parallel_commutativity_subaux r (U\<^sub>2 a b) (T\<^sub>2 a b))"
@@ -1238,7 +1238,7 @@ next
         from
           scoped_acting.hyps(3) and
           `\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>1 a) (T\<^sub>1 a)`
-        have "\<forall>a. \<exists>h. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> h \<and> nested_parallel_commutativity_subaux r' (U\<^sub>2 a) h"
+        have "\<forall>a. \<exists>v. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> v \<and> nested_parallel_commutativity_subaux r' (U\<^sub>2 a) v"
           by blast
         then have
           "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a \<and> nested_parallel_commutativity_subaux r' (U\<^sub>2 a) (T\<^sub>2 a)"
@@ -1332,7 +1332,7 @@ next
         from
           scoped_acting.hyps(3) and
           `\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>1 a) (T\<^sub>1 a)`
-        have "\<forall>a. \<exists>h. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> h \<and> nested_parallel_commutativity_subaux r (U\<^sub>2 a) h"
+        have "\<forall>a. \<exists>v. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> v \<and> nested_parallel_commutativity_subaux r (U\<^sub>2 a) v"
           by blast
         then have
           "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a \<and> nested_parallel_commutativity_subaux r (U\<^sub>2 a) (T\<^sub>2 a)"
@@ -1366,7 +1366,7 @@ next
     next
       case (with_new_channel r U T)
       then have "
-        \<forall>a. \<exists>h. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> h \<and> nested_parallel_commutativity_subaux r' (U a) h"
+        \<forall>a. \<exists>v. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> v \<and> nested_parallel_commutativity_subaux r' (U a) v"
         by simp
       then have "
         \<exists>T'. \<forall>a. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T' a \<and> nested_parallel_commutativity_subaux r' (U a) (T' a)"
@@ -1405,7 +1405,7 @@ next
     next
       case (with_new_channel r U T)
       then have "
-        \<forall>a. \<exists>H. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> H b \<and> (\<forall>b. nested_parallel_commutativity_subaux (R b) (U a) (H b))"
+        \<forall>a. \<exists>V. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> V b \<and> (\<forall>b. nested_parallel_commutativity_subaux (R b) (U a) (V b))"
         by simp
       then have "
         \<exists>T'. \<forall>a.

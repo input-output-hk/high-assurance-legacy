@@ -101,7 +101,7 @@ next
         by (blast intro: superficial_basic_absorb.acting_upward_absorption)
     next
       case (opening_upward_absorption P R)
-      then have "\<forall>a. \<exists>h.  \<I> (P a) (\<lbrace>\<tau>\<rbrace> h) \<and> \<J> h (\<lbrace>\<tau>\<rbrace> R a)"
+      then have "\<forall>a. \<exists>v.  \<I> (P a) (\<lbrace>\<tau>\<rbrace> v) \<and> \<J> v (\<lbrace>\<tau>\<rbrace> R a)"
         by (blast elim: superficial_basic_absorb.cases)
       then have "\<exists>Q. \<forall>a. \<I> (P a) (\<lbrace>\<tau>\<rbrace> Q a) \<and> \<J> (Q a) (\<lbrace>\<tau>\<rbrace> R a)"
         by (fact choice)
