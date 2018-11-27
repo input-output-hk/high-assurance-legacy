@@ -5,7 +5,7 @@ theory Superficial_Basic_Transition_System
 begin
 
 inductive superficial_basic_silent :: "[process, basic_residual] \<Rightarrow> bool" where
-  silent_acting_is_silent: "superficial_basic_silent p (\<lbrace>\<tau>\<rbrace> p)"
+  internal_is_silent: "superficial_basic_silent p (\<lbrace>\<tau>\<rbrace> p)"
 
 inductive
   superficial_basic_absorb ::
@@ -38,7 +38,7 @@ next
     fix p and c
     assume "\<I> p c"
     then show "(superficial_basic_silent OO superficial_basic_absorb \<I>) p c"
-      by (blast intro: silent_acting_is_silent downward_absorption)
+      by (blast intro: internal_is_silent downward_absorption)
   qed
 next
   show "superficial_basic_absorb superficial_basic_silent = (=)"
@@ -51,7 +51,7 @@ next
     fix c :: basic_residual and d
     assume "c = d"
     then show "superficial_basic_absorb superficial_basic_silent c d"
-      by (cases c) (blast intro: silent_acting_is_silent upward_absorption)+
+      by (cases c) (blast intro: internal_is_silent upward_absorption)+
   qed
 next
   fix \<I> and \<J>
@@ -123,19 +123,19 @@ next
       then obtain p where "\<X> p q" and "c = \<lbrace>\<tau>\<rbrace> p"
         by (blast elim: superficial_basic_silent.cases)
       then show ?case
-        by (blast intro: silent_acting_is_silent superficial_basic_absorb.downward_absorption)
+        by (blast intro: internal_is_silent superficial_basic_absorb.downward_absorption)
     next
       case (acting_upward_absorption q p \<alpha>)
       then have "\<X> p q"
         by (blast elim: superficial_basic_silent.cases)
       then show ?case
-        by (blast intro: silent_acting_is_silent superficial_basic_absorb.acting_upward_absorption)
+        by (blast intro: internal_is_silent superficial_basic_absorb.acting_upward_absorption)
     next
       case (opening_upward_absorption Q P)
       then have "\<And>a. \<X> (P a) (Q a)"
         by (blast elim: superficial_basic_silent.cases)
       then show ?case
-        by (blast intro: silent_acting_is_silent superficial_basic_absorb.opening_upward_absorption)
+        by (blast intro: internal_is_silent superficial_basic_absorb.opening_upward_absorption)
     qed
   next
     fix d and c
@@ -148,19 +148,19 @@ next
       then obtain q where "\<X> p q" and "d = \<lbrace>\<tau>\<rbrace> q"
         by (blast elim: superficial_basic_silent.cases)
       then show ?case
-        by (blast intro: silent_acting_is_silent superficial_basic_absorb.downward_absorption)
+        by (blast intro: internal_is_silent superficial_basic_absorb.downward_absorption)
     next
       case (acting_upward_absorption p q \<alpha>)
       then have "\<X> p q"
         by (blast elim: superficial_basic_silent.cases)
       then show ?case
-        by (blast intro: silent_acting_is_silent superficial_basic_absorb.acting_upward_absorption)
+        by (blast intro: internal_is_silent superficial_basic_absorb.acting_upward_absorption)
     next
       case (opening_upward_absorption P Q)
       then have "\<And>a. \<X> (P a) (Q a)"
         by (blast elim: superficial_basic_silent.cases)
       then show ?case
-        by (blast intro: silent_acting_is_silent superficial_basic_absorb.opening_upward_absorption)
+        by (blast intro: internal_is_silent superficial_basic_absorb.opening_upward_absorption)
     qed
   qed
 qed
@@ -178,7 +178,7 @@ next
   fix \<X> and c and d
   assume "basic_lift \<X> c d"
   then show "superficial_basic_absorb (\<X> OO superficial_basic_silent) c d"
-    by (blast elim: basic_lift.cases intro: silent_acting_is_silent upward_absorption)
+    by (blast elim: basic_lift.cases intro: internal_is_silent upward_absorption)
 qed
 
 interpretation superficial_basic:

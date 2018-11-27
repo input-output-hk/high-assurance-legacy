@@ -7,12 +7,12 @@ begin
 subsection \<open>Actions\<close>
 
 text \<open>
-  Actions include input actions and the silent action.
+  Actions include input actions and the internal action.
 \<close>
 
 datatype proper_action =
   ProperIn chan val (infix "\<triangleright>" 100) |
-  ProperSilent ("\<tau>")
+  ProperInternal ("\<tau>")
 
 text \<open>
   Each action in the proper transition system corresponds to an action in the basic transition

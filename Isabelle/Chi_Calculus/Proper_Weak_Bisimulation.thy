@@ -269,7 +269,7 @@ lemma weak_proper_transition_step_elim: "\<lbrakk> p \<noteq> q; p \<Longrightar
 lemma weak_proper_transition_induction
   [consumes 1, case_names weak_proper_tran_refl weak_proper_tran_step]:
   assumes "p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<delta>\<rparr> q"
-  and     "\<PP> ProperSilent p"
+  and     "\<PP> ProperInternal p"
   and     "p \<Longrightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q \<Longrightarrow> \<PP> \<delta> q"
   shows   "\<PP> \<delta> q"
   using assms

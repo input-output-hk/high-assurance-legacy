@@ -7,7 +7,7 @@ begin
 subsection \<open>Actions\<close>
 
 text \<open>
-  Actions include I/O actions and the silent action.
+  Actions include I/O actions and the internal action.
 \<close>
 
 datatype io_action =
@@ -15,7 +15,7 @@ datatype io_action =
   BasicIn chan val
 datatype basic_action =
   IO io_action |
-  BasicSilent ("\<tau>")
+  BasicInternal ("\<tau>")
 abbreviation BasicOutAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleleft>" 100) where
   "a \<triangleleft> x \<equiv> IO (BasicOut a x)"
 abbreviation BasicInAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleright>" 100) where
