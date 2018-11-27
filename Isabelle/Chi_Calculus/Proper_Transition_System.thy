@@ -20,7 +20,7 @@ text \<open>
 \<close>
 
 primrec basic_action_of :: "proper_action \<Rightarrow> basic_action" where
-  "basic_action_of (c \<triangleright> v) = c \<triangleright> v" |
+  "basic_action_of (c \<triangleright> x) = c \<triangleright> x" |
   "basic_action_of \<tau> = \<tau>"
 
 subsection \<open>Output Rests\<close>
@@ -51,7 +51,7 @@ inductive
   for \<X>
 where
   without_opening_lift:
-    "\<X> p q \<Longrightarrow> output_rest_lift \<X> (v\<rparr> p) (v\<rparr> q)" |
+    "\<X> p q \<Longrightarrow> output_rest_lift \<X> (x\<rparr> p) (x\<rparr> q)" |
   with_opening_lift:
     "(\<And>a. output_rest_lift \<X> (K a) (L a)) \<Longrightarrow> output_rest_lift \<X> (\<nu> a. K a) (\<nu> a. L a)"
 
@@ -92,7 +92,7 @@ proof (intro ext)
     assume "output_rest_lift (\<X> OO \<Y>) k m"
     then show "(output_rest_lift \<X> OO output_rest_lift \<Y>) k m"
     proof induction
-      case (without_opening_lift p r v)
+      case (without_opening_lift p r x)
       then obtain q where "\<X> p q" and "\<Y> q r" by (elim relcomppE)
       then show ?case by (blast intro: output_rest_lift.without_opening_lift)
     next
@@ -167,7 +167,7 @@ subsection \<open>Residuals\<close>
 text \<open>
   There are two kinds of residuals in the proper transition system: simple residuals, written
   \<open>\<lparr>\<delta>\<rparr> q\<close> where \<open>\<delta>\<close> is an action, and output residuals, written
-  \<open>\<lparr>c \<triangleleft> \<nu> a\<^sub>1 \<dots> a\<^sub>n. V a\<^sub>1 \<dots> a\<^sub>n\<rparr> Q a\<^sub>1 \<dots> a\<^sub>n\<close> where \<open>c\<close> is a channel and the \<open>a\<^sub>i\<close> are channel variables.
+  \<open>\<lparr>c \<triangleleft> \<nu> a\<^sub>1 \<dots> a\<^sub>n. X a\<^sub>1 \<dots> a\<^sub>n\<rparr> Q a\<^sub>1 \<dots> a\<^sub>n\<close> where \<open>c\<close> is a channel and the \<open>a\<^sub>i\<close> are channel variables.
 \<close>
 
 datatype proper_residual =
@@ -306,7 +306,7 @@ where
   simple:
     "p \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> q \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q" |
   output_without_opening:
-    "p \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> v\<rbrace> q \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> v\<rparr> q" |
+    "p \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> x\<rbrace> q \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> q" |
   output_with_opening:
     "\<lbrakk> p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a; \<And>a. Q a \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> K a \<rbrakk> \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<nu> a. K a"
 
@@ -357,9 +357,9 @@ proof (intro predicate2I, intro allI, intro impI)
     then show ?case
       by (blast intro: proper_transition.simple simple_lift)
   next
-    case (output_without_opening p c v p' q)
-    from `p \<sim>\<^sub>\<flat> q` and `p \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> v\<rbrace> p'`
-    obtain q' where "q \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> v\<rbrace> q'" and "p' \<sim>\<^sub>\<flat> q'"
+    case (output_without_opening p c x p' q)
+    from `p \<sim>\<^sub>\<flat> q` and `p \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> x\<rbrace> p'`
+    obtain q' where "q \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> x\<rbrace> q'" and "p' \<sim>\<^sub>\<flat> q'"
       using
         basic.bisimilarity_is_simulation and
         predicate2D and
@@ -448,18 +448,18 @@ proof (standard, intro allI, intro impI)
   proof cases
     case (simple \<delta> q)
     from `c \<triangleright> x. \<nu> a. P x a \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> q`
-    obtain v where "basic_action_of \<delta> = c \<triangleright> v" and "q = \<nu> a. P v a"
+    obtain x where "basic_action_of \<delta> = c \<triangleright> x" and "q = \<nu> a. P x a"
       by (blast elim: basic_transitions_from_receive)
-    from `basic_action_of \<delta> = c \<triangleright> v` have "\<nu> a. c \<triangleright> x. P x a \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. P v a"
+    from `basic_action_of \<delta> = c \<triangleright> x` have "\<nu> a. c \<triangleright> x. P x a \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. P x a"
       using receiving and acting_scope
       by smt
-    with `d = \<lparr>\<delta>\<rparr> q` and `q = \<nu> a. P v a` have "\<nu> a. c \<triangleright> x. P x a \<rightarrow>\<^sub>\<sharp>d"
+    with `d = \<lparr>\<delta>\<rparr> q` and `q = \<nu> a. P x a` have "\<nu> a. c \<triangleright> x. P x a \<rightarrow>\<^sub>\<sharp>d"
       by (blast intro: proper_transition.simple)
     then show ?thesis
       using proper.bisimilarity_reflexivity and proper.lift_reflexivity_propagation and reflpD
       by smt
   next
-    case (output_without_opening c v q)
+    case (output_without_opening c x q)
     then show ?thesis
       using basic_transitions_from_receive
       by fastforce
@@ -492,17 +492,17 @@ proof (standard, intro allI, intro impI)
       from `\<nu> a. c \<triangleright> x. P x a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a` have "\<And>a. Q a = c \<triangleright> x . P x a"
         by (fact opening_transitions_from_new_channel_receive)
       with `\<And>a. Q a \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> R a`
-      obtain v where "basic_action_of \<delta> = c \<triangleright> v" and "\<And>a. R a = P v a"
+      obtain x where "basic_action_of \<delta> = c \<triangleright> x" and "\<And>a. R a = P x a"
         using
           basic_transitions_from_receive and
           basic_residual.inject(1) and
           basic_action.inject(1) and
           io_action.inject(2)
         by smt
-      from `basic_action_of \<delta> = c \<triangleright> v` have "c \<triangleright> x. \<nu> a. P x a \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. P v a"
+      from `basic_action_of \<delta> = c \<triangleright> x` have "c \<triangleright> x. \<nu> a. P x a \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> a. P x a"
         using receiving
         by fastforce
-      moreover from `d = \<lparr>\<delta>\<rparr> r` and `r = \<nu> a. R a` and `\<And>a. R a = P v a` have "d = \<lparr>\<delta>\<rparr> \<nu> a. P v a"
+      moreover from `d = \<lparr>\<delta>\<rparr> r` and `r = \<nu> a. R a` and `\<And>a. R a = P x a` have "d = \<lparr>\<delta>\<rparr> \<nu> a. P x a"
         by simp
       ultimately have "c \<triangleright> x. \<nu> a. P x a \<rightarrow>\<^sub>\<sharp>d"
         by (blast intro: proper_transition.simple)
@@ -511,13 +511,13 @@ proof (standard, intro allI, intro impI)
         by smt
     qed
   next
-    case (output_without_opening c' v r)
-    from `\<nu> a. c \<triangleright> x. P x a \<rightarrow>\<^sub>\<flat>\<lbrace>c' \<triangleleft> v\<rbrace> r` show ?thesis
+    case (output_without_opening c' x r)
+    from `\<nu> a. c \<triangleright> x. P x a \<rightarrow>\<^sub>\<flat>\<lbrace>c' \<triangleleft> x\<rbrace> r` show ?thesis
     proof cases
       case (scoped_acting Q R)
       from `\<nu> a. c \<triangleright> x. P x a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a` have "\<And>a. Q a = c \<triangleright> x. P x a"
         by (fact opening_transitions_from_new_channel_receive)
-      with `\<And>a. Q a \<rightarrow>\<^sub>\<flat>\<lbrace>c' \<triangleleft> v\<rbrace> R a` show ?thesis
+      with `\<And>a. Q a \<rightarrow>\<^sub>\<flat>\<lbrace>c' \<triangleleft> x\<rbrace> R a` show ?thesis
         using basic_transitions_from_receive and basic_residual.inject(1)
         by fastforce
     qed
@@ -529,7 +529,7 @@ proof (standard, intro allI, intro impI)
       by simp
     then show ?thesis
     proof cases
-      case (output_without_opening v q)
+      case (output_without_opening x q)
       then show ?thesis
         using basic_transitions_from_receive
         by fastforce

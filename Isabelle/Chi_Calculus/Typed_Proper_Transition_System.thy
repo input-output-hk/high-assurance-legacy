@@ -5,7 +5,7 @@ begin
 abbreviation
   typed_proper_in :: "['a channel, 'a::countable] \<Rightarrow> proper_action" (infix "\<triangleright>\<degree>" 100)
 where
-  "\<cc> \<triangleright>\<degree> \<vv> \<equiv> ProperIn (untyped_channel \<cc>) (untyped_value \<vv>)"
+  "\<cc> \<triangleright>\<degree> \<xx> \<equiv> ProperIn (untyped_channel \<cc>) (untyped_value \<xx>)"
 
 datatype 'a typed_output_rest =
   TypedWithoutOpening 'a process ("_\<rparr> _" [52, 51] 51) |
@@ -17,7 +17,7 @@ datatype 'a typed_output_rest =
 *)
 
 primrec untyped_output_rest :: "'a::countable typed_output_rest \<Rightarrow> output_rest" where
-  "untyped_output_rest (\<vv>\<rparr> p) = untyped_value \<vv>\<rparr> p" |
+  "untyped_output_rest (\<xx>\<rparr> p) = untyped_value \<xx>\<rparr> p" |
   "untyped_output_rest (TypedWithOpening K) = WithOpening (untyped_output_rest \<circ> K)"
 
 abbreviation
@@ -32,7 +32,7 @@ abbreviation
 where
   "\<lparr>\<cc> \<triangleleft>\<degree> \<kk> \<equiv> \<lparr>untyped_channel \<cc> \<triangleleft> untyped_output_rest \<kk>"
 
-lemma typed_output_without_opening: "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<cc> \<triangleleft>\<degree> \<vv>\<rbrace> q \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>\<cc> \<triangleleft>\<degree> \<vv>\<rparr> q"
+lemma typed_output_without_opening: "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<cc> \<triangleleft>\<degree> \<xx>\<rbrace> q \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>\<cc> \<triangleleft>\<degree> \<xx>\<rparr> q"
   by (simp add: output_without_opening)
 lemma typed_output_with_opening:
   "\<lbrakk>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<QQ> \<aa>; \<And>\<aa>. \<QQ> \<aa> \<rightarrow>\<^sub>\<sharp>\<lparr>\<cc> \<triangleleft>\<degree> \<KK> \<aa>\<rbrakk> \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>\<cc> \<triangleleft>\<degree> \<nu>\<degree>\<aa>. \<KK> \<aa>"

@@ -28,7 +28,7 @@ axiomatization untyped_value :: "'a::countable \<Rightarrow> val" where
 abbreviation typed_value :: "val \<Rightarrow> 'a::countable" where
   "typed_value \<equiv> inv untyped_value"
 
-lemma typed_untyped_value [simp]: "typed_value (untyped_value \<vv>) = \<vv>"
+lemma typed_untyped_value [simp]: "typed_value (untyped_value \<xx>) = \<xx>"
   using untyped_value_injectivity by (fact inv_f_f)
 
 end

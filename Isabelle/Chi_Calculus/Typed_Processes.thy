@@ -3,7 +3,7 @@ theory Typed_Processes
 begin
 
 abbreviation typed_send :: "['a channel, 'a::countable] \<Rightarrow> process" (infix "\<triangleleft>\<degree>" 100) where
-  "\<cc> \<triangleleft>\<degree> \<vv> \<equiv> untyped_channel \<cc> \<triangleleft> untyped_value \<vv>"
+  "\<cc> \<triangleleft>\<degree> \<xx> \<equiv> untyped_channel \<cc> \<triangleleft> untyped_value \<xx>"
 abbreviation typed_receive :: "['a channel, 'a::countable \<Rightarrow> process] \<Rightarrow> process" where
   "typed_receive \<cc> \<PP> \<equiv> untyped_channel \<cc> \<triangleright> x. \<PP> (typed_value x)"
 syntax

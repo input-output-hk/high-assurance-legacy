@@ -17,9 +17,9 @@ datatype basic_action =
   IO io_action |
   BasicSilent ("\<tau>")
 abbreviation BasicOutAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleleft>" 100) where
-  "c \<triangleleft> v \<equiv> IO (BasicOut c v)"
+  "c \<triangleleft> x \<equiv> IO (BasicOut c x)"
 abbreviation BasicInAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleright>" 100) where
-  "c \<triangleright> v \<equiv> IO (BasicIn c v)"
+  "c \<triangleright> x \<equiv> IO (BasicIn c x)"
 
 subsection \<open>Residuals\<close>
 
@@ -164,9 +164,9 @@ inductive
   (infix "\<bowtie>" 50)
 where
   ltr:
-    "BasicOut c v \<bowtie> BasicIn c v" |
+    "BasicOut c x \<bowtie> BasicIn c x" |
   rtl:
-    "BasicIn c v \<bowtie> BasicOut c v"
+    "BasicIn c x \<bowtie> BasicOut c x"
 
 text \<open>
   The communication relation is symmetric.
@@ -189,9 +189,9 @@ inductive
   (infix "\<rightarrow>\<^sub>\<flat>" 50)
 where
   sending:
-    "c \<triangleleft> v \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> v\<rbrace> \<zero>" |
+    "c \<triangleleft> x \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> x\<rbrace> \<zero>" |
   receiving:
-    "c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleright> v\<rbrace> P v" |
+    "c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleright> x\<rbrace> P x" |
   communication:
     "\<lbrakk> \<eta> \<bowtie> \<mu>; p \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'; q \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q' \<rbrakk> \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> p' \<parallel> q'" |
   opening:
@@ -263,12 +263,12 @@ text \<open>
   Only certain transitions are possible from send and receive processes.
 \<close>
 
-lemma basic_transitions_from_send: "c \<triangleleft> v \<rightarrow>\<^sub>\<flat>d \<Longrightarrow> d = \<lbrace>c \<triangleleft> v\<rbrace> \<zero>"
+lemma basic_transitions_from_send: "c \<triangleleft> x \<rightarrow>\<^sub>\<flat>d \<Longrightarrow> d = \<lbrace>c \<triangleleft> x\<rbrace> \<zero>"
 proof -
-  fix c and v and d
-  assume "c \<triangleleft> v \<rightarrow>\<^sub>\<flat>d"
-  then show "d = \<lbrace>c \<triangleleft> v\<rbrace> \<zero>"
-  proof (induction "c \<triangleleft> v :: process" d)
+  fix c and x and d
+  assume "c \<triangleleft> x \<rightarrow>\<^sub>\<flat>d"
+  then show "d = \<lbrace>c \<triangleleft> x\<rbrace> \<zero>"
+  proof (induction "c \<triangleleft> x :: process" d)
     case sending
     show ?case by (fact refl)
   next
@@ -281,7 +281,7 @@ proof -
 qed
 lemma basic_transitions_from_receive:
   assumes "c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>d"
-  obtains v where "d = \<lbrace>c \<triangleright> v\<rbrace> P v"
+  obtains x where "d = \<lbrace>c \<triangleright> x\<rbrace> P x"
 using assms proof (induction "c \<triangleright> x. P x" d)
   case receiving
   then show ?case by simp
@@ -297,7 +297,7 @@ text \<open>
   No opening transitions are possible from send and receive processes.
 \<close>
 
-lemma no_opening_transitions_from_send: "\<not> c \<triangleleft> v \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
+lemma no_opening_transitions_from_send: "\<not> c \<triangleleft> x \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
   using basic_transitions_from_send by fastforce
 lemma no_opening_transitions_from_receive: "\<not> c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
   using basic_transitions_from_receive by fastforce

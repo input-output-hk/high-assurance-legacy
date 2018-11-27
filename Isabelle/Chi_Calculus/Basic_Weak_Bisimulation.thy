@@ -166,10 +166,10 @@ qed
 
 (** Lifted weak \<tau>-respecting basic operational semantics **)
 
-lemma weak_tau_respecting_basic_transition_sending: "c \<triangleleft> v \<Longrightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> v\<rbrace> \<zero>"
+lemma weak_tau_respecting_basic_transition_sending: "c \<triangleleft> x \<Longrightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> x\<rbrace> \<zero>"
   using weak_tau_respecting_basic_transition_def and sending by force
 
-lemma weak_tau_respecting_basic_transition_receiving: "c \<triangleright> x. P x \<Longrightarrow>\<^sub>\<flat>\<lbrace>c \<triangleright> v\<rbrace> P v"
+lemma weak_tau_respecting_basic_transition_receiving: "c \<triangleright> x. P x \<Longrightarrow>\<^sub>\<flat>\<lbrace>c \<triangleright> x\<rbrace> P x"
   using weak_tau_respecting_basic_transition_def and receiving by force
 
 lemma weak_tau_respecting_basic_transition_communication: "\<lbrakk> \<eta> \<bowtie> \<mu>; p \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'; q \<Longrightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q' \<rbrakk> \<Longrightarrow> p \<parallel> q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> p' \<parallel> q'"
@@ -393,10 +393,10 @@ qed
 
 (** Lifted weak basic operational semantics **)
 
-lemma weak_basic_transition_sending: "c \<triangleleft> v \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>c \<triangleleft> v\<rbrace> \<zero>"
+lemma weak_basic_transition_sending: "c \<triangleleft> x \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>c \<triangleleft> x\<rbrace> \<zero>"
   by (simp add: weak_tau_respecting_basic_transition_sending weak_basic_transition_def)
 
-lemma weak_basic_transition_receiving: "c \<triangleright> x. P x \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>c \<triangleright> v\<rbrace> P v"
+lemma weak_basic_transition_receiving: "c \<triangleright> x. P x \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>c \<triangleright> x\<rbrace> P x"
   by (simp add: weak_tau_respecting_basic_transition_receiving weak_basic_transition_def)
 
 lemma weak_basic_transition_communication: "\<lbrakk> \<eta> \<bowtie> \<mu>; p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>IO \<eta>\<rbrace> p'; q \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>IO \<mu>\<rbrace> q' \<rbrakk> \<Longrightarrow> p \<parallel> q \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<tau>\<rbrace> p' \<parallel> q'"
