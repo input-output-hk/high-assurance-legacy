@@ -5,19 +5,19 @@ begin
 abbreviation
   typed_basic_out :: "['a channel, 'a::countable] \<Rightarrow> io_action"
 where
-  "typed_basic_out \<cc> \<xx> \<equiv> BasicOut (untyped_channel \<cc>) (untyped_value \<xx>)"
+  "typed_basic_out \<aa> \<xx> \<equiv> BasicOut (untyped_channel \<aa>) (untyped_value \<xx>)"
 abbreviation
   typed_basic_in :: "['a channel, 'a::countable] \<Rightarrow> io_action"
 where
-  "typed_basic_in \<cc> \<xx> \<equiv> BasicIn (untyped_channel \<cc>) (untyped_value \<xx>)"
+  "typed_basic_in \<aa> \<xx> \<equiv> BasicIn (untyped_channel \<aa>) (untyped_value \<xx>)"
 abbreviation
   typed_basic_out_action :: "['a channel, 'a::countable] \<Rightarrow> basic_action" (infix "\<triangleleft>\<degree>" 100)
 where
-  "\<cc> \<triangleleft>\<degree> \<xx> :: basic_action \<equiv> untyped_channel \<cc> \<triangleleft> untyped_value \<xx>"
+  "\<aa> \<triangleleft>\<degree> \<xx> :: basic_action \<equiv> untyped_channel \<aa> \<triangleleft> untyped_value \<xx>"
 abbreviation
   typed_basic_in_action :: "['a channel, 'a::countable] \<Rightarrow> basic_action" (infix "\<triangleright>\<degree>" 100)
 where
-  "\<cc> \<triangleright>\<degree> \<xx> \<equiv> untyped_channel \<cc> \<triangleright> untyped_value \<xx>"
+  "\<aa> \<triangleright>\<degree> \<xx> \<equiv> untyped_channel \<aa> \<triangleright> untyped_value \<xx>"
 
 abbreviation typed_opening :: "('a channel \<Rightarrow> process) \<Rightarrow> basic_residual" where
   "typed_opening \<PP> \<equiv> \<lbrace>\<nu> a\<rbrace> \<PP> (typed_channel a)"
@@ -27,14 +27,14 @@ syntax
 translations
   "\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<pp>" \<rightleftharpoons> "CONST typed_opening (\<lambda>\<aa>. \<pp>)"
 
-lemma typed_ltr: "typed_basic_out \<cc> \<xx> \<bowtie> typed_basic_in \<cc> \<xx>"
+lemma typed_ltr: "typed_basic_out \<aa> \<xx> \<bowtie> typed_basic_in \<aa> \<xx>"
   by (fact ltr)
-lemma typed_rtl: "typed_basic_in \<cc> \<xx> \<bowtie> typed_basic_out \<cc> \<xx>"
+lemma typed_rtl: "typed_basic_in \<aa> \<xx> \<bowtie> typed_basic_out \<aa> \<xx>"
   by (fact rtl)
 
-lemma typed_sending: "\<cc> \<triangleleft>\<degree> \<xx> \<rightarrow>\<^sub>\<flat>\<lbrace>\<cc> \<triangleleft>\<degree> \<xx>\<rbrace> \<zero>"
+lemma typed_sending: "\<aa> \<triangleleft>\<degree> \<xx> \<rightarrow>\<^sub>\<flat>\<lbrace>\<aa> \<triangleleft>\<degree> \<xx>\<rbrace> \<zero>"
   by (fact sending)
-lemma typed_receiving: "\<cc> \<triangleright>\<degree> \<xx>. \<PP> \<xx> \<rightarrow>\<^sub>\<flat>\<lbrace>\<cc> \<triangleright>\<degree> \<xx>\<rbrace> \<PP> \<xx>"
+lemma typed_receiving: "\<aa> \<triangleright>\<degree> \<xx>. \<PP> \<xx> \<rightarrow>\<^sub>\<flat>\<lbrace>\<aa> \<triangleright>\<degree> \<xx>\<rbrace> \<PP> \<xx>"
   using receiving and typed_untyped_value
   by metis
 lemma typed_opening: "\<nu>\<degree>\<aa>. \<PP> \<aa> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<PP> \<aa>"

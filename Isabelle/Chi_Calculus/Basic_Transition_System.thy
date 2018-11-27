@@ -17,9 +17,9 @@ datatype basic_action =
   IO io_action |
   BasicSilent ("\<tau>")
 abbreviation BasicOutAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleleft>" 100) where
-  "c \<triangleleft> x \<equiv> IO (BasicOut c x)"
+  "a \<triangleleft> x \<equiv> IO (BasicOut a x)"
 abbreviation BasicInAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleright>" 100) where
-  "c \<triangleright> x \<equiv> IO (BasicIn c x)"
+  "a \<triangleright> x \<equiv> IO (BasicIn a x)"
 
 subsection \<open>Residuals\<close>
 
@@ -164,9 +164,9 @@ inductive
   (infix "\<bowtie>" 50)
 where
   ltr:
-    "BasicOut c x \<bowtie> BasicIn c x" |
+    "BasicOut a x \<bowtie> BasicIn a x" |
   rtl:
-    "BasicIn c x \<bowtie> BasicOut c x"
+    "BasicIn a x \<bowtie> BasicOut a x"
 
 text \<open>
   The communication relation is symmetric.
@@ -189,9 +189,9 @@ inductive
   (infix "\<rightarrow>\<^sub>\<flat>" 50)
 where
   sending:
-    "c \<triangleleft> x \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> x\<rbrace> \<zero>" |
+    "a \<triangleleft> x \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> \<zero>" |
   receiving:
-    "c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleright> x\<rbrace> P x" |
+    "a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleright> x\<rbrace> P x" |
   communication:
     "\<lbrakk> \<eta> \<bowtie> \<mu>; p \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'; q \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q' \<rbrakk> \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> p' \<parallel> q'" |
   opening:
@@ -263,12 +263,12 @@ text \<open>
   Only certain transitions are possible from send and receive processes.
 \<close>
 
-lemma basic_transitions_from_send: "c \<triangleleft> x \<rightarrow>\<^sub>\<flat>d \<Longrightarrow> d = \<lbrace>c \<triangleleft> x\<rbrace> \<zero>"
+lemma basic_transitions_from_send: "a \<triangleleft> x \<rightarrow>\<^sub>\<flat>d \<Longrightarrow> d = \<lbrace>a \<triangleleft> x\<rbrace> \<zero>"
 proof -
-  fix c and x and d
-  assume "c \<triangleleft> x \<rightarrow>\<^sub>\<flat>d"
-  then show "d = \<lbrace>c \<triangleleft> x\<rbrace> \<zero>"
-  proof (induction "c \<triangleleft> x :: process" d)
+  fix a and x and d
+  assume "a \<triangleleft> x \<rightarrow>\<^sub>\<flat>d"
+  then show "d = \<lbrace>a \<triangleleft> x\<rbrace> \<zero>"
+  proof (induction "a \<triangleleft> x :: process" d)
     case sending
     show ?case by (fact refl)
   next
@@ -280,9 +280,9 @@ proof -
   qed
 qed
 lemma basic_transitions_from_receive:
-  assumes "c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>d"
-  obtains x where "d = \<lbrace>c \<triangleright> x\<rbrace> P x"
-using assms proof (induction "c \<triangleright> x. P x" d)
+  assumes "a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>d"
+  obtains x where "d = \<lbrace>a \<triangleright> x\<rbrace> P x"
+using assms proof (induction "a \<triangleright> x. P x" d)
   case receiving
   then show ?case by simp
 next
@@ -297,9 +297,9 @@ text \<open>
   No opening transitions are possible from send and receive processes.
 \<close>
 
-lemma no_opening_transitions_from_send: "\<not> c \<triangleleft> x \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
+lemma no_opening_transitions_from_send: "\<not> a \<triangleleft> x \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b"
   using basic_transitions_from_send by fastforce
-lemma no_opening_transitions_from_receive: "\<not> c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a"
+lemma no_opening_transitions_from_receive: "\<not> a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b"
   using basic_transitions_from_receive by fastforce
 
 subsection \<open>Concrete Bisimilarities\<close>
@@ -414,12 +414,12 @@ end
 
 context begin
 
-private lemma basic_pre_receive_preservation: "(\<And>x. P x \<sim>\<^sub>\<flat> Q x) \<Longrightarrow> c \<triangleright> x. P x \<lesssim>\<^sub>\<flat> c \<triangleright> x. Q x"
+private lemma basic_pre_receive_preservation: "(\<And>x. P x \<sim>\<^sub>\<flat> Q x) \<Longrightarrow> a \<triangleright> x. P x \<lesssim>\<^sub>\<flat> a \<triangleright> x. Q x"
 proof (standard, intro allI, intro impI)
   assume "\<And>x. P x \<sim>\<^sub>\<flat> Q x"
   fix d
-  assume "c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>d"
-  then show "\<exists>e. c \<triangleright> x. Q x \<rightarrow>\<^sub>\<flat>e \<and> basic_lift (\<sim>\<^sub>\<flat>) d e"
+  assume "a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>d"
+  then show "\<exists>e. a \<triangleright> x. Q x \<rightarrow>\<^sub>\<flat>e \<and> basic_lift (\<sim>\<^sub>\<flat>) d e"
   proof cases
     case receiving
     with `\<And>x. P x \<sim>\<^sub>\<flat> Q x` show ?thesis
@@ -428,7 +428,7 @@ proof (standard, intro allI, intro impI)
   qed (simp_all add: no_opening_transitions_from_receive)
 qed
 
-lemma basic_receive_preservation: "(\<And>x. P x \<sim>\<^sub>\<flat> Q x) \<Longrightarrow> c \<triangleright> x. P x \<sim>\<^sub>\<flat> c \<triangleright> x. Q x"
+lemma basic_receive_preservation: "(\<And>x. P x \<sim>\<^sub>\<flat> Q x) \<Longrightarrow> a \<triangleright> x. P x \<sim>\<^sub>\<flat> a \<triangleright> x. Q x"
   by (simp add: basic_pre_receive_preservation)
 
 end

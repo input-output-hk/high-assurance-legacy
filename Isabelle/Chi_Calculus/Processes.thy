@@ -32,7 +32,7 @@ syntax
   "_Receive" :: "chan \<Rightarrow> pttrn \<Rightarrow> process \<Rightarrow> process"
   ("(3_ \<triangleright> _./ _)" [101, 0, 100] 100)
 translations
-  "c \<triangleright> x. p" \<rightleftharpoons> "CONST Receive c (\<lambda>x. p)"
+  "a \<triangleright> x. p" \<rightleftharpoons> "CONST Receive a (\<lambda>x. p)"
 
 text \<open>
   We define guarding of processes at the host-language level.

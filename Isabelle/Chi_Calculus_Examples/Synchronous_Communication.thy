@@ -17,23 +17,23 @@ subsection \<open>Communication primitives\<close>
 abbreviation
   sync_send :: "['a::countable sync_channel, 'a, process] \<Rightarrow> process" ("(3_ \<triangleleft>\<^sup>\<leftrightarrow> _./ _)" [101, 0, 100] 100)
 where
-  "sync_send c x P \<equiv> \<nu>\<degree> sreply. (c \<triangleleft>\<degree> sreply \<parallel> sreply \<triangleright>\<degree> rreply. (rreply \<triangleleft>\<degree> x \<parallel> P))"
+  "sync_send a x P \<equiv> \<nu>\<degree> sreply. (a \<triangleleft>\<degree> sreply \<parallel> sreply \<triangleright>\<degree> rreply. (rreply \<triangleleft>\<degree> x \<parallel> P))"
 
 abbreviation
   sync_recv :: "['a::countable sync_channel, 'a \<Rightarrow> process] \<Rightarrow> process"
 where
-  "sync_recv c \<P> \<equiv> c \<triangleright>\<degree> sreply. \<nu>\<degree> rreply. (sreply \<triangleleft>\<degree> rreply \<parallel> rreply \<triangleright>\<degree> x. \<P> x)"
+  "sync_recv a \<P> \<equiv> a \<triangleright>\<degree> sreply. \<nu>\<degree> rreply. (sreply \<triangleleft>\<degree> rreply \<parallel> rreply \<triangleright>\<degree> x. \<P> x)"
 
 syntax
   "_sync_recv" :: "['a sync_channel, pttrn, process]\<Rightarrow> process"
   ("(3_ \<triangleright>\<^sup>\<leftrightarrow> _./ _)" [101, 0, 100] 100)
 translations
-  "c \<triangleright>\<^sup>\<leftrightarrow> x. P" \<rightleftharpoons> "CONST sync_recv c (\<lambda>x. P)"
+  "a \<triangleright>\<^sup>\<leftrightarrow> x. P" \<rightleftharpoons> "CONST sync_recv a (\<lambda>x. P)"
 
 subsection \<open>Properties\<close>
 
 (* TODO: Prove it. *)
-lemma sync_communication: "\<nu>\<degree> c. (c \<triangleleft>\<^sup>\<leftrightarrow> x. P \<parallel> c \<triangleright>\<^sup>\<leftrightarrow> x. \<Q> x) \<approx>\<^sub>\<flat> \<nu>\<degree> c. (P \<parallel> \<Q> x)" sorry
+lemma sync_communication: "\<nu>\<degree> a. (a \<triangleleft>\<^sup>\<leftrightarrow> x. P \<parallel> a \<triangleright>\<^sup>\<leftrightarrow> x. \<Q> x) \<approx>\<^sub>\<flat> \<nu>\<degree> a. (P \<parallel> \<Q> x)" sorry
 
 subsection \<open>Examples\<close>
 

@@ -22,9 +22,9 @@ where
   simple:
     "\<exists>r s. p \<Rightarrow>\<^sup>\<tau> r \<and> r \<rightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> s \<and> s \<Rightarrow>\<^sup>\<tau> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q" |
   output_without_opening:
-    "\<exists>r s. p \<Rightarrow>\<^sup>\<tau> r \<and> r \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> s \<and> s \<Rightarrow>\<^sup>\<tau> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> q" |
+    "\<exists>r s. p \<Rightarrow>\<^sup>\<tau> r \<and> r \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> s \<and> s \<Rightarrow>\<^sup>\<tau> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q" |
   output_with_opening:
-    "\<exists>Q. p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<and> (\<forall>a. Q a \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> K a) \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<nu> a. K a"
+    "\<exists>Q. p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b \<and> (\<forall>b. Q b \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> K b) \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> \<nu> b. K b"
 
 (*** NOTE: \<tau>-prefix simulation, just to be used in examples. ***)
 abbreviation
@@ -50,27 +50,27 @@ proof -
   then show ?thesis using scoped_acting and A by simp
 qed
 
-lemma "\<nu>\<degree> x. c \<triangleleft>\<degree> x \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree> x\<rbrace> c \<triangleleft>\<degree> x"
+lemma "\<nu>\<degree> x. a \<triangleleft>\<degree> x \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree> x\<rbrace> a \<triangleleft>\<degree> x"
   by (simp add: weak_tau_respecting_basic_transition_opening)
 
-lemma "\<And>x. c \<triangleleft>\<degree> x \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft>\<degree> x\<rparr> \<zero>"
+lemma "\<And>x. a \<triangleleft>\<degree> x \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft>\<degree> x\<rparr> \<zero>"
   using
     proper_transition.output_without_opening and
     typed_sending and
     weak_tau_respecting_proper_transition.output_without_opening
   by fastforce
 
-lemma "\<And>x. c \<triangleleft> x \<parallel> \<tau>. \<zero> \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> \<zero> \<parallel> \<nu> z. (\<zero> \<parallel> \<zero>)"
+lemma "\<And>x. a \<triangleleft> x \<parallel> \<tau>. \<zero> \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> \<zero> \<parallel> \<nu> z. (\<zero> \<parallel> \<zero>)"
 proof -
-  have "\<And>x. c \<triangleleft> x \<parallel> \<tau>. \<zero> \<Rightarrow>\<^sup>\<tau> c \<triangleleft> x \<parallel> \<tau>. \<zero>"
+  have "\<And>x. a \<triangleleft> x \<parallel> \<tau>. \<zero> \<Rightarrow>\<^sup>\<tau> a \<triangleleft> x \<parallel> \<tau>. \<zero>"
     by simp
-  moreover have "\<And>x. c \<triangleleft> x \<parallel> \<tau>. \<zero> \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> \<zero> \<parallel> \<tau>. \<zero>"
+  moreover have "\<And>x. a \<triangleleft> x \<parallel> \<tau>. \<zero> \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> \<zero> \<parallel> \<tau>. \<zero>"
   proof -
-    have "\<And>x. c \<triangleleft> x \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> x\<rbrace> \<zero>"
+    have "\<And>x. a \<triangleleft> x \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> \<zero>"
       using sending by simp
-    then have "\<And>x. c \<triangleleft> x \<parallel> \<tau>. \<zero> \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> x\<rbrace> \<zero> \<parallel> \<tau>. \<zero>"
+    then have "\<And>x. a \<triangleleft> x \<parallel> \<tau>. \<zero> \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> \<zero> \<parallel> \<tau>. \<zero>"
       using acting_left by simp
-    then show "\<And>x. c \<triangleleft> x \<parallel> \<tau>. \<zero> \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> \<zero> \<parallel> \<tau>. \<zero>"
+    then show "\<And>x. a \<triangleleft> x \<parallel> \<tau>. \<zero> \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> \<zero> \<parallel> \<tau>. \<zero>"
       using proper_transition.output_without_opening by simp
   qed
   moreover have "\<zero> \<parallel> \<tau>. \<zero> \<Rightarrow>\<^sup>\<tau> \<zero> \<parallel> \<nu> z. (\<zero> \<parallel> \<zero>)"
@@ -82,25 +82,25 @@ proof -
     then show "\<zero> \<parallel> \<tau>. \<zero> \<Rightarrow>\<^sup>\<tau> \<zero> \<parallel> \<nu> z. (\<zero> \<parallel> \<zero>)"
       using tau_transition_is_tau_sequence by simp
   qed
-  ultimately show "\<And>x. c \<triangleleft> x \<parallel> \<tau>. \<zero> \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> \<zero> \<parallel> \<nu> z. (\<zero> \<parallel> \<zero>)"
+  ultimately show "\<And>x. a \<triangleleft> x \<parallel> \<tau>. \<zero> \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> \<zero> \<parallel> \<nu> z. (\<zero> \<parallel> \<zero>)"
     using weak_tau_respecting_proper_transition.output_without_opening by fastforce
 qed
 
 (* TODO: Prove it. *)
-lemma "\<nu>\<degree> x. c \<triangleleft>\<degree> x \<parallel> \<tau>. \<zero> \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft>\<degree> \<nu>\<degree> x. x\<rparr> \<zero> \<parallel> \<nu>\<degree> z. (\<zero> \<parallel> \<zero>)" sorry
+lemma "\<nu>\<degree> x. a \<triangleleft>\<degree> x \<parallel> \<tau>. \<zero> \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft>\<degree> \<nu>\<degree> x. x\<rparr> \<zero> \<parallel> \<nu>\<degree> z. (\<zero> \<parallel> \<zero>)" sorry
 
 (* TODO: Prove it. *)
-lemma lem5: "\<nu>\<degree> x y. c \<triangleleft>\<degree> (x, y) \<parallel> \<tau>. \<zero> \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft>\<degree> \<nu>\<degree> x y. (x, y)\<rparr> \<zero> \<parallel> \<nu>\<degree> z. (\<zero> \<parallel> \<zero>)" sorry
+lemma lem5: "\<nu>\<degree> x y. a \<triangleleft>\<degree> (x, y) \<parallel> \<tau>. \<zero> \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft>\<degree> \<nu>\<degree> x y. (x, y)\<rparr> \<zero> \<parallel> \<nu>\<degree> z. (\<zero> \<parallel> \<zero>)" sorry
 
 (*** Intro rules ***)
 
 lemma weak_tau_respecting_proper_transition_simple_intro: "\<lbrakk> p \<Rightarrow>\<^sup>\<tau> r; r \<rightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> s; s \<Rightarrow>\<^sup>\<tau> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q"
   using weak_tau_respecting_proper_transition.simple by fastforce
 
-lemma weak_tau_respecting_proper_transition_output_without_opening_intro: "\<lbrakk> p \<Rightarrow>\<^sup>\<tau> r; r \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> s; s \<Rightarrow>\<^sup>\<tau> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> q"
+lemma weak_tau_respecting_proper_transition_output_without_opening_intro: "\<lbrakk> p \<Rightarrow>\<^sup>\<tau> r; r \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> s; s \<Rightarrow>\<^sup>\<tau> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q"
   using weak_tau_respecting_proper_transition.output_without_opening by fastforce
 
-lemma weak_tau_respecting_proper_transition_output_with_opening_intro: "\<lbrakk> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a; \<And>a. Q a \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> K a \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<nu> a. K a"
+lemma weak_tau_respecting_proper_transition_output_with_opening_intro: "\<lbrakk> p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b; \<And>b. Q b \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> K b \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> \<nu> b. K b"
   using weak_tau_respecting_proper_transition.output_with_opening by fastforce
 
 (*** Elim rules ***)
@@ -111,14 +111,14 @@ proof (induction p "\<lparr>\<delta>\<rparr> q" rule: weak_tau_respecting_proper
   then show ?case by simp
 qed
 
-lemma weak_tau_respecting_proper_transition_output_without_opening_elim: "p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> q \<Longrightarrow> \<exists>r s. p \<Rightarrow>\<^sup>\<tau> r \<and> r \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> s \<and> s \<Rightarrow>\<^sup>\<tau> q"
-proof (induction p "\<lparr>c \<triangleleft> x\<rparr> q" rule: weak_tau_respecting_proper_transition.induct)
+lemma weak_tau_respecting_proper_transition_output_without_opening_elim: "p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q \<Longrightarrow> \<exists>r s. p \<Rightarrow>\<^sup>\<tau> r \<and> r \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> s \<and> s \<Rightarrow>\<^sup>\<tau> q"
+proof (induction p "\<lparr>a \<triangleleft> x\<rparr> q" rule: weak_tau_respecting_proper_transition.induct)
   case output_without_opening
   then show ?case by simp
 qed
 
-lemma weak_tau_respecting_proper_transition_output_with_opening_elim: "p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<nu> a. K a \<Longrightarrow> \<exists>Q. p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<and> (\<forall>a. Q a \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> K a)"
-proof (induction p "\<lparr>c \<triangleleft> \<nu> a. K a" arbitrary: K rule: weak_tau_respecting_proper_transition.induct)
+lemma weak_tau_respecting_proper_transition_output_with_opening_elim: "p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> \<nu> b. K b \<Longrightarrow> \<exists>Q. p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b \<and> (\<forall>b. Q b \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> K b)"
+proof (induction p "\<lparr>a \<triangleleft> \<nu> b. K b" arbitrary: K rule: weak_tau_respecting_proper_transition.induct)
   case output_with_opening
   then show ?case by auto
 qed
@@ -128,11 +128,11 @@ qed
 lemma weak_tau_respecting_proper_transition_single_simple: "p \<rightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q"
   using weak_tau_respecting_proper_transition_simple_intro by blast
 
-lemma weak_tau_respecting_proper_transition_single_output_without_opening: "p \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> q"
+lemma weak_tau_respecting_proper_transition_single_output_without_opening: "p \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q"
   using weak_tau_respecting_proper_transition_output_without_opening_intro by blast
 
-lemma weak_tau_respecting_proper_transition_single_output_with_opening: "p \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<nu> a. K a \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<nu> a. K a"
-proof (induction p "\<lparr>c \<triangleleft> \<nu> a. K a" arbitrary: K rule: proper_transition.induct)
+lemma weak_tau_respecting_proper_transition_single_output_with_opening: "p \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> \<nu> b. K b \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> \<nu> b. K b"
+proof (induction p "\<lparr>a \<triangleleft> \<nu> b. K b" arbitrary: K rule: proper_transition.induct)
   case (output_with_opening p Q K)
   then show ?case
    (* TODO: Find a better proof. *)
@@ -160,11 +160,11 @@ lemma prepend_tau_sequence_to_weak_tau_respecting_proper_transition_simple: "\<l
   (* TODO: Find a better proof (see `prepend_tau_sequence_to_weak_tau_respecting_basic_transition_acting`) *)
   by (metis (no_types, lifting) tau_sequence_trans weak_tau_respecting_proper_transition_simple_elim weak_tau_respecting_proper_transition_simple_intro)
 
-lemma prepend_tau_sequence_to_weak_tau_respecting_proper_transition_output_without_opening: "\<lbrakk> p \<Rightarrow>\<^sup>\<tau> r; r \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> q"
+lemma prepend_tau_sequence_to_weak_tau_respecting_proper_transition_output_without_opening: "\<lbrakk> p \<Rightarrow>\<^sup>\<tau> r; r \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q"
   (* TODO: Find a better proof. *)
   by (smt rtrancl_trans weak_tau_respecting_proper_transition.output_without_opening weak_tau_respecting_proper_transition_output_without_opening_elim)
 
-lemma prepend_tau_sequence_to_weak_tau_respecting_proper_transition_output_with_opening: "\<lbrakk> p \<Rightarrow>\<^sup>\<tau> r; r \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<nu> a. K a \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<nu> a. K a"
+lemma prepend_tau_sequence_to_weak_tau_respecting_proper_transition_output_with_opening: "\<lbrakk> p \<Rightarrow>\<^sup>\<tau> r; r \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> \<nu> a. K a \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> \<nu> a. K a"
   (* TODO: Find a better proof. *)
   by (metis (no_types, lifting) prepend_tau_sequence_to_weak_tau_respecting_basic_transition_opening weak_tau_respecting_proper_transition.output_with_opening weak_tau_respecting_proper_transition_output_with_opening_elim)
 
@@ -172,12 +172,12 @@ lemma append_tau_sequence_to_weak_tau_respecting_proper_transition_simple: "\<lb
   (* TODO: Find a better proof (see `append_tau_sequence_to_weak_tau_respecting_basic_transition_acting`) *)
   by (metis (no_types, lifting) converse_rtrancl_into_rtrancl rtrancl_idemp weak_tau_respecting_proper_transition.simple weak_tau_respecting_proper_transition_simple_elim)
 
-lemma append_tau_sequence_to_weak_tau_respecting_proper_transition_output_without_opening: "\<lbrakk> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> r; r \<Rightarrow>\<^sup>\<tau> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> q"
+lemma append_tau_sequence_to_weak_tau_respecting_proper_transition_output_without_opening: "\<lbrakk> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> r; r \<Rightarrow>\<^sup>\<tau> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q"
   (* TODO: Find a better proof. *)
   by (metis (no_types, lifting) tau_sequence_trans weak_tau_respecting_proper_transition_output_without_opening_elim weak_tau_respecting_proper_transition_output_without_opening_intro)
 
 (* NOTE: Check that a lemma like the following lemma makes some sense.
-lemma append_tau_sequence_to_weak_tau_respecting_proper_transition_output_with_opening: "\<lbrakk> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<nu> a. K a; ? \<Rightarrow>\<^sup>\<tau> q \<rbrakk> \<Longrightarrow> ?"
+lemma append_tau_sequence_to_weak_tau_respecting_proper_transition_output_with_opening: "\<lbrakk> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> \<nu> a. K a; ? \<Rightarrow>\<^sup>\<tau> q \<rbrakk> \<Longrightarrow> ?"
 *)
 
 (** Lifted weak \<tau>-respecting proper operational semantics **)
@@ -186,7 +186,7 @@ lemma weak_tau_respecting_proper_transition_simple: "p \<Longrightarrow>\<^sub>\
   (* TODO: Find a better proof. *)
   using proper_transition.simple weak_tau_respecting_basic_transition_acting_elim weak_tau_respecting_proper_transition_simple_intro by blast
 
-lemma weak_tau_respecting_proper_transition_output_without_opening: "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> x\<rbrace> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> q"
+lemma weak_tau_respecting_proper_transition_output_without_opening: "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q"
   (* TODO: Find a better proof. *)
   using output_without_opening weak_tau_respecting_basic_transition_acting_elim weak_tau_respecting_proper_transition_output_without_opening_intro sorry
 
@@ -198,8 +198,8 @@ definition weak_proper_transition :: "process \<Rightarrow> proper_residual \<Ri
    "p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<equiv>
       case d of
         \<lparr>\<delta>\<rparr> q \<Rightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q \<or> (\<delta> = \<tau> \<and> p = q) |
-        \<lparr>c \<triangleleft> x\<rparr> q \<Rightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> q |
-        Output c K \<Rightarrow> p \<Longrightarrow>\<^sub>\<sharp> Output c K"
+        \<lparr>a \<triangleleft> x\<rparr> q \<Rightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q |
+        Output a K \<Rightarrow> p \<Longrightarrow>\<^sub>\<sharp> Output a K"
 
 lemma prepend_tau_transition_to_weak_proper_transition: "\<lbrakk> p \<rightarrow>\<^sub>\<sharp>\<lparr>\<tau>\<rparr> r; r \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<delta>\<rparr> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<delta>\<rparr> q"
 proof -
@@ -278,7 +278,7 @@ lemma weak_proper_transition_induction
 lemma weak_proper_transition_single_simple: "p \<rightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<delta>\<rparr> q"
   using weak_tau_respecting_proper_transition_simple_intro and weak_proper_transition_step_intro by fastforce
 
-lemma weak_proper_transition_single_output_without_opening: "p \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>c \<triangleleft> x\<rparr> q"
+lemma weak_proper_transition_single_output_without_opening: "p \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>a \<triangleleft> x\<rparr> q"
   using weak_proper_transition_def and weak_tau_respecting_proper_transition_single_output_without_opening by simp
 
 lemma prepend_tau_sequence_to_weak_proper_transition: "\<lbrakk> p \<Rightarrow>\<^sup>\<tau> r; r \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<delta>\<rparr> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<delta>\<rparr> q"
@@ -339,31 +339,31 @@ lemma weak_proper_transition_simple: "p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\
   (* TODO: Find a nicer proof. *)
   by (smt basic_action.distinct(1) basic_action_of.simps(1) basic_residual.simps(5) proper_action.exhaust proper_residual.simps(5) weak_basic_transition_def weak_proper_transition_def weak_tau_respecting_proper_transition_simple)
 
-lemma weak_proper_transition_output_without_opening: "p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>c \<triangleleft> x\<rbrace> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>c \<triangleleft> x\<rparr> q"
+lemma weak_proper_transition_output_without_opening: "p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>a \<triangleleft> x\<rbrace> q \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>a \<triangleleft> x\<rparr> q"
   by (simp add: weak_basic_transition_def weak_proper_transition_def weak_tau_respecting_proper_transition_output_without_opening)
 
-lemma weak_proper_transition_output_with_opening: "\<lbrakk> p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<nu> a\<rbrace> Q a; \<And>a. Q a \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>c \<triangleleft> K a \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>c \<triangleleft> \<nu> a. K a"
+lemma weak_proper_transition_output_with_opening: "\<lbrakk> p \<Longrightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<nu> b\<rbrace> Q b; \<And>b. Q b \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>a \<triangleleft> K b \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>a \<triangleleft> \<nu> b. K b"
   (* TODO: Find a nicer proof. *)
   by (smt basic_residual.simps(6) output_rest.exhaust output_rest.simps(5) output_rest.simps(6) proper_residual.simps(6) weak_basic_transition_def weak_proper_transition_def weak_tau_respecting_proper_transition.output_with_opening)
 
 (** Misc proofs **)
 
-lemma weak_proper_transition_sending: "c \<triangleleft> x \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>c \<triangleleft> x\<rparr> \<zero>"
+lemma weak_proper_transition_sending: "a \<triangleleft> x \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>a \<triangleleft> x\<rparr> \<zero>"
 proof -
-  have "c \<triangleleft> x \<Longrightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> \<zero>"
+  have "a \<triangleleft> x \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> \<zero>"
   proof -
-    have "c \<triangleleft> x \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> x\<rbrace> \<zero>" using sending by simp
-    then have "c \<triangleleft> x \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> \<zero>" using proper_transition.output_without_opening by simp
+    have "a \<triangleleft> x \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> \<zero>" using sending by simp
+    then have "a \<triangleleft> x \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> \<zero>" using proper_transition.output_without_opening by simp
     then show ?thesis using weak_tau_respecting_proper_transition_single_output_without_opening by simp
   qed
   then show ?thesis by (simp add: weak_proper_transition_def)
 qed
 
-lemma weak_proper_transition_receiving: "c \<triangleright> x. P x \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>c \<triangleright> x\<rparr> P x"
+lemma weak_proper_transition_receiving: "a \<triangleright> x. P x \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>a \<triangleright> x\<rparr> P x"
 proof -
-  have "c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleright> x\<rbrace> P x"
+  have "a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleright> x\<rbrace> P x"
     using receiving by simp
-  then have "c \<triangleright> x. P x \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleright> x\<rparr> P x"
+  then have "a \<triangleright> x. P x \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleright> x\<rparr> P x"
     using proper_transition.simple by simp
   then show ?thesis
     using weak_proper_transition_single_simple by simp
@@ -414,7 +414,7 @@ lemma weak_proper_sim_transitivity:
 (*** Preservation laws for simulation. ***)
 
 (* TODO: Prove it. *)
-lemma pre_weak_proper_receive_preservation: "(\<And>x. \<X> (P x) (Q x)) \<Longrightarrow> c \<triangleright>\<degree> x. P x \<leadsto>\<^sub>\<sharp><\<X>> c \<triangleright>\<degree> x. Q x" sorry
+lemma pre_weak_proper_receive_preservation: "(\<And>x. \<X> (P x) (Q x)) \<Longrightarrow> a \<triangleright>\<degree> x. P x \<leadsto>\<^sub>\<sharp><\<X>> a \<triangleright>\<degree> x. Q x" sorry
 
 (* TODO: Prove it. *)
 lemma pre_left_weak_proper_parallel_preservation:
@@ -540,7 +540,7 @@ lemma weak_proper_new_channel_preservation: "(\<And>a. P a \<approx>\<^sub>\<sha
 
 (*** Structural congruence laws ***)
 
-lemma weak_proper_receive_scope_extension: "c \<triangleright> x. \<nu> a. P x a \<approx>\<^sub>\<sharp> \<nu> a. c \<triangleright> x. P x a"
+lemma weak_proper_receive_scope_extension: "a \<triangleright> x. \<nu> b. P x b \<approx>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
   using strong_proper_bisim_imp_weak_proper_bisim and proper_receive_scope_extension by simp
 
 lemma weak_proper_parallel_scope_extension: "\<nu> a. P a \<parallel> q \<approx>\<^sub>\<sharp> \<nu> a. (P a \<parallel> q)"

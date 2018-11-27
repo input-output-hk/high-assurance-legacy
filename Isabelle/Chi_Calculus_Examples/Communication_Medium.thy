@@ -60,23 +60,23 @@ where
 
 (** Auxiliary lemmas **)
 
-lemma proper_output_is_basic_sending: "p \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> q \<Longrightarrow> p \<rightarrow>\<^sub>\<flat>\<lbrace>c \<triangleleft> x\<rbrace> q"
+lemma proper_output_is_basic_sending: "p \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q \<Longrightarrow> p \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> q"
   using proper_transition.simps by blast
 
-lemma proper_sending: "c \<triangleleft> x \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> \<zero>"
+lemma proper_sending: "a \<triangleleft> x \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> \<zero>"
   using sending and proper_transition.output_without_opening by simp
 
-lemma proper_output_without_opening_res: "(\<And>a. P a \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> Q a) \<Longrightarrow> \<nu> a. P a \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> x\<rparr> \<nu> a. Q a"
+lemma proper_output_without_opening_res: "(\<And>b. P b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> Q b) \<Longrightarrow> \<nu> b. P b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> \<nu> b. Q b"
   using acting_scope proper_transition.output_without_opening and proper_output_is_basic_sending by simp
 
-lemma no_simple_transitions_from_output: "\<not> c \<triangleleft> x \<rightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q"
+lemma no_simple_transitions_from_output: "\<not> a \<triangleleft> x \<rightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q"
   by (metis basic_transitions_from_send basic_action.distinct(1) basic_action.inject basic_action_of.simps(1) basic_action_of.simps(2) basic_residual.inject(1) io_action.distinct(1) proper_action.exhaust proper_residual.distinct(1) proper_transition.simps)
 
-lemma no_opening_transitions_from_output: "\<not> c \<triangleleft> x \<rightarrow>\<^sub>\<sharp>\<lparr>c \<triangleleft> \<nu> a. K a"
+lemma no_opening_transitions_from_output: "\<not> a \<triangleleft> x \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> \<nu> a. K a"
   by (metis no_opening_transitions_from_send no_simple_transitions_from_output output_rest.distinct(1) proper_residual.inject(2) proper_transition.cases)
 
-lemma proper_transitions_from_output: "c \<triangleleft> x \<rightarrow>\<^sub>\<sharp> d \<Longrightarrow> d = \<lparr>c \<triangleleft> x\<rparr> \<zero>"
-proof (induction "c \<triangleleft> x :: process" d rule: proper_transition.induct)
+lemma proper_transitions_from_output: "a \<triangleleft> x \<rightarrow>\<^sub>\<sharp> d \<Longrightarrow> d = \<lparr>a \<triangleleft> x\<rparr> \<zero>"
+proof (induction "a \<triangleleft> x :: process" d rule: proper_transition.induct)
   case simple
   then show ?case
     using no_simple_transitions_from_output and proper_transition.simple by blast
@@ -91,10 +91,10 @@ next
 qed
 
 lemma proper_transitions_from_receive:
-  assumes "c \<triangleright> x. P x \<rightarrow>\<^sub>\<sharp> d"
-  obtains x where "d = \<lparr>c \<triangleright> x\<rparr> P x"
+  assumes "a \<triangleright> x. P x \<rightarrow>\<^sub>\<sharp> d"
+  obtains x where "d = \<lparr>a \<triangleright> x\<rparr> P x"
   using assms
-proof (induction "c \<triangleright> x. P x" d)
+proof (induction "a \<triangleright> x. P x" d)
   case simple
   then show ?case
   proof cases
@@ -117,7 +117,7 @@ next
     using no_opening_transitions_from_receive by blast
 qed
 
-lemma basic_communication_ltr: "c \<triangleleft> x \<parallel> c \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<zero> \<parallel> P x"
+lemma basic_communication_ltr: "a \<triangleleft> x \<parallel> a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<zero> \<parallel> P x"
   using basic_transition.intros(2) communication ltr sending by blast
 
 (** Bisimulation relation. **)
@@ -166,10 +166,10 @@ proof -
     then show ?thesis sorry
   qed
   next
-  case (output_without_opening c x q)
+  case (output_without_opening a x q)
     then show ?case sorry
   next
-    case (output_with_opening Q c K)
+    case (output_with_opening Q a K)
     then show ?case sorry
   qed
 qed
