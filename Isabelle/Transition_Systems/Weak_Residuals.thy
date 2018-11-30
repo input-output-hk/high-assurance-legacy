@@ -35,7 +35,7 @@ abbreviation lift :: "(['process, 'process] \<Rightarrow> bool) \<Rightarrow> ([
   "lift \<X> \<equiv> absorb (\<X> OO silent)"
 
 sublocale residual lift
-proof unfold_locales
+proof
   fix \<X> :: "['process, 'process] \<Rightarrow> bool" and \<Y>
   assume "\<X> \<le> \<Y>"
   then have "\<X> OO silent \<le> \<Y> OO silent"
