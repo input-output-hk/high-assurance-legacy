@@ -1001,7 +1001,8 @@ private method parallel_unit_aux_trivial_conveyance =
     acting_right
     opening_right
     parallel_unit_aux.without_new_channel_rtl
-    basic_lift.intros)
+    basic_lift.intros
+  )
 
 lemma basic_parallel_unit: "\<zero> \<parallel> p \<sim>\<^sub>\<flat> p"
 proof (basic.bisimilarity_standard parallel_unit_aux)
