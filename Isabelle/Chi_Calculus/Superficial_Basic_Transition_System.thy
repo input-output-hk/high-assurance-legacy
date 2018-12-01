@@ -70,14 +70,14 @@ next
       then show ?case
         by (blast intro: superficial_basic_absorb.downward_absorption)
     next
-      case (acting_upward_absorption p q \<alpha>)
+      case acting_upward_absorption
       then show ?case
         by (blast
           elim: superficial_basic_absorb.cases
           intro: downward_absorption superficial_basic_absorb.acting_upward_absorption
         )
     next
-      case (opening_upward_absorption P Q)
+      case opening_upward_absorption
       then show ?case
         by (blast
           elim: superficial_basic_absorb.cases
