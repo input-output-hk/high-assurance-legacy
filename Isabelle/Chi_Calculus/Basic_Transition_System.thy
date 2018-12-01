@@ -623,6 +623,7 @@ context begin
 
 private inductive
   parallel_scope_extension_subaux :: "process \<Rightarrow> process \<Rightarrow> process \<Rightarrow> bool"
+  for q
 where
   without_new_channel: "
     parallel_scope_extension_subaux q p (p \<parallel> q)" |
@@ -897,7 +898,7 @@ next
           parallel_scope_extension_subaux.without_new_channel
         by blast
     next
-      case (with_new_channel q P T)
+      case (with_new_channel P T)
       then have "
         \<forall>a. \<exists>v. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> v \<and> parallel_scope_extension_subaux q' (P a) v"
         by simp
@@ -935,7 +936,7 @@ next
           parallel_scope_extension_subaux.without_new_channel
         by blast
     next
-      case (with_new_channel q P T)
+      case (with_new_channel P T)
       then have "
         \<forall>a. \<exists>V. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> V b \<and> (\<forall>b. parallel_scope_extension_subaux (Q b) (P a) (V b))"
         by simp
@@ -1082,6 +1083,7 @@ context begin
 
 private inductive
   nested_parallel_commutativity_subaux :: "process \<Rightarrow> process \<Rightarrow> process \<Rightarrow> bool"
+  for r
 where
   without_new_channel: "
     nested_parallel_commutativity_subaux r (p \<parallel> q) ((p \<parallel> r) \<parallel> q)" |
@@ -1365,7 +1367,7 @@ next
           nested_parallel_commutativity_subaux.without_new_channel
         by blast
     next
-      case (with_new_channel r U T)
+      case (with_new_channel U T)
       then have "
         \<forall>a. \<exists>v. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> v \<and> nested_parallel_commutativity_subaux r' (U a) v"
         by simp
@@ -1404,7 +1406,7 @@ next
           nested_parallel_commutativity_subaux.without_new_channel
         by blast
     next
-      case (with_new_channel r U T)
+      case (with_new_channel U T)
       then have "
         \<forall>a. \<exists>V. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> V b \<and> (\<forall>b. nested_parallel_commutativity_subaux (R b) (U a) (V b))"
         by simp
