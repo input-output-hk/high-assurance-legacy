@@ -5,20 +5,20 @@ theory Basic_Weak_Transition_System
 begin
 
 inductive basic_silent :: "[process, basic_residual] \<Rightarrow> bool" where
-  internal_is_silent: "basic_silent p (\<lbrace>\<tau>\<rbrace> p)"
+  basic_internal_is_silent: "basic_silent p (\<lbrace>\<tau>\<rbrace> p)"
 
 inductive
   basic_absorb :: "([process, basic_residual] \<Rightarrow> bool) \<Rightarrow> ([basic_residual, basic_residual] \<Rightarrow> bool)"
   for \<I>
 where
-  downward_absorption:
+  basic_downward_absorption:
     "\<I> p c \<Longrightarrow> basic_absorb \<I> (\<lbrace>\<tau>\<rbrace> p) c" |
   acting_upward_absorption:
     "\<I> p (\<lbrace>\<tau>\<rbrace> q) \<Longrightarrow> basic_absorb \<I> (\<lbrace>\<alpha>\<rbrace> p) (\<lbrace>\<alpha>\<rbrace> q)" |
   opening_upward_absorption:
     "(\<And>a. \<I> (P a) (\<lbrace>\<tau>\<rbrace> Q a)) \<Longrightarrow> basic_absorb \<I> (\<lbrace>\<nu> a\<rbrace> P a) (\<lbrace>\<nu> a\<rbrace> Q a)"
 
-lemmas upward_absorption = acting_upward_absorption opening_upward_absorption
+lemmas basic_upward_absorption = acting_upward_absorption opening_upward_absorption
 
 interpretation basic: weak_residual basic_silent basic_absorb
 proof
@@ -38,7 +38,7 @@ next
     fix p and c
     assume "\<I> p c"
     then show "(basic_silent OO basic_absorb \<I>) p c"
-      by (blast intro: internal_is_silent downward_absorption)
+      by (blast intro: basic_internal_is_silent basic_downward_absorption)
   qed
 next
   show "basic_absorb basic_silent = (=)"
@@ -51,7 +51,7 @@ next
     fix c :: basic_residual and d
     assume "c = d"
     then show "basic_absorb basic_silent c d"
-      by (cases c) (blast intro: internal_is_silent upward_absorption)+
+      by (cases c) (blast intro: basic_internal_is_silent basic_upward_absorption)+
   qed
 next
   fix \<I> and \<J>
@@ -63,22 +63,22 @@ next
       by blast
     then show "basic_absorb (\<I> OO basic_absorb \<J>) c e"
     proof induction
-      case downward_absorption
+      case basic_downward_absorption
       then show ?case
-        by (blast intro: basic_absorb.downward_absorption)
+        by (blast intro: basic_absorb.basic_downward_absorption)
     next
       case acting_upward_absorption
       then show ?case
         by (blast
           elim: basic_absorb.cases
-          intro: downward_absorption basic_absorb.acting_upward_absorption
+          intro: basic_downward_absorption basic_absorb.acting_upward_absorption
         )
     next
       case opening_upward_absorption
       then show ?case
         by (blast
           elim: basic_absorb.cases
-          intro: downward_absorption basic_absorb.opening_upward_absorption
+          intro: basic_downward_absorption basic_absorb.opening_upward_absorption
         )
     qed
   next
@@ -86,11 +86,11 @@ next
     assume "basic_absorb (\<I> OO basic_absorb \<J>) c e"
     then show "(basic_absorb \<I> OO basic_absorb \<J>) c e"
     proof induction
-      case (downward_absorption p e)
+      case (basic_downward_absorption p e)
       then obtain d where "\<I> p d" and "basic_absorb \<J> d e"
         by blast
       then show ?case
-        by (blast intro: basic_absorb.downward_absorption)
+        by (blast intro: basic_absorb.basic_downward_absorption)
     next
       case (acting_upward_absorption p r \<alpha>)
       then obtain q where "\<I> p (\<lbrace>\<tau>\<rbrace> q)" and "\<J> q (\<lbrace>\<tau>\<rbrace> r)"
@@ -115,23 +115,23 @@ next
     assume "basic_absorb (\<X>\<inverse>\<inverse> OO basic_silent) d c"
     then show "(basic_absorb (\<X> OO basic_silent))\<inverse>\<inverse> d c"
     proof induction
-      case (downward_absorption q c)
+      case (basic_downward_absorption q c)
       then obtain p where "\<X> p q" and "c = \<lbrace>\<tau>\<rbrace> p"
         by (blast elim: basic_silent.cases)
       then show ?case
-        by (blast intro: internal_is_silent basic_absorb.downward_absorption)
+        by (blast intro: basic_internal_is_silent basic_absorb.basic_downward_absorption)
     next
       case (acting_upward_absorption q p \<alpha>)
       then have "\<X> p q"
         by (blast elim: basic_silent.cases)
       then show ?case
-        by (blast intro: internal_is_silent basic_absorb.acting_upward_absorption)
+        by (blast intro: basic_internal_is_silent basic_absorb.acting_upward_absorption)
     next
       case (opening_upward_absorption Q P)
       then have "\<And>a. \<X> (P a) (Q a)"
         by (blast elim: basic_silent.cases)
       then show ?case
-        by (blast intro: internal_is_silent basic_absorb.opening_upward_absorption)
+        by (blast intro: basic_internal_is_silent basic_absorb.opening_upward_absorption)
     qed
   next
     fix d and c
@@ -140,23 +140,23 @@ next
       by blast
     then show "basic_absorb (\<X>\<inverse>\<inverse> OO basic_silent) d c"
     proof induction
-      case (downward_absorption p d)
+      case (basic_downward_absorption p d)
       then obtain q where "\<X> p q" and "d = \<lbrace>\<tau>\<rbrace> q"
         by (blast elim: basic_silent.cases)
       then show ?case
-        by (blast intro: internal_is_silent basic_absorb.downward_absorption)
+        by (blast intro: basic_internal_is_silent basic_absorb.basic_downward_absorption)
     next
       case (acting_upward_absorption p q \<alpha>)
       then have "\<X> p q"
         by (blast elim: basic_silent.cases)
       then show ?case
-        by (blast intro: internal_is_silent basic_absorb.acting_upward_absorption)
+        by (blast intro: basic_internal_is_silent basic_absorb.acting_upward_absorption)
     next
       case (opening_upward_absorption P Q)
       then have "\<And>a. \<X> (P a) (Q a)"
         by (blast elim: basic_silent.cases)
       then show ?case
-        by (blast intro: internal_is_silent basic_absorb.opening_upward_absorption)
+        by (blast intro: basic_internal_is_silent basic_absorb.opening_upward_absorption)
     qed
   qed
 qed
@@ -171,7 +171,7 @@ next
   fix \<X> and c and d
   assume "basic_lift \<X> c d"
   then show "basic_absorb (\<X> OO basic_silent) c d"
-    by (blast elim: basic_lift.cases intro: internal_is_silent upward_absorption)
+    by (blast elim: basic_lift.cases intro: basic_internal_is_silent basic_upward_absorption)
 qed
 
 interpretation basic: weak_transition_system basic_silent basic_absorb basic_transition
