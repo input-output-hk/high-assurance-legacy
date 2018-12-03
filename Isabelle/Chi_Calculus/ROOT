@@ -8,7 +8,7 @@ session Chi_Calculus (ouroboros) = Transition_Systems +
     Channels
     Processes
     Basic_Transition_System
-    Superficial_Basic_Transition_System
+    Basic_Weak_Transition_System
     Proper_Transition_System
     Typed_Channels
     Typed_Processes
