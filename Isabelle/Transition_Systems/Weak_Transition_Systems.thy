@@ -1,7 +1,7 @@
 section \<open>Weak Transition Systems\<close>
 
 theory Weak_Transition_Systems
-  imports Transition_Systems Weak_Residuals
+  imports Utilities Transition_Systems Weak_Residuals
 begin
 
 locale weak_transition_system =
@@ -64,7 +64,7 @@ next
         by blast
       let ?IH_2_core = "\<lambda>p\<^sub>1 c\<^sub>2. \<forall>q\<^sub>1. \<X> p\<^sub>1 q\<^sub>1 \<longrightarrow> (\<exists>d\<^sub>2. q\<^sub>1 \<Rightarrow> d\<^sub>2 \<and> lift \<X> c\<^sub>2 d\<^sub>2)"
       from composed_transition.IH(2) have "absorb ?IH_2_core c\<^sub>1 c'"
-        by under_absorb (fact conjunct2)
+        by (under mono: absorb_monotonicity) (fact conjunct2)
       with `lift \<X> c\<^sub>1 d\<^sub>1` have "(lift \<X>\<inverse>\<inverse> OO absorb ?IH_2_core) d\<^sub>1 c'"
         using lift_conversion_preservation
         by fastforce
@@ -72,7 +72,7 @@ next
         using absorb_pre_naturality
         by metis
       then have "absorb ((\<Rightarrow>) OO lift \<X>\<inverse>\<inverse>) d\<^sub>1 c'"
-      proof under_absorb
+      proof (under mono: absorb_monotonicity)
         fix q\<^sub>1 and c\<^sub>2
         assume "(\<X>\<inverse>\<inverse> OO ?IH_2_core) q\<^sub>1 c\<^sub>2"
         then obtain p\<^sub>1 where "\<X> p\<^sub>1 q\<^sub>1" and "?IH_2_core p\<^sub>1 c\<^sub>2"

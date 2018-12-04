@@ -1,7 +1,7 @@
 section \<open>Residuals\label{residuals}\<close>
 
 theory Residuals
-  imports Main "HOL-Library.Lattice_Syntax" "HOL-Eisbach.Eisbach"
+  imports Main "HOL-Library.Lattice_Syntax"
 begin
 
 text \<open>
@@ -50,14 +50,6 @@ locale residual =
   assumes lift_conversion_preservation:
     "lift \<X>\<inverse>\<inverse> = (lift \<X>)\<inverse>\<inverse>"
 begin
-
-text \<open>
-  Using \<open>lift_monotonicity\<close>, we define a proof method for reasoning under \<^term>\<open>lift\<close>. This
-  method expects a fact of the form \<^term>\<open>lift \<X> c d\<close> and a goal of the form
-  \<^term>\<open>lift \<Y> c d\<close> and generates the subgoal \<^term>\<open>\<And>p q. \<X> p q \<Longrightarrow> \<Y> p q\<close>.
-\<close>
-
-method under_lift = (elim predicate2D [OF lift_monotonicity, OF predicate2I, rotated])
 
 text \<open>
   (Reverse) weak preservation laws for the binary infimum and supremum operations follow from just
