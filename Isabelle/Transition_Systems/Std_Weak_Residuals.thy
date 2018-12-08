@@ -100,7 +100,8 @@ proof
   fix \<I> :: "['process, 'residual] \<Rightarrow> bool" and \<J>
   assume "\<I> \<le> \<J>"
   then show "absorb_downward \<I> \<squnion> absorb_upward \<I> \<le> absorb_downward \<J> \<squnion> absorb_upward \<J>"
-    by (intro sup_mono) (fact absorb_downward_monotonicity, fact absorb_upward_monotonicity)
+    using absorb_downward_monotonicity and absorb_upward_monotonicity
+    by (intro sup_mono)
 next
   fix \<I> :: "['process, 'residual] \<Rightarrow> bool"
   have "silent OO absorb_downward \<I> = \<I>"
