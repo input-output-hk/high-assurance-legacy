@@ -6,7 +6,10 @@ text \<open>
 \<close>
 
 theory Broadcaster
- imports Chi_Calculus.Typed_Processes "HOL-Library.BNF_Corec"
+  imports
+    Chi_Calculus.Typed_Processes
+    Chi_Calculus.Proper_Weak_Bisimulation
+    "HOL-Library.BNF_Corec"
 begin
 
 text \<open>
@@ -117,5 +120,58 @@ where
     receiver regs
     \<parallel>
     sender 0 inputs)"
+
+text \<open>
+  The following is the proof that the broadcasting process is observationally equivalent to a
+  process in which messages are forwarded to peers.
+\<close>
+
+(* Chaining operator. *)
+
+abbreviation
+  chaining_op :: "[[chan, chan] \<Rightarrow> process, [chan, chan] \<Rightarrow> process] \<Rightarrow> ([chan, chan] \<Rightarrow> process)" (infixr "\<frown>" 60)
+where
+  "chaining_op P Q \<equiv> \<lambda>inp out. \<nu> c. (P inp c \<parallel> Q c out)"
+
+(* TODO: Prove it. *)
+lemma chaining_op_associativity: "(P \<frown> Q) \<frown> R = P \<frown> (Q \<frown> R)"
+  sorry
+
+(* Forwarder process. *)
+
+definition
+  forwarder :: "[chan, chan] \<Rightarrow> process"
+where
+  "forwarder inp out \<equiv> inp \<triangleright> x. out \<triangleleft> x"
+
+(* TODO: Prove it. *)
+lemma prepend_forwarder_is_forwarder:
+  "P inp out \<approx>\<^sub>\<flat> forwarder inp out \<Longrightarrow> (forwarder \<frown> P) inp out \<approx>\<^sub>\<flat> forwarder inp out"
+  sorry
+
+abbreviation
+  chain :: "[nat, [chan, chan] \<Rightarrow> process] \<Rightarrow> ([chan, chan] \<Rightarrow> process)"
+where
+  "chain n P \<equiv> foldr (\<frown>) (replicate n P) P"
+
+lemma forwarder_chain_is_forwarder: "chain n forwarder inp out \<approx>\<^sub>\<flat> forwarder inp out"
+proof (induction n)
+  case 0
+  then have "chain 0 forwarder = forwarder"
+    by simp
+  then show ?case
+    by (simp add: weak_basic_bisim_reflexivity)
+next
+  case (Suc n)
+  let ?fs = "replicate n forwarder"
+  have "replicate (Suc n) forwarder = forwarder # ?fs"
+    by simp
+  then have "foldr (\<frown>) (forwarder # ?fs) forwarder = forwarder \<frown> foldr (\<frown>) ?fs forwarder"
+    by simp
+  moreover have "(foldr (\<frown>) ?fs forwarder) inp out \<approx>\<^sub>\<flat> forwarder inp out"
+    using Suc.IH by simp
+  ultimately show ?case
+    using prepend_forwarder_is_forwarder by simp
+qed
 
 end
