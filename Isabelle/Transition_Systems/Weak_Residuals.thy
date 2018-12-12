@@ -24,18 +24,11 @@ begin
   inductive definition of weak_transition work.
 *)
 
-text \<open>
-  Using \<open>absorb_monotonicity\<close>, we define a proof method for reasoning under \<^term>\<open>absorb\<close>. This
-  method works analogously to \<open>under_lift\<close> and \<open>under_transfer\<close>.
-\<close>
-
-method under_absorb = (elim predicate2D [OF absorb_monotonicity, OF predicate2I, rotated])
-
 abbreviation lift :: "(['process, 'process] \<Rightarrow> bool) \<Rightarrow> (['residual, 'residual] \<Rightarrow> bool)" where
   "lift \<X> \<equiv> absorb (\<X> OO silent)"
 
 sublocale residual lift
-proof unfold_locales
+proof
   fix \<X> :: "['process, 'process] \<Rightarrow> bool" and \<Y>
   assume "\<X> \<le> \<Y>"
   then have "\<X> OO silent \<le> \<Y> OO silent"
