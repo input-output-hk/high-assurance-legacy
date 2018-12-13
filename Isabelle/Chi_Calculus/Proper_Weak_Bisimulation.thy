@@ -535,7 +535,10 @@ qed
 (* TODO: Prove them. *)
 
 lemma weak_proper_receive_preservation: "(\<And>x. P x \<approx>\<^sub>\<sharp> Q x) \<Longrightarrow> m \<triangleright> x. P x \<approx>\<^sub>\<sharp> m \<triangleright> x. Q x" sorry
-lemma weak_proper_parallel_preservation: "p \<approx>\<^sub>\<sharp> q \<Longrightarrow> p \<parallel> r \<approx>\<^sub>\<sharp> q \<parallel> r" sorry
+lemma weak_proper_parallel_preservation:
+  assumes "p \<approx>\<^sub>\<sharp> q"
+  shows "p \<parallel> r \<approx>\<^sub>\<sharp> q \<parallel> r" and "r \<parallel> p \<approx>\<^sub>\<sharp> r \<parallel> q"
+  sorry
 lemma weak_proper_new_channel_preservation: "(\<And>a. P a \<approx>\<^sub>\<sharp> Q a) \<Longrightarrow> \<nu> a. P a \<approx>\<^sub>\<sharp> \<nu> a. Q a" sorry
 
 (*** Structural congruence laws ***)
