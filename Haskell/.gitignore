@@ -1,2 +1,2 @@
-.ghc.environment.*
-dist-newstyle
+/.ghc.environment.*
+/dist-newstyle
