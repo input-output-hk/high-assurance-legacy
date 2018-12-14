@@ -52,102 +52,61 @@ where
     "(\<And>a. \<X> (P a) (Q a)) \<Longrightarrow> basic_lift \<X> (\<lbrace>\<nu> a\<rbrace> P a) (\<lbrace>\<nu> a\<rbrace> Q a)"
 
 text \<open>
-  The \<^const>\<open>basic_lift\<close> operator has the properties of a residual lifting operator.
+  Equipping \<^type>\<open>basic_residual\<close> with \<^const>\<open>basic_lift\<close> leads to a residual structure.
 \<close>
 
-lemma basic_lift_monotonicity: "\<X> \<le> \<Y> \<Longrightarrow> basic_lift \<X> \<le> basic_lift \<Y>"
+interpretation basic: residual basic_lift
 proof
-  fix c and d
-  assume "basic_lift \<X> c d" and "\<X> \<le> \<Y>"
-  then show "basic_lift \<Y> c d" by induction (blast intro: basic_lift.intros)+
-qed
-lemma basic_lift_equality_preservation: "basic_lift (=) = (=)"
-proof (intro ext)
-  fix c\<^sub>1 and c\<^sub>2
-  show "basic_lift (=) c\<^sub>1 c\<^sub>2 \<longleftrightarrow> c\<^sub>1 = c\<^sub>2"
-  proof
+  fix \<X> :: "[process, process] \<Rightarrow> bool" and \<Y>
+  assume "\<X> \<le> \<Y>"
+  then show "basic_lift \<X> \<le> basic_lift \<Y>"
+    by (blast elim: basic_lift.cases intro: basic_lift.intros)
+next
+  show "basic_lift (=) = (=)"
+  proof (intro ext, intro iffI)
+    fix c\<^sub>1 and c\<^sub>2
     assume "basic_lift (=) c\<^sub>1 c\<^sub>2"
     then show "c\<^sub>1 = c\<^sub>2"
-      by induction simp_all
+      by cases blast+
   next
+    fix c\<^sub>1 :: basic_residual and c\<^sub>2
     assume "c\<^sub>1 = c\<^sub>2"
     then show "basic_lift (=) c\<^sub>1 c\<^sub>2"
-      by (induction c\<^sub>1 arbitrary: c\<^sub>2) (blast intro: basic_lift.intros)+
+      by (cases c\<^sub>1) (blast intro: basic_lift.intros)+
   qed
-qed
-lemma basic_lift_composition_preservation: "basic_lift (\<X> OO \<Y>) = basic_lift \<X> OO basic_lift \<Y>"
-proof (intro ext)
-  fix c and e
-  show "basic_lift (\<X> OO \<Y>) c e \<longleftrightarrow> (basic_lift \<X> OO basic_lift \<Y>) c e"
-  proof
+next
+  fix \<X> and \<Y>
+  show "basic_lift (\<X> OO \<Y>) = basic_lift \<X> OO basic_lift \<Y>"
+  proof (intro ext, intro iffI)
+    fix c and e
     assume "basic_lift (\<X> OO \<Y>) c e"
     then show "(basic_lift \<X> OO basic_lift \<Y>) c e"
     proof induction
       case (acting_lift p r \<alpha>)
-      then obtain q where "\<X> p q" and "\<Y> q r" by (elim relcomppE)
-      then show ?case by (blast intro: basic_lift.acting_lift)
+      then obtain q where "\<X> p q" and "\<Y> q r"
+        by (elim relcomppE)
+      then show ?case
+        by (blast intro: basic_lift.acting_lift)
     next
       case (opening_lift P R)
-      obtain Q where "\<And>a. \<X> (P a) (Q a)" and "\<And>a. \<Y> (Q a) (R a)"
-      proof -
-        from `\<And>a. (\<X> OO \<Y>) (P a) (R a)` have "\<forall>a. \<exists>q. \<X> (P a) q \<and> \<Y> q (R a)" by blast
-        then have "\<exists>Q. \<forall>a. \<X> (P a) (Q a) \<and> \<Y> (Q a) (R a)" by (fact choice)
-        with that show ?thesis by blast
-      qed
-      then show ?case by (blast intro: basic_lift.opening_lift)
+      then have "\<forall>a. \<exists>h. \<X> (P a) h \<and> \<Y> h (R a)"
+        by blast
+      then have "\<exists>Q. \<forall>a. \<X> (P a) (Q a) \<and> \<Y> (Q a) (R a)"
+        by (fact choice)
+      then show ?case
+        by (blast intro: basic_lift.opening_lift)
     qed
   next
+    fix c and e
     assume "(basic_lift \<X> OO basic_lift \<Y>) c e"
-    then obtain d where "basic_lift \<X> c d" and "basic_lift \<Y> d e" by (elim relcomppE)
     then show "basic_lift (\<X> OO \<Y>) c e"
-    proof (induction d arbitrary: c e rule: basic_residual.induct)
-      case Acting
-      then show ?case
-        using
-          basic_lift.cases and
-          basic_residual.inject(1) and
-          basic_residual.distinct(2) and
-          relcomppI and
-          basic_lift.acting_lift
-        by smt
-    next
-      case Opening
-      then show ?case
-        using
-          basic_lift.cases and
-          basic_residual.distinct(1) and
-          basic_residual.inject(2) and
-          relcomppI and
-          basic_lift.opening_lift
-        by smt
-    qed
+      by (blast elim: basic_lift.cases intro: basic_lift.intros)
   qed
+next
+  fix \<X>
+  show "basic_lift \<X>\<inverse>\<inverse> = (basic_lift \<X>)\<inverse>\<inverse>"
+    by (blast elim: basic_lift.cases intro: basic_lift.intros)
 qed
-lemma basic_lift_conversion_preservation: "basic_lift \<X>\<inverse>\<inverse> = (basic_lift \<X>)\<inverse>\<inverse>"
-proof (intro ext)
-  fix c and d
-  show "basic_lift \<X>\<inverse>\<inverse> d c \<longleftrightarrow> (basic_lift \<X>)\<inverse>\<inverse> d c"
-  proof
-    assume "basic_lift \<X>\<inverse>\<inverse> d c"
-    then show "(basic_lift \<X>)\<inverse>\<inverse> d c" by induction (simp_all add: basic_lift.intros)
-  next
-    assume "(basic_lift \<X>)\<inverse>\<inverse> d c"
-    then have "basic_lift \<X> c d" by (fact conversepD)
-    then show "basic_lift \<X>\<inverse>\<inverse> d c" by induction (simp_all add: basic_lift.intros)
-  qed
-qed
-
-text \<open>
-  Consequently, \<^type>\<open>basic_residual\<close> and \<^const>\<open>basic_lift\<close> form a residual structure.
-\<close>
-
-interpretation basic: residual basic_lift
-  by unfold_locales (
-    fact basic_lift_monotonicity,
-    fact basic_lift_equality_preservation,
-    fact basic_lift_composition_preservation,
-    fact basic_lift_conversion_preservation
-  )
 
 subsection \<open>Communication\<close>
 

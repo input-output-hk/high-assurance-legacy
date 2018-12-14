@@ -56,111 +56,82 @@ where
     "(\<And>a. output_rest_lift \<X> (K a) (L a)) \<Longrightarrow> output_rest_lift \<X> (\<nu> a. K a) (\<nu> a. L a)"
 
 text \<open>
-  Interestingly, the \<^const>\<open>output_rest_lift\<close> operator has the properties of a residual lifting
-  operator, despite the fact that output rests are not intended to serve as residuals but only as
+  Interestingly, equipping \<^type>\<open>output_rest\<close> with \<^const>\<open>output_rest_lift\<close> leads to a residual
+  structure, despite the fact that output rests are not intended to serve as residuals but only as
   components of residuals.
 \<close>
 
-lemma output_rest_lift_monotonicity:
-  "\<X> \<le> \<Y> \<Longrightarrow> output_rest_lift \<X> \<le> output_rest_lift \<Y>"
+interpretation output_rest: residual output_rest_lift
 proof
-  fix k and l
-  assume "output_rest_lift \<X> k l" and "\<X> \<le> \<Y>"
-  then show "output_rest_lift \<Y> k l" by induction (blast intro: output_rest_lift.intros)+
-qed
-lemma output_rest_lift_equality_preservation:
-  "output_rest_lift (=) = (=)"
-proof (intro ext)
-  fix k\<^sub>1 and k\<^sub>2
-  show "output_rest_lift (=) k\<^sub>1 k\<^sub>2 \<longleftrightarrow> k\<^sub>1 = k\<^sub>2"
+  fix \<X> :: "[process, process] \<Rightarrow> bool" and \<Y>
+  assume "\<X> \<le> \<Y>"
+  show "output_rest_lift \<X> \<le> output_rest_lift \<Y>"
   proof
+    fix k and l
+    assume "output_rest_lift \<X> k l"
+    from this and `\<X> \<le> \<Y>` show "output_rest_lift \<Y> k l"
+      by induction (blast intro: output_rest_lift.intros)+
+  qed
+next
+  show "output_rest_lift (=) = (=)"
+  proof (intro ext, intro iffI)
+    fix k\<^sub>1 and k\<^sub>2
     assume "output_rest_lift (=) k\<^sub>1 k\<^sub>2"
     then show "k\<^sub>1 = k\<^sub>2"
-      by induction (simp_all add: ext)
+      by induction blast+
   next
+    fix k\<^sub>1 :: output_rest and k\<^sub>2
     assume "k\<^sub>1 = k\<^sub>2"
     then show "output_rest_lift (=) k\<^sub>1 k\<^sub>2"
       by (induction k\<^sub>1 arbitrary: k\<^sub>2) (blast intro: output_rest_lift.intros)+
   qed
-qed
-lemma output_rest_lift_composition_preservation:
-  "output_rest_lift (\<X> OO \<Y>) = output_rest_lift \<X> OO output_rest_lift \<Y>"
-proof (intro ext)
-  fix k and m
-  show "output_rest_lift (\<X> OO \<Y>) k m \<longleftrightarrow> (output_rest_lift \<X> OO output_rest_lift \<Y>) k m"
-  proof
+next
+  fix \<X> and \<Y>
+  show "output_rest_lift (\<X> OO \<Y>) = output_rest_lift \<X> OO output_rest_lift \<Y>"
+  proof (intro ext, intro iffI)
+    fix k and m
     assume "output_rest_lift (\<X> OO \<Y>) k m"
     then show "(output_rest_lift \<X> OO output_rest_lift \<Y>) k m"
     proof induction
       case (without_opening_lift p r x)
-      then obtain q where "\<X> p q" and "\<Y> q r" by (elim relcomppE)
-      then show ?case by (blast intro: output_rest_lift.without_opening_lift)
+      then obtain q where "\<X> p q" and "\<Y> q r"
+        by (elim relcomppE)
+      then show ?case
+        by (blast intro: output_rest_lift.without_opening_lift)
     next
       case (with_opening_lift K M)
-      obtain L where "\<And>a. output_rest_lift \<X> (K a) (L a)" and "\<And>a. output_rest_lift \<Y> (L a) (M a)"
-      proof -
-        from `\<And>a. (output_rest_lift \<X> OO output_rest_lift \<Y>) (K a) (M a)`
-        have "\<forall>a. \<exists>l. output_rest_lift \<X> (K a) l \<and> output_rest_lift \<Y> l (M a)"
-          by blast
-        then have "\<exists>L. \<forall>a. output_rest_lift \<X> (K a) (L a) \<and> output_rest_lift \<Y> (L a) (M a)"
-          by (fact choice)
-        with that show ?thesis by blast
-      qed
+      then have "\<forall>a. \<exists>g. output_rest_lift \<X> (K a) g \<and> output_rest_lift \<Y> g (M a)"
+        by blast
+      then have "\<exists>L. \<forall>a. output_rest_lift \<X> (K a) (L a) \<and> output_rest_lift \<Y> (L a) (M a)"
+        by (fact choice)
       then show ?case by (blast intro: output_rest_lift.with_opening_lift)
     qed
   next
+    fix k and m
     assume "(output_rest_lift \<X> OO output_rest_lift \<Y>) k m"
-    then obtain l where "output_rest_lift \<X> k l" and "output_rest_lift \<Y> l m" by (elim relcomppE)
+    then obtain l where "output_rest_lift \<X> k l" and "output_rest_lift \<Y> l m"
+      by (elim relcomppE)
     then show "output_rest_lift (\<X> OO \<Y>) k m"
-    proof (induction l arbitrary: k m rule: output_rest.induct)
-      case WithoutOpening
-      then show ?case
-        using
-          output_rest_lift.cases and
-          output_rest.inject(1) and
-          output_rest.distinct(2) and
-          relcomppI and
-          output_rest_lift.without_opening_lift
-        by smt
-    next
-      case WithOpening
-      then show ?case
-        using
-          output_rest_lift.cases and
-          output_rest.distinct(1) and
-          output_rest.inject(2) and
-          rangeI and
-          output_rest_lift.with_opening_lift
-        by smt
-    qed
+      by
+        (induction arbitrary: m)
+        (blast elim: output_rest_lift.cases intro: output_rest_lift.intros)+
   qed
-qed
-lemma output_rest_lift_conversion_preservation:
-  "output_rest_lift \<X>\<inverse>\<inverse> = (output_rest_lift \<X>)\<inverse>\<inverse>"
-proof (intro ext)
-  fix k and l
-  show "output_rest_lift \<X>\<inverse>\<inverse> l k \<longleftrightarrow> (output_rest_lift \<X>)\<inverse>\<inverse> l k"
-  proof
+next
+  fix \<X>
+  show "output_rest_lift \<X>\<inverse>\<inverse> = (output_rest_lift \<X>)\<inverse>\<inverse>"
+  proof (intro ext, intro iffI)
+    fix k and l
     assume "output_rest_lift \<X>\<inverse>\<inverse> l k"
-    then show "(output_rest_lift \<X>)\<inverse>\<inverse> l k" by induction (simp_all add: output_rest_lift.intros)
+    then show "(output_rest_lift \<X>)\<inverse>\<inverse> l k"
+      by induction (blast intro: output_rest_lift.intros)+
   next
+    fix k and l
     assume "(output_rest_lift \<X>)\<inverse>\<inverse> l k"
     then have "output_rest_lift \<X> k l" by (fact conversepD)
-    then show "output_rest_lift \<X>\<inverse>\<inverse> l k" by induction (simp_all add: output_rest_lift.intros)
+    then show "output_rest_lift \<X>\<inverse>\<inverse> l k"
+      by induction (blast intro: output_rest_lift.intros)+
   qed
 qed
-
-text \<open>
-  Consequently, \<^type>\<open>output_rest\<close> and \<^const>\<open>output_rest_lift\<close> form a residual structure.
-\<close>
-
-interpretation output_rest: residual output_rest_lift
-  by unfold_locales (
-    fact output_rest_lift_monotonicity,
-    fact output_rest_lift_equality_preservation,
-    fact output_rest_lift_composition_preservation,
-    fact output_rest_lift_conversion_preservation
-  )
 
 subsection \<open>Residuals\<close>
 
@@ -188,109 +159,79 @@ where
     "output_rest_lift \<X> k l \<Longrightarrow> proper_lift \<X> (\<lparr>a \<triangleleft> k) (\<lparr>a \<triangleleft> l)"
 
 text \<open>
-  The \<^const>\<open>proper_lift\<close> operator has the properties of a residual lifting operator.
+  Equipping \<^type>\<open>proper_residual\<close> with \<^const>\<open>proper_lift\<close> leads to a residual structure.
 \<close>
 
-lemma proper_lift_monotonicity: "\<X> \<le> \<Y> \<Longrightarrow> proper_lift \<X> \<le> proper_lift \<Y>"
+interpretation proper: residual proper_lift
 proof
-  fix c and d
-  assume "proper_lift \<X> c d" and "\<X> \<le> \<Y>"
-  then show "proper_lift \<Y> c d"
-  proof induction
-    case simple_lift
-    then show ?case by (blast intro: proper_lift.simple_lift)
-  next
-    case output_lift
-    then show ?case using output_rest_lift_monotonicity by (blast intro: proper_lift.output_lift)
-  qed
-qed
-lemma proper_lift_equality_preservation: "proper_lift (=) = (=)"
-proof (intro ext)
-  fix c\<^sub>1 and c\<^sub>2
-  show "proper_lift (=) c\<^sub>1 c\<^sub>2 \<longleftrightarrow> c\<^sub>1 = c\<^sub>2"
+  fix \<X> :: "[process, process] \<Rightarrow> bool" and \<Y>
+  assume "\<X> \<le> \<Y>"
+  show "proper_lift \<X> \<le> proper_lift \<Y>"
   proof
+    fix c and d
+    assume "proper_lift \<X> c d"
+    from this and `\<X> \<le> \<Y>` show "proper_lift \<Y> c d"
+      using output_rest.lift_monotonicity
+      by induction (blast intro: proper_lift.intros)+
+  qed
+next
+  show "proper_lift (=) = (=)"
+  proof (intro ext, intro iffI)
+    fix c\<^sub>1 and c\<^sub>2
     assume "proper_lift (=) c\<^sub>1 c\<^sub>2"
     then show "c\<^sub>1 = c\<^sub>2"
-      by induction (simp_all add: output_rest_lift_equality_preservation)
+      using output_rest.lift_equality_preservation
+      by cases simp_all
   next
+    fix c\<^sub>1 :: proper_residual and c\<^sub>2
     assume "c\<^sub>1 = c\<^sub>2"
-    then show "proper_lift (=) c\<^sub>1 c\<^sub>2" by
-      (induction c\<^sub>1 arbitrary: c\<^sub>2)
-      (metis output_rest_lift_equality_preservation proper_lift.intros)+
+    then show "proper_lift (=) c\<^sub>1 c\<^sub>2"
+      using output_rest.lift_equality_preservation and proper_lift.intros
+      by (cases c\<^sub>1) auto
   qed
-qed
-lemma proper_lift_composition_preservation: "proper_lift (\<X> OO \<Y>) = proper_lift \<X> OO proper_lift \<Y>"
-proof (intro ext)
-  fix c and e
-  show "proper_lift (\<X> OO \<Y>) c e \<longleftrightarrow> (proper_lift \<X> OO proper_lift \<Y>) c e"
-  proof
+next
+  fix \<X> and \<Y>
+  show "proper_lift (\<X> OO \<Y>) = proper_lift \<X> OO proper_lift \<Y>"
+  proof (intro ext, intro iffI)
+    fix c and e
     assume "proper_lift (\<X> OO \<Y>) c e"
     then show "(proper_lift \<X> OO proper_lift \<Y>) c e"
     proof induction
       case (simple_lift p r \<alpha>)
-      then obtain q where "\<X> p q" and "\<Y> q r" by (elim relcomppE)
-      then show ?case by (blast intro: proper_lift.simple_lift)
+      then obtain q where "\<X> p q" and "\<Y> q r"
+        by (elim relcomppE)
+      then show ?case
+        by (blast intro: proper_lift.simple_lift)
     next
       case (output_lift k m a)
       then obtain l where "output_rest_lift \<X> k l" and "output_rest_lift \<Y> l m"
-        using output_rest_lift_composition_preservation and relcomppE by metis
-      then show ?case by (blast intro: proper_lift.output_lift)
+        by (unfold output_rest.lift_composition_preservation) (elim relcomppE)
+      then show ?case
+        by (blast intro: proper_lift.output_lift)
     qed
   next
+    fix c and e
     assume "(proper_lift \<X> OO proper_lift \<Y>) c e"
-    then obtain d where "proper_lift \<X> c d" and "proper_lift \<Y> d e" by (elim relcomppE)
     then show "proper_lift (\<X> OO \<Y>) c e"
-    proof (induction d arbitrary: c e rule: proper_residual.induct)
-      case Simple
-      then show ?case
-        using
-          proper_lift.cases and
-          proper_residual.inject(1) and
-          proper_residual.distinct(2) and
-          relcomppI and
-          proper_lift.simple_lift
-        by smt
-    next
-      case Output
-      then show ?case
-        using
-          proper_lift.cases and
-          proper_residual.distinct(1) and
-          proper_residual.inject(2) and
-          relcomppI and
-          output_rest_lift_composition_preservation and
-          proper_lift.output_lift
-        by smt
-    qed
+      using output_rest.lift_composition_preservation and proper_lift.simps
+      by (elim relcomppE) auto
   qed
-qed
-lemma proper_lift_conversion_preservation: "proper_lift \<X>\<inverse>\<inverse> = (proper_lift \<X>)\<inverse>\<inverse>"
-proof (intro ext)
-  fix c and d
-  show "proper_lift \<X>\<inverse>\<inverse> d c \<longleftrightarrow> (proper_lift \<X>)\<inverse>\<inverse> d c"
-  proof
+next
+  fix \<X>
+  show "proper_lift \<X>\<inverse>\<inverse> = (proper_lift \<X>)\<inverse>\<inverse>"
+  proof (intro ext, intro iffI)
+    fix c and d
     assume "proper_lift \<X>\<inverse>\<inverse> d c"
     then show "(proper_lift \<X>)\<inverse>\<inverse> d c"
-      by induction (simp_all add: output_rest_lift_conversion_preservation proper_lift.intros)
+      by cases (simp_all add: output_rest.lift_conversion_preservation proper_lift.intros)
   next
+    fix c and d
     assume "(proper_lift \<X>)\<inverse>\<inverse> d c"
     then have "proper_lift \<X> c d" by (fact conversepD)
     then show "proper_lift \<X>\<inverse>\<inverse> d c"
-      by induction (metis conversepI output_rest_lift_conversion_preservation proper_lift.intros)+
+      by cases (simp_all add: output_rest.lift_conversion_preservation proper_lift.intros)
   qed
 qed
-
-text \<open>
-  Consequently, \<^type>\<open>proper_residual\<close> and \<^const>\<open>proper_lift\<close> form a residual structure.
-\<close>
-
-interpretation proper: residual proper_lift
-  by unfold_locales (
-    fact proper_lift_monotonicity,
-    fact proper_lift_equality_preservation,
-    fact proper_lift_composition_preservation,
-    fact proper_lift_conversion_preservation
-  )
 
 subsection \<open>Transition System\<close>
 

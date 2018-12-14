@@ -385,7 +385,7 @@ where
   "is_weak_proper_sim \<X> \<equiv> \<forall>p q. \<X> p q \<longrightarrow> p \<leadsto>\<^sub>\<sharp><\<X>> q"
 
 lemma weak_proper_sim_monotonicity: "\<X> \<le> \<Y> \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><\<X>> q \<Longrightarrow> p \<leadsto>\<^sub>\<sharp><\<Y>> q"
-  by (meson predicate2D proper_lift_monotonicity)
+  by (meson predicate2D proper.lift_monotonicity)
 
 (*** Introduction and elimination rules. ***)
 
@@ -471,7 +471,7 @@ lemma weak_proper_bisim_proof_method_aux[consumes 1, case_names weak_proper_bisi
 proof (coinduct rule: weak_proper_bisimilarity.coinduct)
   case weak_proper_bisimilarity
   then show ?case
-    by (smt step predicate2D predicate2I proper_lift_monotonicity)
+    by (smt step predicate2D predicate2I proper.lift_monotonicity)
 qed
 
 lemma weak_proper_bisim_proof_method[consumes 1, case_names sim sym]:
