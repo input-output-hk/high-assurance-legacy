@@ -10,6 +10,7 @@ session Chi_Calculus (ouroboros) = Transition_Systems +
     Basic_Transition_System
     Basic_Weak_Transition_System
     Proper_Transition_System
+    Proper_Weak_Transition_System
     Typed_Channels
     Typed_Processes
     Typed_Basic_Transition_System
