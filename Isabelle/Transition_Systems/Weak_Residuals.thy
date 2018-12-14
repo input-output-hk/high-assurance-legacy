@@ -7,6 +7,8 @@ begin
 locale weak_residual =
   fixes silent :: "['process, 'residual] \<Rightarrow> bool"
   fixes absorb :: "(['process, 'residual] \<Rightarrow> bool) \<Rightarrow> (['residual, 'residual] \<Rightarrow> bool)"
+  assumes derived_lift_conversion_preservation:
+    "absorb (\<X>\<inverse>\<inverse> OO silent) = (absorb (\<X> OO silent))\<inverse>\<inverse>"
   assumes absorb_monotonicity [mono]:
     "\<I> \<le> \<J> \<Longrightarrow> absorb \<I> \<le> absorb \<J>"
   assumes left_neutrality:
@@ -15,8 +17,6 @@ locale weak_residual =
     "absorb silent = (=)"
   assumes associativity:
     "absorb \<I> OO absorb \<J> = absorb (\<I> OO absorb \<J>)"
-  assumes derived_lift_conversion_preservation:
-    "absorb (\<X>\<inverse>\<inverse> OO silent) = (absorb (\<X> OO silent))\<inverse>\<inverse>"
 begin
 
 (* NOTE:

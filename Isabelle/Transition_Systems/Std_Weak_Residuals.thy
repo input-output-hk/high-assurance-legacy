@@ -67,36 +67,38 @@ proof -
   finally show ?thesis .
 qed
 
-lemma derived_lift_equals_lift: "absorb (\<X> OO silent) = lift \<X>"
-proof -
-  have "absorb_downward (\<X> OO silent) \<le> lift \<X>"
+sublocale weak_residual silent absorb rewrites "weak_residual.lift silent absorb \<X> = lift \<X>"
+proof unfold_locales
+  show lift_rewriting_correctness: "weak_residual.lift silent absorb \<X> = lift \<X>" for \<X>
   proof -
-    have "silent\<inverse>\<inverse> OO (\<X> OO silent) = silent\<inverse>\<inverse> OO (silent OO lift \<X>)"
-      by (simp add: std_silent_naturality)
-    also have "\<dots> = (silent\<inverse>\<inverse> OO silent) OO lift \<X>"
-      by (simp add: relcompp_assoc)
-    also have "\<dots> \<le> (=) OO lift \<X>"
-      by (simp add: silent_right_uniqueness relcompp_mono)
-    also have "\<dots> = lift \<X>"
-      by (fact eq_OO)
-    finally show ?thesis .
+    have "absorb_downward (\<X> OO silent) \<le> lift \<X>"
+    proof -
+      have "silent\<inverse>\<inverse> OO (\<X> OO silent) = silent\<inverse>\<inverse> OO (silent OO lift \<X>)"
+        by (simp add: std_silent_naturality)
+      also have "\<dots> = (silent\<inverse>\<inverse> OO silent) OO lift \<X>"
+        by (simp add: relcompp_assoc)
+      also have "\<dots> \<le> (=) OO lift \<X>"
+        by (simp add: silent_right_uniqueness relcompp_mono)
+      also have "\<dots> = lift \<X>"
+        by (fact eq_OO)
+      finally show ?thesis .
+    qed
+    moreover have "absorb_upward (\<X> OO silent) = lift \<X>"
+    proof -
+      have "lift ((\<X> OO silent) OO silent\<inverse>\<inverse>) = lift (\<X> OO (silent OO silent\<inverse>\<inverse>))"
+        by (simp add: relcompp_assoc)
+      also have "\<dots> = lift (\<X> OO (=))"
+        by (simp add: silent_left_uniqueness_and_left_totality)
+      also have "\<dots> = lift \<X>"
+        by (simp add: OO_eq)
+      finally show ?thesis .
+    qed
+    ultimately show "absorb_downward (\<X> OO silent) \<squnion> absorb_upward (\<X> OO silent) = lift \<X>"
+      by (simp add: sup.absorb_iff2)
   qed
-  moreover have "absorb_upward (\<X> OO silent) = lift \<X>"
-  proof -
-    have "lift ((\<X> OO silent) OO silent\<inverse>\<inverse>) = lift (\<X> OO (silent OO silent\<inverse>\<inverse>))"
-      by (simp add: relcompp_assoc)
-    also have "\<dots> = lift (\<X> OO (=))"
-      by (simp add: silent_left_uniqueness_and_left_totality)
-    also have "\<dots> = lift \<X>"
-      by (simp add: OO_eq)
-    finally show ?thesis .
-  qed
-  ultimately show "absorb_downward (\<X> OO silent) \<squnion> absorb_upward (\<X> OO silent) = lift \<X>"
-    by (simp add: sup.absorb_iff2)
-qed
-
-sublocale weak_residual silent absorb
-proof
+  from lift_rewriting_correctness show "absorb (\<X>\<inverse>\<inverse> OO silent) = (absorb (\<X> OO silent))\<inverse>\<inverse>" for \<X>
+    by (simp add: lift_conversion_preservation)
+next
   fix \<I> :: "['process, 'residual] \<Rightarrow> bool" and \<J>
   assume "\<I> \<le> \<J>"
   then show "absorb_downward \<I> \<squnion> absorb_upward \<I> \<le> absorb_downward \<J> \<squnion> absorb_upward \<J>"
@@ -199,10 +201,6 @@ next
   qed
   ultimately show "?lhs = ?rhs"
     by simp
-next
-  fix \<X>
-  show "absorb (\<X>\<inverse>\<inverse> OO silent) = (absorb (\<X> OO silent))\<inverse>\<inverse>"
-    by (simp add: derived_lift_equals_lift lift_conversion_preservation)
 qed
 
 end
