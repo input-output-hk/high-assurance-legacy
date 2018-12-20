@@ -224,10 +224,6 @@ proof -
     using broadcaster_system_def by simp
 qed
 
-(* TODO: Prove it. *)
-lemma aux1: "\<nu> d. (inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d) \<approx>\<^sub>\<sharp> inp \<triangleright> x. \<nu> d. ((c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d)"
-  sorry
-
 lemma forwarder_system_step: "forwarder_system (c # cs) m \<approx>\<^sub>\<sharp> c \<triangleleft> m \<parallel> forwarder_system cs m"
 proof -
   have "forwarder_system (c # cs) m = \<nu> inp. (inp \<triangleleft> m \<parallel> forwarder_chain (c # cs) inp)"
@@ -242,36 +238,47 @@ proof -
     using forwarder_chain_def by simp
   also have "... = \<nu> inp. (inp \<triangleleft> m \<parallel> \<nu> d. (inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d))"
     using forwarder_def by simp
-  also have "... \<approx>\<^sub>\<sharp> \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. \<nu> d. ((c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d))"
+  also have "... \<approx>\<^sub>\<sharp> \<nu> d. (c \<triangleleft> m \<parallel> d \<triangleleft> m \<parallel> forwarder_chain cs d)"
   proof -
-    have "\<And>inp. \<nu> d. (inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d) \<approx>\<^sub>\<sharp> inp \<triangleright> x. \<nu> d. ((c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d)"
-      using aux1 by simp
-    then have "\<And>inp. inp \<triangleleft> m \<parallel> \<nu> d. ((inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x)) \<parallel> forwarder_chain cs d) \<approx>\<^sub>\<sharp> inp \<triangleleft> m \<parallel> inp \<triangleright> x. (\<nu> d. ((c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d))"
+    have "\<And>d. \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x)) \<approx>\<^sub>\<sharp> \<nu> inp. (c \<triangleleft> m \<parallel> d \<triangleleft> m)"
+      using internal_communication by blast
+    then have "\<And>d. \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x)) \<parallel> forwarder_chain cs d \<approx>\<^sub>\<sharp> \<nu> inp. (c \<triangleleft> m \<parallel> d \<triangleleft> m) \<parallel> forwarder_chain cs d"
       using weak_proper_parallel_preservation by simp
-    then show ?thesis
+    moreover have "\<And>d. \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d) \<approx>\<^sub>\<sharp> \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x)) \<parallel> forwarder_chain cs d"
+      using weak_proper_parallel_scope_extension and weak_proper_bisim_symmetry
+      by (meson weak_proper_bisim_transitivity weak_proper_new_channel_preservation weak_proper_parallel_associativity)
+    moreover have "\<And>d. \<nu> inp. (c \<triangleleft> m \<parallel> d \<triangleleft> m) \<parallel> forwarder_chain cs d \<approx>\<^sub>\<sharp> \<nu> inp. (c \<triangleleft> m \<parallel> d \<triangleleft> m \<parallel> forwarder_chain cs d)"
+      using weak_proper_parallel_scope_extension
+      by (meson weak_proper_bisim_transitivity weak_proper_new_channel_preservation weak_proper_parallel_associativity)
+    ultimately have "\<And>d. \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d) \<approx>\<^sub>\<sharp> \<nu> inp. (c \<triangleleft> m \<parallel> d \<triangleleft> m \<parallel> forwarder_chain cs d)"
+      using weak_proper_bisim_transitivity by blast
+    then have "\<nu> d. \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d) \<approx>\<^sub>\<sharp> \<nu> d. \<nu> inp. (c \<triangleleft> m \<parallel> d \<triangleleft> m \<parallel> forwarder_chain cs d)"
       using weak_proper_new_channel_preservation by simp
+    moreover have "\<nu> inp. (inp \<triangleleft> m \<parallel> \<nu> d. (inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d)) \<approx>\<^sub>\<sharp> \<nu> d. \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d)"
+    proof -
+      have "\<And>inp. inp \<triangleleft> m \<parallel> \<nu> d. (inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d) \<approx>\<^sub>\<sharp> \<nu> d. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d)"
+        using weak_proper_parallel_scope_redundancy and weak_proper_bisim_symmetry by simp
+      then have "\<nu> inp. (inp \<triangleleft> m \<parallel> \<nu> d. (inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d)) \<approx>\<^sub>\<sharp> \<nu> inp. \<nu> d. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d)"
+        using weak_proper_new_channel_preservation by simp
+      moreover have "\<nu> inp. \<nu> d. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d) \<approx>\<^sub>\<sharp> \<nu> d. \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d)"
+        using weak_proper_new_channel_scope_extension by simp
+      ultimately show ?thesis
+        using weak_proper_bisim_transitivity by blast
+    qed
+    moreover have "\<nu> d. \<nu> inp. (c \<triangleleft> m \<parallel> d \<triangleleft> m \<parallel> forwarder_chain cs d) \<approx>\<^sub>\<sharp> \<nu> d. (c \<triangleleft> m \<parallel> d \<triangleleft> m \<parallel> forwarder_chain cs d)"
+    proof -
+      have "\<And>d. \<nu> inp. (c \<triangleleft> m \<parallel> d \<triangleleft> m \<parallel> forwarder_chain cs d) \<approx>\<^sub>\<sharp> c \<triangleleft> m \<parallel> d \<triangleleft> m \<parallel> forwarder_chain cs d"
+        using weak_proper_scope_redundancy and weak_proper_bisim_symmetry by simp
+      then show ?thesis
+        using weak_proper_new_channel_preservation by simp
+    qed
+    ultimately show ?thesis
+      using weak_proper_bisim_transitivity by blast
   qed
-  also have "... \<approx>\<^sub>\<sharp> \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> \<nu> d. (d \<triangleleft> x \<parallel> forwarder_chain cs d)))"
-  proof -
-    have 1: "\<And>x. \<nu> d. ((c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d) \<approx>\<^sub>\<sharp> \<nu> d. (c \<triangleleft> x \<parallel> (d \<triangleleft> x \<parallel> forwarder_chain cs d))"
-      using weak_proper_parallel_associativity and weak_proper_new_channel_preservation by simp
-    then have "\<And>x. c \<triangleleft> x \<parallel> \<nu> d. (d \<triangleleft> x \<parallel> forwarder_chain cs d) \<approx>\<^sub>\<sharp> \<nu> d. (c \<triangleleft> x \<parallel> (d \<triangleleft> x \<parallel> forwarder_chain cs d))"
-      using weak_proper_parallel_scope_redundancy and weak_proper_bisim_symmetry by simp
-    then have "\<And>x. c \<triangleleft> x \<parallel> \<nu> d. (d \<triangleleft> x \<parallel> forwarder_chain cs d) \<approx>\<^sub>\<sharp> \<nu> d. ((c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d)"
-      using 1 and weak_proper_bisim_symmetry and weak_proper_bisim_transitivity by smt
-    then have "\<And>inp. inp \<triangleright> x. (c \<triangleleft> x \<parallel> \<nu> d. (d \<triangleleft> x \<parallel> forwarder_chain cs d)) \<approx>\<^sub>\<sharp> inp \<triangleright> x. (\<nu> d. ((c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d))"
-      using weak_proper_receive_preservation by simp
-    then have "\<And>inp. inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> \<nu> d. (d \<triangleleft> x \<parallel> forwarder_chain cs d)) \<approx>\<^sub>\<sharp> inp \<triangleleft> m \<parallel> inp \<triangleright> x. (\<nu> d. ((c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d))"
-      using weak_proper_parallel_preservation by simp
-    then show ?thesis
-      using weak_proper_new_channel_preservation and weak_proper_bisim_symmetry by simp
-  qed
-  also have "... = \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> forwarder_system cs x))"
+  also have "... \<approx>\<^sub>\<sharp> c \<triangleleft> m \<parallel> \<nu> d. (d \<triangleleft> m \<parallel> forwarder_chain cs d)"
+    using weak_proper_parallel_scope_extension and weak_proper_parallel_scope_redundancy by simp
+  also have "... = c \<triangleleft> m \<parallel> forwarder_system cs m"
     using forwarder_system_def by simp
-  also have "... \<approx>\<^sub>\<sharp> \<nu> inp. (c \<triangleleft> m \<parallel> forwarder_system cs m)"
-    using internal_communication by blast
-  also have "... \<approx>\<^sub>\<sharp> c \<triangleleft> m \<parallel> forwarder_system cs m"
-    using weak_proper_scope_redundancy and weak_proper_bisim_symmetry by simp
   finally show ?thesis .
 qed
 
