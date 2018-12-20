@@ -7,5 +7,6 @@ session Chi_Calculus_Examples (ouroboros) = Chi_Calculus +
     Broadcaster
     Synchronous_Communication
     Communication_Medium
+    Broadcaster_Equivalences
   document_files
     "root.tex"
