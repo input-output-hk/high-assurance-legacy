@@ -8,6 +8,7 @@ theory Broadcaster_Equivalences
   imports
     Chi_Calculus.Processes
     Chi_Calculus.Proper_Weak_Bisimulation
+    Utilities
 begin
 
 text \<open>
@@ -22,9 +23,50 @@ definition
 where
   "chaining_op P Q \<equiv> \<lambda>inp out. \<nu> c. (P inp c \<parallel> Q c out)"
 
-(* TODO: Prove it. *)
-lemma chaining_op_associativity: "(P \<frown> Q) \<frown> R = P \<frown> (Q \<frown> R)"
-  sorry
+lemma chaining_op_associativity: "((P \<frown> Q) \<frown> R) inp out \<approx>\<^sub>\<sharp> (P \<frown> (Q \<frown> R)) inp out"
+proof -
+  have "((P \<frown> Q) \<frown> R) inp out \<approx>\<^sub>\<sharp> \<nu> c. \<nu> d. ((P inp d \<parallel> Q d c) \<parallel> R c out)"
+  proof -
+    have "((P \<frown> Q) \<frown> R) inp out = \<nu> c. ((P \<frown> Q) inp c \<parallel> R c out)"
+      using chaining_op_def by simp
+    also have "... = \<nu> c. (\<nu> d. (P inp d \<parallel> Q d c) \<parallel> R c out)"
+      using chaining_op_def by simp
+    also have "... \<approx>\<^sub>\<sharp> \<nu> c. \<nu> d. ((P inp d \<parallel> Q d c) \<parallel> R c out)"
+    proof -
+      have "\<And>c. \<nu> d. (P inp d \<parallel> Q d c) \<parallel> R c out \<approx>\<^sub>\<sharp> \<nu> d. ((P inp d \<parallel> Q d c) \<parallel> R c out)"
+        using weak_proper_parallel_scope_extension by simp
+      then show ?thesis
+        using weak_proper_new_channel_preservation by simp
+    qed
+    finally show ?thesis .
+  qed
+  moreover have "(P \<frown> (Q \<frown> R)) inp out \<approx>\<^sub>\<sharp> \<nu> c. \<nu> d. (P inp d \<parallel> (Q d c \<parallel> R c out))"
+  proof -
+    have "(P \<frown> (Q \<frown> R)) inp out = \<nu> c. (P inp c \<parallel> (Q \<frown> R) c out)"
+      using chaining_op_def by simp
+    also have "... = \<nu> c. (P inp c \<parallel> \<nu> d. (Q c d \<parallel> R d out))"
+      using chaining_op_def by simp
+    also have "... \<approx>\<^sub>\<sharp> \<nu> c. \<nu> d. (P inp d \<parallel> (Q d c \<parallel> R c out))"
+    proof -
+      have "\<And>d. P inp d \<parallel> \<nu> c. (Q d c \<parallel> R c out) \<approx>\<^sub>\<sharp> \<nu> c. (P inp d \<parallel> (Q d c \<parallel> R c out))"
+        using weak_proper_parallel_scope_extension2 by simp
+      then have "\<nu> d. (P inp d \<parallel> \<nu> c. (Q d c \<parallel> R c out)) \<approx>\<^sub>\<sharp> \<nu> d. \<nu> c. (P inp d \<parallel> (Q d c \<parallel> R c out))"
+        using weak_proper_new_channel_preservation by simp
+      then show ?thesis
+        using weak_proper_new_channel_scope_extension and weak_proper_bisim_transitivity by simp
+    qed
+    finally show ?thesis .
+  qed
+  moreover have "\<nu> c. \<nu> d. ((P inp d \<parallel> Q d c) \<parallel> R c out) \<approx>\<^sub>\<sharp> \<nu> c. \<nu> d. (P inp d \<parallel> (Q d c \<parallel> R c out))"
+  proof -
+    have "\<And>c d. (P inp d \<parallel> Q d c) \<parallel> R c out \<approx>\<^sub>\<sharp> P inp d \<parallel> (Q d c \<parallel> R c out)"
+      using weak_proper_parallel_associativity by simp
+    then show ?thesis
+      using weak_proper_new_channel_preservation by simp
+  qed
+  ultimately show ?thesis
+    using weak_proper_bisim_transitivity and weak_proper_bisim_symmetry by blast
+qed
 
 (* Forwarder process. *)
 

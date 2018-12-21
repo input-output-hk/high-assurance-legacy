@@ -20,4 +20,22 @@ lemma weak_proper_parallel_scope_redundancy: "\<nu> c. (p \<parallel> P c) \<app
       weak_proper_parallel_commutativity
       weak_proper_parallel_scope_extension)
 
+lemma weak_proper_parallel_scope_extension2: "q \<parallel> \<nu> a. P a \<approx>\<^sub>\<sharp> \<nu> a. (q \<parallel> P a)"
+proof -
+  have "q \<parallel> \<nu> a. P a \<approx>\<^sub>\<sharp> \<nu> a. P a \<parallel> q"
+    using weak_proper_parallel_commutativity by simp
+  also have "... \<approx>\<^sub>\<sharp> \<nu> a. (P a \<parallel> q)"
+    using weak_proper_parallel_scope_extension by simp
+  also have "... \<approx>\<^sub>\<sharp> \<nu> a. (q \<parallel> P a)"
+  proof -
+    have "\<And>a. P a \<parallel> q \<approx>\<^sub>\<sharp> q \<parallel> P a"
+      using weak_proper_parallel_commutativity by simp
+    then have "\<nu> a. (P a \<parallel> q) \<approx>\<^sub>\<sharp> \<nu> a. (q \<parallel> P a)"
+      using weak_proper_new_channel_preservation by simp
+    then show ?thesis
+      using weak_proper_bisim_transitivity by simp
+  qed
+  finally show ?thesis .
+qed
+
 end
