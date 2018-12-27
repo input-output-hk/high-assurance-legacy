@@ -5,6 +5,9 @@ begin
 lemma proper_tau_trans_is_basic_tau_trans: "(p \<rightarrow>\<^sub>\<sharp>\<lparr>\<tau>\<rparr> q) = (p \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q)"
   by (metis basic_action_of.simps(2) proper_residual.distinct(1) proper_residual.inject(1) proper_transition.simps)
 
+lemma proper_simple_trans_is_basic_trans: "p \<rightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q \<Longrightarrow> p \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> q"
+  by (metis proper_residual.distinct(1) proper_residual.inject(1) proper_transition.simps)
+
 (* TODO: Rename \<Rightarrow>\<^sup>\<tau>\<^sub>\<flat> to \<Rightarrow>\<^sup>\<tau>\<^sub>\<flat> in `Basic_Weak_Bisimulation`, then remove the following abbreviation. *)
 abbreviation
   proper_tau_sequence :: "process \<Rightarrow> process \<Rightarrow> bool" (infix "\<Rightarrow>\<^sup>\<tau>" 50)

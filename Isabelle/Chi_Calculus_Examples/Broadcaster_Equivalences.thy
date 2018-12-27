@@ -124,12 +124,10 @@ proof -
     using broadcaster_system_def by simp
   also have "... = \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. broadcaster\<^sub>2 (c # cs) x)"
     using broadcaster\<^sub>1_def by simp
-  also have "... \<approx>\<^sub>\<sharp> \<nu> inp. broadcaster\<^sub>2 (c # cs) m"
+  also have "... \<approx>\<^sub>\<sharp> broadcaster\<^sub>2 (c # cs) m"
     using internal_communication by simp
-  also have "... = \<nu> inp. (c \<triangleleft> m \<parallel> broadcaster\<^sub>2 cs m)"
+  also have "... = c \<triangleleft> m \<parallel> broadcaster\<^sub>2 cs m"
     by simp
-  also have "... \<approx>\<^sub>\<sharp> c \<triangleleft> m \<parallel> \<nu> inp. broadcaster\<^sub>2 cs m"
-    using weak_proper_parallel_scope_redundancy by simp
   also have "... \<approx>\<^sub>\<sharp> c \<triangleleft> m \<parallel> \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. broadcaster\<^sub>2 cs x)"
     using internal_communication and weak_proper_bisim_symmetry and weak_proper_parallel_preservation by fastforce
   also have "... = c \<triangleleft> m \<parallel> \<nu> inp. (inp \<triangleleft> m \<parallel> broadcaster\<^sub>1 cs inp)"
@@ -154,8 +152,10 @@ proof -
     using forwarder_def by simp
   also have "... \<approx>\<^sub>\<sharp> \<nu> d. (c \<triangleleft> m \<parallel> d \<triangleleft> m \<parallel> forwarder_chain cs d)"
   proof -
-    have "\<And>d. \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x)) \<approx>\<^sub>\<sharp> \<nu> inp. (c \<triangleleft> m \<parallel> d \<triangleleft> m)"
+    have "\<And>d. \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x)) \<approx>\<^sub>\<sharp> c \<triangleleft> m \<parallel> d \<triangleleft> m"
       using internal_communication by blast
+    then have "\<And>d. \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x)) \<approx>\<^sub>\<sharp> \<nu> inp. (c \<triangleleft> m \<parallel> d \<triangleleft> m)"
+      using weak_proper_scope_redundancy and weak_proper_bisim_transitivity by blast
     then have "\<And>d. \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x)) \<parallel> forwarder_chain cs d \<approx>\<^sub>\<sharp> \<nu> inp. (c \<triangleleft> m \<parallel> d \<triangleleft> m) \<parallel> forwarder_chain cs d"
       using weak_proper_parallel_preservation by simp
     moreover have "\<And>d. \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x) \<parallel> forwarder_chain cs d) \<approx>\<^sub>\<sharp> \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (c \<triangleleft> x \<parallel> d \<triangleleft> x)) \<parallel> forwarder_chain cs d"
