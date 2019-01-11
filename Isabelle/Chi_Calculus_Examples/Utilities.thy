@@ -29,6 +29,50 @@ where
 private lemma transitions_from_p0: "(\<exists>!d. p0 y P \<rightarrow>\<^sub>\<sharp> d) \<and> (THE d. p0 y P \<rightarrow>\<^sub>\<sharp> d) = \<lparr>\<tau>\<rparr> \<nu> c. (\<zero> \<parallel> P y)" sorry
 (* private lemma transitions_from_p0: "\<exists>d. p0 y P \<rightarrow>\<^sub>\<sharp>\<lparr>\<tau>\<rparr> d \<and> (\<forall>d. p0 y P \<rightarrow>\<^sub>\<sharp> d \<longrightarrow> d = \<lparr>\<tau>\<rparr> \<nu> c. (\<zero> \<parallel> P y))" sorry *)
 
+private lemma aux1: "\<nu> c. (\<zero> \<parallel> p) \<sim>\<^sub>\<sharp> p"
+proof -
+  have "\<zero> \<parallel> p \<sim>\<^sub>\<sharp> p"
+    using proper_parallel_unit by simp
+  then have "\<nu> c. (\<zero> \<parallel> p) \<sim>\<^sub>\<sharp> \<nu> c. p"
+    using proper_new_channel_preservation by simp
+  then show ?thesis
+    using proper_scope_redundancy and proper.bisimilarity_transitivity_rule by blast
+qed
+
+private lemma aux2: "p0 y P \<Rightarrow>\<^sup>\<tau> \<nu> c. (\<zero> \<parallel> P y)"
+proof -
+  have "p0 y P \<rightarrow>\<^sub>\<sharp>\<lparr>\<tau>\<rparr> \<nu> c. (\<zero> \<parallel> P y)"
+    using transitions_from_p0 and theI2 by metis
+  then show ?thesis
+    using proper_tau_trans_is_basic_tau_trans and tau_transition_is_tau_sequence by simp_all
+qed
+
+private lemma aux3:
+  assumes "reflp \<S>"
+      and "\<R> = (\<sim>\<^sub>\<sharp>) OO \<S> OO (\<sim>\<^sub>\<sharp>)"
+    shows "\<R> (\<nu> c. (\<zero> \<parallel> p)) p"
+      and "\<R> p (\<nu> c. (\<zero> \<parallel> p))"
+proof -
+  have "\<R> (\<nu> c. (\<zero> \<parallel> p)) p"
+  proof -
+    have "\<nu> c. (\<zero> \<parallel> p) \<sim>\<^sub>\<sharp> p"
+      using aux1 by fastforce
+    then show ?thesis
+      using reflp_ge_eq and assms by blast
+  qed
+  moreover have "\<R> p (\<nu> c. (\<zero> \<parallel> p))"
+  proof -
+    have "\<nu> c. (\<zero> \<parallel> p) \<sim>\<^sub>\<sharp> p"
+      using aux1 by fastforce
+    then have "p \<sim>\<^sub>\<sharp> \<nu> c. (\<zero> \<parallel> p)"
+      using proper.bisimilarity_symmetry by simp
+    then show ?thesis
+      using reflp_ge_eq and assms by blast
+  qed
+  ultimately show "\<R> (\<nu> c. (\<zero> \<parallel> p)) p" and "\<R> p (\<nu> c. (\<zero> \<parallel> p))"
+    by simp_all
+qed
+
 (* TODO: Fill holes. *)
 lemma internal_communication: "\<nu> c. (c \<triangleleft> y \<parallel> c \<triangleright> x. P x) \<approx>\<^sub>\<sharp> P y"
 proof -
@@ -52,19 +96,7 @@ proof -
           moreover have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<tau>\<rparr> q"
             using weak_proper_transition_refl_intro by simp
           moreover have "?\<R> (\<nu> c. (\<zero> \<parallel> P y)) q"
-          proof -
-            have "\<nu> c. (\<zero> \<parallel> P y) \<sim>\<^sub>\<sharp> P y"
-            proof -
-              have "\<zero> \<parallel> P y \<sim>\<^sub>\<sharp> P y"
-                using proper_parallel_unit by simp
-              then have "\<nu> c. (\<zero> \<parallel> P y) \<sim>\<^sub>\<sharp> \<nu> c. P y"
-                using proper_new_channel_preservation by simp
-              then show ?thesis
-                using proper_scope_redundancy and proper.bisimilarity_transitivity_rule by blast
-            qed
-            then show ?thesis
-              using bisim_rel.id and `q = p1 y P` and p1_def by auto
-          qed
+            using aux3 and bisim_rel.id and `q = p1 y P` and p1_def by (simp add: reflpI)
           then have "proper_lift ?\<R> d (\<lparr>\<tau>\<rparr> q)"
             using simple_lift and `d = \<lparr>\<tau>\<rparr> \<nu> c. (\<zero> \<parallel> P y)` by simp
           ultimately show ?thesis
@@ -78,59 +110,75 @@ proof -
         fix d
         assume "p \<rightarrow>\<^sub>\<sharp> d"
         then show "\<exists>e. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ e \<and> proper_lift ?\<R> d e"
-        proof (cases d)
-          case (Simple \<delta> p')
+        proof cases
+          case (simple \<delta> p')
           then show ?thesis
           proof -
-            let ?e = "\<lparr>\<delta>\<rparr> \<nu> c. (\<zero> \<parallel> p')"
-            have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ ?e"
+            have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<delta>\<rparr> \<nu> c. (\<zero> \<parallel> p')"
             proof -
               have "q \<rightarrow>\<^sub>\<sharp>\<lparr>\<tau>\<rparr> \<nu> c. (\<zero> \<parallel> P y)"
-                using `q = p0 y P` and transitions_from_p0 by (metis theI_unique)
-              moreover have "\<nu> c. (\<zero> \<parallel> P y) \<rightarrow>\<^sub>\<sharp> ?e"
+                using transitions_from_p0 and `q = p0 y P` by (metis theI2)
+              moreover have "\<nu> c. (\<zero> \<parallel> P y) \<Longrightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> \<nu> c. (\<zero> \<parallel> p')"
               proof -
-                have "P y \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> p'"
-                  using `p \<rightarrow>\<^sub>\<sharp> d` and `d = \<lparr>\<delta>\<rparr> p'` and `p = p1 y P` and p1_def and proper_simple_trans_is_basic_trans by simp
-                then have "\<zero> \<parallel> P y \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<zero> \<parallel> p'"
-                  using acting_right by simp
-                moreover have "\<nu> c. (\<zero> \<parallel> P y) \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> c\<rbrace> \<zero> \<parallel> P y"
-                  using opening by simp
-                ultimately have "\<nu> c. (\<zero> \<parallel> P y) \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> c. (\<zero> \<parallel> p')"
-                  using scoped_acting by simp
-                then show ?thesis
+                have "\<zero> \<parallel> P y \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<zero> \<parallel> p'"
+                  using `p \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> p'` and `p = p1 y P` and p1_def and acting_right by simp
+                then have "\<nu> c. (\<zero> \<parallel> P y) \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> c. (\<zero> \<parallel> p')"
+                  using acting_scope by simp
+                then have "\<nu> c. (\<zero> \<parallel> P y) \<rightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> \<nu> c. (\<zero> \<parallel> p')"
                   using proper_transition.simple by simp
+                then show ?thesis
+                  using weak_tau_respecting_proper_transition_single_simple by simp
               qed
               ultimately show ?thesis
-                using weak_tau_respecting_proper_transition_single_simple
-                  and prepend_tau_transition_to_weak_proper_transition
-                  and weak_proper_transition_step_intro
-                   by simp
+                using prepend_tau_transition_to_weak_proper_transition and weak_proper_transition_def by simp
             qed
-            moreover have "proper_lift ?\<R> d ?e"
+            moreover have "proper_lift ?\<R> (\<lparr>\<delta>\<rparr> p') (\<lparr>\<delta>\<rparr> \<nu> c. (\<zero> \<parallel> p'))"
             proof -
-              have "p' \<sim>\<^sub>\<sharp> \<zero> \<parallel> p'"
-                using proper_parallel_unit by simp
-              also have "\<zero> \<parallel> p' \<sim>\<^sub>\<sharp> \<nu> c. (\<zero> \<parallel> p')"
-                using proper_scope_redundancy by simp
-              finally have "p' \<sim>\<^sub>\<sharp> \<nu> c. (\<zero> \<parallel> p')" .
-              then have "?\<R> p' (\<nu> c. (\<zero> \<parallel> p'))"
-                using bisim_rel.id by auto
+              have "?\<R> p' (\<nu> c. (\<zero> \<parallel> p'))"
+                using aux3 and bisim_rel.id by (simp add: reflpI)
               then show ?thesis
-                using simple_lift and `d = \<lparr>\<delta>\<rparr> p'` by simp
+                using simple_lift by simp
             qed
             ultimately show ?thesis
-              by smt
+              using `d = \<lparr>\<delta>\<rparr> p'` by auto
           qed
         next
-          case (Output c K)
+          case (output_without_opening a x p')
           then show ?thesis
-          proof (induction K)
-            case (WithoutOpening x p)
-            then show ?case sorry
-          next
-            case (WithOpening \<F>)
-            then show ?case sorry
+          proof -
+            have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>a \<triangleleft> x\<rparr> \<nu> c. (\<zero> \<parallel> p')"
+            proof -
+              have "q \<Rightarrow>\<^sup>\<tau> \<nu> c. (\<zero> \<parallel> P y)"
+                using aux2 and `q = p0 y P` by simp
+              moreover have "\<nu> c. (\<zero> \<parallel> P y) \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> \<nu> c. (\<zero> \<parallel> p')"
+              proof -
+                have "\<zero> \<parallel> P y \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> \<zero> \<parallel> p'"
+                  using `p \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> p'` and `p = p1 y P` and p1_def and acting_right by simp
+                then have "\<nu> c. (\<zero> \<parallel> P y) \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> \<nu> c. (\<zero> \<parallel> p')"
+                  using acting_scope by simp
+                then have "\<nu> c. (\<zero> \<parallel> P y) \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> \<nu> c. (\<zero> \<parallel> p')"
+                  using proper_transition.output_without_opening by simp
+                then show ?thesis
+                  using weak_tau_respecting_proper_transition_single_output_without_opening by simp
+              qed
+              ultimately show ?thesis
+                using prepend_tau_sequence_to_weak_tau_respecting_proper_transition_output_without_opening and weak_proper_transition_def by simp
+            qed
+            moreover have "proper_lift ?\<R> (\<lparr>a \<triangleleft> x\<rparr> p') (\<lparr>a \<triangleleft> x\<rparr> \<nu> c. (\<zero> \<parallel> p'))"
+            proof -
+              have "?\<R> p' (\<nu> c. (\<zero> \<parallel> p'))"
+                using aux3 and bisim_rel.id by (simp add: reflpI)
+              then have "output_rest_lift ?\<R> (x\<rparr> p') (x\<rparr> \<nu> c. (\<zero> \<parallel> p'))"
+                using without_opening_lift by simp
+              then show ?thesis
+                using output_lift by simp
+            qed
+            ultimately show ?thesis
+              using `d = \<lparr>a \<triangleleft> x\<rparr> p'` by auto
           qed
+        next
+          case (output_with_opening P' a K)
+          then show ?thesis sorry
         qed
       qed
     next
