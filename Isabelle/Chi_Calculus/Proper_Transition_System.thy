@@ -95,7 +95,7 @@ next
     proof induction
       case (without_opening_lift p r x)
       then obtain q where "\<X> p q" and "\<Y> q r"
-        by (elim relcomppE)
+        by cases
       then show ?case
         by (blast intro: output_rest_lift.without_opening_lift)
     next
@@ -110,7 +110,7 @@ next
     fix k and m
     assume "(output_rest_lift \<X> OO output_rest_lift \<Y>) k m"
     then obtain l where "output_rest_lift \<X> k l" and "output_rest_lift \<Y> l m"
-      by (elim relcomppE)
+      by cases
     then show "output_rest_lift (\<X> OO \<Y>) k m"
       by
         (induction arbitrary: m)
@@ -199,7 +199,7 @@ next
     proof induction
       case (simple_lift p r \<alpha>)
       then obtain q where "\<X> p q" and "\<Y> q r"
-        by (elim relcomppE)
+        by cases
       then show ?case
         by (blast intro: proper_lift.simple_lift)
     next
@@ -214,7 +214,7 @@ next
     assume "(proper_lift \<X> OO proper_lift \<Y>) c e"
     then show "proper_lift (\<X> OO \<Y>) c e"
       using output_rest.lift_composition_preservation and proper_lift.simps
-      by (elim relcomppE) auto
+      by cases auto
   qed
 next
   fix \<X>

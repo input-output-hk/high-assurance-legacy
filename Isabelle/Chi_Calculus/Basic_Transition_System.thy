@@ -84,7 +84,7 @@ next
     proof induction
       case (acting_lift p r \<alpha>)
       then obtain q where "\<X> p q" and "\<Y> q r"
-        by (elim relcomppE)
+        by cases
       then show ?case
         by (blast intro: basic_lift.acting_lift)
     next
