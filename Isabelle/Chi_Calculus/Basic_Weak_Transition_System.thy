@@ -104,4 +104,20 @@ lemma weak_silent_sending: "a \<triangleleft> x \<Rightarrow>\<^sub>\<flat>\<lbr
 lemma weak_silent_receiving: "a \<triangleright> x. P x \<Rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleright> x\<rbrace> P x"
   using receiving by (simp add: basic.strong_transition)
 
+(** Weak basic transition \<Rightarrow>\<^sub>\<flat>\<^sup>^ **)
+
+inductive
+  weak_basic_transition :: "process \<Rightarrow> basic_residual \<Rightarrow> bool" (infix "\<Rightarrow>\<^sub>\<flat>\<^sup>^" 50)
+where
+  weak_basic_transition_acting: "p \<Rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q \<or> (\<alpha> = \<tau> \<and> p = q) \<Longrightarrow> p \<Rightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> q" |
+  weak_basic_transition_opening: "p \<Rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<Longrightarrow> p \<Rightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<nu> a\<rbrace> P a"
+
+(** Lifted weak basic operational semantics **)
+
+lemma weak_sending: "a \<triangleleft> x \<Rightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>a \<triangleleft> x\<rbrace> \<zero>"
+  by (simp add: weak_silent_sending weak_basic_transition_acting)
+
+lemma weak_receiving: "a \<triangleright> x. P x \<Rightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>a \<triangleright> x\<rbrace> P x"
+  by (simp add: weak_silent_receiving weak_basic_transition_acting)
+
 end
