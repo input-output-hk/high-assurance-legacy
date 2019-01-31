@@ -6,6 +6,33 @@ theory Utilities
     Chi_Calculus.Proper_Weak_Bisimulation
 begin
 
+lemma proper_transitions_from_receive:
+  assumes "a \<triangleright> x. P x \<rightarrow>\<^sub>\<sharp> c"
+  obtains x where "c = \<lparr>a \<triangleright> x\<rparr> P x"
+  using assms
+proof (induction "a \<triangleright> x. P x" c)
+  case simple
+  then show ?case
+  proof cases
+    case receiving
+    then show ?thesis
+      (* TODO: Find a nicer proof. *)
+      by (metis basic_action.distinct(1) basic_action.inject basic_action_of.simps(1) basic_action_of.simps(2) io_action.inject(2) proper_action.exhaust simple.prems)
+  next
+    case scoped_acting
+    then show ?thesis
+      using no_opening_transitions_from_receive by simp
+  qed
+next
+  case output_without_opening
+  then show ?case
+    using basic_transitions_from_receive by auto
+next
+  case output_with_opening
+  then show ?case
+    using no_opening_transitions_from_receive by blast
+qed
+
 context begin
 
 private definition
