@@ -4,7 +4,7 @@ theory Broadcaster_Examples
   imports
     Chi_Calculus.Processes
     Chi_Calculus.Proper_Weak_Bisimulation
-    Chi_Calculus_Examples.Utilities
+    Utilities
     "HOL-Library.BNF_Corec"
 begin
 
