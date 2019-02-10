@@ -557,11 +557,11 @@ private lemma proper_stop_scope_redundancy: "\<zero> \<sim>\<^sub>\<sharp> \<nu>
 proof
   show "\<zero> \<lesssim>\<^sub>\<sharp> \<nu> a. \<zero>"
     using no_proper_transitions_from_stop
-    by (blast intro: proper.pre_bisimilarity.intros)
+    by (blast intro: proper.pre_bisimilarity)
 next
   show "\<nu> a. \<zero> \<lesssim>\<^sub>\<sharp> \<zero>"
     using no_proper_transitions_from_new_channel_stop
-    by (blast intro: proper.pre_bisimilarity.intros)
+    by (blast intro: proper.pre_bisimilarity)
 qed
 
 lemma proper_scope_redundancy: "p \<sim>\<^sub>\<sharp> \<nu> a. p"

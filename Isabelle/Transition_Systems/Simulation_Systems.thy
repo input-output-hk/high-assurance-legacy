@@ -124,7 +124,7 @@ coinductive
 and
   bisimilarity :: "['process, 'process] \<Rightarrow> bool" (infix "\<sim>" 50)
 where
-  "transfer (\<sim>) p q \<Longrightarrow> p \<lesssim> q" |
+  pre_bisimilarity: "transfer (\<sim>) p q \<Longrightarrow> p \<lesssim> q" |
   "p \<sim> q \<equiv> p \<lesssim> q \<and> q \<lesssim> p"
 
 subsubsection \<open>Symmetry\<close>
