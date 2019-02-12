@@ -271,7 +271,7 @@ syntax
 translations
   "\<parallel>x\<leftarrow>xs. p" \<rightleftharpoons> "CONST big_parallel (\<lambda>x. p) xs"
 
-(* `restrict n P` builds the process `\<nu> a\<^sub>1 ... a\<^sub>n. P [a\<^sub>1, ..., a\<^sub>n]` *)
+(* The function `restrict n P` returns the process `\<nu> a\<^sub>1 ... a\<^sub>n. P [a\<^sub>1, ..., a\<^sub>n]`. *)
 
 fun
   restrict  :: "[nat, chan list \<Rightarrow> process] \<Rightarrow> process"
