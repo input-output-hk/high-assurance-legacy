@@ -250,4 +250,25 @@ proof -
   finally show ?thesis .
 qed
 
+(* Generalized parallel composition over finite sets. *)
+(* NOTE: The existing `comm_monoid` does not work because `(=)` is used, whereas `(process, \<parallel>, \<zero>)` is
+   a commutative monoid when `(\<sim>\<^sub>\<sharp>)` or `(\<approx>\<^sub>\<sharp>)` is used. *)
+
+definition
+  big_parallel :: "['a \<Rightarrow> process, 'a list] \<Rightarrow> process"
+where
+  "big_parallel f xs \<equiv> foldr (\<lambda>x p. f x \<parallel> p) xs \<zero>"
+
+abbreviation
+  Big_Parallel ("\<parallel>_" [1000] 999)
+where
+  "\<parallel>ps \<equiv> big_parallel id ps"
+
+syntax (ASCII)
+  "_big_parallel" :: "[pttrn, 'a list,  process] \<Rightarrow> process" ("(4PARALLEL (_/:_)./ _)" [0, 51, 10] 10)
+syntax
+  "_big_parallel" :: "[pttrn, 'a list,  process] \<Rightarrow> process" ("(2\<parallel>(_/\<leftarrow>_)./ _)" [0, 51, 10] 10)
+translations
+  "\<parallel>x\<leftarrow>xs. p" \<rightleftharpoons> "CONST big_parallel (\<lambda>x. p) xs"
+
 end
