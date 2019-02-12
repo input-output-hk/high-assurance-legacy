@@ -99,39 +99,34 @@ where
 
 (* Broadcaster process. *)
 
-abbreviation
-  broadcaster\<^sub>2 :: "[chan list, val] \<Rightarrow> process"
-where
-  "broadcaster\<^sub>2 cs x \<equiv> foldr (\<lambda>c p. c \<triangleleft> x \<parallel> p) cs \<zero>"
-
 definition
-  broadcaster\<^sub>1 :: "[chan list, chan] \<Rightarrow> process"
+  broadcaster :: "[chan list, chan] \<Rightarrow> process"
 where
-  "broadcaster\<^sub>1 cs inp \<equiv> inp \<triangleright> x. broadcaster\<^sub>2 cs x"
+  "broadcaster cs inp \<equiv> inp \<triangleright> x. (\<parallel>c \<leftarrow> cs. c \<triangleleft> x)"
 
 (* Broadcaster system, namely a broadcaster process and a sender process. *)
 
 definition
   broadcaster_system :: "[chan list, val] \<Rightarrow> process"
 where
-  "broadcaster_system cs m \<equiv> \<nu> inp. (inp \<triangleleft> m \<parallel> broadcaster\<^sub>1 cs inp)"
+  "broadcaster_system cs m \<equiv> \<nu> inp. (inp \<triangleleft> m \<parallel> broadcaster cs inp)"
 
 (* Equivalence proof. *)
 
 lemma broadcaster_system_step: "broadcaster_system (c # cs) m \<approx>\<^sub>\<sharp> c \<triangleleft> m \<parallel> broadcaster_system cs m"
 proof -
-  have "broadcaster_system (c # cs) m = \<nu> inp. (inp \<triangleleft> m \<parallel> broadcaster\<^sub>1 (c # cs) inp)"
+  have "broadcaster_system (c # cs) m = \<nu> inp. (inp \<triangleleft> m \<parallel> broadcaster (c # cs) inp)"
     using broadcaster_system_def by simp
-  also have "... = \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. broadcaster\<^sub>2 (c # cs) x)"
-    using broadcaster\<^sub>1_def by simp
-  also have "... \<approx>\<^sub>\<sharp> broadcaster\<^sub>2 (c # cs) m"
-    using internal_communication by simp
-  also have "... = c \<triangleleft> m \<parallel> broadcaster\<^sub>2 cs m"
-    by simp
-  also have "... \<approx>\<^sub>\<sharp> c \<triangleleft> m \<parallel> \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. broadcaster\<^sub>2 cs x)"
+  also have "... = \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (\<parallel>a \<leftarrow> (c # cs). a \<triangleleft> x))"
+    by (unfold broadcaster_def) simp
+  also have "... \<approx>\<^sub>\<sharp> (\<parallel>a \<leftarrow> (c # cs). a \<triangleleft> m)"
+    by (blast intro: internal_communication)
+  also have "... = c \<triangleleft> m \<parallel> (\<parallel>a \<leftarrow> cs. a \<triangleleft> m)"
+    by (unfold big_parallel_def) simp
+  also have "... \<approx>\<^sub>\<sharp> c \<triangleleft> m \<parallel> \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (\<parallel>a \<leftarrow> cs. a \<triangleleft> x))"
     using internal_communication and weak_proper_bisim_symmetry and weak_proper_parallel_preservation by fastforce
-  also have "... = c \<triangleleft> m \<parallel> \<nu> inp. (inp \<triangleleft> m \<parallel> broadcaster\<^sub>1 cs inp)"
-    using broadcaster\<^sub>1_def by simp
+  also have "... = c \<triangleleft> m \<parallel> \<nu> inp. (inp \<triangleleft> m \<parallel> broadcaster cs inp)"
+    by (unfold broadcaster_def) simp
   finally show ?thesis
     using broadcaster_system_def by simp
 qed
@@ -202,7 +197,16 @@ proof (induction cs)
   then have "forwarder_system [] m = \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. \<zero>)"
     using forwarder_system_def and forwarder_chain_def and chain_def by simp
   moreover have "broadcaster_system [] m = \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. \<zero>)"
-    using broadcaster_system_def and broadcaster\<^sub>1_def by simp
+  proof -
+    have "broadcaster_system [] m = \<nu> inp. (inp \<triangleleft> m \<parallel> broadcaster [] inp)"
+      by (unfold broadcaster_system_def) simp
+    also have "... = \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. (\<parallel>c \<leftarrow> []. c \<triangleleft> x))"
+      by (unfold broadcaster_def) simp
+    also have "... = \<nu> inp. (inp \<triangleleft> m \<parallel> inp \<triangleright> x. \<zero>)"
+      by (unfold big_parallel_def) simp
+    finally show ?thesis
+      by simp
+  qed
   ultimately show ?case
     by (simp add: weak_proper_bisim_reflexivity)
 next
