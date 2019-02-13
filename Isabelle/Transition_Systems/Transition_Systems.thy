@@ -109,7 +109,7 @@ text \<open>
 lemma bisimilarity_reflexivity: "reflp (\<sim>)"
 unfolding reflp_eq proof in_bisimilarity_standard
   case symmetry
-  show ?case by (simp add: sympI)
+  show ?case by (simp add: symp_def)
 next
   case is_simulation
   show ?case by (fact equality_sim_propagation)
