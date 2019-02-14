@@ -259,6 +259,37 @@ definition
 where
   "big_parallel f xs \<equiv> foldr (\<lambda>x p. f x \<parallel> p) xs \<zero>"
 
+lemma big_parallel_cong [fundef_cong]:
+  assumes "xs = ys"
+  and "\<And>x. x \<in> set xs \<Longrightarrow> f x = g x"
+  shows "big_parallel f xs = big_parallel g ys"
+  using assms
+proof (induction ys arbitrary: xs)
+  case Nil
+  then show ?case
+    by (unfold big_parallel_def) simp
+next
+  case (Cons y ys)
+  have "big_parallel f xs = big_parallel f (y # ys)"
+    by (simp add: \<open>xs = y # ys\<close>)
+  also have "... = foldr (\<lambda>x p. f x \<parallel> p) (y # ys) \<zero>"
+    by (unfold big_parallel_def) simp
+  also have "... = f y \<parallel> foldr (\<lambda>x p. f x \<parallel> p) ys \<zero>"
+    by (simp add: foldr_Cons)
+  also have "... = f y \<parallel> big_parallel f ys"
+    by (fold big_parallel_def) simp
+  also have "... = g y \<parallel> big_parallel g ys"
+    by (simp add: Cons.IH Cons.prems(1-2))
+  also have "... = g y \<parallel> foldr (\<lambda>x p. g x \<parallel> p) ys \<zero>"
+    by (unfold big_parallel_def) simp
+  also have "... = foldr (\<lambda>x p. g x \<parallel> p) (y # ys) \<zero>"
+    by (simp add: foldr_Cons)
+  also have "... = big_parallel g (y # ys)"
+    by (fold big_parallel_def) simp
+  finally show ?case
+    by simp
+qed
+
 abbreviation
   Big_Parallel ("\<parallel>_" [1000] 999)
 where
