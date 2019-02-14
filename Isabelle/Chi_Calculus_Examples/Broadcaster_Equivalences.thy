@@ -222,4 +222,243 @@ next
     by (meson weak_proper_bisim_symmetry)
 qed
 
+text \<open>
+  The following is the proof that broadcast is observationally equivalent to a tree of forwarders.
+\<close>
+
+(* Rose trees. *)
+
+datatype 'a tree = Node (tval: 'a) (children: "'a tree list")
+
+fun
+  tree_as_list :: "'a tree \<Rightarrow> 'a list"
+where
+  "tree_as_list (Node x []) = [x]"
+| "tree_as_list (Node x ts) = x # List.bind ts tree_as_list"
+
+abbreviation
+  size :: "'a tree \<Rightarrow> nat"
+where
+  "size \<equiv> length o tree_as_list"
+
+abbreviation
+  leaf :: "'a \<Rightarrow> 'a tree"
+where
+  "leaf x \<equiv> Node x []"
+
+lemma tree_size: "size (Node x ts) = 1 + (\<Sum>t\<leftarrow>ts. size t)"
+proof -
+  have "size (Node x ts) = length (tree_as_list (Node x ts))"
+    by simp
+  also have "... = length (x # List.bind ts tree_as_list)"
+    by (metis List.bind_def concat.simps(1) list.exhaust list.simps(8) tree_as_list.simps)
+  also have "... = 1 + length (List.bind ts tree_as_list)"
+    by simp
+  also have "... = 1 + length (concat (map tree_as_list ts))"
+    by (unfold List.bind_def) simp
+  also have "... = 1 + sum_list (map length (map tree_as_list ts))"
+    by (simp add: length_concat)
+  also have "... = 1 + sum_list (map (length o tree_as_list) ts)"
+    by simp
+  finally show ?thesis
+    by blast
+qed
+
+lemma tree_child_size:
+  assumes "ts \<noteq> []"
+  and "i \<in> {0..< length ts}"
+  shows "size (ts ! i) < size (Node x ts)"
+  using assms
+proof -
+  assume "ts \<noteq> []" and "i \<in> {0..< length ts}"
+  then have "size (ts ! i) \<le> (\<Sum>t\<leftarrow>ts. size t)"
+    by (metis atLeastLessThan_iff elem_le_sum_list length_map nth_map)
+  moreover have "size (Node x ts) = 1 + (\<Sum>t\<leftarrow>ts. size t)"
+    using tree_size by simp
+  ultimately show ?thesis
+    by linarith
+qed
+
+(* Tree topology. It's implemented simply as a tree of channels. This set of channels is comprised
+   by the channels used by forwarders to deliver the broadcast message to the receiving processes. *)
+
+type_synonym tree_topology = "chan tree"
+
+(* Generator of a tree of forwarders from a given tree topology. Each forwarder is actually implemented
+   as a broadcaster. *)
+
+function
+  tree_forwarder :: "[chan, tree_topology] \<Rightarrow> process"
+where
+  "tree_forwarder inp (Node dlv ts) = (
+    if ts = []
+    then
+      broadcaster [dlv] inp
+    else
+      restrict
+        (length ts)
+        (\<lambda>inpps. (
+          broadcaster (dlv # inpps) inp
+          \<parallel>
+          (\<parallel>i \<leftarrow> [0..< length ts]. tree_forwarder (inpps ! i) (ts ! i)))))"
+by pat_completeness auto
+termination
+  apply (relation "measure (\<lambda>(_, t). size t)", auto)
+  using tree_child_size by fastforce+
+
+(**
+  Examples:
+
+    tree_topology_1: dlv1
+
+    tree_topology_2: dlv1
+                      |__ dlv2
+
+    tree_topology_3: dlv1
+                      |__ dlv2
+                      |__ dlv3
+
+    tree_topology_4: dlv1
+                      |__ dlv2
+                           |__ dlv3
+**)
+
+context
+  fixes dlv1 dlv2 dlv3 :: chan
+begin
+
+abbreviation
+  tree_topology_1
+where
+  "tree_topology_1 \<equiv> leaf dlv1"
+
+abbreviation
+  tree_topology_2
+where
+  "tree_topology_2 \<equiv> Node dlv1 [leaf dlv2]"
+
+abbreviation
+  tree_topology_3
+where
+  "tree_topology_3 \<equiv> Node dlv1 [leaf dlv2, leaf dlv3]"
+
+abbreviation
+  tree_topology_4
+where
+  "tree_topology_4 \<equiv> Node dlv1 [Node dlv2 [leaf dlv3]]"
+
+(* inp \<triangleright> m. (dlv1 \<triangleleft> m \<parallel> \<zero>) *)
+value "tree_forwarder inp tree_topology_1"
+
+(* \<nu> inp1. (inp \<triangleright> m. (dlv1 \<triangleleft> m \<parallel> inp1 \<triangleleft> m \<parallel> \<zero>) \<parallel> inp1 \<triangleright> m. (dlv2 \<triangleleft> m \<parallel> \<zero>) \<parallel> \<zero>) *)
+value "tree_forwarder inp tree_topology_2"
+
+(* \<nu> inp1 inp2. (inp \<triangleright> m. (dlv1 \<triangleleft> m \<parallel> inp1 \<triangleleft> m \<parallel> inp2 \<triangleleft> m \<parallel> \<zero>) \<parallel> inp1 \<triangleright> m. (dlv2 \<triangleleft> m \<parallel> \<zero>) \<parallel> inp2 \<triangleright> m. (dlv3 \<triangleleft> m \<parallel> \<zero>) \<parallel> \<zero>) *)
+value "tree_forwarder inp tree_topology_3"
+
+(* \<nu> inp1. (inp \<triangleright> m. (dlv1 \<triangleleft> m \<parallel> inp1 \<triangleleft> m \<parallel> \<zero>) \<parallel> \<nu> inp2. (inp1 \<triangleright> m. (dlv2 \<triangleleft> m \<parallel> inp2 \<triangleleft> m \<parallel> \<zero>) \<parallel> inp2 \<triangleright> m. (dlv3 \<triangleleft> m \<parallel> \<zero>) \<parallel> \<zero>) \<parallel> \<zero>) *)
+value "tree_forwarder inp tree_topology_4"
+
+lemma "tree_forwarder inp tree_topology_1 = broadcaster [dlv1] inp"
+  by simp
+
+lemma "tree_forwarder inp tree_topology_2 = \<nu> inp2. (broadcaster [dlv1, inp2] inp \<parallel> broadcaster [dlv2] inp2 \<parallel> \<zero>)"
+proof -
+  let ?ts = "[leaf dlv2]"
+  have "tree_forwarder inp tree_topology_2 =
+    restrict
+      (length ?ts)
+      (\<lambda>inpps. (broadcaster (dlv1 # inpps) inp \<parallel> (\<parallel>i \<leftarrow> [0..< length ?ts]. tree_forwarder (inpps ! i) (?ts ! i))))"
+    unfolding tree_forwarder.simps by simp
+  also have "... =
+    restrict
+      (Suc 0)
+      (\<lambda>inpps. (broadcaster (dlv1 # inpps) inp \<parallel> (\<parallel>i \<leftarrow> [0..< Suc 0]. tree_forwarder (inpps ! i) (?ts ! i))))"
+    by simp
+  also have "... =
+    restrict
+      (Suc 0)
+      (\<lambda>inpps. (broadcaster (dlv1 # inpps) inp \<parallel> tree_forwarder (inpps ! 0) (?ts ! 0) \<parallel> \<zero>))"
+    by (unfold big_parallel_def) simp
+  also have "... = \<nu> inp2. (broadcaster (dlv1 # [inp2]) inp \<parallel> tree_forwarder ([inp2] ! 0) (?ts ! 0) \<parallel> \<zero>)"
+    unfolding restrict.simps by simp
+  also have "... = \<nu> inp2. (broadcaster ([dlv1, inp2]) inp \<parallel> tree_forwarder inp2 (leaf dlv2) \<parallel> \<zero>)"
+    by simp
+  also have "... = \<nu> inp2. (broadcaster ([dlv1, inp2]) inp \<parallel> broadcaster [dlv2] inp2 \<parallel> \<zero>)"
+    unfolding tree_forwarder.simps by simp
+  finally show ?thesis
+    by simp
+qed
+
+lemma "tree_forwarder inp tree_topology_3 =
+  \<nu> inp2 inp3. (broadcaster [dlv1, inp2, inp3] inp \<parallel> broadcaster [dlv2] inp2 \<parallel> broadcaster [dlv3] inp3 \<parallel> \<zero>)"
+proof -
+  let ?ts = "[leaf dlv2, leaf dlv3]"
+  have "tree_forwarder inp tree_topology_3 =
+    restrict
+      (length ?ts)
+      (\<lambda>inpps. (broadcaster (dlv1 # inpps) inp \<parallel> (\<parallel>i \<leftarrow> [0..< length ?ts]. tree_forwarder (inpps ! i) (?ts ! i))))"
+    unfolding tree_forwarder.simps by simp
+  also have "... =
+    restrict
+      (Suc (Suc 0))
+      (\<lambda>inpps. (broadcaster (dlv1 # inpps) inp \<parallel> (\<parallel>i \<leftarrow> [0..< Suc (Suc 0)]. tree_forwarder (inpps ! i) (?ts ! i))))"
+    by simp
+  also have "... = \<nu> inp2 inp3. (broadcaster (dlv1 # [inp2, inp3]) inp \<parallel> (\<parallel>i \<leftarrow> [0..< Suc (Suc 0)]. tree_forwarder ([inp2, inp3] ! i) (?ts ! i)))"
+    unfolding restrict.simps by simp
+  also have "... = \<nu> inp2 inp3. (broadcaster [dlv1, inp2, inp3] inp \<parallel> tree_forwarder inp2 (Node dlv2 []) \<parallel> tree_forwarder inp3 (leaf dlv3) \<parallel> \<zero>)"
+    by (unfold big_parallel_def) simp
+  also have "... = \<nu> inp2 inp3. (broadcaster [dlv1, inp2, inp3] inp \<parallel> broadcaster [dlv2] inp2 \<parallel> broadcaster [dlv3] inp3 \<parallel> \<zero>)"
+    unfolding tree_forwarder.simps by simp
+  finally show ?thesis
+    by simp
+qed
+
+lemma "tree_forwarder inp tree_topology_4 =
+  \<nu> inp2. (broadcaster [dlv1, inp2] inp \<parallel> \<nu> inp3. (broadcaster [dlv2, inp3] inp2 \<parallel> broadcaster [dlv3] inp3 \<parallel> \<zero>) \<parallel> \<zero>)"
+proof -
+  let ?ts2 = "[leaf dlv3]"
+  let ?ts1 = "[Node dlv2 ?ts2]"
+  have "tree_forwarder inp tree_topology_4 =
+    restrict
+      (length ?ts1)
+      (\<lambda>inpps. (broadcaster (dlv1 # inpps) inp \<parallel> (\<parallel>i \<leftarrow> [0..< length ?ts1]. tree_forwarder (inpps ! i) (?ts1 ! i))))"
+    unfolding tree_forwarder.simps by simp
+  also have "... =
+    restrict
+      (Suc 0)
+      (\<lambda>inpps. (broadcaster (dlv1 # inpps) inp \<parallel> (\<parallel>i \<leftarrow> [0..< Suc 0]. tree_forwarder (inpps ! i) (?ts1 ! i))))"
+    by simp
+  also have "... = \<nu> inp2. (broadcaster (dlv1 # [inp2]) inp \<parallel> (\<parallel>i \<leftarrow> [0..< Suc 0]. tree_forwarder ([inp2] ! i) (?ts1 ! i)))"
+    unfolding restrict.simps by simp
+  also have "... = \<nu> inp2. (broadcaster (dlv1 # [inp2]) inp \<parallel> tree_forwarder ([inp2] ! 0) (?ts1 ! 0) \<parallel> \<zero>)"
+    by (unfold big_parallel_def) simp
+  also have "... = \<nu> inp2. (broadcaster [dlv1, inp2] inp \<parallel> tree_forwarder inp2 (Node dlv2 ?ts2) \<parallel> \<zero>)"
+    by simp
+  also have "... = \<nu> inp2. (broadcaster [dlv1, inp2] inp
+    \<parallel> restrict
+        (length ?ts2)
+        (\<lambda>inpps. (broadcaster (dlv2 # inpps) inp2 \<parallel> (\<parallel>i \<leftarrow> [0..< length [Node dlv3 []]]. tree_forwarder (inpps ! i) (?ts2 ! i))))
+    \<parallel> \<zero>)"
+    unfolding tree_forwarder.simps by simp
+  also have "... = \<nu> inp2. (broadcaster [dlv1, inp2] inp
+    \<parallel> restrict
+        (Suc 0)
+        (\<lambda>inpps. (broadcaster (dlv2 # inpps) inp2 \<parallel> (\<parallel>i \<leftarrow> [0..< Suc 0]. tree_forwarder (inpps ! i) (?ts2 ! i))))
+    \<parallel> \<zero>)"
+    by simp
+  also have "... = \<nu> inp2. (broadcaster [dlv1, inp2] inp
+    \<parallel> \<nu> inp3. (broadcaster (dlv2 # [inp3]) inp2 \<parallel> (\<parallel>i \<leftarrow> [0..< Suc 0]. tree_forwarder ([inp3] ! i) (?ts2 ! i)))
+    \<parallel> \<zero>)"
+    unfolding restrict.simps by simp
+  also have "... = \<nu> inp2. (broadcaster [dlv1, inp2] inp \<parallel> \<nu> inp3. (broadcaster [dlv2, inp3] inp2 \<parallel> tree_forwarder inp3 (Node dlv3 []) \<parallel> \<zero>) \<parallel> \<zero>)"
+    by (unfold big_parallel_def) simp
+  also have "... = \<nu> inp2. (broadcaster [dlv1, inp2] inp \<parallel> \<nu> inp3. (broadcaster [dlv2, inp3] inp2 \<parallel> broadcaster [dlv3] inp3 \<parallel> \<zero>) \<parallel> \<zero>)"
+    unfolding tree_forwarder.simps by simp
+  finally show ?thesis
+    by simp
+qed
+
+end
+
 end
