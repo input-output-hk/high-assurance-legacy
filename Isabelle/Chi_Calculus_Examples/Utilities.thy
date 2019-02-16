@@ -294,6 +294,27 @@ syntax
 translations
   "\<parallel>x\<leftarrow>xs. p" \<rightleftharpoons> "CONST big_parallel (\<lambda>x. p) xs"
 
+lemma weak_proper_big_parallel_preservation: "(\<And>x. x \<in> set xs \<Longrightarrow> P x \<approx>\<^sub>\<sharp> Q x) \<Longrightarrow> (\<parallel>x\<leftarrow>xs. P x) \<approx>\<^sub>\<sharp> (\<parallel>x\<leftarrow>xs. Q x)"
+proof (induction xs)
+  case Nil
+  have "big_parallel P [] = \<zero>"
+    by (simp add: big_parallel_def)
+  also have "... = big_parallel Q []"
+    by (simp add: big_parallel_def)
+  finally show ?case
+    by (simp add: weak_proper_bisim_reflexivity)
+next
+  case (Cons x xs)
+  then have "big_parallel P xs \<approx>\<^sub>\<sharp> big_parallel Q xs"
+    by simp
+  then have "P x \<parallel> big_parallel P xs \<approx>\<^sub>\<sharp> P x \<parallel> big_parallel Q xs"
+    using weak_proper_parallel_preservation by simp
+  also have "... \<approx>\<^sub>\<sharp> Q x \<parallel> big_parallel Q xs"
+    using Cons.prems and weak_proper_parallel_preservation by simp
+  finally show ?case
+    by (simp add: big_parallel_def)
+qed
+
 (* The function `restrict n P` returns the process `\<nu> a\<^sub>1 ... a\<^sub>n. P [a\<^sub>1, ..., a\<^sub>n]`. *)
 
 fun
