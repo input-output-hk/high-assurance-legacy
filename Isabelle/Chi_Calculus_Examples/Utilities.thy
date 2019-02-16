@@ -315,6 +315,10 @@ next
     by (simp add: big_parallel_def)
 qed
 
+lemma weak_proper_indexed_big_parallel_preservation:
+  "\<lbrakk> n > 0; \<And>i. i\<in>{0..<n} \<Longrightarrow> P i \<approx>\<^sub>\<sharp> Q i \<rbrakk> \<Longrightarrow> (\<parallel>i\<leftarrow>[0..<n]. P i) \<approx>\<^sub>\<sharp> (\<parallel>i\<leftarrow>[0..<n]. Q i)"
+  by (metis set_upt weak_proper_big_parallel_preservation)
+
 (* The function `restrict n P` returns the process `\<nu> a\<^sub>1 ... a\<^sub>n. P [a\<^sub>1, ..., a\<^sub>n]`. *)
 
 fun
