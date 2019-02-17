@@ -52,10 +52,10 @@ next
         by blast
       then have "(silent OO lift \<X>\<inverse>\<inverse>) q c"
         using silent_naturality
-        by fastforce
+        by simp
       then obtain d where "silent q d" and "lift \<X> c d"
         using lift_conversion_preservation
-        by fastforce
+        by auto
       then show ?case
         by (blast intro: weak_transition.silent_transition)
     next
@@ -66,8 +66,7 @@ next
       from composed_transition.IH(2) have "absorb ?IH_2_core c\<^sub>1 c'"
         by (under mono: absorb_monotonicity) (fact conjunct2)
       with `lift \<X> c\<^sub>1 d\<^sub>1` have "(lift \<X>\<inverse>\<inverse> OO absorb ?IH_2_core) d\<^sub>1 c'"
-        using lift_conversion_preservation
-        by fastforce
+        by (auto simp add: lift_conversion_preservation)
       then have "absorb (\<X>\<inverse>\<inverse> OO ?IH_2_core) d\<^sub>1 c'"
         using absorb_pre_naturality
         by metis
@@ -80,14 +79,12 @@ next
         then obtain d\<^sub>2 where "q\<^sub>1 \<Rightarrow> d\<^sub>2" and "lift \<X> c\<^sub>2 d\<^sub>2"
           by blast
         then show "((\<Rightarrow>) OO lift \<X>\<inverse>\<inverse>) q\<^sub>1 c\<^sub>2"
-          using lift_conversion_preservation
-          by fastforce
+          by (auto simp add: lift_conversion_preservation)
       qed
       then have "(absorb (\<Rightarrow>) OO lift \<X>\<inverse>\<inverse>) d\<^sub>1 c'"
         by (simp add: absorb_post_naturality)
       then obtain d' where "absorb (\<Rightarrow>) d\<^sub>1 d'" and "lift \<X> c' d'"
-        using lift_conversion_preservation
-        by fastforce
+        by (auto simp add: lift_conversion_preservation)
       with `q \<Rightarrow> d\<^sub>1` show ?case
         by (blast intro: weak_transition.composed_transition)
     qed

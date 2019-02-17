@@ -402,11 +402,12 @@ proof (standard, intro allI, intro impI)
   next
     case (output_without_opening a x q)
     then show ?thesis
-      using basic_transitions_from_receive
-      by fastforce
+      by (blast elim: basic_transitions_from_receive)
   next
     case output_with_opening
-    then show ?thesis by (simp add: no_opening_transitions_from_receive)
+    then show ?thesis
+      using no_opening_transitions_from_receive
+      by simp
   qed
 qed
 
@@ -441,8 +442,7 @@ proof (standard, intro allI, intro impI)
           io_action.inject(2)
         by smt
       from `basic_action_of \<delta> = a \<triangleright> x` have "a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> b. P x b"
-        using receiving
-        by fastforce
+        by (auto intro: receiving)
       moreover from `c = \<lparr>\<delta>\<rparr> r` and `r = \<nu> b. R b` and `\<And>b. R b = P x b` have "c = \<lparr>\<delta>\<rparr> \<nu> b. P x b"
         by simp
       ultimately have "a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<sharp>c"
@@ -459,8 +459,7 @@ proof (standard, intro allI, intro impI)
       from `\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b` have "\<And>b. Q b = a \<triangleright> x. P x b"
         by (fact opening_transitions_from_new_channel_receive)
       with `\<And>b. Q b \<rightarrow>\<^sub>\<flat>\<lbrace>a' \<triangleleft> x\<rbrace> R b` show ?thesis
-        using basic_transitions_from_receive and basic_residual.inject(1)
-        by fastforce
+        by (auto elim: basic_transitions_from_receive)
     qed
   next
     case (output_with_opening Q a' K)
@@ -472,11 +471,12 @@ proof (standard, intro allI, intro impI)
     proof cases
       case (output_without_opening x q)
       then show ?thesis
-        using basic_transitions_from_receive
-        by fastforce
+        by (blast elim: basic_transitions_from_receive)
     next
       case output_with_opening
-      then show ?thesis by (simp add: no_opening_transitions_from_receive)
+      then show ?thesis
+        using no_opening_transitions_from_receive
+        by simp
     qed
   qed
 qed
