@@ -330,4 +330,28 @@ where
 | "restrict' 0       cs P =  P cs"
 | "restrict' (Suc n) cs P =  \<nu> a. restrict' n (cs @ [a]) P"
 
+lemma weak_proper_restrict'_preservation: "(\<And>cs. P cs \<approx>\<^sub>\<sharp> Q cs) \<Longrightarrow> restrict' n cs P \<approx>\<^sub>\<sharp> restrict' n cs Q"
+proof (induction n arbitrary: cs)
+  case 0
+  have "restrict' 0 cs P = P cs"
+    by (rule restrict'.simps(1))
+  also have "... \<approx>\<^sub>\<sharp> Q cs"
+    by (rule "0.prems")
+  also have "... = restrict' 0 cs Q"
+    by (simp add: restrict'.simps(1))
+  finally show ?case
+    by simp
+next
+  case (Suc n)
+  then have "restrict' (Suc n) cs P = \<nu> a. restrict' n (cs @ [a]) P"
+    by (simp add: restrict'.simps(2))
+  also have "... \<approx>\<^sub>\<sharp> \<nu> a. restrict' n (cs @ [a]) Q"
+    using weak_proper_new_channel_preservation by (simp add: Suc.IH Suc.prems)
+  finally show ?case
+    by (simp add: restrict'.simps(2))
+qed
+
+lemma weak_proper_restrict_preservation: "(\<And>cs. P cs \<approx>\<^sub>\<sharp> Q cs) \<Longrightarrow> restrict n P \<approx>\<^sub>\<sharp> restrict n Q"
+  by (simp add: weak_proper_restrict'_preservation)
+
 end
