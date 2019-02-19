@@ -39,7 +39,7 @@ text \<open>
 \<close>
 
 abbreviation guard :: "[bool, process] \<Rightarrow> process" (infixr "?" 100) where
-  "w ? p \<equiv> if w then p else \<zero>"
+  "x ? p \<equiv> if x then p else \<zero>"
 
 text \<open>
   This is all for processes.
