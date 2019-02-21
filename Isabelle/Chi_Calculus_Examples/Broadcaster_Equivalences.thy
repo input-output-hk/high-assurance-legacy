@@ -290,8 +290,26 @@ proof -
 qed
 
 lemma tree_partition: "tree_as_list tp = tval tp # List.bind (children tp) tree_as_list"
-  (* FIXME: Find a nicer proof. *)
-  by (metis bind_simps(1) neq_Nil_conv tree.exhaust_sel tree_as_list.simps(1) tree_as_list.simps(2))
+proof -
+  obtain x and ts where "tp = Node x ts"
+    by (rule tree.exhaust_sel)
+  then show ?thesis
+  proof (cases ts)
+    case Nil
+    have "tree_as_list tp = [x]"
+      by (simp add: tree_as_list.simps(1) \<open>tp = Node x ts\<close> \<open>ts = []\<close>)
+    also have "... = x # List.bind [] tree_as_list"
+      unfolding bind_simps(1) by simp
+    finally show ?thesis
+      by (simp add: \<open>tp = Node x ts\<close> \<open>ts = []\<close>)
+  next
+    case (Cons t ts')
+    have "tree_as_list tp = x # List.bind ts tree_as_list"
+      by (simp add: tree_as_list.simps(2) \<open>tp = Node x ts\<close> \<open>ts = t # ts'\<close>)
+    then show ?thesis
+      by (simp add: \<open>tp = Node x ts\<close>)
+  qed
+qed
 
 lemma tree_as_list_map: "children tp \<noteq> [] \<Longrightarrow> (\<And>i. i \<in> {0..< length (children tp)} \<Longrightarrow> tree_as_list (children tp ! i) = map tree_as_list (children tp) ! i)"
   by simp
