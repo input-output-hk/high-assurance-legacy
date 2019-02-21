@@ -565,7 +565,16 @@ proof (induction "size tp" arbitrary: tp inp rule: less_induct)
 qed
 
 theorem broadcast_tree_forwarder_equivalence: "tree_forwarder_system tp m \<approx>\<^sub>\<sharp> broadcaster_system (tree_as_list tp) m"
-  by (simp add: broadcast_tree_forwarder_equivalence_aux broadcaster_system_def tree_forwarder_system_def weak_proper_new_channel_preservation weak_proper_parallel_preservation(2))
+proof -
+  have "\<And>inp. tree_forwarder inp tp \<approx>\<^sub>\<sharp> broadcaster (tree_as_list tp) inp"
+    by (fact broadcast_tree_forwarder_equivalence_aux)
+  then have "\<And>inp. inp \<triangleleft> m \<parallel> tree_forwarder inp tp \<approx>\<^sub>\<sharp> inp \<triangleleft> m \<parallel> broadcaster (tree_as_list tp) inp"
+    by (rule weak_proper_parallel_preservation(2))
+  then have "\<nu> inp. (inp \<triangleleft> m \<parallel> tree_forwarder inp tp) \<approx>\<^sub>\<sharp> \<nu> inp. (inp \<triangleleft> m \<parallel> broadcaster (tree_as_list tp) inp)"
+    by (fact weak_proper_new_channel_preservation)
+  then show ?thesis
+    by (unfold broadcaster_system_def tree_forwarder_system_def) simp
+qed
 
 end
 
