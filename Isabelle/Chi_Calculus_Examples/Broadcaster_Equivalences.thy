@@ -567,16 +567,37 @@ proof (induction "size tp" arbitrary: tp inp rule: less_induct)
       by (metis False tree.collapse)
     then have "\<forall>i \<in> {0..< ?n}. size (?fts ! i) < size tp"
       by (metis tree_child_size tree.collapse)
-    then have "\<And>inpps i. i \<in> {0..< ?n} \<Longrightarrow> tree_forwarder (inpps ! i) (?fts ! i) \<approx>\<^sub>\<sharp> broadcaster (tree_as_list (?fts ! i)) (inpps ! i)"
+    then have "\<And>inpps i. i \<in> {0..< ?n} \<Longrightarrow>
+      tree_forwarder (inpps ! i) (?fts ! i) \<approx>\<^sub>\<sharp> broadcaster (tree_as_list (?fts ! i)) (inpps ! i)"
       by (blast intro: less.hyps)
     then have "tree_forwarder inp tp \<approx>\<^sub>\<sharp>
       restrict ?n (\<lambda>inpps. broadcaster (tval tp # inpps) inp
         \<parallel> (\<parallel>i \<leftarrow> [0..< ?n]. broadcaster (tree_as_list (?fts ! i)) (inpps ! i)))"
       using tree_forwarder_subtrees_collapse by (meson \<open>?fts \<noteq> []\<close> tree.exhaust_sel)
+    also have "... \<approx>\<^sub>\<sharp>
+      restrict ?n (\<lambda>inpps. broadcaster (tval tp # inpps) inp
+        \<parallel> (\<parallel>i \<leftarrow> [0..< ?n]. broadcaster (map tree_as_list ?fts ! i) (inpps ! i)))"
+    proof -
+      have "\<And>inpps i. i \<in> {0..< ?n} \<Longrightarrow> tree_as_list (?fts ! i) = map tree_as_list ?fts ! i"
+        by simp
+      then have "\<And>inpps i. i \<in> {0..< ?n} \<Longrightarrow>
+        broadcaster (tree_as_list (?fts ! i)) (inpps ! i) \<approx>\<^sub>\<sharp> broadcaster (map tree_as_list ?fts ! i) (inpps ! i)"
+        by (simp add: weak_proper_bisim_reflexivity)
+      then have "\<And>inpps.
+        (\<parallel>i \<leftarrow> [0..< ?n]. broadcaster (tree_as_list (?fts ! i)) (inpps ! i))
+        \<approx>\<^sub>\<sharp>
+        (\<parallel>i \<leftarrow> [0..< ?n]. broadcaster (map tree_as_list ?fts ! i) (inpps ! i))"
+        using weak_proper_indexed_big_parallel_preservation by (simp add: \<open>?fts \<noteq> []\<close> length_greater_0_conv)
+      then have "\<And>inpps.
+        broadcaster (tval tp # inpps) inp \<parallel> (\<parallel>i \<leftarrow> [0..< ?n]. broadcaster (tree_as_list (?fts ! i)) (inpps ! i))
+        \<approx>\<^sub>\<sharp>
+        broadcaster (tval tp # inpps) inp \<parallel> (\<parallel>i \<leftarrow> [0..< ?n]. broadcaster (map tree_as_list ?fts ! i) (inpps ! i))"
+        by (rule weak_proper_parallel_preservation(2))
+      then show ?thesis
+        using weak_proper_restrict_preservation by simp
+    qed
     also have "... \<approx>\<^sub>\<sharp> broadcaster (tval tp # (List.bind ?fts tree_as_list)) inp"
-      using broadcaster_children_absorb and tree_as_list_map
-      (* FIXME: Find a nicer proof. *)
-      by (smt List.bind_def \<open>children tp \<noteq> []\<close> length_greater_0_conv length_map weak_proper_bisim_reflexivity weak_proper_bisim_transitivity weak_proper_indexed_big_parallel_preservation weak_proper_parallel_preservation(2) weak_proper_restrict_preservation)
+      using broadcaster_children_absorb and tree_as_list_map by (simp add: List.bind_def \<open>?fts \<noteq> []\<close>)
     finally show ?thesis
       by (simp add: tree_partition)
   qed
