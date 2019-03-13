@@ -5,6 +5,12 @@ begin
 lemma proper_tau_trans_is_basic_tau_trans: "(p \<rightarrow>\<^sub>\<sharp>\<lparr>\<tau>\<rparr> q) = (p \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q)"
   by (metis basic_action_of.simps(2) proper_residual.distinct(1) proper_residual.inject(1) proper_transition.simps)
 
+lemma proper_simple_trans_is_basic_trans: "p \<rightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q \<Longrightarrow> p \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> q"
+  by (metis proper_residual.distinct(1) proper_residual.inject(1) proper_transition.simps)
+
+lemma proper_output_without_opening_trans_is_basic_trans: "p \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q \<Longrightarrow> p \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> q"
+  using proper_transition.cases by auto
+
 (* TODO: Rename \<Rightarrow>\<^sup>\<tau>\<^sub>\<flat> to \<Rightarrow>\<^sup>\<tau>\<^sub>\<flat> in `Basic_Weak_Bisimulation`, then remove the following abbreviation. *)
 abbreviation
   proper_tau_sequence :: "process \<Rightarrow> process \<Rightarrow> bool" (infix "\<Rightarrow>\<^sup>\<tau>" 50)
@@ -199,7 +205,7 @@ definition weak_proper_transition :: "process \<Rightarrow> proper_residual \<Ri
       case c of
         \<lparr>\<delta>\<rparr> q \<Rightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q \<or> (\<delta> = \<tau> \<and> p = q) |
         \<lparr>a \<triangleleft> x\<rparr> q \<Rightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q |
-        Output a K \<Rightarrow> p \<Longrightarrow>\<^sub>\<sharp> Output a K"
+        \<lparr>a \<triangleleft> K \<Rightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> K"
 
 lemma prepend_tau_transition_to_weak_proper_transition: "\<lbrakk> p \<rightarrow>\<^sub>\<sharp>\<lparr>\<tau>\<rparr> r; r \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<delta>\<rparr> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<delta>\<rparr> q"
 proof -
