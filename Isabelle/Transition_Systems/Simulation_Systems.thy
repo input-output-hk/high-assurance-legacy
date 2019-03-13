@@ -115,7 +115,7 @@ subsection \<open>Bisimilarity\<close>
 text \<open>
   Our definition of bisimilarity is essentially the well-known coinductive definition. Using
   \<^const>\<open>transfer\<close> makes it very concise. As an auxiliary relation we introduce
-  ``pre-bisimilarity'', which requires simulation only in one direction for the first step but in
+  \<open>\<close>pre-bisimilarity'', which requires simulation only in one direction for the first step but in
   both directions for all following steps.
 \<close>
 
@@ -179,12 +179,12 @@ private lemma bisimulation_in_pre_bisimilarity: "bisim \<X> \<Longrightarrow> \<
 proof
   fix p and q
   assume "bisim \<X>" and "\<X> p q"
-  from `\<X> p q` have "(\<X> \<squnion> \<X>\<inverse>\<inverse>) p q"
+  from \<open>\<X> p q\<close> have "(\<X> \<squnion> \<X>\<inverse>\<inverse>) p q"
     by simp
   then show "p \<lesssim> q"
   proof (coinduction arbitrary: p q)
     case pre_bisimilarity
-    with `bisim \<X>` have "transfer (\<X> \<squnion> \<X>\<inverse>\<inverse>) p q"
+    with \<open>bisim \<X>\<close> have "transfer (\<X> \<squnion> \<X>\<inverse>\<inverse>) p q"
       using symmetric_closure_of_bisimulation_is_simulation
       by blast
     moreover
@@ -208,10 +208,10 @@ text \<open>
 lemma bisimulation_in_bisimilarity: "bisim \<X> \<Longrightarrow> \<X> \<le> (\<sim>)"
 proof -
   assume "bisim \<X>"
-  from `bisim \<X>` have "\<X> \<le> (\<lesssim>)"
+  from \<open>bisim \<X>\<close> have "\<X> \<le> (\<lesssim>)"
     by (fact bisimulation_in_pre_bisimilarity)
   moreover
-  from `bisim \<X>` have "bisim \<X>\<inverse>\<inverse>"
+  from \<open>bisim \<X>\<close> have "bisim \<X>\<inverse>\<inverse>"
     by (fact conversion_bisim_propagation)
   then have "\<X>\<inverse>\<inverse> \<le> (\<lesssim>)"
     by (fact bisimulation_in_pre_bisimilarity)

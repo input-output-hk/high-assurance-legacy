@@ -11,7 +11,7 @@ lemma proper_simple_trans_is_basic_trans: "p \<rightarrow>\<^sub>\<sharp>\<lparr
 lemma proper_output_without_opening_trans_is_basic_trans: "p \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q \<Longrightarrow> p \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> q"
   using proper_transition.cases by auto
 
-(* TODO: Rename \<Rightarrow>\<^sup>\<tau>\<^sub>\<flat> to \<Rightarrow>\<^sup>\<tau>\<^sub>\<flat> in `Basic_Weak_Bisimulation`, then remove the following abbreviation. *)
+(* TODO: Rename \<Rightarrow>\<^sup>\<tau>\<^sub>\<flat> to \<Rightarrow>\<^sup>\<tau>\<^sub>\<flat> in \<open>Basic_Weak_Bisimulation\<close>, then remove the following abbreviation. *)
 abbreviation
   proper_tau_sequence :: "process \<Rightarrow> process \<Rightarrow> bool" (infix "\<Rightarrow>\<^sup>\<tau>" 50)
 where
@@ -163,7 +163,7 @@ proof -
 qed
 
 lemma prepend_tau_sequence_to_weak_tau_respecting_proper_transition_simple: "\<lbrakk> p \<Rightarrow>\<^sup>\<tau> r; r \<Longrightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q"
-  (* TODO: Find a better proof (see `prepend_tau_sequence_to_weak_tau_respecting_basic_transition_acting`) *)
+  (* TODO: Find a better proof (see \<open>prepend_tau_sequence_to_weak_tau_respecting_basic_transition_acting\<close>) *)
   by (metis (no_types, lifting) tau_sequence_trans weak_tau_respecting_proper_transition_simple_elim weak_tau_respecting_proper_transition_simple_intro)
 
 lemma prepend_tau_sequence_to_weak_tau_respecting_proper_transition_output_without_opening: "\<lbrakk> p \<Rightarrow>\<^sup>\<tau> r; r \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q"
@@ -175,7 +175,7 @@ lemma prepend_tau_sequence_to_weak_tau_respecting_proper_transition_output_with_
   by (metis (no_types, lifting) prepend_tau_sequence_to_weak_tau_respecting_basic_transition_opening weak_tau_respecting_proper_transition.output_with_opening weak_tau_respecting_proper_transition_output_with_opening_elim)
 
 lemma append_tau_sequence_to_weak_tau_respecting_proper_transition_simple: "\<lbrakk> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> r; r \<Rightarrow>\<^sup>\<tau> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q"
-  (* TODO: Find a better proof (see `append_tau_sequence_to_weak_tau_respecting_basic_transition_acting`) *)
+  (* TODO: Find a better proof (see \<open>append_tau_sequence_to_weak_tau_respecting_basic_transition_acting\<close>) *)
   by (metis (no_types, lifting) converse_rtrancl_into_rtrancl rtrancl_idemp weak_tau_respecting_proper_transition.simple weak_tau_respecting_proper_transition_simple_elim)
 
 lemma append_tau_sequence_to_weak_tau_respecting_proper_transition_output_without_opening: "\<lbrakk> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> r; r \<Rightarrow>\<^sup>\<tau> q \<rbrakk> \<Longrightarrow> p \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q"
@@ -464,7 +464,7 @@ lemma weak_proper_bisim_up_to_strong_bisim[consumes 1, case_names sim sym]:
 proof -
   have "(\<sim>\<^sub>\<sharp>) OO \<X> OO (\<sim>\<^sub>\<sharp>) \<le> (\<approx>\<^sub>\<sharp>)" sorry (* TODO: Prove it. *)
   then show ?thesis
-    using `\<X> p q` by blast
+    using \<open>\<X> p q\<close> by blast
 qed
 
 (**** Basic bisimilarity proof method. *****)

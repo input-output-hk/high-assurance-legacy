@@ -45,7 +45,7 @@ next
     then show "\<exists>d. q \<Rightarrow> d \<and> lift \<X> c d"
     proof (induction arbitrary: q)
       case (strong_transition p c q)
-      with `\<X> \<le> mixed.transfer \<X>` show ?case by blast
+      with \<open>\<X> \<le> mixed.transfer \<X>\<close> show ?case by blast
     next
       case (silent_transition p c q)
       then have "(\<X>\<inverse>\<inverse> OO silent) q c"
@@ -60,12 +60,12 @@ next
         by (blast intro: weak_transition.silent_transition)
     next
       case (composed_transition p c\<^sub>1 c' q)
-      from composed_transition.IH(1) and `\<X> p q` obtain d\<^sub>1 where "q \<Rightarrow> d\<^sub>1" and "lift \<X> c\<^sub>1 d\<^sub>1"
+      from composed_transition.IH(1) and \<open>\<X> p q\<close> obtain d\<^sub>1 where "q \<Rightarrow> d\<^sub>1" and "lift \<X> c\<^sub>1 d\<^sub>1"
         by blast
       let ?IH_2_core = "\<lambda>p\<^sub>1 c\<^sub>2. \<forall>q\<^sub>1. \<X> p\<^sub>1 q\<^sub>1 \<longrightarrow> (\<exists>d\<^sub>2. q\<^sub>1 \<Rightarrow> d\<^sub>2 \<and> lift \<X> c\<^sub>2 d\<^sub>2)"
       from composed_transition.IH(2) have "absorb ?IH_2_core c\<^sub>1 c'"
         by (under mono: absorb_monotonicity) (fact conjunct2)
-      with `lift \<X> c\<^sub>1 d\<^sub>1` have "(lift \<X>\<inverse>\<inverse> OO absorb ?IH_2_core) d\<^sub>1 c'"
+      with \<open>lift \<X> c\<^sub>1 d\<^sub>1\<close> have "(lift \<X>\<inverse>\<inverse> OO absorb ?IH_2_core) d\<^sub>1 c'"
         by (auto simp add: lift_conversion_preservation)
       then have "absorb (\<X>\<inverse>\<inverse> OO ?IH_2_core) d\<^sub>1 c'"
         using absorb_pre_naturality
@@ -85,7 +85,7 @@ next
         by (simp add: absorb_post_naturality)
       then obtain d' where "absorb (\<Rightarrow>) d\<^sub>1 d'" and "lift \<X> c' d'"
         by (auto simp add: lift_conversion_preservation)
-      with `q \<Rightarrow> d\<^sub>1` show ?case
+      with \<open>q \<Rightarrow> d\<^sub>1\<close> show ?case
         by (blast intro: weak_transition.composed_transition)
     qed
   qed

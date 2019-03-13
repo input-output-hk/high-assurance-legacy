@@ -119,13 +119,13 @@ proof -
         then show "\<exists>e. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ e \<and> proper_lift ?\<R> d e"
         proof -
           have "d = \<lparr>\<tau>\<rparr> \<nu> c. (\<zero> \<parallel> P y)"
-            using `p \<rightarrow>\<^sub>\<sharp> d` and `p = p0 y P` and transitions_from_p0 by (metis theI_unique)
+            using \<open>p \<rightarrow>\<^sub>\<sharp> d\<close> and \<open>p = p0 y P\<close> and transitions_from_p0 by (metis theI_unique)
           moreover have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<tau>\<rparr> q"
             using weak_proper_transition_refl_intro by simp
           moreover have "?\<R> (\<nu> c. (\<zero> \<parallel> P y)) q"
-            using aux3 and bisim_rel.id and `q = p1 y P` and p1_def by (simp add: reflpI)
+            using aux3 and bisim_rel.id and \<open>q = p1 y P\<close> and p1_def by (simp add: reflpI)
           then have "proper_lift ?\<R> d (\<lparr>\<tau>\<rparr> q)"
-            using simple_lift and `d = \<lparr>\<tau>\<rparr> \<nu> c. (\<zero> \<parallel> P y)` by simp
+            using simple_lift and \<open>d = \<lparr>\<tau>\<rparr> \<nu> c. (\<zero> \<parallel> P y)\<close> by simp
           ultimately show ?thesis
             by fastforce
         qed
@@ -144,11 +144,11 @@ proof -
             have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<delta>\<rparr> \<nu> c. (\<zero> \<parallel> p')"
             proof -
               have "q \<rightarrow>\<^sub>\<sharp>\<lparr>\<tau>\<rparr> \<nu> c. (\<zero> \<parallel> P y)"
-                using transitions_from_p0 and `q = p0 y P` by (metis theI2)
+                using transitions_from_p0 and \<open>q = p0 y P\<close> by (metis theI2)
               moreover have "\<nu> c. (\<zero> \<parallel> P y) \<Longrightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> \<nu> c. (\<zero> \<parallel> p')"
               proof -
                 have "\<zero> \<parallel> P y \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<zero> \<parallel> p'"
-                  using `p \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> p'` and `p = p1 y P` and p1_def and acting_right by simp
+                  using \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> p'\<close> and \<open>p = p1 y P\<close> and p1_def and acting_right by simp
                 then have "\<nu> c. (\<zero> \<parallel> P y) \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> c. (\<zero> \<parallel> p')"
                   using acting_scope by simp
                 then have "\<nu> c. (\<zero> \<parallel> P y) \<rightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> \<nu> c. (\<zero> \<parallel> p')"
@@ -167,7 +167,7 @@ proof -
                 using simple_lift by simp
             qed
             ultimately show ?thesis
-              using `d = \<lparr>\<delta>\<rparr> p'` by auto
+              using \<open>d = \<lparr>\<delta>\<rparr> p'\<close> by auto
           qed
         next
           case (output_without_opening a x p')
@@ -176,11 +176,11 @@ proof -
             have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>a \<triangleleft> x\<rparr> \<nu> c. (\<zero> \<parallel> p')"
             proof -
               have "q \<Rightarrow>\<^sup>\<tau> \<nu> c. (\<zero> \<parallel> P y)"
-                using aux2 and `q = p0 y P` by simp
+                using aux2 and \<open>q = p0 y P\<close> by simp
               moreover have "\<nu> c. (\<zero> \<parallel> P y) \<Longrightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> \<nu> c. (\<zero> \<parallel> p')"
               proof -
                 have "\<zero> \<parallel> P y \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> \<zero> \<parallel> p'"
-                  using `p \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> p'` and `p = p1 y P` and p1_def and acting_right by simp
+                  using \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> p'\<close> and \<open>p = p1 y P\<close> and p1_def and acting_right by simp
                 then have "\<nu> c. (\<zero> \<parallel> P y) \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> \<nu> c. (\<zero> \<parallel> p')"
                   using acting_scope by simp
                 then have "\<nu> c. (\<zero> \<parallel> P y) \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> \<nu> c. (\<zero> \<parallel> p')"
@@ -201,7 +201,7 @@ proof -
                 using output_lift by simp
             qed
             ultimately show ?thesis
-              using `d = \<lparr>a \<triangleleft> x\<rparr> p'` by auto
+              using \<open>d = \<lparr>a \<triangleleft> x\<rparr> p'\<close> by auto
           qed
         next
           case (output_with_opening P' a K)
@@ -251,8 +251,8 @@ proof -
 qed
 
 (* Generalized parallel composition over finite sets. *)
-(* NOTE: The existing `comm_monoid` does not work because `(=)` is used, whereas `(process, \<parallel>, \<zero>)` is
-   a commutative monoid when `(\<sim>\<^sub>\<sharp>)` or `(\<approx>\<^sub>\<sharp>)` is used. *)
+(* NOTE: The existing \<open>comm_monoid\<close> does not work because \<open>(=)\<close> is used, whereas \<open>(process, \<parallel>, \<zero>)\<close> is
+   a commutative monoid when \<open>(\<sim>\<^sub>\<sharp>)\<close> or \<open>(\<approx>\<^sub>\<sharp>)\<close> is used. *)
 
 definition
   big_parallel :: "['a \<Rightarrow> process, 'a list] \<Rightarrow> process"
@@ -319,7 +319,7 @@ lemma weak_proper_indexed_big_parallel_preservation:
   "\<lbrakk> n > 0; \<And>i. i\<in>{0..<n} \<Longrightarrow> P i \<approx>\<^sub>\<sharp> Q i \<rbrakk> \<Longrightarrow> (\<parallel>i\<leftarrow>[0..<n]. P i) \<approx>\<^sub>\<sharp> (\<parallel>i\<leftarrow>[0..<n]. Q i)"
   by (metis set_upt weak_proper_big_parallel_preservation)
 
-(* The function `restrict n P` returns the process `\<nu> a\<^sub>1 ... a\<^sub>n. P [a\<^sub>1, ..., a\<^sub>n]`. *)
+(* The function \<open>restrict n P\<close> returns the process \<open>\<nu> a\<^sub>1 ... a\<^sub>n. P [a\<^sub>1, ..., a\<^sub>n]\<close>. *)
 
 fun
   restrict  :: "[nat, chan list \<Rightarrow> process] \<Rightarrow> process"

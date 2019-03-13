@@ -550,7 +550,7 @@ proof -
     then obtain Q' where A\<^sub>9: "q \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q' a" and A\<^sub>1\<^sub>0: "\<forall>a. \<Y> (Q' a) (Q a)" using A\<^sub>1 by (blast dest: weak_basic_sim_opening_elim)
     then obtain P' where A\<^sub>1\<^sub>1: "p \<Longrightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P' a" and A\<^sub>1\<^sub>2: "\<forall>a. \<X> (P' a) (Q' a)"
       using A\<^sub>3 and A\<^sub>4 and A\<^sub>9 using weak_basic_sim_opening_elim2 by blast
-    moreover have "\<forall>a. \<Z> (P' a) (Q a)" using A\<^sub>1\<^sub>2 and A\<^sub>1\<^sub>0 and `\<X> OO \<Y> \<le> \<Z>` by blast
+    moreover have "\<forall>a. \<Z> (P' a) (Q a)" using A\<^sub>1\<^sub>2 and A\<^sub>1\<^sub>0 and \<open>\<X> OO \<Y> \<le> \<Z>\<close> by blast
     ultimately show ?case by blast
   qed
 qed
@@ -600,7 +600,7 @@ lemma weak_basic_bisim_up_to_strong_bisim[consumes 1, case_names sim sym]:
 proof -
   have "(\<sim>\<^sub>\<flat>) OO \<X> OO (\<sim>\<^sub>\<flat>) \<le> (\<approx>\<^sub>\<flat>)" sorry (* TODO: Prove it. *)
   then show ?thesis
-    using `\<X> p q` by blast 
+    using \<open>\<X> p q\<close> by blast 
 qed
 
 (**** Basic bisimilarity proof method. *****)

@@ -203,20 +203,20 @@ proof -
         proof -
           (* The only possible transition from p is p \<rightarrow>\<^sub>\<sharp>\<lparr>\<tau>\<rparr> \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out). *)
           obtain x where "c = \<lparr>inp \<triangleright> x\<rparr> \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)"
-            using `p \<rightarrow>\<^sub>\<sharp> c` and `p = impl inp out` and transitions_from_p1 by simp
+            using \<open>p \<rightarrow>\<^sub>\<sharp> c\<close> and \<open>p = impl inp out\<close> and transitions_from_p1 by simp
           (* There is a simulating weak transition from Q, namely Q \<Longrightarrow>\<^sub>\<sharp>\<lparr>inp \<triangleright> x\<rparr> out \<triangleleft> x. *)
           moreover have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>inp \<triangleright> x\<rparr> out \<triangleleft> x"
-            using `q = spec inp out` and weak_proper_transition_receiving by simp
+            using \<open>q = spec inp out\<close> and weak_proper_transition_receiving by simp
           (* And the derivatives (namely \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out) and out \<triangleleft> x) are related. *)
           moreover have "proper_lift ?\<R> c (\<lparr>inp \<triangleright> x\<rparr> out \<triangleleft> x)"
           proof -
             have "?\<R> (\<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)) (out \<triangleleft> x)"
               using p2_q2 by auto
             then show ?thesis
-              using `c = \<lparr>inp \<triangleright> x\<rparr> \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)` and simple_lift by simp
+              using \<open>c = \<lparr>inp \<triangleright> x\<rparr> \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)\<close> and simple_lift by simp
           qed
           ultimately show ?thesis
-            using `q = spec inp out` by auto
+            using \<open>q = spec inp out\<close> by auto
         qed
       qed
     next
@@ -229,7 +229,7 @@ proof -
         proof -
           (* The only possible transition from p is p \<rightarrow>\<^sub>\<sharp>\<lparr>inp \<triangleright> x\<rparr> out \<triangleleft> x. *)
           obtain x where "c = \<lparr>inp \<triangleright> x\<rparr> out \<triangleleft> x"
-            using `p \<rightarrow>\<^sub>\<sharp> c` and `p = spec inp out` and transitions_from_q1 by force
+            using \<open>p \<rightarrow>\<^sub>\<sharp> c\<close> and \<open>p = spec inp out\<close> and transitions_from_q1 by force
           (* There is a simulating weak transition from q, namely q \<Longrightarrow>\<^sub>\<sharp>\<lparr>inp \<triangleright> x\<rparr> \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out). *)
           moreover have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>inp \<triangleright> x\<rparr> \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)"
           proof -
@@ -242,7 +242,7 @@ proof -
                 then have "\<And>inpm outm. sender inp inpm \<parallel> medium inpm outm \<parallel> receiver outm out \<rightarrow>\<^sub>\<flat>\<lbrace>inp \<triangleright> x\<rbrace> inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out"
                   using acting_left by simp
                 then show ?thesis
-                  using acting_scope and `q = impl inp out` by simp
+                  using acting_scope and \<open>q = impl inp out\<close> by simp
               qed
               then show ?thesis
                 using proper_transition.simple by simp
@@ -256,10 +256,10 @@ proof -
             have "?\<R> (out \<triangleleft> x) (\<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out))"
               using q2_p2 by auto
             then show ?thesis
-              using `c = \<lparr>inp \<triangleright> x\<rparr> out \<triangleleft> x` and simple_lift by simp
+              using \<open>c = \<lparr>inp \<triangleright> x\<rparr> out \<triangleleft> x\<close> and simple_lift by simp
           qed
           ultimately show ?thesis
-            using `q = impl inp out` by auto
+            using \<open>q = impl inp out\<close> by auto
         qed
       qed
     next
@@ -272,7 +272,7 @@ proof -
         proof -
           (* The only possible transition from p is p \<rightarrow>\<^sub>\<sharp>\<lparr>\<tau>\<rparr> \<nu> inpm outm. (\<zero> \<parallel> outm \<triangleleft> x \<parallel> receiver outm out). *)
           have "c = \<lparr>\<tau>\<rparr> \<nu> inpm outm. (\<zero> \<parallel> outm \<triangleleft> x \<parallel> receiver outm out)"
-            using `p \<rightarrow>\<^sub>\<sharp> c` and `p = \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)` and transitions_from_p2 by simp
+            using \<open>p \<rightarrow>\<^sub>\<sharp> c\<close> and \<open>p = \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)\<close> and transitions_from_p2 by simp
           (* There is a simulating weak transition from q, namely q \<Longrightarrow>\<^sub>\<sharp> q. *)
           moreover have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<tau>\<rparr> q"
             using weak_proper_transition_refl_intro by simp
@@ -282,7 +282,7 @@ proof -
             have "?\<R> (\<nu> inpm outm. (\<zero> \<parallel> outm \<triangleleft> x \<parallel> receiver outm out)) q"
             proof -
               have "bisim_rel (\<nu> outm. (outm \<triangleleft> x \<parallel> receiver outm out)) q"
-                using `q = out \<triangleleft> x` and p3_q2 by simp
+                using \<open>q = out \<triangleleft> x\<close> and p3_q2 by simp
               moreover have "\<nu> inpm outm. (\<zero> \<parallel> outm \<triangleleft> x \<parallel> receiver outm out) \<sim>\<^sub>\<sharp> \<nu> outm. (outm \<triangleleft> x \<parallel> receiver outm out)"
               proof -
                 have "\<And>outm. \<zero> \<parallel> outm \<triangleleft> x \<parallel> receiver outm out \<sim>\<^sub>\<sharp> outm \<triangleleft> x \<parallel> receiver outm out"
@@ -298,10 +298,10 @@ proof -
                 by auto
             qed
             then show ?thesis
-              using `c = \<lparr>\<tau>\<rparr> \<nu> inpm outm. (\<zero> \<parallel> outm \<triangleleft> x \<parallel> receiver outm out)` and simple_lift by simp
+              using \<open>c = \<lparr>\<tau>\<rparr> \<nu> inpm outm. (\<zero> \<parallel> outm \<triangleleft> x \<parallel> receiver outm out)\<close> and simple_lift by simp
           qed
           ultimately show ?thesis
-            using `q = out \<triangleleft> x` by auto
+            using \<open>q = out \<triangleleft> x\<close> by auto
         qed
       qed
     next
@@ -314,7 +314,7 @@ proof -
         proof -
           (* The only possible transition from p is p \<rightarrow>\<^sub>\<sharp>\<lparr>out \<triangleleft> x\<rparr> \<zero>. *)
           have "c = \<lparr>out \<triangleleft> x\<rparr> \<zero>"
-            using `p \<rightarrow>\<^sub>\<sharp> c` and `p = out \<triangleleft> x` and proper_transitions_from_output by simp
+            using \<open>p \<rightarrow>\<^sub>\<sharp> c\<close> and \<open>p = out \<triangleleft> x\<close> and proper_transitions_from_output by simp
           (* There is a simulating weak transition from q, namely q \<Longrightarrow>\<^sub>\<sharp>^\<lparr>out \<triangleleft> x\<rparr> \<nu> inpm outm. (\<zero> \<parallel> \<zero> \<parallel> \<zero>). *)
           moreover have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>out \<triangleleft> x\<rparr> \<nu> inpm outm. (\<zero> \<parallel> \<zero> \<parallel> \<zero>)"
           proof -
@@ -329,7 +329,7 @@ proof -
                   then have "\<And>inpm outm. inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<zero> \<parallel> outm \<triangleleft> x \<parallel> receiver outm out"
                     by (metis acting_left communication ltr medium_def receiving sending) (* FIXME: Why not just acting_left? *)
                   then show ?thesis
-                    using acting_scope and `q = \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)` by simp
+                    using acting_scope and \<open>q = \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)\<close> by simp
                 qed
                 moreover have "\<nu> inpm outm. (\<zero> \<parallel> outm \<triangleleft> x \<parallel> receiver outm out) \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<nu> inpm outm. (\<zero> \<parallel> \<zero> \<parallel> out \<triangleleft> x)"
                 proof -
@@ -368,10 +368,10 @@ proof -
             ultimately have "?\<R> \<zero> (\<nu> inpm outm. (\<zero> \<parallel> \<zero> \<parallel> \<zero>))"
               using proper.bisimilarity_reflexivity_rule by auto
             then show ?thesis
-              using `c = \<lparr>out \<triangleleft> x\<rparr> \<zero>` and output_lift and without_opening_lift by simp
+              using \<open>c = \<lparr>out \<triangleleft> x\<rparr> \<zero>\<close> and output_lift and without_opening_lift by simp
           qed
           ultimately show ?thesis
-            using `q = \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)` by fastforce
+            using \<open>q = \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)\<close> by fastforce
         qed
       qed
     next
@@ -384,7 +384,7 @@ proof -
         proof -
           (* The only possible transition from p is p \<rightarrow>\<^sub>\<sharp>\<lparr>\<tau>\<rparr> \<nu> outm. (\<zero> \<parallel> out \<triangleleft> x). *)
           have "c = \<lparr>\<tau>\<rparr> \<nu> outm. (\<zero> \<parallel> out \<triangleleft> x)"
-            using `p \<rightarrow>\<^sub>\<sharp> c` and `p = \<nu> outm. (outm \<triangleleft> x \<parallel> receiver outm out)` and transitions_from_p3 by simp
+            using \<open>p \<rightarrow>\<^sub>\<sharp> c\<close> and \<open>p = \<nu> outm. (outm \<triangleleft> x \<parallel> receiver outm out)\<close> and transitions_from_p3 by simp
           (* There is a simulating weak transition from q, namely q \<Longrightarrow>\<^sub>\<sharp> q. *)
           moreover have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<tau>\<rparr> q"
             using weak_proper_transition_refl_intro by simp
@@ -398,10 +398,10 @@ proof -
             ultimately have "?\<R> (\<nu> outm. (\<zero> \<parallel> out \<triangleleft> x)) (out \<triangleleft> x)"
               using proper.bisimilarity_reflexivity_rule by auto
             then show ?thesis
-              using `c = \<lparr>\<tau>\<rparr> \<nu> outm. (\<zero> \<parallel> out \<triangleleft> x)` and simple_lift by simp
+              using \<open>c = \<lparr>\<tau>\<rparr> \<nu> outm. (\<zero> \<parallel> out \<triangleleft> x)\<close> and simple_lift by simp
           qed
           ultimately show ?thesis
-            using `q = out \<triangleleft> x` by fastforce
+            using \<open>q = out \<triangleleft> x\<close> by fastforce
         qed
       qed
     next
@@ -414,7 +414,7 @@ proof -
         proof -
           (* The only possible transition from p is p \<rightarrow>\<^sub>\<sharp>\<lparr>out \<triangleleft> x\<rparr> \<zero>. *)
           have "c = \<lparr>out \<triangleleft> x\<rparr> \<zero>"
-            using `p \<rightarrow>\<^sub>\<sharp> c` and `p = out \<triangleleft> x` and proper_transitions_from_output by simp
+            using \<open>p \<rightarrow>\<^sub>\<sharp> c\<close> and \<open>p = out \<triangleleft> x\<close> and proper_transitions_from_output by simp
           (* There is a simulating weak transition from q, namely q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>out \<triangleleft> x\<rparr> \<nu> outm. (\<zero> \<parallel> \<zero>). *)
           moreover have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>out \<triangleleft> x\<rparr> \<nu> outm. (\<zero> \<parallel> \<zero>)"
           proof -
@@ -427,7 +427,7 @@ proof -
                   have "\<And>outm. outm \<triangleleft> x \<parallel> receiver outm out \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<zero> \<parallel> out \<triangleleft> x"
                     using basic_communication_ltr and receiver_def by simp
                  then show ?thesis
-                    using acting_scope and `q = \<nu> outm. (outm \<triangleleft> x \<parallel> receiver outm out)` by simp
+                    using acting_scope and \<open>q = \<nu> outm. (outm \<triangleleft> x \<parallel> receiver outm out)\<close> by simp
                 qed
                 then show ?thesis
                   using tau_transition_is_tau_sequence by fastforce
@@ -459,10 +459,10 @@ proof -
             ultimately have "?\<R> \<zero> (\<nu> outm. (\<zero> \<parallel> \<zero>))"
               using proper.bisimilarity_reflexivity_rule by auto
             then show ?thesis
-              using `c = \<lparr>out \<triangleleft> x\<rparr> \<zero>` and output_lift and without_opening_lift by simp
+              using \<open>c = \<lparr>out \<triangleleft> x\<rparr> \<zero>\<close> and output_lift and without_opening_lift by simp
           qed
           ultimately show ?thesis
-            using `q = \<nu> outm. (outm \<triangleleft> x \<parallel> receiver outm out)` by fastforce
+            using \<open>q = \<nu> outm. (outm \<triangleleft> x \<parallel> receiver outm out)\<close> by fastforce
         qed
       qed
     next
@@ -475,10 +475,10 @@ proof -
         proof -
           (* The only possible transition from p is p \<rightarrow>\<^sub>\<sharp>\<lparr>out \<triangleleft> x\<rparr> \<zero>. *)
           have "c = \<lparr>out \<triangleleft> x\<rparr> \<zero>"
-            using `p \<rightarrow>\<^sub>\<sharp> c` and `p = out \<triangleleft> x` and proper_transitions_from_output by simp
+            using \<open>p \<rightarrow>\<^sub>\<sharp> c\<close> and \<open>p = out \<triangleleft> x\<close> and proper_transitions_from_output by simp
           (* There is a simulating weak transition from q, namely q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>out \<triangleleft> x\<rparr> \<zero>. *)
           moreover have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>out \<triangleleft> x\<rparr> \<zero>"
-            using `q = out \<triangleleft> x` and weak_proper_transition_sending by simp
+            using \<open>q = out \<triangleleft> x\<close> and weak_proper_transition_sending by simp
           (* And the derivatives (namely \<zero> and \<zero> are related. *)
           moreover have "proper_lift ?\<R> c (\<lparr>out \<triangleleft> x\<rparr> \<zero>)"
           proof -
@@ -487,10 +487,10 @@ proof -
             then have "?\<R> \<zero> \<zero>"
               using proper.bisimilarity_reflexivity_rule by auto
             then show ?thesis
-              using `c = \<lparr>out \<triangleleft> x\<rparr> \<zero>` and output_lift and without_opening_lift by simp
+              using \<open>c = \<lparr>out \<triangleleft> x\<rparr> \<zero>\<close> and output_lift and without_opening_lift by simp
           qed
           ultimately show ?thesis
-            using `q = out \<triangleleft> x` by fastforce
+            using \<open>q = out \<triangleleft> x\<close> by fastforce
         qed
       qed
     next

@@ -69,7 +69,7 @@ proof
   proof
     fix k and l
     assume "output_rest_lift \<X> k l"
-    from this and `\<X> \<le> \<Y>` show "output_rest_lift \<Y> k l"
+    from this and \<open>\<X> \<le> \<Y>\<close> show "output_rest_lift \<Y> k l"
       by induction (blast intro: output_rest_lift.intros)+
   qed
 next
@@ -170,7 +170,7 @@ proof
   proof
     fix c and d
     assume "proper_lift \<X> c d"
-    from this and `\<X> \<le> \<Y>` show "proper_lift \<Y> c d"
+    from this and \<open>\<X> \<le> \<Y>\<close> show "proper_lift \<Y> c d"
       using output_rest.lift_monotonicity
       by induction (blast intro: proper_lift.intros)+
   qed
@@ -286,7 +286,7 @@ proof (intro predicate2I, intro allI, intro impI)
   then show "\<exists>d. q \<rightarrow>\<^sub>\<sharp>d \<and> proper_lift (\<sim>\<^sub>\<flat>) c d"
   proof (induction arbitrary: q)
     case (simple p \<delta> p' q)
-    from `p \<sim>\<^sub>\<flat> q` and `p \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> p'`
+    from \<open>p \<sim>\<^sub>\<flat> q\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> p'\<close>
     obtain q' where "q \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> q'" and "p' \<sim>\<^sub>\<flat> q'"
       using
         basic.bisimilarity_is_simulation and
@@ -299,7 +299,7 @@ proof (intro predicate2I, intro allI, intro impI)
       by (blast intro: proper_transition.simple simple_lift)
   next
     case (output_without_opening p a x p' q)
-    from `p \<sim>\<^sub>\<flat> q` and `p \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> p'`
+    from \<open>p \<sim>\<^sub>\<flat> q\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> p'\<close>
     obtain q' where "q \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> q'" and "p' \<sim>\<^sub>\<flat> q'"
       using
         basic.bisimilarity_is_simulation and
@@ -314,11 +314,11 @@ proof (intro predicate2I, intro allI, intro impI)
     case (output_with_opening p P a K q)
     obtain Q where "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a" and "\<And>a. P a \<sim>\<^sub>\<flat> Q a"
     proof -
-      from `p \<sim>\<^sub>\<flat> q` and `p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a`
+      from \<open>p \<sim>\<^sub>\<flat> q\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a\<close>
       obtain d where "q \<rightarrow>\<^sub>\<flat>d" and "basic_lift (\<sim>\<^sub>\<flat>) (\<lbrace>\<nu> a\<rbrace> P a) d"
         using basic.bisimilarity_is_simulation
         by blast
-      from `basic_lift (\<sim>\<^sub>\<flat>) (\<lbrace>\<nu> a\<rbrace> P a) d` and `q \<rightarrow>\<^sub>\<flat>d` and that show ?thesis
+      from \<open>basic_lift (\<sim>\<^sub>\<flat>) (\<lbrace>\<nu> a\<rbrace> P a) d\<close> and \<open>q \<rightarrow>\<^sub>\<flat>d\<close> and that show ?thesis
         by cases simp
     qed
     (*
@@ -326,7 +326,7 @@ proof (intro predicate2I, intro allI, intro impI)
       note that the above statement was formerly also proved using smt (after the dropping of
       contexts this surprisingly did not work anymore). Here is the old code:
 
-          from `p \<sim>\<^sub>\<flat> q` and `p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a`
+          from \<open>p \<sim>\<^sub>\<flat> q\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a\<close>
           obtain Q where "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a" and "\<And>a. P a \<sim>\<^sub>\<flat> Q a"
             using
               basic.bisimilarity_is_simulation and
@@ -338,7 +338,7 @@ proof (intro predicate2I, intro allI, intro impI)
     *)
     obtain L where "\<And>b. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> L b" and "\<And>b. output_rest_lift (\<sim>\<^sub>\<flat>) (K b) (L b)"
     proof -
-      from output_with_opening.IH and `\<And>b. P b \<sim>\<^sub>\<flat> Q b`
+      from output_with_opening.IH and \<open>\<And>b. P b \<sim>\<^sub>\<flat> Q b\<close>
       have "\<forall>b. \<exists>l. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> l \<and> output_rest_lift (\<sim>\<^sub>\<flat>) (K b) l"
         using
           proper_lift.cases and
@@ -349,9 +349,9 @@ proof (intro predicate2I, intro allI, intro impI)
         by (fact choice)
       with that show ?thesis by blast
     qed
-    from `q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b` and `\<And>b. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> L b` have "q \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> \<nu> b. L b"
+    from \<open>q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b\<close> and \<open>\<And>b. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> L b\<close> have "q \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> \<nu> b. L b"
       by (fact proper_transition.output_with_opening)
-    with `\<And>a. output_rest_lift (\<sim>\<^sub>\<flat>) (K a) (L a)` show ?case
+    with \<open>\<And>a. output_rest_lift (\<sim>\<^sub>\<flat>) (K a) (L a)\<close> show ?case
       using with_opening_lift and output_lift
       by smt
   qed
@@ -388,13 +388,13 @@ proof (standard, intro allI, intro impI)
   then show "\<exists>d. \<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<sharp>d \<and> proper_lift (\<sim>\<^sub>\<sharp>) c d"
   proof cases
     case (simple \<delta> q)
-    from `a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> q`
+    from \<open>a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> q\<close>
     obtain x where "basic_action_of \<delta> = a \<triangleright> x" and "q = \<nu> b. P x b"
       by (blast elim: basic_transitions_from_receive)
-    from `basic_action_of \<delta> = a \<triangleright> x` have "\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> b. P x b"
+    from \<open>basic_action_of \<delta> = a \<triangleright> x\<close> have "\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> b. P x b"
       using receiving and acting_scope
       by smt
-    with `c = \<lparr>\<delta>\<rparr> q` and `q = \<nu> b. P x b` have "\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<sharp>c"
+    with \<open>c = \<lparr>\<delta>\<rparr> q\<close> and \<open>q = \<nu> b. P x b\<close> have "\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<sharp>c"
       by (blast intro: proper_transition.simple)
     then show ?thesis
       using proper.bisimilarity_reflexivity and proper.lift_reflexivity_propagation and reflpD
@@ -428,12 +428,12 @@ proof (standard, intro allI, intro impI)
   then show "\<exists>d. a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<sharp>d \<and> proper_lift (\<sim>\<^sub>\<sharp>) c d"
   proof cases
     case (simple \<delta> r)
-    from `\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> r` show ?thesis
+    from \<open>\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> r\<close> show ?thesis
     proof cases
       case (scoped_acting Q R)
-      from `\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b` have "\<And>b. Q b = a \<triangleright> x . P x b"
+      from \<open>\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b\<close> have "\<And>b. Q b = a \<triangleright> x . P x b"
         by (fact opening_transitions_from_new_channel_receive)
-      with `\<And>b. Q b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> R b`
+      with \<open>\<And>b. Q b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> R b\<close>
       obtain x where "basic_action_of \<delta> = a \<triangleright> x" and "\<And>b. R b = P x b"
         using
           basic_transitions_from_receive and
@@ -441,9 +441,9 @@ proof (standard, intro allI, intro impI)
           basic_action.inject(1) and
           io_action.inject(2)
         by smt
-      from `basic_action_of \<delta> = a \<triangleright> x` have "a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> b. P x b"
+      from \<open>basic_action_of \<delta> = a \<triangleright> x\<close> have "a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> \<nu> b. P x b"
         by (auto intro: receiving)
-      moreover from `c = \<lparr>\<delta>\<rparr> r` and `r = \<nu> b. R b` and `\<And>b. R b = P x b` have "c = \<lparr>\<delta>\<rparr> \<nu> b. P x b"
+      moreover from \<open>c = \<lparr>\<delta>\<rparr> r\<close> and \<open>r = \<nu> b. R b\<close> and \<open>\<And>b. R b = P x b\<close> have "c = \<lparr>\<delta>\<rparr> \<nu> b. P x b"
         by simp
       ultimately have "a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<sharp>c"
         by (blast intro: proper_transition.simple)
@@ -453,19 +453,19 @@ proof (standard, intro allI, intro impI)
     qed
   next
     case (output_without_opening a' x r)
-    from `\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>a' \<triangleleft> x\<rbrace> r` show ?thesis
+    from \<open>\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>a' \<triangleleft> x\<rbrace> r\<close> show ?thesis
     proof cases
       case (scoped_acting Q R)
-      from `\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b` have "\<And>b. Q b = a \<triangleright> x. P x b"
+      from \<open>\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b\<close> have "\<And>b. Q b = a \<triangleright> x. P x b"
         by (fact opening_transitions_from_new_channel_receive)
-      with `\<And>b. Q b \<rightarrow>\<^sub>\<flat>\<lbrace>a' \<triangleleft> x\<rbrace> R b` show ?thesis
+      with \<open>\<And>b. Q b \<rightarrow>\<^sub>\<flat>\<lbrace>a' \<triangleleft> x\<rbrace> R b\<close> show ?thesis
         by (auto elim: basic_transitions_from_receive)
     qed
   next
     case (output_with_opening Q a' K)
-    from `\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b` have "\<And>b. Q b = a \<triangleright> x. P x b"
+    from \<open>\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b\<close> have "\<And>b. Q b = a \<triangleright> x. P x b"
       by (fact opening_transitions_from_new_channel_receive)
-    with `\<And>b. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a' \<triangleleft> K b` have "a \<triangleright> x. P x undefined \<rightarrow>\<^sub>\<sharp>\<lparr>a' \<triangleleft> K undefined"
+    with \<open>\<And>b. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a' \<triangleleft> K b\<close> have "a \<triangleright> x. P x undefined \<rightarrow>\<^sub>\<sharp>\<lparr>a' \<triangleleft> K undefined"
       by simp
     then show ?thesis
     proof cases
@@ -532,9 +532,9 @@ proof
   then show False
   proof cases
     case (scoped_acting Q\<^sub>1 Q\<^sub>2)
-    from `\<nu> a. \<zero> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q\<^sub>1 a` have "\<And>a. Q\<^sub>1 a = \<zero>"
+    from \<open>\<nu> a. \<zero> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q\<^sub>1 a\<close> have "\<And>a. Q\<^sub>1 a = \<zero>"
       by (fact opening_transitions_from_new_channel_stop)
-    with `\<And>a. Q\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q\<^sub>2 a` show ?thesis
+    with \<open>\<And>a. Q\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q\<^sub>2 a\<close> show ?thesis
       by (simp add: no_basic_transitions_from_stop)
   qed
 qed
@@ -546,9 +546,9 @@ proof
   then show False
   proof cases
     case (output_with_opening P a K)
-    from `\<nu> b. \<zero> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> P b` have "\<And>b. P b = \<zero>"
+    from \<open>\<nu> b. \<zero> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> P b\<close> have "\<And>b. P b = \<zero>"
       by (fact opening_transitions_from_new_channel_stop)
-    with `\<And>b. P b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> K b` show ?thesis
+    with \<open>\<And>b. P b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> K b\<close> show ?thesis
       by (simp add: no_proper_transitions_from_stop)
   qed (simp_all add: no_acting_transitions_from_new_channel_stop)
 qed
