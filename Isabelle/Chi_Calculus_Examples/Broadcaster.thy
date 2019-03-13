@@ -15,7 +15,7 @@ text \<open>
   We define a special data type for the values that are sent or received along channels.
 \<close>
 
-datatype 'a broadcaster_cmd = Reg "'a channel" | Input 'a
+datatype 'a broadcaster_cmd = Reg \<open>'a channel\<close> | Input \<open>'a\<close>
 
 instantiation broadcaster_cmd :: (countable) countable
 begin

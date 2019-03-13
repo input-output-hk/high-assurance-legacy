@@ -11,7 +11,7 @@ text \<open>
 \<close>
 
 datatype proper_action =
-  ProperIn chan val (infix "\<triangleright>" 100) |
+  ProperIn \<open>chan\<close> \<open>val\<close> (infix "\<triangleright>" 100) |
   ProperInternal ("\<tau>")
 
 text \<open>
@@ -31,8 +31,8 @@ text \<open>
 \<close>
 
 datatype output_rest =
-  WithoutOpening val process ("_\<rparr> _" [52, 51] 51) |
-  WithOpening "(chan \<Rightarrow> output_rest)" (binder "\<nu>" 51)
+  WithoutOpening \<open>val\<close> \<open>process\<close> ("_\<rparr> _" [52, 51] 51) |
+  WithOpening \<open>chan \<Rightarrow> output_rest\<close> (binder "\<nu>" 51)
 
 text \<open>
   Note that the definition of \<open>output_rest\<close> is actually more permissive than the verbal definition
@@ -142,8 +142,8 @@ text \<open>
 \<close>
 
 datatype proper_residual =
-  Simple proper_action process ("\<lparr>_\<rparr> _" [0, 51] 51) |
-  Output chan output_rest ("\<lparr>_ \<triangleleft> _" [0, 51] 51)
+  Simple \<open>proper_action\<close> \<open>process\<close> ("\<lparr>_\<rparr> _" [0, 51] 51) |
+  Output \<open>chan\<close> \<open>output_rest\<close> ("\<lparr>_ \<triangleleft> _" [0, 51] 51)
 
 text \<open>
   Residual lifting is defined in the obvious way.

@@ -11,10 +11,10 @@ text \<open>
 \<close>
 
 datatype io_action =
-  BasicOut chan val |
-  BasicIn chan val
+  BasicOut \<open>chan\<close> \<open>val\<close> |
+  BasicIn \<open>chan\<close> \<open>val\<close>
 datatype basic_action =
-  IO io_action |
+  IO \<open>io_action\<close> |
   BasicInternal ("\<tau>")
 abbreviation BasicOutAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleleft>" 100) where
   "a \<triangleleft> x \<equiv> IO (BasicOut a x)"
@@ -30,8 +30,8 @@ text \<open>
 \<close>
 
 datatype basic_residual =
-  Acting basic_action process ("\<lbrace>_\<rbrace> _" [0, 51] 51) |
-  Opening "(chan \<Rightarrow> process)"
+  Acting \<open>basic_action\<close> \<open>process\<close> ("\<lbrace>_\<rbrace> _" [0, 51] 51) |
+  Opening \<open>chan \<Rightarrow> process\<close>
 syntax
   "_Opening" :: "pttrn \<Rightarrow> process \<Rightarrow> basic_residual"
   ("\<lbrace>\<nu> _\<rbrace> _" [0, 51] 51)

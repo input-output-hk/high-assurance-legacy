@@ -228,7 +228,7 @@ text \<open>
 
 (* Rose trees. *)
 
-datatype 'a tree = Node (tval: 'a) (children: "'a tree list")
+datatype 'a tree = Node (tval: \<open>'a\<close>) (children: \<open>'a tree list\<close>)
 
 fun
   tree_as_list :: "'a tree \<Rightarrow> 'a list"

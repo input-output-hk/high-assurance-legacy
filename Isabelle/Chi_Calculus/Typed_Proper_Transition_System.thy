@@ -8,8 +8,8 @@ where
   "\<aa> \<triangleright>\<degree> \<xx> \<equiv> ProperIn (untyped_channel \<aa>) (untyped_value \<xx>)"
 
 datatype 'a typed_output_rest =
-  TypedWithoutOpening 'a process ("_\<rparr> _" [52, 51] 51) |
-  TypedWithOpening "(chan \<Rightarrow> 'a typed_output_rest)"
+  TypedWithoutOpening \<open>'a\<close> \<open>process\<close> ("_\<rparr> _" [52, 51] 51) |
+  TypedWithOpening \<open>chan \<Rightarrow> 'a typed_output_rest\<close>
 
 (*
   We use the ordinary-font K to denote a function whose argument is untyped but whose resulting
