@@ -274,7 +274,7 @@ proof
   fix c
   assume "\<zero> \<rightarrow>\<^sub>\<sharp>c"
   then show False
-    by (induction "\<zero>" c) (simp_all add: no_basic_transitions_from_stop)
+    by cases (simp_all add: no_basic_transitions_from_stop)
 qed
 
 subsection \<open>Relationships between Basic and Proper Bisimilarity\<close>
