@@ -180,6 +180,7 @@ lemma transitions_from_p4: "\<nu> inpm outm. (\<zero> \<parallel> \<zero> \<para
 
 (* TODO: Prove it. *)
 lemma transitions_from_q1:
+  fixes c :: "process proper_residual"
   assumes "spec inp out \<rightarrow>\<^sub>\<sharp> c"
   obtains x where "c = \<lparr>inp \<triangleright> x\<rparr> out \<triangleleft> x"
   using assms and proper_transitions_from_receive by force
@@ -199,7 +200,7 @@ proof -
       proof (intro impI allI)
         fix c
         assume "p \<rightarrow>\<^sub>\<sharp> c"
-        then show "\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> proper_lift ?\<R> c d"
+        then show "\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> rel_proper_residual ?\<R> c d"
         proof -
           (* The only possible transition from p is p \<rightarrow>\<^sub>\<sharp>\<lparr>\<tau>\<rparr> \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out). *)
           obtain x where "c = \<lparr>inp \<triangleright> x\<rparr> \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)"
@@ -208,15 +209,18 @@ proof -
           moreover have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>inp \<triangleright> x\<rparr> out \<triangleleft> x"
             using \<open>q = spec inp out\<close> and weak_proper_transition_receiving by simp
           (* And the derivatives (namely \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out) and out \<triangleleft> x) are related. *)
-          moreover have "proper_lift ?\<R> c (\<lparr>inp \<triangleright> x\<rparr> out \<triangleleft> x)"
+          moreover have "rel_proper_residual ?\<R> c (\<lparr>inp \<triangleright> x\<rparr> out \<triangleleft> x)"
           proof -
             have "?\<R> (\<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)) (out \<triangleleft> x)"
               using p2_q2 by auto
             then show ?thesis
-              using \<open>c = \<lparr>inp \<triangleright> x\<rparr> \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)\<close> and simple_lift by simp
+              using
+                \<open>c = \<lparr>inp \<triangleright> x\<rparr> \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)\<close> and
+                proper_residual.rel_intros(1)
+              by simp
           qed
           ultimately show ?thesis
-            using \<open>q = spec inp out\<close> by auto
+            using \<open>q = spec inp out\<close> by blast
         qed
       qed
     next
@@ -225,7 +229,7 @@ proof -
       proof (intro impI allI)
         fix c
         assume "p \<rightarrow>\<^sub>\<sharp> c"
-        then show "\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> proper_lift ?\<R> c d"
+        then show "\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> rel_proper_residual ?\<R> c d"
         proof -
           (* The only possible transition from p is p \<rightarrow>\<^sub>\<sharp>\<lparr>inp \<triangleright> x\<rparr> out \<triangleleft> x. *)
           obtain x where "c = \<lparr>inp \<triangleright> x\<rparr> out \<triangleleft> x"
@@ -251,15 +255,15 @@ proof -
               using weak_proper_transition_single_simple by simp
           qed
           (* And the derivatives (namely out \<triangleleft> x and \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)) are related. *)
-          moreover have "proper_lift ?\<R> c (\<lparr>inp \<triangleright> x\<rparr> \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out))"
+          moreover have "rel_proper_residual ?\<R> c (\<lparr>inp \<triangleright> x\<rparr> \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out))"
           proof -
             have "?\<R> (out \<triangleleft> x) (\<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out))"
               using q2_p2 by auto
             then show ?thesis
-              using \<open>c = \<lparr>inp \<triangleright> x\<rparr> out \<triangleleft> x\<close> and simple_lift by simp
+              using \<open>c = \<lparr>inp \<triangleright> x\<rparr> out \<triangleleft> x\<close> and proper_residual.rel_intros(1) by simp
           qed
           ultimately show ?thesis
-            using \<open>q = impl inp out\<close> by auto
+            using \<open>q = impl inp out\<close> by blast
         qed
       qed
     next
@@ -268,7 +272,7 @@ proof -
       proof (intro impI allI)
         fix c
         assume "p \<rightarrow>\<^sub>\<sharp> c"
-        then show "\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> proper_lift ?\<R> c d"
+        then show "\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> rel_proper_residual ?\<R> c d"
         proof -
           (* The only possible transition from p is p \<rightarrow>\<^sub>\<sharp>\<lparr>\<tau>\<rparr> \<nu> inpm outm. (\<zero> \<parallel> outm \<triangleleft> x \<parallel> receiver outm out). *)
           have "c = \<lparr>\<tau>\<rparr> \<nu> inpm outm. (\<zero> \<parallel> outm \<triangleleft> x \<parallel> receiver outm out)"
@@ -277,7 +281,7 @@ proof -
           moreover have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<tau>\<rparr> q"
             using weak_proper_transition_refl_intro by simp
           (* And the derivatives (namely \<nu> inpm outm. (\<zero> \<parallel> outm \<triangleleft> x \<parallel> receiver outm out) and q) are related. *)
-          moreover have "proper_lift ?\<R> c (\<lparr>\<tau>\<rparr> q)"
+          moreover have "rel_proper_residual ?\<R> c (\<lparr>\<tau>\<rparr> q)"
           proof -
             have "?\<R> (\<nu> inpm outm. (\<zero> \<parallel> outm \<triangleleft> x \<parallel> receiver outm out)) q"
             proof -
@@ -298,10 +302,13 @@ proof -
                 by auto
             qed
             then show ?thesis
-              using \<open>c = \<lparr>\<tau>\<rparr> \<nu> inpm outm. (\<zero> \<parallel> outm \<triangleleft> x \<parallel> receiver outm out)\<close> and simple_lift by simp
+              using
+                \<open>c = \<lparr>\<tau>\<rparr> \<nu> inpm outm. (\<zero> \<parallel> outm \<triangleleft> x \<parallel> receiver outm out)\<close> and
+                proper_residual.rel_intros(1)
+              by simp
           qed
           ultimately show ?thesis
-            using \<open>q = out \<triangleleft> x\<close> by auto
+            using \<open>q = out \<triangleleft> x\<close> by blast
         qed
       qed
     next
@@ -310,7 +317,7 @@ proof -
       proof (intro impI allI)
         fix c
         assume "p \<rightarrow>\<^sub>\<sharp> c"
-        then show "\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> proper_lift ?\<R> c d"
+        then show "\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> rel_proper_residual ?\<R> c d"
         proof -
           (* The only possible transition from p is p \<rightarrow>\<^sub>\<sharp>\<lparr>out \<triangleleft> x\<rparr> \<zero>. *)
           have "c = \<lparr>out \<triangleleft> x\<rparr> \<zero>"
@@ -359,7 +366,7 @@ proof -
               using weak_proper_transition_def by simp
           qed
           (* And the derivatives (namely \<zero> and \<nu> inpm outm. (\<zero> \<parallel> \<zero> \<parallel> \<zero>) are related. *)
-          moreover have "proper_lift ?\<R> c (\<lparr>out \<triangleleft> x\<rparr> \<nu> inpm outm. (\<zero> \<parallel> \<zero> \<parallel> \<zero>))"
+          moreover have "rel_proper_residual ?\<R> c (\<lparr>out \<triangleleft> x\<rparr> \<nu> inpm outm. (\<zero> \<parallel> \<zero> \<parallel> \<zero>))"
           proof -
             have "bisim_rel \<zero> \<zero>"
               using p5_q3_and_q3_p5 by simp
@@ -368,7 +375,8 @@ proof -
             ultimately have "?\<R> \<zero> (\<nu> inpm outm. (\<zero> \<parallel> \<zero> \<parallel> \<zero>))"
               using proper.bisimilarity_reflexivity_rule by auto
             then show ?thesis
-              using \<open>c = \<lparr>out \<triangleleft> x\<rparr> \<zero>\<close> and output_lift and without_opening_lift by simp
+              using \<open>c = \<lparr>out \<triangleleft> x\<rparr> \<zero>\<close> and proper_residual.rel_intros(2) and output_rest.rel_intros(1)
+              by simp
           qed
           ultimately show ?thesis
             using \<open>q = \<nu> inpm outm. (inpm \<triangleleft> x \<parallel> medium inpm outm \<parallel> receiver outm out)\<close> by fastforce
@@ -380,7 +388,7 @@ proof -
       proof (intro impI allI)
         fix c
         assume "p \<rightarrow>\<^sub>\<sharp> c"
-        then show "\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> proper_lift ?\<R> c d"
+        then show "\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> rel_proper_residual ?\<R> c d"
         proof -
           (* The only possible transition from p is p \<rightarrow>\<^sub>\<sharp>\<lparr>\<tau>\<rparr> \<nu> outm. (\<zero> \<parallel> out \<triangleleft> x). *)
           have "c = \<lparr>\<tau>\<rparr> \<nu> outm. (\<zero> \<parallel> out \<triangleleft> x)"
@@ -389,7 +397,7 @@ proof -
           moreover have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>\<tau>\<rparr> q"
             using weak_proper_transition_refl_intro by simp
           (* And the derivatives (namely \<nu> outm. (\<zero> \<parallel> out \<triangleleft> x) and q) are related. *)
-          moreover have "proper_lift ?\<R> c (\<lparr>\<tau>\<rparr> out \<triangleleft> x)"
+          moreover have "rel_proper_residual ?\<R> c (\<lparr>\<tau>\<rparr> out \<triangleleft> x)"
           proof -
             have "bisim_rel (out \<triangleleft> x) (out \<triangleleft> x)"
               using p4_q2_and_q2_p4 by simp
@@ -398,7 +406,7 @@ proof -
             ultimately have "?\<R> (\<nu> outm. (\<zero> \<parallel> out \<triangleleft> x)) (out \<triangleleft> x)"
               using proper.bisimilarity_reflexivity_rule by auto
             then show ?thesis
-              using \<open>c = \<lparr>\<tau>\<rparr> \<nu> outm. (\<zero> \<parallel> out \<triangleleft> x)\<close> and simple_lift by simp
+              using \<open>c = \<lparr>\<tau>\<rparr> \<nu> outm. (\<zero> \<parallel> out \<triangleleft> x)\<close> and proper_residual.rel_intros(2) by simp
           qed
           ultimately show ?thesis
             using \<open>q = out \<triangleleft> x\<close> by fastforce
@@ -410,7 +418,7 @@ proof -
       proof (intro impI allI)
         fix c
         assume "p \<rightarrow>\<^sub>\<sharp> c"
-        then show "\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> proper_lift ?\<R> c d"
+        then show "\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> rel_proper_residual ?\<R> c d"
         proof -
           (* The only possible transition from p is p \<rightarrow>\<^sub>\<sharp>\<lparr>out \<triangleleft> x\<rparr> \<zero>. *)
           have "c = \<lparr>out \<triangleleft> x\<rparr> \<zero>"
@@ -450,7 +458,7 @@ proof -
               using weak_proper_transition_def by simp
           qed
           (* And the derivatives (namely \<zero> and \<nu> outm. (\<zero> \<parallel> \<zero>) are related. *)
-          moreover have "proper_lift ?\<R> c (\<lparr>out \<triangleleft> x\<rparr> \<nu> outm. (\<zero> \<parallel> \<zero>))"
+          moreover have "rel_proper_residual ?\<R> c (\<lparr>out \<triangleleft> x\<rparr> \<nu> outm. (\<zero> \<parallel> \<zero>))"
           proof -
             have "bisim_rel \<zero> \<zero>"
               using p5_q3_and_q3_p5 by simp
@@ -459,7 +467,11 @@ proof -
             ultimately have "?\<R> \<zero> (\<nu> outm. (\<zero> \<parallel> \<zero>))"
               using proper.bisimilarity_reflexivity_rule by auto
             then show ?thesis
-              using \<open>c = \<lparr>out \<triangleleft> x\<rparr> \<zero>\<close> and output_lift and without_opening_lift by simp
+              using
+                \<open>c = \<lparr>out \<triangleleft> x\<rparr> \<zero>\<close> and
+                proper_residual.rel_intros(2) and
+                output_rest.rel_intros(1)
+              by simp
           qed
           ultimately show ?thesis
             using \<open>q = \<nu> outm. (outm \<triangleleft> x \<parallel> receiver outm out)\<close> by fastforce
@@ -471,7 +483,7 @@ proof -
       proof (intro impI allI)
         fix c
         assume "p \<rightarrow>\<^sub>\<sharp> c"
-        then show "\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> proper_lift ?\<R> c d"
+        then show "\<exists>d. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> rel_proper_residual ?\<R> c d"
         proof -
           (* The only possible transition from p is p \<rightarrow>\<^sub>\<sharp>\<lparr>out \<triangleleft> x\<rparr> \<zero>. *)
           have "c = \<lparr>out \<triangleleft> x\<rparr> \<zero>"
@@ -480,14 +492,18 @@ proof -
           moreover have "q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>out \<triangleleft> x\<rparr> \<zero>"
             using \<open>q = out \<triangleleft> x\<close> and weak_proper_transition_sending by simp
           (* And the derivatives (namely \<zero> and \<zero> are related. *)
-          moreover have "proper_lift ?\<R> c (\<lparr>out \<triangleleft> x\<rparr> \<zero>)"
+          moreover have "rel_proper_residual ?\<R> c (\<lparr>out \<triangleleft> x\<rparr> \<zero>)"
           proof -
             have "bisim_rel \<zero> \<zero>"
               using p5_q3_and_q3_p5 by simp
             then have "?\<R> \<zero> \<zero>"
               using proper.bisimilarity_reflexivity_rule by auto
             then show ?thesis
-              using \<open>c = \<lparr>out \<triangleleft> x\<rparr> \<zero>\<close> and output_lift and without_opening_lift by simp
+              using
+                \<open>c = \<lparr>out \<triangleleft> x\<rparr> \<zero>\<close> and
+                proper_residual.rel_intros(2) and
+                output_rest.rel_intros(1)
+              by simp
           qed
           ultimately show ?thesis
             using \<open>q = out \<triangleleft> x\<close> by fastforce

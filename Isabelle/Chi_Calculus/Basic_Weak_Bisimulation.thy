@@ -97,7 +97,7 @@ the name "a" can be communicated within the process, but if so it occurs free in
  weak_tau_respecting_basic_transition :: process \<Rightarrow> process \<Rightarrow> [IO action|chan] \<Rightarrow> process **)
 
 definition
-  weak_tau_respecting_basic_transition :: "process \<Rightarrow> basic_residual \<Rightarrow> bool"
+  weak_tau_respecting_basic_transition :: "process \<Rightarrow> process basic_residual \<Rightarrow> bool"
   (infix "\<Longrightarrow>\<^sub>\<flat>" 50)
   where
    "p \<Longrightarrow>\<^sub>\<flat> c \<equiv>
@@ -265,7 +265,7 @@ lemma weak_tau_respecting_basic_transition_scoped_opening: "\<lbrakk> p \<Longri
 
 (** Weak basic transition \<Longrightarrow>\<^sub>\<flat>\<^sup>^ **)
 
-definition weak_basic_transition :: "process \<Rightarrow> basic_residual \<Rightarrow> bool"
+definition weak_basic_transition :: "process \<Rightarrow> process basic_residual \<Rightarrow> bool"
   (infix "\<Longrightarrow>\<^sub>\<flat>\<^sup>^" 50)
   where
    "p \<Longrightarrow>\<^sub>\<flat>\<^sup>^ c \<equiv>

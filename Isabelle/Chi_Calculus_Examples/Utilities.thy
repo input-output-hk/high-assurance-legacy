@@ -116,7 +116,7 @@ proof -
       proof (intro impI allI)
         fix d
         assume "p \<rightarrow>\<^sub>\<sharp> d"
-        then show "\<exists>e. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ e \<and> proper_lift ?\<R> d e"
+        then show "\<exists>e. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ e \<and> rel_proper_residual ?\<R> d e"
         proof -
           have "d = \<lparr>\<tau>\<rparr> \<nu> c. (\<zero> \<parallel> P y)"
             using \<open>p \<rightarrow>\<^sub>\<sharp> d\<close> and \<open>p = p0 y P\<close> and transitions_from_p0 by (metis theI_unique)
@@ -124,8 +124,8 @@ proof -
             using weak_proper_transition_refl_intro by simp
           moreover have "?\<R> (\<nu> c. (\<zero> \<parallel> P y)) q"
             using aux3 and bisim_rel.id and \<open>q = p1 y P\<close> and p1_def by (simp add: reflpI)
-          then have "proper_lift ?\<R> d (\<lparr>\<tau>\<rparr> q)"
-            using simple_lift and \<open>d = \<lparr>\<tau>\<rparr> \<nu> c. (\<zero> \<parallel> P y)\<close> by simp
+          then have "rel_proper_residual ?\<R> d (\<lparr>\<tau>\<rparr> q)"
+            using proper_residual.rel_intros(1) and \<open>d = \<lparr>\<tau>\<rparr> \<nu> c. (\<zero> \<parallel> P y)\<close> by simp
           ultimately show ?thesis
             by fastforce
         qed
@@ -136,7 +136,7 @@ proof -
       proof (intro impI allI)
         fix d
         assume "p \<rightarrow>\<^sub>\<sharp> d"
-        then show "\<exists>e. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ e \<and> proper_lift ?\<R> d e"
+        then show "\<exists>e. q \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ e \<and> rel_proper_residual ?\<R> d e"
         proof cases
           case (simple \<delta> p')
           then show ?thesis
@@ -159,15 +159,15 @@ proof -
               ultimately show ?thesis
                 using prepend_tau_transition_to_weak_proper_transition and weak_proper_transition_def by simp
             qed
-            moreover have "proper_lift ?\<R> (\<lparr>\<delta>\<rparr> p') (\<lparr>\<delta>\<rparr> \<nu> c. (\<zero> \<parallel> p'))"
+            moreover have "rel_proper_residual ?\<R> (\<lparr>\<delta>\<rparr> p') (\<lparr>\<delta>\<rparr> \<nu> c. (\<zero> \<parallel> p'))"
             proof -
               have "?\<R> p' (\<nu> c. (\<zero> \<parallel> p'))"
                 using aux3 and bisim_rel.id by (simp add: reflpI)
               then show ?thesis
-                using simple_lift by simp
+                using proper_residual.rel_intros(1) by simp
             qed
             ultimately show ?thesis
-              using \<open>d = \<lparr>\<delta>\<rparr> p'\<close> by auto
+              using \<open>d = \<lparr>\<delta>\<rparr> p'\<close> by blast
           qed
         next
           case (output_without_opening a x p')
@@ -191,17 +191,17 @@ proof -
               ultimately show ?thesis
                 using prepend_tau_sequence_to_weak_tau_respecting_proper_transition_output_without_opening and weak_proper_transition_def by simp
             qed
-            moreover have "proper_lift ?\<R> (\<lparr>a \<triangleleft> x\<rparr> p') (\<lparr>a \<triangleleft> x\<rparr> \<nu> c. (\<zero> \<parallel> p'))"
+            moreover have "rel_proper_residual ?\<R> (\<lparr>a \<triangleleft> x\<rparr> p') (\<lparr>a \<triangleleft> x\<rparr> \<nu> c. (\<zero> \<parallel> p'))"
             proof -
               have "?\<R> p' (\<nu> c. (\<zero> \<parallel> p'))"
                 using aux3 and bisim_rel.id by (simp add: reflpI)
-              then have "output_rest_lift ?\<R> (x\<rparr> p') (x\<rparr> \<nu> c. (\<zero> \<parallel> p'))"
-                using without_opening_lift by simp
+              then have "rel_output_rest ?\<R> (x\<rparr> p') (x\<rparr> \<nu> c. (\<zero> \<parallel> p'))"
+                using output_rest.rel_intros(1) by simp
               then show ?thesis
-                using output_lift by simp
+                using proper_residual.rel_intros(2) by simp
             qed
             ultimately show ?thesis
-              using \<open>d = \<lparr>a \<triangleleft> x\<rparr> p'\<close> by auto
+              using \<open>d = \<lparr>a \<triangleleft> x\<rparr> p'\<close> by blast
           qed
         next
           case (output_with_opening P' a K)

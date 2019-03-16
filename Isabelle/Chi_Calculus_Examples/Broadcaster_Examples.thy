@@ -46,7 +46,7 @@ proof -
         assume "p' \<rightarrow>\<^sub>\<sharp> c"
         then obtain x where "c = \<lparr>a \<triangleright> x\<rparr> ex1_p a"
           using \<open>p' = ex1_p a\<close> and proper_transitions_from_receive and ex1_p.code by metis
-        then show "\<exists>d. q' \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> proper_lift ex1_bisim_rel c d"
+        then show "\<exists>d. q' \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> rel_proper_residual ex1_bisim_rel c d"
         proof (intro exI[of _ "\<lparr>a \<triangleright> x\<rparr> a \<triangleright> _. ex1_q a"] conjI)
           show "q' \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>a \<triangleright> x\<rparr> a \<triangleright> _. ex1_q a"
           proof -
@@ -60,12 +60,12 @@ proof -
               using weak_proper_transition_def by simp
           qed
         next
-          show "proper_lift ex1_bisim_rel c (\<lparr>a \<triangleright> x\<rparr> a \<triangleright> _. ex1_q a)"
+          show "rel_proper_residual ex1_bisim_rel c (\<lparr>a \<triangleright> x\<rparr> a \<triangleright> _. ex1_q a)"
           proof -
             have "ex1_bisim_rel (ex1_p a) (a \<triangleright> _. ex1_q a)"
               using p0_q1 by simp
             then show ?thesis
-              using simple_lift and \<open>c = \<lparr>a \<triangleright> x\<rparr> ex1_p a\<close> by simp
+              using proper_residual.rel_intros(1) and \<open>c = \<lparr>a \<triangleright> x\<rparr> ex1_p a\<close> by simp
           qed
         qed
       qed
@@ -77,7 +77,7 @@ proof -
         assume "p' \<rightarrow>\<^sub>\<sharp> c"
         then obtain x where "c = \<lparr>a \<triangleright> x\<rparr> ex1_p a"
           using \<open>p' = ex1_p a\<close> and proper_transitions_from_receive and ex1_p.code by metis
-        then show "\<exists>d. q' \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> proper_lift ex1_bisim_rel c d"
+        then show "\<exists>d. q' \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> rel_proper_residual ex1_bisim_rel c d"
         proof (intro exI[of _ "\<lparr>a \<triangleright> x\<rparr> ex1_q a"] conjI)
           show "q' \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>a \<triangleright> x\<rparr> ex1_q a"
           proof -
@@ -91,12 +91,12 @@ proof -
               using weak_proper_transition_def by simp
           qed
         next
-          show "proper_lift ex1_bisim_rel c (\<lparr>a \<triangleright> x\<rparr> ex1_q a)"
+          show "rel_proper_residual ex1_bisim_rel c (\<lparr>a \<triangleright> x\<rparr> ex1_q a)"
           proof -
             have "ex1_bisim_rel (ex1_p a) (ex1_q a)"
               using p0_q0 by simp
             then show ?thesis
-              using simple_lift and \<open>c = \<lparr>a \<triangleright> x\<rparr> ex1_p a\<close> by simp
+              using proper_residual.rel_intros(1) and \<open>c = \<lparr>a \<triangleright> x\<rparr> ex1_p a\<close> by simp
           qed
         qed
       qed
@@ -108,7 +108,7 @@ proof -
         assume "p' \<rightarrow>\<^sub>\<sharp> c"
         then obtain x where "c = \<lparr>a \<triangleright> x\<rparr> a \<triangleright> _. ex1_q a"
           using \<open>p' = ex1_q a\<close> and proper_transitions_from_receive and ex1_q.code by metis
-        then show "\<exists>d. q' \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> proper_lift ex1_bisim_rel c d"
+        then show "\<exists>d. q' \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> rel_proper_residual ex1_bisim_rel c d"
         proof (intro exI[of _ "\<lparr>a \<triangleright> x\<rparr> ex1_p a"] conjI)
           show "q' \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>a \<triangleright> x\<rparr> ex1_p a"
           proof -
@@ -122,12 +122,12 @@ proof -
               using weak_proper_transition_def by simp
           qed
         next
-          show "proper_lift ex1_bisim_rel c (\<lparr>a \<triangleright> x\<rparr> ex1_p a)"
+          show "rel_proper_residual ex1_bisim_rel c (\<lparr>a \<triangleright> x\<rparr> ex1_p a)"
           proof -
             have "ex1_bisim_rel (a \<triangleright> _. ex1_q a) (ex1_p a)"
               using q1_p0 by simp
             then show ?thesis
-              using simple_lift and \<open>c = \<lparr>a \<triangleright> x\<rparr> a \<triangleright> _. ex1_q a\<close> by simp
+              using proper_residual.rel_intros(1) and \<open>c = \<lparr>a \<triangleright> x\<rparr> a \<triangleright> _. ex1_q a\<close> by simp
           qed
         qed
       qed
@@ -139,7 +139,7 @@ proof -
         assume "p' \<rightarrow>\<^sub>\<sharp> c"
         then obtain x where "c = \<lparr>a \<triangleright> x\<rparr> ex1_q a"
           using \<open>p' = a \<triangleright> _. ex1_q a\<close> and proper_transitions_from_receive by metis
-        then show "\<exists>d. q' \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> proper_lift ex1_bisim_rel c d"
+        then show "\<exists>d. q' \<Longrightarrow>\<^sub>\<sharp>\<^sup>^ d \<and> rel_proper_residual ex1_bisim_rel c d"
         proof (intro exI[of _ "\<lparr>a \<triangleright> x\<rparr> ex1_p a"] conjI)
           show "q' \<Longrightarrow>\<^sub>\<sharp>\<^sup>^\<lparr>a \<triangleright> x\<rparr> ex1_p a"
           proof -
@@ -153,12 +153,12 @@ proof -
               using weak_proper_transition_def by simp
           qed
         next
-          show "proper_lift ex1_bisim_rel c (\<lparr>a \<triangleright> x\<rparr> ex1_p a)"
+          show "rel_proper_residual ex1_bisim_rel c (\<lparr>a \<triangleright> x\<rparr> ex1_p a)"
           proof -
             have "ex1_bisim_rel (ex1_q a) (ex1_p a)"
               using q0_p0 by simp
             then show ?thesis
-              using simple_lift and \<open>c = \<lparr>a \<triangleright> x\<rparr> ex1_q a\<close> by simp
+              using proper_residual.rel_intros(1) and \<open>c = \<lparr>a \<triangleright> x\<rparr> ex1_q a\<close> by simp
           qed
         qed
       qed

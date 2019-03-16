@@ -7,10 +7,10 @@ theory Basic_Weak_Transition_System
     Basic_Transition_System
 begin
 
-inductive basic_silent :: "[process, basic_residual] \<Rightarrow> bool" where
+inductive basic_silent :: "[process, process basic_residual] \<Rightarrow> bool" where
   basic_internal_is_silent: "basic_silent p (\<lbrace>\<tau>\<rbrace> p)"
 
-interpretation basic: std_weak_residual basic_lift basic_silent
+interpretation basic: std_weak_residual rel_basic_residual basic_silent
 proof
   show "basic_silent OO basic_silent\<inverse>\<inverse> = (=)"
     by (blast elim: basic_silent.cases intro: basic_silent.intros)
@@ -19,17 +19,17 @@ next
     by (blast elim: basic_silent.cases)
 next
   fix \<X>
-  show "\<X> OO basic_silent = basic_silent OO basic_lift \<X>"
+  show "\<X> OO basic_silent = basic_silent OO rel_basic_residual \<X>"
   proof (intro ext, intro iffI)
     fix p and c
     assume "(\<X> OO basic_silent) p c"
-    then show "(basic_silent OO basic_lift \<X>) p c"
-      by (blast elim: basic_silent.cases intro: basic_silent.intros acting_lift)
+    then show "(basic_silent OO rel_basic_residual \<X>) p c"
+      by (blast elim: basic_silent.cases intro: basic_silent.intros basic_residual.rel_intros(1))
   next
     fix p and c
-    assume "(basic_silent OO basic_lift \<X>) p c"
+    assume "(basic_silent OO rel_basic_residual \<X>) p c"
     then show "(\<X> OO basic_silent) p c"
-      by (blast elim: basic_silent.cases basic_lift.cases intro: basic_silent.intros)
+      by (blast elim: basic_silent.cases basic_residual.rel_cases intro: basic_silent.intros)
   qed
 qed
 
@@ -90,7 +90,7 @@ proof -
     next
       assume "basic.absorb_upward ?\<I> c (\<lbrace>\<tau>\<rbrace> q)"
       then obtain p\<^sub>1 where "c = \<lbrace>\<tau>\<rbrace> p\<^sub>1" and "p\<^sub>1 \<Rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q \<and> (p\<^sub>1 \<noteq> q \<longrightarrow> (\<exists>r. p\<^sub>1 \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> r \<and> r \<Rightarrow>\<^sup>\<tau>\<^sub>\<flat> q))"
-        using basic_lift.simps and basic_silent.cases by fastforce
+        by (fastforce elim: basic_residual.rel_cases basic_silent.cases)
       then show ?thesis
         using composed_transition.hyps(2) and composed_transition.prems and basic_silent_sequence_trans
         by blast
@@ -111,7 +111,7 @@ lemma basic_weak_transition_receiving: "a \<triangleright> x. P x \<Rightarrow>\
 (** Basic weak simulating transition \<Rightarrow>\<^sub>\<flat>\<^sup>^ **)
 
 inductive
-  basic_weak_simulating_transition :: "process \<Rightarrow> basic_residual \<Rightarrow> bool" (infix "\<Rightarrow>\<^sub>\<flat>\<^sup>^" 50)
+  basic_weak_simulating_transition :: "process \<Rightarrow> process basic_residual \<Rightarrow> bool" (infix "\<Rightarrow>\<^sub>\<flat>\<^sup>^" 50)
 where
   basic_weak_simulating_transition_acting: "p \<Rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q \<or> (\<alpha> = \<tau> \<and> p = q) \<Longrightarrow> p \<Rightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<alpha>\<rbrace> q" |
   basic_weak_simulating_transition_opening: "p \<Rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<Longrightarrow> p \<Rightarrow>\<^sub>\<flat>\<^sup>^\<lbrace>\<nu> a\<rbrace> P a"

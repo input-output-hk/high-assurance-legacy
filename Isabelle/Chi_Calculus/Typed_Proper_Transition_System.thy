@@ -7,27 +7,27 @@ abbreviation
 where
   "\<aa> \<triangleright>\<degree> \<xx> \<equiv> ProperIn (untyped_channel \<aa>) (untyped_value \<xx>)"
 
-datatype 'a typed_output_rest =
-  TypedWithoutOpening \<open>'a\<close> \<open>process\<close> ("_\<rparr> _" [52, 51] 51) |
-  TypedWithOpening \<open>chan \<Rightarrow> 'a typed_output_rest\<close>
+datatype ('a, 't) typed_output_rest =
+  TypedWithoutOpening \<open>'a\<close> \<open>'t\<close> ("_\<rparr> _" [52, 51] 51) |
+  TypedWithOpening \<open>chan \<Rightarrow> ('a, 't) typed_output_rest\<close>
 
 (*
   We use the ordinary-font K to denote a function whose argument is untyped but whose resulting
   output rest is typed.
 *)
 
-primrec untyped_output_rest :: "'a::countable typed_output_rest \<Rightarrow> output_rest" where
+primrec untyped_output_rest :: "('a::countable, 't) typed_output_rest \<Rightarrow> 't output_rest" where
   "untyped_output_rest (\<xx>\<rparr> p) = untyped_value \<xx>\<rparr> p" |
   "untyped_output_rest (TypedWithOpening K) = WithOpening (untyped_output_rest \<circ> K)"
 
 abbreviation
-  typed_with_opening :: "('a channel \<Rightarrow> 'b typed_output_rest) \<Rightarrow> 'b typed_output_rest"
+  typed_with_opening :: "('a channel \<Rightarrow> ('b, 't) typed_output_rest) \<Rightarrow> ('b, 't) typed_output_rest"
   (binder "\<nu>\<degree>" 51)
 where
   "\<nu>\<degree>\<aa>. \<KK> \<aa> \<equiv> TypedWithOpening (\<KK> \<circ> typed_channel)"
 
 abbreviation
-  typed_output :: "['a channel, 'a::countable typed_output_rest] \<Rightarrow> proper_residual"
+  typed_output :: "['a channel, ('a::countable, 't) typed_output_rest] \<Rightarrow> 't proper_residual"
   ("\<lparr>_ \<triangleleft>\<degree> _" [0, 51] 51)
 where
   "\<lparr>\<aa> \<triangleleft>\<degree> \<kk> \<equiv> \<lparr>untyped_channel \<aa> \<triangleleft> untyped_output_rest \<kk>"

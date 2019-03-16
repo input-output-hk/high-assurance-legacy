@@ -30,9 +30,9 @@ text \<open>
   transition. Its syntax is part of the syntax of output transitions.
 \<close>
 
-datatype output_rest =
-  WithoutOpening \<open>val\<close> \<open>process\<close> ("_\<rparr> _" [52, 51] 51) |
-  WithOpening \<open>chan \<Rightarrow> output_rest\<close> (binder "\<nu>" 51)
+datatype 't output_rest =
+  WithoutOpening \<open>val\<close> \<open>'t\<close> ("_\<rparr> _" [52, 51] 51) |
+  WithOpening \<open>chan \<Rightarrow> 't output_rest\<close> (binder "\<nu>" 51)
 
 text \<open>
   Note that the definition of \<open>output_rest\<close> is actually more permissive than the verbal definition
@@ -43,95 +43,20 @@ text \<open>
 \<close>
 
 text \<open>
-  There is a notion of output rest lifting on which the definition of residual lifting is based.
-\<close>
-
-inductive
-  output_rest_lift :: "(process \<Rightarrow> process \<Rightarrow> bool) \<Rightarrow> (output_rest \<Rightarrow> output_rest \<Rightarrow> bool)"
-  for \<X>
-where
-  without_opening_lift:
-    "\<X> p q \<Longrightarrow> output_rest_lift \<X> (x\<rparr> p) (x\<rparr> q)" |
-  with_opening_lift:
-    "(\<And>a. output_rest_lift \<X> (K a) (L a)) \<Longrightarrow> output_rest_lift \<X> (\<nu> a. K a) (\<nu> a. L a)"
-
-text \<open>
-  Interestingly, equipping \<^type>\<open>output_rest\<close> with \<^const>\<open>output_rest_lift\<close> leads to a residual
+  Interestingly, equipping \<^type>\<open>output_rest\<close> with \<^const>\<open>rel_output_rest\<close> leads to a residual
   structure, despite the fact that output rests are not intended to serve as residuals but only as
   components of residuals.
 \<close>
 
-interpretation output_rest: residual output_rest_lift
-proof
-  fix \<X> :: "[process, process] \<Rightarrow> bool" and \<Y>
-  assume "\<X> \<le> \<Y>"
-  show "output_rest_lift \<X> \<le> output_rest_lift \<Y>"
-  proof
-    fix k and l
-    assume "output_rest_lift \<X> k l"
-    from this and \<open>\<X> \<le> \<Y>\<close> show "output_rest_lift \<Y> k l"
-      by induction (blast intro: output_rest_lift.intros)+
-  qed
-next
-  show "output_rest_lift (=) = (=)"
-  proof (intro ext, intro iffI)
-    fix k\<^sub>1 and k\<^sub>2
-    assume "output_rest_lift (=) k\<^sub>1 k\<^sub>2"
-    then show "k\<^sub>1 = k\<^sub>2"
-      by induction blast+
-  next
-    fix k\<^sub>1 :: output_rest and k\<^sub>2
-    assume "k\<^sub>1 = k\<^sub>2"
-    then show "output_rest_lift (=) k\<^sub>1 k\<^sub>2"
-      by (induction k\<^sub>1 arbitrary: k\<^sub>2) (blast intro: output_rest_lift.intros)+
-  qed
-next
-  fix \<X> and \<Y>
-  show "output_rest_lift (\<X> OO \<Y>) = output_rest_lift \<X> OO output_rest_lift \<Y>"
-  proof (intro ext, intro iffI)
-    fix k and m
-    assume "output_rest_lift (\<X> OO \<Y>) k m"
-    then show "(output_rest_lift \<X> OO output_rest_lift \<Y>) k m"
-    proof induction
-      case (without_opening_lift p r x)
-      then obtain q where "\<X> p q" and "\<Y> q r"
-        by cases
-      then show ?case
-        by (blast intro: output_rest_lift.without_opening_lift)
-    next
-      case (with_opening_lift K M)
-      then have "\<forall>a. \<exists>g. output_rest_lift \<X> (K a) g \<and> output_rest_lift \<Y> g (M a)"
-        by blast
-      then have "\<exists>L. \<forall>a. output_rest_lift \<X> (K a) (L a) \<and> output_rest_lift \<Y> (L a) (M a)"
-        by (fact choice)
-      then show ?case by (blast intro: output_rest_lift.with_opening_lift)
-    qed
-  next
-    fix k and m
-    assume "(output_rest_lift \<X> OO output_rest_lift \<Y>) k m"
-    then obtain l where "output_rest_lift \<X> k l" and "output_rest_lift \<Y> l m"
-      by cases
-    then show "output_rest_lift (\<X> OO \<Y>) k m"
-      by
-        (induction arbitrary: m)
-        (blast elim: output_rest_lift.cases intro: output_rest_lift.intros)+
-  qed
-next
-  fix \<X>
-  show "output_rest_lift \<X>\<inverse>\<inverse> = (output_rest_lift \<X>)\<inverse>\<inverse>"
-  proof (intro ext, intro iffI)
-    fix k and l
-    assume "output_rest_lift \<X>\<inverse>\<inverse> l k"
-    then show "(output_rest_lift \<X>)\<inverse>\<inverse> l k"
-      by induction (blast intro: output_rest_lift.intros)+
-  next
-    fix k and l
-    assume "(output_rest_lift \<X>)\<inverse>\<inverse> l k"
-    then have "output_rest_lift \<X> k l" by (fact conversepD)
-    then show "output_rest_lift \<X>\<inverse>\<inverse> l k"
-      by induction (blast intro: output_rest_lift.intros)+
-  qed
-qed
+interpretation output_rest: residual rel_output_rest
+  by
+    unfold_locales
+    (
+      fact output_rest.rel_mono,
+      fact output_rest.rel_eq,
+      fact output_rest.rel_compp,
+      fact output_rest.rel_conversep
+    )
 
 subsection \<open>Residuals\<close>
 
@@ -141,97 +66,23 @@ text \<open>
   \<open>\<lparr>a \<triangleleft> \<nu> b\<^sub>1 \<dots> b\<^sub>n. X b\<^sub>1 \<dots> b\<^sub>n\<rparr> Q b\<^sub>1 \<dots> b\<^sub>n\<close> where \<open>a\<close> is a channel and the \<open>b\<^sub>i\<close> are channel variables.
 \<close>
 
-datatype proper_residual =
-  Simple \<open>proper_action\<close> \<open>process\<close> ("\<lparr>_\<rparr> _" [0, 51] 51) |
-  Output \<open>chan\<close> \<open>output_rest\<close> ("\<lparr>_ \<triangleleft> _" [0, 51] 51)
+datatype 't proper_residual =
+  Simple \<open>proper_action\<close> \<open>'t\<close> ("\<lparr>_\<rparr> _" [0, 51] 51) |
+  Output \<open>chan\<close> \<open>'t output_rest\<close> ("\<lparr>_ \<triangleleft> _" [0, 51] 51)
 
 text \<open>
-  Residual lifting is defined in the obvious way.
+  Equipping \<^type>\<open>proper_residual\<close> with \<^const>\<open>rel_proper_residual\<close> leads to a residual structure.
 \<close>
 
-inductive
-  proper_lift :: "(process \<Rightarrow> process \<Rightarrow> bool) \<Rightarrow> (proper_residual \<Rightarrow> proper_residual \<Rightarrow> bool)"
-  for \<X>
-where
-  simple_lift:
-    "\<X> p q \<Longrightarrow> proper_lift \<X> (\<lparr>\<alpha>\<rparr> p) (\<lparr>\<alpha>\<rparr> q)" |
-  output_lift:
-    "output_rest_lift \<X> k l \<Longrightarrow> proper_lift \<X> (\<lparr>a \<triangleleft> k) (\<lparr>a \<triangleleft> l)"
-
-text \<open>
-  Equipping \<^type>\<open>proper_residual\<close> with \<^const>\<open>proper_lift\<close> leads to a residual structure.
-\<close>
-
-interpretation proper: residual proper_lift
-proof
-  fix \<X> :: "[process, process] \<Rightarrow> bool" and \<Y>
-  assume "\<X> \<le> \<Y>"
-  show "proper_lift \<X> \<le> proper_lift \<Y>"
-  proof
-    fix c and d
-    assume "proper_lift \<X> c d"
-    from this and \<open>\<X> \<le> \<Y>\<close> show "proper_lift \<Y> c d"
-      using output_rest.lift_monotonicity
-      by induction (blast intro: proper_lift.intros)+
-  qed
-next
-  show "proper_lift (=) = (=)"
-  proof (intro ext, intro iffI)
-    fix c\<^sub>1 and c\<^sub>2
-    assume "proper_lift (=) c\<^sub>1 c\<^sub>2"
-    then show "c\<^sub>1 = c\<^sub>2"
-      using output_rest.lift_equality_preservation
-      by cases simp_all
-  next
-    fix c\<^sub>1 :: proper_residual and c\<^sub>2
-    assume "c\<^sub>1 = c\<^sub>2"
-    then show "proper_lift (=) c\<^sub>1 c\<^sub>2"
-      using output_rest.lift_equality_preservation and proper_lift.intros
-      by (cases c\<^sub>1) auto
-  qed
-next
-  fix \<X> and \<Y>
-  show "proper_lift (\<X> OO \<Y>) = proper_lift \<X> OO proper_lift \<Y>"
-  proof (intro ext, intro iffI)
-    fix c and e
-    assume "proper_lift (\<X> OO \<Y>) c e"
-    then show "(proper_lift \<X> OO proper_lift \<Y>) c e"
-    proof induction
-      case (simple_lift p r \<alpha>)
-      then obtain q where "\<X> p q" and "\<Y> q r"
-        by cases
-      then show ?case
-        by (blast intro: proper_lift.simple_lift)
-    next
-      case (output_lift k m a)
-      then obtain l where "output_rest_lift \<X> k l" and "output_rest_lift \<Y> l m"
-        by (unfold output_rest.lift_composition_preservation) (elim relcomppE)
-      then show ?case
-        by (blast intro: proper_lift.output_lift)
-    qed
-  next
-    fix c and e
-    assume "(proper_lift \<X> OO proper_lift \<Y>) c e"
-    then show "proper_lift (\<X> OO \<Y>) c e"
-      using output_rest.lift_composition_preservation and proper_lift.simps
-      by cases auto
-  qed
-next
-  fix \<X>
-  show "proper_lift \<X>\<inverse>\<inverse> = (proper_lift \<X>)\<inverse>\<inverse>"
-  proof (intro ext, intro iffI)
-    fix c and d
-    assume "proper_lift \<X>\<inverse>\<inverse> d c"
-    then show "(proper_lift \<X>)\<inverse>\<inverse> d c"
-      by cases (simp_all add: output_rest.lift_conversion_preservation proper_lift.intros)
-  next
-    fix c and d
-    assume "(proper_lift \<X>)\<inverse>\<inverse> d c"
-    then have "proper_lift \<X> c d" by (fact conversepD)
-    then show "proper_lift \<X>\<inverse>\<inverse> d c"
-      by cases (simp_all add: output_rest.lift_conversion_preservation proper_lift.intros)
-  qed
-qed
+interpretation proper: residual rel_proper_residual
+  by
+    unfold_locales
+    (
+      fact proper_residual.rel_mono,
+      fact proper_residual.rel_eq,
+      fact proper_residual.rel_compp,
+      fact proper_residual.rel_conversep
+    )
 
 subsection \<open>Transition System\<close>
 
@@ -241,7 +92,7 @@ text \<open>
 \<close>
 
 inductive
-  proper_transition :: "process \<Rightarrow> proper_residual \<Rightarrow> bool"
+  proper_transition :: "process \<Rightarrow> process proper_residual \<Rightarrow> bool"
   (infix "\<rightarrow>\<^sub>\<sharp>" 50)
 where
   simple:
@@ -255,7 +106,7 @@ text \<open>
   The residual structure and \<^const>\<open>proper_transition\<close> together form a transition system.
 \<close>
 
-interpretation proper: transition_system proper_lift proper_transition
+interpretation proper: transition_system rel_proper_residual proper_transition
   by intro_locales
 
 text \<open>
@@ -283,7 +134,7 @@ lemma basic_bisimilarity_is_proper_simulation: "sim\<^sub>\<sharp> (\<sim>\<^sub
 proof (intro predicate2I, intro allI, intro impI)
   fix p and q and c
   assume "p \<rightarrow>\<^sub>\<sharp>c" and "p \<sim>\<^sub>\<flat> q"
-  then show "\<exists>d. q \<rightarrow>\<^sub>\<sharp>d \<and> proper_lift (\<sim>\<^sub>\<flat>) c d"
+  then show "\<exists>d. q \<rightarrow>\<^sub>\<sharp>d \<and> rel_proper_residual (\<sim>\<^sub>\<flat>) c d"
   proof (induction arbitrary: q)
     case (simple p \<delta> p' q)
     from \<open>p \<sim>\<^sub>\<flat> q\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> p'\<close>
@@ -291,12 +142,12 @@ proof (intro predicate2I, intro allI, intro impI)
       using
         basic.bisimilarity_is_simulation and
         predicate2D and
-        basic_lift.cases and
+        basic_residual.rel_cases and
         basic_residual.inject(1) and
         basic_residual.distinct(2)
       by smt
     then show ?case
-      by (blast intro: proper_transition.simple simple_lift)
+      by (blast intro: proper_transition.simple proper_residual.rel_intros(1))
   next
     case (output_without_opening p a x p' q)
     from \<open>p \<sim>\<^sub>\<flat> q\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> p'\<close>
@@ -304,22 +155,22 @@ proof (intro predicate2I, intro allI, intro impI)
       using
         basic.bisimilarity_is_simulation and
         predicate2D and
-        basic_lift.cases and
+        basic_residual.rel_cases and
         basic_residual.inject(1) and
         basic_residual.distinct(2)
       by smt
     then show ?case
-      by (blast intro: proper_transition.output_without_opening without_opening_lift output_lift)
+      by (blast intro: proper_transition.output_without_opening output_rest.rel_intros(1) proper_residual.rel_intros(2))
   next
     case (output_with_opening p P a K q)
     obtain Q where "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a" and "\<And>a. P a \<sim>\<^sub>\<flat> Q a"
     proof -
       from \<open>p \<sim>\<^sub>\<flat> q\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a\<close>
-      obtain d where "q \<rightarrow>\<^sub>\<flat>d" and "basic_lift (\<sim>\<^sub>\<flat>) (\<lbrace>\<nu> a\<rbrace> P a) d"
+      obtain d where "q \<rightarrow>\<^sub>\<flat>d" and "rel_basic_residual (\<sim>\<^sub>\<flat>) (\<lbrace>\<nu> a\<rbrace> P a) d"
         using basic.bisimilarity_is_simulation
         by blast
-      from \<open>basic_lift (\<sim>\<^sub>\<flat>) (\<lbrace>\<nu> a\<rbrace> P a) d\<close> and \<open>q \<rightarrow>\<^sub>\<flat>d\<close> and that show ?thesis
-        by cases simp
+      from \<open>rel_basic_residual (\<sim>\<^sub>\<flat>) (\<lbrace>\<nu> a\<rbrace> P a) d\<close> and \<open>q \<rightarrow>\<^sub>\<flat>d\<close> and that show ?thesis
+        by cases (auto elim: rel_funE)
     qed
     (*
       In case we provide lemmas or proof methods for statements that we currently solve with smt,
@@ -336,23 +187,23 @@ proof (intro predicate2I, intro allI, intro impI)
               basic_residual.inject(2)
             by smt
     *)
-    obtain L where "\<And>b. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> L b" and "\<And>b. output_rest_lift (\<sim>\<^sub>\<flat>) (K b) (L b)"
+    obtain L where "\<And>b. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> L b" and "\<And>b. rel_output_rest (\<sim>\<^sub>\<flat>) (K b) (L b)"
     proof -
       from output_with_opening.IH and \<open>\<And>b. P b \<sim>\<^sub>\<flat> Q b\<close>
-      have "\<forall>b. \<exists>l. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> l \<and> output_rest_lift (\<sim>\<^sub>\<flat>) (K b) l"
+      have "\<forall>b. \<exists>l. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> l \<and> rel_output_rest (\<sim>\<^sub>\<flat>) (K b) l"
         using
-          proper_lift.cases and
+          proper_residual.rel_cases and
           proper_residual.distinct(1) and
           proper_residual.inject(2)
         by smt
-      then have "\<exists>L. \<forall>b. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> L b \<and> output_rest_lift (\<sim>\<^sub>\<flat>) (K b) (L b)"
+      then have "\<exists>L. \<forall>b. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> L b \<and> rel_output_rest (\<sim>\<^sub>\<flat>) (K b) (L b)"
         by (fact choice)
       with that show ?thesis by blast
     qed
     from \<open>q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b\<close> and \<open>\<And>b. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> L b\<close> have "q \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> \<nu> b. L b"
       by (fact proper_transition.output_with_opening)
-    with \<open>\<And>a. output_rest_lift (\<sim>\<^sub>\<flat>) (K a) (L a)\<close> show ?case
-      using with_opening_lift and output_lift
+    with \<open>\<And>a. rel_output_rest (\<sim>\<^sub>\<flat>) (K a) (L a)\<close> show ?case
+      using output_rest.rel_intros(2) and rel_funI and proper_residual.rel_intros(2)
       by smt
   qed
 qed
@@ -385,7 +236,7 @@ private lemma proper_pre_receive_scope_extension_ltr: "a \<triangleright> x. \<n
 proof (standard, intro allI, intro impI)
   fix c
   assume "a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<sharp>c"
-  then show "\<exists>d. \<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<sharp>d \<and> proper_lift (\<sim>\<^sub>\<sharp>) c d"
+  then show "\<exists>d. \<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<sharp>d \<and> rel_proper_residual (\<sim>\<^sub>\<sharp>) c d"
   proof cases
     case (simple \<delta> q)
     from \<open>a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> q\<close>
@@ -425,7 +276,7 @@ private lemma proper_pre_receive_scope_extension_rtl: "\<nu> b. a \<trianglerigh
 proof (standard, intro allI, intro impI)
   fix c
   assume "\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<sharp>c"
-  then show "\<exists>d. a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<sharp>d \<and> proper_lift (\<sim>\<^sub>\<sharp>) c d"
+  then show "\<exists>d. a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<sharp>d \<and> rel_proper_residual (\<sim>\<^sub>\<sharp>) c d"
   proof cases
     case (simple \<delta> r)
     from \<open>\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> r\<close> show ?thesis
