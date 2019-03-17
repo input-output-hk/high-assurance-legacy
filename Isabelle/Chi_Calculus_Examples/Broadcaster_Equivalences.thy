@@ -617,4 +617,45 @@ qed
 
 end
 
+text \<open>
+  The following is the proof that unreliable broadcast is observationally equivalent to a diamond-shaped network.
+\<close>
+
+abbreviation receiver :: "[chan, chan] \<Rightarrow> process" where
+  "receiver binp out \<equiv> binp \<triangleright> x. out \<triangleleft> x"
+
+abbreviation receiver_subsystem :: "[chan, chan list] \<Rightarrow> process" where
+  "receiver_subsystem binp outs \<equiv> \<parallel>out\<leftarrow>outs. receiver binp out"
+
+definition unreliable_broadcast_system :: "[chan list, val] \<Rightarrow> process" where
+  "unreliable_broadcast_system outs x \<equiv> \<nu> b. (\<currency>\<^sup>*b \<parallel> b \<triangleleft> x \<parallel> receiver_subsystem b outs)"
+
+abbreviation forwarder\<^sub>1 :: "[val, chan, chan, chan] \<Rightarrow> process" where
+  "forwarder\<^sub>1 x b\<^sub>2 b\<^sub>3 out \<equiv> b\<^sub>2 \<triangleleft> x \<parallel> b\<^sub>3 \<triangleleft> x \<parallel> out \<triangleleft> x"
+
+abbreviation forwarder\<^sub>2 :: "[chan, chan, chan] \<Rightarrow> process" where
+  "forwarder\<^sub>2 b\<^sub>2 b\<^sub>4 out \<equiv> b\<^sub>2 \<triangleright> x. (b\<^sub>4 \<triangleleft> x \<parallel> out \<triangleleft> x)"
+
+abbreviation forwarder\<^sub>3 :: "[chan, chan, chan] \<Rightarrow> process" where
+  "forwarder\<^sub>3 b\<^sub>3 b\<^sub>4' out \<equiv> b\<^sub>3 \<triangleright> x. (b\<^sub>4' \<triangleleft> x \<parallel> out \<triangleleft> x)"
+
+abbreviation forwarder\<^sub>4 :: "[chan, chan, chan] \<Rightarrow> process" where
+  "forwarder\<^sub>4 b\<^sub>4 b\<^sub>4' out \<equiv> \<nu> a. (
+    b\<^sub>4 \<triangleright> x. a \<triangleleft> x
+    \<parallel>
+    b\<^sub>4' \<triangleright> x. a \<triangleleft> x
+    \<parallel>
+    (a \<triangleright> x. a \<triangleright> y. (out \<triangleleft> x \<parallel> (if x = y then \<zero> else out \<triangleleft> y))))"
+
+definition diamond_forwarder_system :: "[chan, chan, chan, chan, val] \<Rightarrow> process" where
+  "diamond_forwarder_system out\<^sub>1 out\<^sub>2 out\<^sub>3 out\<^sub>4 x \<equiv> \<nu> b\<^sub>2 b\<^sub>3 b\<^sub>4 b\<^sub>4'. (
+    \<currency>\<^sup>*b\<^sub>2 \<parallel> \<currency>\<^sup>*b\<^sub>3 \<parallel> \<currency>\<^sup>*b\<^sub>4 \<parallel> \<currency>\<^sup>*b\<^sub>4'
+    \<parallel>
+    forwarder\<^sub>1 x b\<^sub>2 b\<^sub>3 out\<^sub>1 \<parallel> forwarder\<^sub>2 b\<^sub>2 b\<^sub>4 out\<^sub>2 \<parallel> forwarder\<^sub>3 b\<^sub>3 b\<^sub>4' out\<^sub>3 \<parallel> forwarder\<^sub>4 b\<^sub>4 b\<^sub>4' out\<^sub>4)"
+
+(* TODO: Prove it. *)
+theorem unreliable_broadcast_diamond_forwarder_equivalence:
+  "unreliable_broadcast_system [out\<^sub>1, out\<^sub>2, out\<^sub>3, out\<^sub>4] x \<approx>\<^sub>\<sharp> diamond_forwarder_system out\<^sub>1 out\<^sub>2 out\<^sub>3 out\<^sub>4 x"
+  sorry
+
 end
