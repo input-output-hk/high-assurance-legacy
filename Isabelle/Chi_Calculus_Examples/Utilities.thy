@@ -4,6 +4,7 @@ theory Utilities
   imports
     Chi_Calculus.Processes
     Chi_Calculus.Proper_Weak_Bisimulation
+    "HOL-Library.BNF_Corec"
 begin
 
 lemma proper_transitions_from_receive:
@@ -99,6 +100,10 @@ proof -
   ultimately show "\<R> (\<nu> c. (\<zero> \<parallel> p)) p" and "\<R> p (\<nu> c. (\<zero> \<parallel> p))"
     by simp_all
 qed
+
+lemma internal_communication2: "\<nu> a. (a \<triangleleft> y \<parallel> a \<triangleright> x. P x a) \<approx>\<^sub>\<sharp> \<nu> a. P y a" sorry
+lemma "\<nu> a. (a \<triangleleft> y \<parallel> a \<triangleright> x. a \<triangleleft> x) \<approx>\<^sub>\<sharp> \<nu> a. a \<triangleleft> y" using internal_communication2 sorry
+
 
 (* TODO: Fill holes. *)
 lemma internal_communication: "\<nu> c. (c \<triangleleft> y \<parallel> c \<triangleright> x. P x) \<approx>\<^sub>\<sharp> P y"
@@ -353,5 +358,34 @@ qed
 
 lemma weak_proper_restrict_preservation: "(\<And>cs. P cs \<approx>\<^sub>\<sharp> Q cs) \<Longrightarrow> restrict n P \<approx>\<^sub>\<sharp> restrict n Q"
   by (simp add: weak_proper_restrict'_preservation)
+
+(* TODO: Move the following code to the corresponding theories. *)
+
+corec repeat :: "process \<Rightarrow> process" ("\<star>_" [100] 100) where
+  "\<star>p = p \<parallel> \<star>p"
+
+lemma repeat_compatibility: "p \<sim>\<^sub>\<sharp> q \<Longrightarrow> \<star>p \<sim>\<^sub>\<sharp> \<star>q"
+  sorry
+
+lemma repeat_idempotence: "\<star>p \<parallel> \<star>p \<sim>\<^sub>\<sharp> \<star>p"
+  sorry
+
+lemma repeat_parallel_distributivity: "\<star>(p \<parallel> q) \<sim>\<^sub>\<sharp> \<star>p \<parallel> \<star>q"
+  sorry
+
+abbreviation unreliable_unicast :: "chan \<Rightarrow> process" ("\<currency>_" [1000] 1000) where
+  "\<currency>a \<equiv> \<star>a \<triangleright> _. \<zero>"
+
+abbreviation unreliable_broadcast :: "chan \<Rightarrow> process" ("\<currency>\<^sup>*_" [1000] 1000) where
+  "\<currency>\<^sup>*a \<equiv> \<star>a \<triangleright> _. \<zero> \<parallel> \<star>a \<triangleright> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)"
+
+lemma unreliable_unicast_idempotence: "\<currency>a \<parallel> \<currency>a \<sim>\<^sub>\<sharp> \<currency>a"
+  using repeat_idempotence by blast
+
+lemma unreliable_broadcast_idempotence: "\<currency>\<^sup>*a \<parallel> \<currency>\<^sup>*a \<sim>\<^sub>\<sharp> \<currency>\<^sup>*a"
+  sorry
+
+lemma unreliable_broadcast_swallows_unreliable_unicast: "\<currency>a \<parallel> \<currency>\<^sup>*a \<sim>\<^sub>\<sharp> \<currency>\<^sup>*a"
+  sorry
 
 end
