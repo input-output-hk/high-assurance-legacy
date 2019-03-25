@@ -36,4 +36,7 @@ qed
 interpretation basic: weak_transition_system basic_silent basic.absorb basic_transition
   by intro_locales
 
+notation basic.weak.pre_bisimilarity (infix "\<lessapprox>\<^sub>\<flat>" 50)
+notation basic.weak.bisimilarity (infix "\<approx>\<^sub>\<flat>" 50)
+
 end
