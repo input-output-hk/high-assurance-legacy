@@ -1,10 +1,7 @@
 section \<open>Proper Weak Transition System\<close>
 
 theory Proper_Weak_Transition_System
-  imports
-    Transition_Systems.Std_Weak_Residuals
-    Transition_Systems.Weak_Transition_Systems
-    Proper_Transition_System
+  imports Basic_Weak_Transition_System Proper_Transition_System
 begin
 
 inductive proper_silent :: "[process, process proper_residual] \<Rightarrow> bool" where
@@ -38,5 +35,8 @@ interpretation proper: weak_transition_system proper_silent proper.absorb proper
 
 notation proper.weak.pre_bisimilarity (infix "\<lessapprox>\<^sub>\<sharp>" 50)
 notation proper.weak.bisimilarity (infix "\<approx>\<^sub>\<sharp>" 50)
+
+lemma basic_weak_bisimilarity_in_proper_weak_bisimilarity: "(\<approx>\<^sub>\<flat>) \<le> (\<approx>\<^sub>\<sharp>)"
+  sorry
 
 end
