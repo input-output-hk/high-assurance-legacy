@@ -127,8 +127,6 @@ text \<open>
   We introduce concise notation for some of the derived predicates of the transition system.
 \<close>
 
-notation basic.sim ("sim\<^sub>\<flat>")
-notation basic.bisim ("bisim\<^sub>\<flat>")
 notation basic.pre_bisimilarity (infix "\<lesssim>\<^sub>\<flat>" 50)
 notation basic.bisimilarity (infix "\<sim>\<^sub>\<flat>" 50)
 

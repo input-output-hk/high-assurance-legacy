@@ -113,8 +113,6 @@ text \<open>
   We introduce concise notation for some of the derived predicates of the transition system.
 \<close>
 
-notation proper.sim ("sim\<^sub>\<sharp>")
-notation proper.bisim ("bisim\<^sub>\<sharp>")
 notation proper.pre_bisimilarity (infix "\<lesssim>\<^sub>\<sharp>" 50)
 notation proper.bisimilarity (infix "\<sim>\<^sub>\<sharp>" 50)
 
@@ -130,7 +128,7 @@ qed
 
 subsection \<open>Relationships between Basic and Proper Bisimilarity\<close>
 
-lemma basic_bisimilarity_is_proper_simulation: "sim\<^sub>\<sharp> (\<sim>\<^sub>\<flat>)"
+lemma basic_bisimilarity_is_proper_simulation: "proper.sim (\<sim>\<^sub>\<flat>)"
 proof (intro predicate2I, intro allI, intro impI)
   fix p and q and c
   assume "p \<rightarrow>\<^sub>\<sharp>c" and "p \<sim>\<^sub>\<flat> q"
@@ -208,7 +206,7 @@ proof (intro predicate2I, intro allI, intro impI)
   qed
 qed
 
-lemma basic_bisimilarity_is_proper_bisimulation: "bisim\<^sub>\<sharp> (\<sim>\<^sub>\<flat>)"
+lemma basic_bisimilarity_is_proper_bisimulation: "proper.bisim (\<sim>\<^sub>\<flat>)"
   using basic.bisimilarity_symmetry and basic_bisimilarity_is_proper_simulation
   by (fact proper.symmetric_simulation_is_bisimulation)
 
