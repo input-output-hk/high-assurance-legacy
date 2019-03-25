@@ -102,7 +102,7 @@ proof -
 qed
 
 lemma internal_communication2: "\<nu> a. (a \<triangleleft> y \<parallel> a \<triangleright> x. P x a) \<approx>\<^sub>\<sharp> \<nu> a. P y a" sorry
-lemma "\<nu> a. (a \<triangleleft> y \<parallel> a \<triangleright> x. a \<triangleleft> x) \<approx>\<^sub>\<sharp> \<nu> a. a \<triangleleft> y" using internal_communication2 by simp
+lemma "\<nu> a. (a \<triangleleft> y \<parallel> a \<triangleright> x. a \<triangleleft> x) \<approx>\<^sub>\<sharp> \<nu> a. a \<triangleleft> y" using internal_communication2 sorry
 
 
 (* TODO: Fill holes. *)
