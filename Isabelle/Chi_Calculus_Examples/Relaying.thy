@@ -15,5 +15,6 @@ lemma source_shift: "a \<leftrightarrow> b \<parallel> a \<triangleright>\<^sup>
 
 lemma dead_end_collapse: "\<nu> b. (\<currency>\<^sup>*b \<parallel> a \<leftrightarrow> b) \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a"
   sorry
+  (* NOTE: The \<open>\<currency>\<^sup>?b\<close>-part of \<open>\<currency>\<^sup>*b\<close> can be handled with \<open>source_shift\<close> *)
 
 end
