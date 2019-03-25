@@ -1,4 +1,4 @@
-section \<open>Relaying networks\<close>
+section \<open>Relaying Networks\<close>
 
 theory Relaying
   imports Chi_Calculus.Communication
