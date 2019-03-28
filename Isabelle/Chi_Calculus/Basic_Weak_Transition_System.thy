@@ -48,4 +48,19 @@ lemma basic_weak_parallel_preservation: "p \<approx>\<^sub>\<flat> q \<Longright
 lemma basic_weak_new_channel_preservation: "(\<And>a. P a \<approx>\<^sub>\<flat> Q a) \<Longrightarrow> \<nu> a. P a \<approx>\<^sub>\<flat> \<nu> a. Q a"
   sorry
 
+lemma basic_weak_parallel_scope_extension: "\<nu> a. P a \<parallel> q \<approx>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
+  sorry
+
+lemma basic_weak_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<approx>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
+  sorry
+
+lemma basic_weak_parallel_unit: "\<zero> \<parallel> p \<approx>\<^sub>\<flat> p"
+  sorry
+
+lemma basic_weak_parallel_commutativity: "p \<parallel> q \<approx>\<^sub>\<flat> q \<parallel> p"
+  sorry
+
+lemma basic_weak_parallel_associativity: "(p \<parallel> q) \<parallel> r \<approx>\<^sub>\<flat> p \<parallel> (q \<parallel> r)"
+  sorry
+
 end
