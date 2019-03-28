@@ -39,4 +39,13 @@ interpretation basic: weak_transition_system basic_silent basic.absorb basic_tra
 notation basic.weak.pre_bisimilarity (infix "\<lessapprox>\<^sub>\<flat>" 50)
 notation basic.weak.bisimilarity (infix "\<approx>\<^sub>\<flat>" 50)
 
+lemma basic_weak_receive_preservation: "(\<And>x. P x \<approx>\<^sub>\<flat> Q x) \<Longrightarrow> a \<triangleright> x. P x \<approx>\<^sub>\<flat> a \<triangleright> x. Q x"
+  sorry
+
+lemma basic_weak_parallel_preservation: "p \<approx>\<^sub>\<flat> q \<Longrightarrow> p \<parallel> r \<approx>\<^sub>\<flat> q \<parallel> r"
+  sorry
+
+lemma basic_weak_new_channel_preservation: "(\<And>a. P a \<approx>\<^sub>\<flat> Q a) \<Longrightarrow> \<nu> a. P a \<approx>\<^sub>\<flat> \<nu> a. Q a"
+  sorry
+
 end
