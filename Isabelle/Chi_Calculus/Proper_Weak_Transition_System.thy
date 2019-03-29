@@ -39,4 +39,45 @@ notation proper.weak.bisimilarity (infix "\<approx>\<^sub>\<sharp>" 50)
 lemma basic_weak_bisimilarity_in_proper_weak_bisimilarity: "(\<approx>\<^sub>\<flat>) \<le> (\<approx>\<^sub>\<sharp>)"
   sorry
 
+(* NOTE:
+  Lemmas like the following should go away once we have a solution for automatically appyling facts
+  like \<open>basic_weak_bisimilarity_in_proper_weak_bisimilarity\<close>.
+*)
+
+lemma proper_weak_receive_preservation: "(\<And>x. P x \<approx>\<^sub>\<sharp> Q x) \<Longrightarrow> a \<triangleright> x. P x \<approx>\<^sub>\<sharp> a \<triangleright> x. Q x"
+  sorry
+
+lemma proper_weak_parallel_preservation_left: "p\<^sub>1 \<approx>\<^sub>\<sharp> p\<^sub>2 \<Longrightarrow> p\<^sub>1 \<parallel> q \<approx>\<^sub>\<sharp> p\<^sub>2 \<parallel> q"
+  sorry
+
+lemma proper_weak_parallel_preservation_right: "q\<^sub>1 \<approx>\<^sub>\<sharp> q\<^sub>2 \<Longrightarrow> p \<parallel> q\<^sub>1 \<approx>\<^sub>\<sharp> p \<parallel> q\<^sub>2"
+  sorry
+
+lemma proper_weak_parallel_preservation: "\<lbrakk>p\<^sub>1 \<approx>\<^sub>\<sharp> p\<^sub>2; q\<^sub>1 \<approx>\<^sub>\<sharp> q\<^sub>2\<rbrakk> \<Longrightarrow> p\<^sub>1 \<parallel> q\<^sub>1 \<approx>\<^sub>\<sharp> p\<^sub>2 \<parallel> q\<^sub>2"
+  sorry
+
+lemma proper_weak_new_channel_preservation: "(\<And>a. P a \<approx>\<^sub>\<sharp> Q a) \<Longrightarrow> \<nu> a. P a \<approx>\<^sub>\<sharp> \<nu> a. Q a"
+  sorry
+
+lemma proper_weak_receive_scope_extension: "a \<triangleright> x. \<nu> b. P x b \<approx>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
+  sorry
+
+lemma proper_weak_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<approx>\<^sub>\<sharp> \<nu> a. (P a \<parallel> q)"
+  sorry
+
+lemma proper_weak_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<approx>\<^sub>\<sharp> \<nu> a. (p \<parallel> Q a)"
+  sorry
+
+lemma proper_weak_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<approx>\<^sub>\<sharp> \<nu> a. \<nu> b. P a b"
+  sorry
+
+lemma proper_weak_parallel_unit: "\<zero> \<parallel> p \<approx>\<^sub>\<sharp> p"
+  sorry
+
+lemma proper_weak_parallel_commutativity: "p \<parallel> q \<approx>\<^sub>\<sharp> q \<parallel> p"
+  sorry
+
+lemma proper_weak_parallel_associativity: "(p \<parallel> q) \<parallel> r \<approx>\<^sub>\<sharp> p \<parallel> (q \<parallel> r)"
+  sorry
+
 end
