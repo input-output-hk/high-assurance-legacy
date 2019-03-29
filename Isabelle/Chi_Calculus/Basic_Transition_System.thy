@@ -341,25 +341,25 @@ end
 context begin
 
 private inductive
-  parallel_preservation_aux :: "process \<Rightarrow> process \<Rightarrow> bool"
+  parallel_preservation_left_aux :: "process \<Rightarrow> process \<Rightarrow> bool"
 where
   without_new_channel: "
-    p \<sim>\<^sub>\<flat> q \<Longrightarrow> parallel_preservation_aux (p \<parallel> r) (q \<parallel> r)" |
+    p \<sim>\<^sub>\<flat> q \<Longrightarrow> parallel_preservation_left_aux (p \<parallel> r) (q \<parallel> r)" |
   with_new_channel: "
-    (\<And>a. parallel_preservation_aux (S a) (T a)) \<Longrightarrow>
-    parallel_preservation_aux (\<nu> a. S a) (\<nu> a. T a)"
+    (\<And>a. parallel_preservation_left_aux (S a) (T a)) \<Longrightarrow>
+    parallel_preservation_left_aux (\<nu> a. S a) (\<nu> a. T a)"
 
-lemma basic_parallel_preservation: "p \<sim>\<^sub>\<flat> q \<Longrightarrow> p \<parallel> r \<sim>\<^sub>\<flat> q \<parallel> r"
-proof (basic.bisimilarity_standard parallel_preservation_aux)
+lemma basic_parallel_preservation_left: "p \<sim>\<^sub>\<flat> q \<Longrightarrow> p \<parallel> r \<sim>\<^sub>\<flat> q \<parallel> r"
+proof (basic.bisimilarity_standard parallel_preservation_left_aux)
   case related
-  then show ?case by (fact parallel_preservation_aux.without_new_channel)
+  then show ?case by (fact parallel_preservation_left_aux.without_new_channel)
 next
   case sym
-  then show ?case by induction (simp_all add: parallel_preservation_aux.intros)
+  then show ?case by induction (simp_all add: parallel_preservation_left_aux.intros)
 next
   case (sim s t c)
   then show ?case
-  proof (basic_sim_induction t with_new_channel: parallel_preservation_aux.with_new_channel)
+  proof (basic_sim_induction t with_new_channel: parallel_preservation_left_aux.with_new_channel)
     case (communication \<eta> \<mu> p p' r r' t)
     from communication.prems show ?case
     proof cases
@@ -374,7 +374,7 @@ next
       from \<open>\<eta> \<bowtie> \<mu>\<close> and \<open>q \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> q'\<close> and \<open>r \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> r'\<close> have "q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q' \<parallel> r'"
         by (fact basic_transition.communication)
       with \<open>t = q \<parallel> r\<close> and \<open>p' \<sim>\<^sub>\<flat> q'\<close> show ?thesis
-        using parallel_preservation_aux.without_new_channel and basic_residual.rel_intros(1)
+        using parallel_preservation_left_aux.without_new_channel and basic_residual.rel_intros(1)
         by auto
     qed
   next
@@ -401,7 +401,7 @@ next
       from \<open>q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q'\<close> have "q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q' \<parallel> r"
         by (fact basic_transition.acting_left)
       with \<open>t = q \<parallel> r\<close> and \<open>p' \<sim>\<^sub>\<flat> q'\<close> show ?thesis
-        using parallel_preservation_aux.without_new_channel and basic_residual.rel_intros(1)
+        using parallel_preservation_left_aux.without_new_channel and basic_residual.rel_intros(1)
         by auto
     qed
   next
@@ -412,7 +412,7 @@ next
       with acting_right.hyps show ?thesis
         using
           basic_transition.acting_right and
-          parallel_preservation_aux.without_new_channel and
+          parallel_preservation_left_aux.without_new_channel and
           basic_residual.rel_intros(1)
         by metis
     qed
@@ -428,7 +428,7 @@ next
         by (fact basic_transition.opening_left)
       with \<open>t = q \<parallel> r\<close> and \<open>\<And>a. P a \<sim>\<^sub>\<flat> Q a\<close> show ?thesis
         using
-          parallel_preservation_aux.without_new_channel and
+          parallel_preservation_left_aux.without_new_channel and
           basic_residual.rel_intros(2) and
           rel_funI
         by smt
@@ -440,16 +440,22 @@ next
       case (without_new_channel q)
       from \<open>r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> R a\<close> have "q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> q \<parallel> R a"
         by (fact basic_transition.opening_right)
-      from \<open>p \<sim>\<^sub>\<flat> q\<close> have "\<And>a. parallel_preservation_aux (p \<parallel> R a) (q \<parallel> R a)"
-        by (fact parallel_preservation_aux.without_new_channel)
+      from \<open>p \<sim>\<^sub>\<flat> q\<close> have "\<And>a. parallel_preservation_left_aux (p \<parallel> R a) (q \<parallel> R a)"
+        by (fact parallel_preservation_left_aux.without_new_channel)
       with \<open>t = q \<parallel> r\<close> and \<open>q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> q \<parallel> R a\<close> show ?thesis
         using basic_residual.rel_intros(2) and rel_funI
         by smt
     qed
-  qed (blast elim: parallel_preservation_aux.cases)+
+  qed (blast elim: parallel_preservation_left_aux.cases)+
 qed
 
 end
+
+lemma basic_parallel_preservation_right: "q\<^sub>1 \<sim>\<^sub>\<flat> q\<^sub>2 \<Longrightarrow> p \<parallel> q\<^sub>1 \<sim>\<^sub>\<flat> p \<parallel> q\<^sub>2"
+  sorry
+
+lemma basic_parallel_preservation: "\<lbrakk>p\<^sub>1 \<sim>\<^sub>\<flat> p\<^sub>2; q\<^sub>1 \<sim>\<^sub>\<flat> q\<^sub>2\<rbrakk> \<Longrightarrow> p\<^sub>1 \<parallel> q\<^sub>1 \<sim>\<^sub>\<flat> p\<^sub>2 \<parallel> q\<^sub>2"
+  sorry
 
 context begin
 
@@ -1352,18 +1358,18 @@ qed
 lemma basic_parallel_commutativity: "p \<parallel> q \<sim>\<^sub>\<flat> q \<parallel> p"
 proof -
   have "p \<parallel> q \<sim>\<^sub>\<flat> (\<zero> \<parallel> p) \<parallel> q"
-    using basic_parallel_unit and basic_parallel_preservation by blast
+    using basic_parallel_unit and basic_parallel_preservation_left by blast
   also have "(\<zero> \<parallel> p) \<parallel> q \<sim>\<^sub>\<flat> (\<zero> \<parallel> q) \<parallel> p"
     by (fact basic_nested_parallel_commutativity)
   also have "(\<zero> \<parallel> q) \<parallel> p \<sim>\<^sub>\<flat> q \<parallel> p"
-    using basic_parallel_unit and basic_parallel_preservation by blast
+    using basic_parallel_unit and basic_parallel_preservation_left by blast
   finally show ?thesis .
 qed
 
 lemma basic_parallel_associativity: "(p \<parallel> q) \<parallel> r \<sim>\<^sub>\<flat> p \<parallel> (q \<parallel> r)"
 proof -
   have "(p \<parallel> q) \<parallel> r \<sim>\<^sub>\<flat> (q \<parallel> p) \<parallel> r"
-    using basic_parallel_commutativity and basic_parallel_preservation by blast
+    using basic_parallel_commutativity and basic_parallel_preservation_left by blast
   also have "(q \<parallel> p) \<parallel> r \<sim>\<^sub>\<flat> (q \<parallel> r) \<parallel> p"
     by (fact basic_nested_parallel_commutativity)
   also have "(q \<parallel> r) \<parallel> p \<sim>\<^sub>\<flat> p \<parallel> (q \<parallel> r)"
