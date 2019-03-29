@@ -222,7 +222,13 @@ subsection \<open>Concrete Bisimilarities\<close>
 lemma proper_receive_preservation: "(\<And>x. P x \<sim>\<^sub>\<sharp> Q x) \<Longrightarrow> a \<triangleright> x. P x \<sim>\<^sub>\<sharp> a \<triangleright> x. Q x"
   sorry
 
-lemma proper_parallel_preservation: "p \<sim>\<^sub>\<sharp> q \<Longrightarrow> p \<parallel> r \<sim>\<^sub>\<sharp> q \<parallel> r"
+lemma proper_parallel_preservation_left: "p\<^sub>1 \<sim>\<^sub>\<sharp> p\<^sub>2 \<Longrightarrow> p\<^sub>1 \<parallel> q \<sim>\<^sub>\<sharp> p\<^sub>2 \<parallel> q"
+  sorry
+
+lemma proper_parallel_preservation_right: "q\<^sub>1 \<sim>\<^sub>\<sharp> q\<^sub>2 \<Longrightarrow> p \<parallel> q\<^sub>1 \<sim>\<^sub>\<sharp> p \<parallel> q\<^sub>2"
+  sorry
+
+lemma proper_parallel_preservation: "\<lbrakk>p\<^sub>1 \<sim>\<^sub>\<sharp> p\<^sub>2; q\<^sub>1 \<sim>\<^sub>\<sharp> q\<^sub>2\<rbrakk> \<Longrightarrow> p\<^sub>1 \<parallel> q\<^sub>1 \<sim>\<^sub>\<sharp> p\<^sub>2 \<parallel> q\<^sub>2"
   sorry
 
 lemma proper_new_channel_preservation: "(\<And>a. P a \<sim>\<^sub>\<sharp> Q a) \<Longrightarrow> \<nu> a. P a \<sim>\<^sub>\<sharp> \<nu> a. Q a"
@@ -338,9 +344,12 @@ lemma proper_receive_scope_extension: "a \<triangleright> x. \<nu> b. P x b \<si
 
 end
 
-lemma proper_parallel_scope_extension: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<sharp> \<nu> a. (P a \<parallel> q)"
-  using basic_parallel_scope_extension
+lemma proper_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<sharp> \<nu> a. (P a \<parallel> q)"
+  using basic_parallel_scope_extension_left
   by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
+
+lemma proper_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<sim>\<^sub>\<sharp> \<nu> a. (p \<parallel> Q a)"
+  sorry
 
 lemma proper_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<sim>\<^sub>\<sharp> \<nu> a. \<nu> b. P a b"
   using basic_new_channel_scope_extension
@@ -418,9 +427,9 @@ proof -
   have "p \<sim>\<^sub>\<sharp> \<zero> \<parallel> p"
     by (rule proper.bisimilarity_symmetry_rule) (fact proper_parallel_unit)
   also have "\<zero> \<parallel> p \<sim>\<^sub>\<sharp> \<nu> a. \<zero> \<parallel> p"
-    using proper_stop_scope_redundancy and proper_parallel_preservation by blast
+    using proper_stop_scope_redundancy and proper_parallel_preservation_left by blast
   also have "\<nu> a. \<zero> \<parallel> p \<sim>\<^sub>\<sharp> \<nu> a. (\<zero> \<parallel> p)"
-    by (fact proper_parallel_scope_extension)
+    by (fact proper_parallel_scope_extension_left)
   also have "\<nu> a. (\<zero> \<parallel> p) \<sim>\<^sub>\<sharp> \<nu> a. p"
     using proper_parallel_unit and proper_new_channel_preservation by metis
   finally show ?thesis .

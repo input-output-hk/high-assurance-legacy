@@ -42,13 +42,22 @@ notation basic.weak.bisimilarity (infix "\<approx>\<^sub>\<flat>" 50)
 lemma basic_weak_receive_preservation: "(\<And>x. P x \<approx>\<^sub>\<flat> Q x) \<Longrightarrow> a \<triangleright> x. P x \<approx>\<^sub>\<flat> a \<triangleright> x. Q x"
   sorry
 
-lemma basic_weak_parallel_preservation: "p \<approx>\<^sub>\<flat> q \<Longrightarrow> p \<parallel> r \<approx>\<^sub>\<flat> q \<parallel> r"
+lemma basic_weak_parallel_preservation_left: "p\<^sub>1 \<approx>\<^sub>\<flat> p\<^sub>2 \<Longrightarrow> p\<^sub>1 \<parallel> q \<approx>\<^sub>\<flat> p\<^sub>2 \<parallel> q"
+  sorry
+
+lemma basic_weak_parallel_preservation_right: "q\<^sub>1 \<approx>\<^sub>\<flat> q\<^sub>2 \<Longrightarrow> p \<parallel> q\<^sub>1 \<approx>\<^sub>\<flat> p \<parallel> q\<^sub>2"
+  sorry
+
+lemma basic_weak_parallel_preservation: "\<lbrakk>p\<^sub>1 \<approx>\<^sub>\<flat> p\<^sub>2; q\<^sub>1 \<approx>\<^sub>\<flat> q\<^sub>2\<rbrakk> \<Longrightarrow> p\<^sub>1 \<parallel> q\<^sub>1 \<approx>\<^sub>\<flat> p\<^sub>2 \<parallel> q\<^sub>2"
   sorry
 
 lemma basic_weak_new_channel_preservation: "(\<And>a. P a \<approx>\<^sub>\<flat> Q a) \<Longrightarrow> \<nu> a. P a \<approx>\<^sub>\<flat> \<nu> a. Q a"
   sorry
 
-lemma basic_weak_parallel_scope_extension: "\<nu> a. P a \<parallel> q \<approx>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
+lemma basic_weak_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<approx>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
+  sorry
+
+lemma basic_weak_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<approx>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
   sorry
 
 lemma basic_weak_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<approx>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
