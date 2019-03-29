@@ -531,31 +531,31 @@ end
 context begin
 
 private inductive
-  parallel_scope_extension_subaux :: "process \<Rightarrow> process \<Rightarrow> process \<Rightarrow> bool"
+  parallel_scope_extension_left_subaux :: "process \<Rightarrow> process \<Rightarrow> process \<Rightarrow> bool"
   for q
 where
   without_new_channel: "
-    parallel_scope_extension_subaux q p (p \<parallel> q)" |
+    parallel_scope_extension_left_subaux q p (p \<parallel> q)" |
   with_new_channel: "
-    (\<And>a. parallel_scope_extension_subaux q (P a) (R a)) \<Longrightarrow>
-    parallel_scope_extension_subaux q (\<nu> a. P a) (\<nu> a. R a)"
+    (\<And>a. parallel_scope_extension_left_subaux q (P a) (R a)) \<Longrightarrow>
+    parallel_scope_extension_left_subaux q (\<nu> a. P a) (\<nu> a. R a)"
 
-private method parallel_scope_extension_subaux_trivial_conveyance uses intro =
-  (blast intro: intro parallel_scope_extension_subaux.without_new_channel)
+private method parallel_scope_extension_left_subaux_trivial_conveyance uses intro =
+  (blast intro: intro parallel_scope_extension_left_subaux.without_new_channel)
 
-private method parallel_scope_extension_subaux_communication_conveyance =
-  (parallel_scope_extension_subaux_trivial_conveyance intro: communication)
+private method parallel_scope_extension_left_subaux_communication_conveyance =
+  (parallel_scope_extension_left_subaux_trivial_conveyance intro: communication)
 
-private method parallel_scope_extension_subaux_acting_left_conveyance =
-  (parallel_scope_extension_subaux_trivial_conveyance intro: acting_left)
+private method parallel_scope_extension_left_subaux_acting_left_conveyance =
+  (parallel_scope_extension_left_subaux_trivial_conveyance intro: acting_left)
 
-private method parallel_scope_extension_subaux_opening_left_conveyance =
-  (parallel_scope_extension_subaux_trivial_conveyance intro: opening_left)
+private method parallel_scope_extension_left_subaux_opening_left_conveyance =
+  (parallel_scope_extension_left_subaux_trivial_conveyance intro: opening_left)
 
-private lemma parallel_scope_extension_subaux_opening_conveyance:
-  assumes initial_relation: "parallel_scope_extension_subaux q p t"
+private lemma parallel_scope_extension_left_subaux_opening_conveyance:
+  assumes initial_relation: "parallel_scope_extension_left_subaux q p t"
   assumes transition: "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a"
-  shows "\<exists>T. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. parallel_scope_extension_subaux q (P a) (T a))"
+  shows "\<exists>T. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. parallel_scope_extension_left_subaux q (P a) (T a))"
 using transition and initial_relation and transition
 proof (induction (no_simp) p "\<lbrace>\<nu> a\<rbrace> P a" arbitrary: P t)
   case (opening P P' t)
@@ -565,38 +565,38 @@ proof (induction (no_simp) p "\<lbrace>\<nu> a\<rbrace> P a" arbitrary: P t)
     with \<open>\<lbrace>\<nu> a\<rbrace> P a = \<lbrace>\<nu> a\<rbrace> P' a\<close> show ?thesis
       using basic_transition.opening
       by blast
-  qed parallel_scope_extension_subaux_opening_left_conveyance
+  qed parallel_scope_extension_left_subaux_opening_left_conveyance
 next
   case opening_left
   from opening_left.prems show ?case
-    by cases parallel_scope_extension_subaux_opening_left_conveyance
+    by cases parallel_scope_extension_left_subaux_opening_left_conveyance
 next
   case opening_right
   from opening_right.prems show ?case
-    by cases parallel_scope_extension_subaux_opening_left_conveyance
+    by cases parallel_scope_extension_left_subaux_opening_left_conveyance
 next
   case (scoped_opening p P\<^sub>1 P\<^sub>2 P' t)
   from
     scoped_opening.IH(1) and
-    \<open>parallel_scope_extension_subaux q p t\<close> and
+    \<open>parallel_scope_extension_left_subaux q p t\<close> and
     \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P\<^sub>1 a\<close>
   obtain T\<^sub>1 where
     "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
-    "\<And>a. parallel_scope_extension_subaux q (P\<^sub>1 a) (T\<^sub>1 a)"
+    "\<And>a. parallel_scope_extension_left_subaux q (P\<^sub>1 a) (T\<^sub>1 a)"
     by blast
   obtain T\<^sub>2 where
     "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b" and
-    "\<And>a b. parallel_scope_extension_subaux q (P\<^sub>2 a b) (T\<^sub>2 a b)"
+    "\<And>a b. parallel_scope_extension_left_subaux q (P\<^sub>2 a b) (T\<^sub>2 a b)"
   proof -
     from
       scoped_opening.IH(2) and
-      \<open>\<And>a. parallel_scope_extension_subaux q (P\<^sub>1 a) (T\<^sub>1 a)\<close> and
+      \<open>\<And>a. parallel_scope_extension_left_subaux q (P\<^sub>1 a) (T\<^sub>1 a)\<close> and
       \<open>\<And>a. P\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> P\<^sub>2 a b\<close>
     have "
-      \<forall>a. \<exists>V. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> V b \<and> (\<forall>b. parallel_scope_extension_subaux q (P\<^sub>2 a b) (V b))"
+      \<forall>a. \<exists>V. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> V b \<and> (\<forall>b. parallel_scope_extension_left_subaux q (P\<^sub>2 a b) (V b))"
       by blast
     then have "
-      \<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b \<and> (\<forall>b. parallel_scope_extension_subaux q (P\<^sub>2 a b) (T\<^sub>2 a b))"
+      \<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b \<and> (\<forall>b. parallel_scope_extension_left_subaux q (P\<^sub>2 a b) (T\<^sub>2 a b))"
       by (fact choice)
     with that show ?thesis by blast
   qed
@@ -604,26 +604,26 @@ next
     by (fact basic_transition.scoped_opening)
   with
     \<open>\<lbrace>\<nu> b\<rbrace> \<nu> a. P\<^sub>2 a b = \<lbrace>\<nu> b\<rbrace> P' b\<close> and
-    \<open>\<And>a b. parallel_scope_extension_subaux q (P\<^sub>2 a b) (T\<^sub>2 a b)\<close>
+    \<open>\<And>a b. parallel_scope_extension_left_subaux q (P\<^sub>2 a b) (T\<^sub>2 a b)\<close>
   show ?case
-    using basic_residual.inject(2) and parallel_scope_extension_subaux.with_new_channel
+    using basic_residual.inject(2) and parallel_scope_extension_left_subaux.with_new_channel
     by smt
 qed simp_all
 
 private inductive
-  parallel_scope_extension_aux :: "process \<Rightarrow> process \<Rightarrow> bool"
+  parallel_scope_extension_left_aux :: "process \<Rightarrow> process \<Rightarrow> bool"
 where
   without_new_channel_ltr: "
-    parallel_scope_extension_subaux q p r \<Longrightarrow> parallel_scope_extension_aux (p \<parallel> q) r" |
+    parallel_scope_extension_left_subaux q p r \<Longrightarrow> parallel_scope_extension_left_aux (p \<parallel> q) r" |
   without_new_channel_rtl: "
-    parallel_scope_extension_subaux q p r \<Longrightarrow> parallel_scope_extension_aux r (p \<parallel> q)" |
+    parallel_scope_extension_left_subaux q p r \<Longrightarrow> parallel_scope_extension_left_aux r (p \<parallel> q)" |
   with_new_channel: "
-    (\<And>a. parallel_scope_extension_aux (S a) (T a)) \<Longrightarrow>
-    parallel_scope_extension_aux (\<nu> a. S a) (\<nu> a. T a)"
+    (\<And>a. parallel_scope_extension_left_aux (S a) (T a)) \<Longrightarrow>
+    parallel_scope_extension_left_aux (\<nu> a. S a) (\<nu> a. T a)"
 
-private lemma parallel_scope_extension_aux_without_new_channel_normalization:
-  assumes "parallel_scope_extension_aux (p \<parallel> q) t"
-  shows "parallel_scope_extension_subaux q p t"
+private lemma parallel_scope_extension_left_aux_without_new_channel_normalization:
+  assumes "parallel_scope_extension_left_aux (p \<parallel> q) t"
+  shows "parallel_scope_extension_left_subaux q p t"
 using assms proof cases
   case without_new_channel_ltr
   then show ?thesis by simp
@@ -631,97 +631,97 @@ next
   case without_new_channel_rtl
   then show ?thesis
     using
-      parallel_scope_extension_subaux.cases and
-      parallel_scope_extension_subaux.without_new_channel
+      parallel_scope_extension_left_subaux.cases and
+      parallel_scope_extension_left_subaux.without_new_channel
     by blast
 qed
 
-lemma basic_parallel_scope_extension: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
-proof (basic.bisimilarity_standard parallel_scope_extension_aux)
+lemma basic_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
+proof (basic.bisimilarity_standard parallel_scope_extension_left_aux)
   case related
   show ?case
     by (simp add:
-      parallel_scope_extension_subaux.intros
-      parallel_scope_extension_aux.without_new_channel_ltr)
+      parallel_scope_extension_left_subaux.intros
+      parallel_scope_extension_left_aux.without_new_channel_ltr)
 next
   case sym
-  then show ?case by induction (simp_all add: parallel_scope_extension_aux.intros)
+  then show ?case by induction (simp_all add: parallel_scope_extension_left_aux.intros)
 next
   case (sim s t c)
   then show ?case
-  proof (basic_sim_induction t with_new_channel: parallel_scope_extension_aux.with_new_channel)
+  proof (basic_sim_induction t with_new_channel: parallel_scope_extension_left_aux.with_new_channel)
     case (communication \<eta> \<mu> p p' q q' t)
-    from communication.prems have "parallel_scope_extension_subaux q p t"
-      by (fact parallel_scope_extension_aux_without_new_channel_normalization)
+    from communication.prems have "parallel_scope_extension_left_subaux q p t"
+      by (fact parallel_scope_extension_left_aux_without_new_channel_normalization)
     from \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'\<close> and this and communication.hyps
-    have "\<exists>t'. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> t' \<and> parallel_scope_extension_subaux q' p' t'"
+    have "\<exists>t'. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> t' \<and> parallel_scope_extension_left_subaux q' p' t'"
     proof (induction (no_simp) p "\<lbrace>IO \<eta>\<rbrace> p'" arbitrary: p' t)
       case sending
       from sending.prems show ?case
-        by cases parallel_scope_extension_subaux_communication_conveyance
+        by cases parallel_scope_extension_left_subaux_communication_conveyance
     next
       case receiving
       from receiving.prems show ?case
-        by cases parallel_scope_extension_subaux_communication_conveyance
+        by cases parallel_scope_extension_left_subaux_communication_conveyance
     next
       case acting_left
       from acting_left.prems show ?case
-        by cases parallel_scope_extension_subaux_communication_conveyance
+        by cases parallel_scope_extension_left_subaux_communication_conveyance
     next
       case acting_right
       from acting_right.prems show ?case
-        by cases parallel_scope_extension_subaux_communication_conveyance
+        by cases parallel_scope_extension_left_subaux_communication_conveyance
     next
       case (scoped_acting p P\<^sub>1 \<beta> P\<^sub>2 p' t)
       from \<open>\<lbrace>\<beta>\<rbrace> \<nu> a. P\<^sub>2 a = \<lbrace>IO \<eta>\<rbrace> p'\<close> have "\<beta> = IO \<eta>" and "p' = \<nu> a. P\<^sub>2 a"
         by simp_all
-      from \<open>parallel_scope_extension_subaux q p t\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P\<^sub>1 a\<close>
+      from \<open>parallel_scope_extension_left_subaux q p t\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P\<^sub>1 a\<close>
       obtain T\<^sub>1 where
         "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
-        "\<And>a. parallel_scope_extension_subaux q (P\<^sub>1 a) (T\<^sub>1 a)"
-        using parallel_scope_extension_subaux_opening_conveyance
+        "\<And>a. parallel_scope_extension_left_subaux q (P\<^sub>1 a) (T\<^sub>1 a)"
+        using parallel_scope_extension_left_subaux_opening_conveyance
         by blast
       obtain T\<^sub>2 where
         "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a" and
-        "\<And>a. parallel_scope_extension_subaux q' (P\<^sub>2 a) (T\<^sub>2 a)"
+        "\<And>a. parallel_scope_extension_left_subaux q' (P\<^sub>2 a) (T\<^sub>2 a)"
       proof -
         from
           \<open>\<beta> = IO \<eta>\<close> and
           scoped_acting.IH(2) and
-          \<open>\<And>a. parallel_scope_extension_subaux q (P\<^sub>1 a) (T\<^sub>1 a)\<close> and
+          \<open>\<And>a. parallel_scope_extension_left_subaux q (P\<^sub>1 a) (T\<^sub>1 a)\<close> and
           \<open>\<eta> \<bowtie> \<mu>\<close> and
           \<open>\<And>a. P\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<beta>\<rbrace> P\<^sub>2 a\<close> and
           \<open>q \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q'\<close>
-        have "\<forall>a. \<exists>v. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> v \<and> parallel_scope_extension_subaux q' (P\<^sub>2 a) v"
+        have "\<forall>a. \<exists>v. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> v \<and> parallel_scope_extension_left_subaux q' (P\<^sub>2 a) v"
           by blast
         then have
-          "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a \<and> parallel_scope_extension_subaux q' (P\<^sub>2 a) (T\<^sub>2 a)"
+          "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a \<and> parallel_scope_extension_left_subaux q' (P\<^sub>2 a) (T\<^sub>2 a)"
           by (fact choice)
         with that show ?thesis by blast
       qed
       from \<open>t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a\<close> and \<open>\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a\<close> have "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<nu> a. T\<^sub>2 a"
         by (fact basic_transition.scoped_acting)
-      with \<open>p' = \<nu> a. P\<^sub>2 a\<close> and \<open>\<And>a. parallel_scope_extension_subaux q' (P\<^sub>2 a) (T\<^sub>2 a)\<close>
+      with \<open>p' = \<nu> a. P\<^sub>2 a\<close> and \<open>\<And>a. parallel_scope_extension_left_subaux q' (P\<^sub>2 a) (T\<^sub>2 a)\<close>
       show ?case
-        using parallel_scope_extension_subaux.with_new_channel
+        using parallel_scope_extension_left_subaux.with_new_channel
         by blast
     qed simp_all
     then show ?case
-      using parallel_scope_extension_aux.without_new_channel_ltr and basic_residual.rel_intros(1)
+      using parallel_scope_extension_left_aux.without_new_channel_ltr and basic_residual.rel_intros(1)
       by auto
   next
     case (opening S t)
     from opening.prems show ?case
     proof cases
       case (without_new_channel_rtl q p)
-      from \<open>parallel_scope_extension_subaux q p (\<nu> a. S a)\<close> show ?thesis
+      from \<open>parallel_scope_extension_left_subaux q p (\<nu> a. S a)\<close> show ?thesis
       proof cases
         case with_new_channel
         with \<open>t = p \<parallel> q\<close> show ?thesis
           using
             basic_transition.opening and
             opening_left and
-            parallel_scope_extension_aux.without_new_channel_rtl and
+            parallel_scope_extension_left_aux.without_new_channel_rtl and
             basic_residual.rel_intros(2) and
             rel_funI
           by (metis (mono_tags, lifting))
@@ -734,142 +734,145 @@ next
     qed
   next
     case (acting_left p \<alpha> p' q t)
-    from acting_left.prems have "parallel_scope_extension_subaux q p t"
-      by (fact parallel_scope_extension_aux_without_new_channel_normalization)
+    from acting_left.prems have "parallel_scope_extension_left_subaux q p t"
+      by (fact parallel_scope_extension_left_aux_without_new_channel_normalization)
     from \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p'\<close> and this and acting_left.hyps
-    have "\<exists>t'. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t' \<and> parallel_scope_extension_subaux q p' t'"
+    have "\<exists>t'. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t' \<and> parallel_scope_extension_left_subaux q p' t'"
     proof (induction (no_simp) p "\<lbrace>\<alpha>\<rbrace> p'" arbitrary: p' t)
       case sending
       from sending.prems show ?case
-        by cases parallel_scope_extension_subaux_acting_left_conveyance
+        by cases parallel_scope_extension_left_subaux_acting_left_conveyance
     next
       case receiving
       from receiving.prems show ?case
-        by cases parallel_scope_extension_subaux_acting_left_conveyance
+        by cases parallel_scope_extension_left_subaux_acting_left_conveyance
     next
       case communication
       from communication.prems show ?case
-        by cases parallel_scope_extension_subaux_acting_left_conveyance
+        by cases parallel_scope_extension_left_subaux_acting_left_conveyance
     next
       case acting_left
       from acting_left.prems show ?case
-        by cases parallel_scope_extension_subaux_acting_left_conveyance
+        by cases parallel_scope_extension_left_subaux_acting_left_conveyance
     next
       case acting_right
       from acting_right.prems show ?case
-        by cases parallel_scope_extension_subaux_acting_left_conveyance
+        by cases parallel_scope_extension_left_subaux_acting_left_conveyance
     next
       case (scoped_acting p P\<^sub>1 \<beta> P\<^sub>2 p' t)
       from \<open>\<lbrace>\<beta>\<rbrace> \<nu> a. P\<^sub>2 a = \<lbrace>\<alpha>\<rbrace> p'\<close> have "\<beta> = \<alpha>" and "p' = \<nu> a. P\<^sub>2 a"
         by simp_all
-      from \<open>parallel_scope_extension_subaux q p t\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P\<^sub>1 a\<close>
+      from \<open>parallel_scope_extension_left_subaux q p t\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P\<^sub>1 a\<close>
       obtain T\<^sub>1 where
         "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
-        "\<And>a. parallel_scope_extension_subaux q (P\<^sub>1 a) (T\<^sub>1 a)"
-        using parallel_scope_extension_subaux_opening_conveyance
+        "\<And>a. parallel_scope_extension_left_subaux q (P\<^sub>1 a) (T\<^sub>1 a)"
+        using parallel_scope_extension_left_subaux_opening_conveyance
         by blast
       obtain T\<^sub>2 where
         "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a" and
-        "\<And>a. parallel_scope_extension_subaux q (P\<^sub>2 a) (T\<^sub>2 a)"
+        "\<And>a. parallel_scope_extension_left_subaux q (P\<^sub>2 a) (T\<^sub>2 a)"
       proof -
         from
           \<open>\<beta> = \<alpha>\<close> and
           scoped_acting.IH(2) and
-          \<open>\<And>a. parallel_scope_extension_subaux q (P\<^sub>1 a) (T\<^sub>1 a)\<close> and
+          \<open>\<And>a. parallel_scope_extension_left_subaux q (P\<^sub>1 a) (T\<^sub>1 a)\<close> and
           \<open>\<And>a. P\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<beta>\<rbrace> P\<^sub>2 a\<close>
-        have "\<forall>a. \<exists>v. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> v \<and> parallel_scope_extension_subaux q (P\<^sub>2 a) v"
+        have "\<forall>a. \<exists>v. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> v \<and> parallel_scope_extension_left_subaux q (P\<^sub>2 a) v"
           by blast
         then have
-          "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a \<and> parallel_scope_extension_subaux q (P\<^sub>2 a) (T\<^sub>2 a)"
+          "\<exists>T\<^sub>2. \<forall>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a \<and> parallel_scope_extension_left_subaux q (P\<^sub>2 a) (T\<^sub>2 a)"
           by (fact choice)
         with that show ?thesis by blast
       qed
       from \<open>t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a\<close> and \<open>\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a\<close> have "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. T\<^sub>2 a"
         by (fact basic_transition.scoped_acting)
-      with \<open>p' = \<nu> a. P\<^sub>2 a\<close> and \<open>\<And>a. parallel_scope_extension_subaux q (P\<^sub>2 a) (T\<^sub>2 a)\<close>
+      with \<open>p' = \<nu> a. P\<^sub>2 a\<close> and \<open>\<And>a. parallel_scope_extension_left_subaux q (P\<^sub>2 a) (T\<^sub>2 a)\<close>
       show ?case
-        using parallel_scope_extension_subaux.with_new_channel
+        using parallel_scope_extension_left_subaux.with_new_channel
         by blast
     qed simp_all
     then show ?case
-      using parallel_scope_extension_aux.without_new_channel_ltr and basic_residual.rel_intros(1)
+      using parallel_scope_extension_left_aux.without_new_channel_ltr and basic_residual.rel_intros(1)
       by auto
   next
     case (acting_right q \<alpha> q' p t)
-    from acting_right.prems have "parallel_scope_extension_subaux q p t"
-      by (fact parallel_scope_extension_aux_without_new_channel_normalization)
+    from acting_right.prems have "parallel_scope_extension_left_subaux q p t"
+      by (fact parallel_scope_extension_left_aux_without_new_channel_normalization)
     from this and acting_right.hyps
-    have "\<exists>t'. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t' \<and> parallel_scope_extension_subaux q' p t'"
+    have "\<exists>t'. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> t' \<and> parallel_scope_extension_left_subaux q' p t'"
     proof induction
       case without_new_channel
       then show ?case
         using
           basic_transition.acting_right and
-          parallel_scope_extension_subaux.without_new_channel
+          parallel_scope_extension_left_subaux.without_new_channel
         by blast
     next
       case (with_new_channel P T)
       then have "
-        \<forall>a. \<exists>v. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> v \<and> parallel_scope_extension_subaux q' (P a) v"
+        \<forall>a. \<exists>v. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> v \<and> parallel_scope_extension_left_subaux q' (P a) v"
         by simp
       then have "
-        \<exists>T'. \<forall>a. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T' a \<and> parallel_scope_extension_subaux q' (P a) (T' a)"
+        \<exists>T'. \<forall>a. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T' a \<and> parallel_scope_extension_left_subaux q' (P a) (T' a)"
         by (fact choice)
       then show ?case
-        using acting_scope and parallel_scope_extension_subaux.with_new_channel
+        using acting_scope and parallel_scope_extension_left_subaux.with_new_channel
         by metis
     qed
     then show ?case
-      using parallel_scope_extension_aux.without_new_channel_ltr and basic_residual.rel_intros(1)
+      using parallel_scope_extension_left_aux.without_new_channel_ltr and basic_residual.rel_intros(1)
       by auto
   next
     case (opening_left p P q t)
-    from opening_left.prems have "parallel_scope_extension_subaux q p t"
-      by (fact parallel_scope_extension_aux_without_new_channel_normalization)
+    from opening_left.prems have "parallel_scope_extension_left_subaux q p t"
+      by (fact parallel_scope_extension_left_aux_without_new_channel_normalization)
     with opening_left.hyps show ?case
       using
-        parallel_scope_extension_subaux_opening_conveyance and
-        parallel_scope_extension_aux.without_new_channel_ltr and
+        parallel_scope_extension_left_subaux_opening_conveyance and
+        parallel_scope_extension_left_aux.without_new_channel_ltr and
         basic_residual.rel_intros(2) and
         rel_funI
       by smt
   next
     case (opening_right q Q p t)
-    from opening_right.prems have "parallel_scope_extension_subaux q p t"
-      by (fact parallel_scope_extension_aux_without_new_channel_normalization)
+    from opening_right.prems have "parallel_scope_extension_left_subaux q p t"
+      by (fact parallel_scope_extension_left_aux_without_new_channel_normalization)
     from this and opening_right.hyps
-    have "\<exists>T. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. parallel_scope_extension_subaux (Q a) p (T a))"
+    have "\<exists>T. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. parallel_scope_extension_left_subaux (Q a) p (T a))"
     proof induction
       case without_new_channel
       then show ?case
         using
           basic_transition.opening_right and
-          parallel_scope_extension_subaux.without_new_channel
+          parallel_scope_extension_left_subaux.without_new_channel
         by blast
     next
       case (with_new_channel P T)
       then have "
-        \<forall>a. \<exists>V. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> V b \<and> (\<forall>b. parallel_scope_extension_subaux (Q b) (P a) (V b))"
+        \<forall>a. \<exists>V. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> V b \<and> (\<forall>b. parallel_scope_extension_left_subaux (Q b) (P a) (V b))"
         by simp
       then have "
-        \<exists>T'. \<forall>a. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T' a b \<and> (\<forall>b. parallel_scope_extension_subaux (Q b) (P a) (T' a b))"
+        \<exists>T'. \<forall>a. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T' a b \<and> (\<forall>b. parallel_scope_extension_left_subaux (Q b) (P a) (T' a b))"
         by (fact choice)
       then show ?case
-        using opening_scope and parallel_scope_extension_subaux.with_new_channel
+        using opening_scope and parallel_scope_extension_left_subaux.with_new_channel
         by metis
     qed
     then show ?case
       using
-        parallel_scope_extension_aux.without_new_channel_ltr and
+        parallel_scope_extension_left_aux.without_new_channel_ltr and
         basic_residual.rel_intros(2) and
         rel_funI
       by smt
   qed (blast elim:
-    parallel_scope_extension_subaux.cases
-    parallel_scope_extension_aux.cases)+
+    parallel_scope_extension_left_subaux.cases
+    parallel_scope_extension_left_aux.cases)+
 qed
 
 end
+
+lemma basic_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<sim>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
+  sorry
 
 context begin
 
