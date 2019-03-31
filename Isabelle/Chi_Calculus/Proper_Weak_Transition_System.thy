@@ -78,7 +78,10 @@ lemma proper_weak_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<
 lemma proper_weak_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<approx>\<^sub>\<sharp> \<nu> a. \<nu> b. P a b"
   sorry
 
-lemma proper_weak_parallel_unit: "\<zero> \<parallel> p \<approx>\<^sub>\<sharp> p"
+lemma proper_weak_parallel_unit_left: "\<zero> \<parallel> p \<approx>\<^sub>\<sharp> p"
+  sorry
+
+lemma proper_weak_parallel_unit_right: "p \<parallel> \<zero> \<approx>\<^sub>\<sharp> p"
   sorry
 
 lemma proper_weak_parallel_commutativity: "p \<parallel> q \<approx>\<^sub>\<sharp> q \<parallel> p"

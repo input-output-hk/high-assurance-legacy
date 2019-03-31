@@ -904,42 +904,42 @@ end
 context begin
 
 private inductive
-  parallel_unit_aux :: "process \<Rightarrow> process \<Rightarrow> bool"
+  parallel_unit_left_aux :: "process \<Rightarrow> process \<Rightarrow> bool"
 where
   without_new_channel_ltr: "
-    parallel_unit_aux (\<zero> \<parallel> p) p" |
+    parallel_unit_left_aux (\<zero> \<parallel> p) p" |
   without_new_channel_rtl: "
-    parallel_unit_aux p (\<zero> \<parallel> p)" |
+    parallel_unit_left_aux p (\<zero> \<parallel> p)" |
   with_new_channel: "
-    (\<And>a. parallel_unit_aux (S a) (T a)) \<Longrightarrow>
-    parallel_unit_aux (\<nu> a. S a) (\<nu> a. T a)"
+    (\<And>a. parallel_unit_left_aux (S a) (T a)) \<Longrightarrow>
+    parallel_unit_left_aux (\<nu> a. S a) (\<nu> a. T a)"
 
-private method parallel_unit_aux_trivial_conveyance =
+private method parallel_unit_left_aux_trivial_conveyance =
   (blast intro:
     acting_right
     opening_right
-    parallel_unit_aux.without_new_channel_rtl
+    parallel_unit_left_aux.without_new_channel_rtl
     basic_residual.rel_intros
   )
 
-lemma basic_parallel_unit: "\<zero> \<parallel> p \<sim>\<^sub>\<flat> p"
-proof (basic.bisimilarity_standard parallel_unit_aux)
+lemma basic_parallel_unit_left: "\<zero> \<parallel> p \<sim>\<^sub>\<flat> p"
+proof (basic.bisimilarity_standard parallel_unit_left_aux)
   case related
-  show ?case by (fact parallel_unit_aux.without_new_channel_ltr)
+  show ?case by (fact parallel_unit_left_aux.without_new_channel_ltr)
 next
   case sym
-  then show ?case by induction (simp_all add: parallel_unit_aux.intros)
+  then show ?case by induction (simp_all add: parallel_unit_left_aux.intros)
 next
   case (sim s t c)
   from this and \<open>s \<rightarrow>\<^sub>\<flat>c\<close> show ?case
-  proof (basic_sim_induction t with_new_channel: parallel_unit_aux.with_new_channel)
+  proof (basic_sim_induction t with_new_channel: parallel_unit_left_aux.with_new_channel)
     case sending
     from sending.prems show ?case
-      by cases parallel_unit_aux_trivial_conveyance
+      by cases parallel_unit_left_aux_trivial_conveyance
   next
     case receiving
     from receiving.prems show ?case
-      by cases parallel_unit_aux_trivial_conveyance
+      by cases parallel_unit_left_aux_trivial_conveyance
   next
     case communication
     from communication.prems show ?case
@@ -947,7 +947,7 @@ next
       case without_new_channel_ltr
       with communication.hyps show ?thesis
         by (simp add: no_basic_transitions_from_stop)
-    qed parallel_unit_aux_trivial_conveyance
+    qed parallel_unit_left_aux_trivial_conveyance
   next
     case opening
     from opening.prems show ?case
@@ -956,7 +956,7 @@ next
       then show ?thesis
         using basic_transition.opening and basic_residual.rel_intros(2) and rel_funI
         by metis
-    qed parallel_unit_aux_trivial_conveyance
+    qed parallel_unit_left_aux_trivial_conveyance
   next
     case acting_left
     from acting_left.prems show ?case
@@ -964,16 +964,16 @@ next
       case without_new_channel_ltr
       with acting_left.hyps show ?thesis
         by (simp add: no_basic_transitions_from_stop)
-    qed parallel_unit_aux_trivial_conveyance
+    qed parallel_unit_left_aux_trivial_conveyance
   next
     case acting_right
     from acting_right.prems show ?case
     proof cases
       case without_new_channel_ltr
       with acting_right.hyps show ?thesis
-        using parallel_unit_aux.without_new_channel_ltr and basic_residual.rel_intros(1)
+        using parallel_unit_left_aux.without_new_channel_ltr and basic_residual.rel_intros(1)
         by auto
-    qed parallel_unit_aux_trivial_conveyance
+    qed parallel_unit_left_aux_trivial_conveyance
   next
     case opening_left
     from opening_left.prems show ?case
@@ -981,7 +981,7 @@ next
       case without_new_channel_ltr
       with opening_left.hyps show ?thesis
         by (simp add: no_basic_transitions_from_stop)
-    qed parallel_unit_aux_trivial_conveyance
+    qed parallel_unit_left_aux_trivial_conveyance
   next
     case opening_right
     from opening_right.prems show ?case
@@ -989,13 +989,16 @@ next
       case without_new_channel_ltr
       with opening_right.hyps show ?thesis
         using
-          parallel_unit_aux.without_new_channel_ltr and
+          parallel_unit_left_aux.without_new_channel_ltr and
           basic_residual.rel_intros(2) and
           rel_funI
         by smt
-    qed parallel_unit_aux_trivial_conveyance
+    qed parallel_unit_left_aux_trivial_conveyance
   qed
 qed
+
+lemma basic_parallel_unit_right: "p \<parallel> \<zero> \<sim>\<^sub>\<flat> p"
+  sorry
 
 end
 
@@ -1361,11 +1364,11 @@ qed
 lemma basic_parallel_commutativity: "p \<parallel> q \<sim>\<^sub>\<flat> q \<parallel> p"
 proof -
   have "p \<parallel> q \<sim>\<^sub>\<flat> (\<zero> \<parallel> p) \<parallel> q"
-    using basic_parallel_unit and basic_parallel_preservation_left by blast
+    using basic_parallel_unit_left and basic_parallel_preservation_left by blast
   also have "(\<zero> \<parallel> p) \<parallel> q \<sim>\<^sub>\<flat> (\<zero> \<parallel> q) \<parallel> p"
     by (fact basic_nested_parallel_commutativity)
   also have "(\<zero> \<parallel> q) \<parallel> p \<sim>\<^sub>\<flat> q \<parallel> p"
-    using basic_parallel_unit and basic_parallel_preservation_left by blast
+    using basic_parallel_unit_left and basic_parallel_preservation_left by blast
   finally show ?thesis .
 qed
 

@@ -355,9 +355,12 @@ lemma proper_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<sim>\<^sub>
   using basic_new_channel_scope_extension
   by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
 
-lemma proper_parallel_unit: "\<zero> \<parallel> p \<sim>\<^sub>\<sharp> p"
-  using basic_parallel_unit
+lemma proper_parallel_unit_left: "\<zero> \<parallel> p \<sim>\<^sub>\<sharp> p"
+  using basic_parallel_unit_left
   by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
+
+lemma proper_parallel_unit_right: "p \<parallel> \<zero> \<sim>\<^sub>\<sharp> p"
+  sorry
 
 lemma proper_parallel_commutativity: "p \<parallel> q \<sim>\<^sub>\<sharp> q \<parallel> p"
   using basic_parallel_commutativity
@@ -425,13 +428,13 @@ qed
 lemma proper_scope_redundancy: "p \<sim>\<^sub>\<sharp> \<nu> a. p"
 proof -
   have "p \<sim>\<^sub>\<sharp> \<zero> \<parallel> p"
-    by (rule proper.bisimilarity_symmetry_rule) (fact proper_parallel_unit)
+    by (rule proper.bisimilarity_symmetry_rule) (fact proper_parallel_unit_left)
   also have "\<zero> \<parallel> p \<sim>\<^sub>\<sharp> \<nu> a. \<zero> \<parallel> p"
     using proper_stop_scope_redundancy and proper_parallel_preservation_left by blast
   also have "\<nu> a. \<zero> \<parallel> p \<sim>\<^sub>\<sharp> \<nu> a. (\<zero> \<parallel> p)"
     by (fact proper_parallel_scope_extension_left)
   also have "\<nu> a. (\<zero> \<parallel> p) \<sim>\<^sub>\<sharp> \<nu> a. p"
-    using proper_parallel_unit and proper_new_channel_preservation by metis
+    using proper_parallel_unit_left and proper_new_channel_preservation by metis
   finally show ?thesis .
 qed
 
