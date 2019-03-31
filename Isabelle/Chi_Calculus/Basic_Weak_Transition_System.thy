@@ -39,6 +39,13 @@ interpretation basic: weak_transition_system basic_silent basic.absorb basic_tra
 notation basic.weak.pre_bisimilarity (infix "\<lessapprox>\<^sub>\<flat>" 50)
 notation basic.weak.bisimilarity (infix "\<approx>\<^sub>\<flat>" 50)
 
+(* NOTE:
+  This will become obsolete once there is only one locale interpretation for the strong transition
+  system.
+*)
+lemma basic_strong_bisimilarity_in_weak_bisimilarity: "(\<sim>\<^sub>\<flat>) \<le> (\<approx>\<^sub>\<flat>)"
+  sorry
+
 lemma basic_weak_receive_preservation: "(\<And>x. P x \<approx>\<^sub>\<flat> Q x) \<Longrightarrow> a \<triangleright> x. P x \<approx>\<^sub>\<flat> a \<triangleright> x. Q x"
   sorry
 
