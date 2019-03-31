@@ -36,6 +36,13 @@ interpretation proper: weak_transition_system proper_silent proper.absorb proper
 notation proper.weak.pre_bisimilarity (infix "\<lessapprox>\<^sub>\<sharp>" 50)
 notation proper.weak.bisimilarity (infix "\<approx>\<^sub>\<sharp>" 50)
 
+(* NOTE:
+  This will become obsolete once there is only one locale interpretation for the strong transition
+  system.
+*)
+lemma basic_strong_bisimilarity_in_weak_bisimilarity: "(\<sim>\<^sub>\<sharp>) \<le> (\<approx>\<^sub>\<sharp>)"
+  sorry
+
 lemma basic_weak_bisimilarity_in_proper_weak_bisimilarity: "(\<approx>\<^sub>\<flat>) \<le> (\<approx>\<^sub>\<sharp>)"
   sorry
 
