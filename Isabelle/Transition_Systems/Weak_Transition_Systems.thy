@@ -16,9 +16,12 @@ notation strong.pre_bisimilarity (infix "\<lesssim>" 50)
 notation strong.bisimilarity (infix "\<sim>" 50)
 
 inductive weak_transition :: "['process, 'residual] \<Rightarrow> bool" (infix "\<Rightarrow>" 50) where
-  strong_transition: "p \<rightarrow> c \<Longrightarrow> p \<Rightarrow> c" |
-  silent_transition: "silent p c \<Longrightarrow> p \<Rightarrow> c" |
-  composed_transition: "\<lbrakk>p \<Rightarrow> c; absorb (\<Rightarrow>) c d\<rbrakk> \<Longrightarrow> p \<Rightarrow> d"
+  strong_transition:
+    "p \<rightarrow> c \<Longrightarrow> p \<Rightarrow> c" |
+  silent_transition:
+    "silent p c \<Longrightarrow> p \<Rightarrow> c" |
+  composed_transition:
+    "\<lbrakk>p \<Rightarrow> c; absorb (\<Rightarrow>) c d\<rbrakk> \<Longrightarrow> p \<Rightarrow> d"
 
 sublocale weak: transition_system lift weak_transition
   by intro_locales
