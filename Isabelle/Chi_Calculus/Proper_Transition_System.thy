@@ -43,6 +43,23 @@ text \<open>
 \<close>
 
 text \<open>
+  We introduce the alias \<open>output_rest_lift\<close> for the automatically generated relator
+  \<^const>\<open>rel_output_rest\<close>. Furthermore we provide alternative names for some facts related to
+  \<open>output_rest_lift\<close>, which resemble the names that would be used for these facts if
+  \<open>output_rest_lift\<close> was defined by hand via @{theory_text inductive}.
+\<close>
+
+abbreviation
+  output_rest_lift :: "(['t, 't] \<Rightarrow> bool) \<Rightarrow> (['t output_rest, 't output_rest] \<Rightarrow> bool)"
+where
+  "output_rest_lift \<equiv> rel_output_rest"
+
+lemmas output_rest_lift_intros = output_rest.rel_intros
+lemmas without_opening_lift = output_rest_lift_intros(1)
+lemmas with_opening_lift = output_rest_lift_intros(2)
+lemmas output_rest_lift_cases = output_rest.rel_cases
+
+text \<open>
   Interestingly, equipping \<^type>\<open>output_rest\<close> with \<^const>\<open>rel_output_rest\<close> leads to a residual
   structure, despite the fact that output rests are not intended to serve as residuals but only as
   components of residuals.
@@ -69,6 +86,23 @@ text \<open>
 datatype 't proper_residual =
   Simple \<open>proper_action\<close> \<open>'t\<close> ("\<lparr>_\<rparr> _" [0, 51] 51) |
   Output \<open>chan\<close> \<open>'t output_rest\<close> ("\<lparr>_ \<triangleleft> _" [0, 51] 51)
+
+text \<open>
+  We introduce the alias \<open>proper_lift\<close> for the automatically generated relator
+  \<^const>\<open>rel_proper_residual\<close>. Furthermore we provide alternative names for some facts related to
+  \<open>proper_lift\<close>, which resemble the names that would be used for these facts if \<open>proper_lift\<close> was
+  defined by hand via @{theory_text inductive}.
+\<close>
+
+abbreviation
+  proper_lift :: "(['t, 't] \<Rightarrow> bool) \<Rightarrow> (['t proper_residual, 't proper_residual] \<Rightarrow> bool)"
+where
+  "proper_lift \<equiv> rel_proper_residual"
+
+lemmas proper_lift_intros = proper_residual.rel_intros
+lemmas simple_lift = proper_lift_intros(1)
+lemmas output_lift = proper_lift_intros(2)
+lemmas proper_lift_cases = proper_residual.rel_cases
 
 text \<open>
   Equipping \<^type>\<open>proper_residual\<close> with \<^const>\<open>rel_proper_residual\<close> leads to a residual structure.

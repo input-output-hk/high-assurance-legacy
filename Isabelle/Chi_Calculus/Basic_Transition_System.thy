@@ -39,6 +39,23 @@ translations
   "\<lbrace>\<nu> a\<rbrace> p" \<rightleftharpoons> "CONST Opening (\<lambda>a. p)"
 
 text \<open>
+  We introduce the alias \<open>basic_lift\<close> for the automatically generated relator
+  \<^const>\<open>rel_basic_residual\<close>. Furthermore we provide alternative names for some facts related to
+  \<open>basic_lift\<close>, which resemble the names that would be used for these facts if \<open>basic_lift\<close> was
+  defined by hand via @{theory_text inductive}.
+\<close>
+
+abbreviation
+  basic_lift :: "(['t, 't] \<Rightarrow> bool) \<Rightarrow> (['t basic_residual, 't basic_residual] \<Rightarrow> bool)"
+where
+  "basic_lift \<equiv> rel_basic_residual"
+
+lemmas basic_lift_intros = basic_residual.rel_intros
+lemmas acting_lift = basic_lift_intros(1)
+lemmas opening_lift = basic_lift_intros(2)
+lemmas basic_lift_cases = basic_residual.rel_cases
+
+text \<open>
   Equipping \<^type>\<open>basic_residual\<close> with \<^const>\<open>rel_basic_residual\<close> leads to a residual structure.
 \<close>
 
