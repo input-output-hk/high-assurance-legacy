@@ -39,10 +39,27 @@ translations
   "\<lbrace>\<nu> a\<rbrace> p" \<rightleftharpoons> "CONST Opening (\<lambda>a. p)"
 
 text \<open>
-  Equipping \<^type>\<open>basic_residual\<close> with \<^const>\<open>rel_basic_residual\<close> leads to a residual structure.
+  We introduce the alias \<open>basic_lift\<close> for the automatically generated relator
+  \<^const>\<open>rel_basic_residual\<close>. Furthermore we provide alternative names for some facts related to
+  \<open>basic_lift\<close>, which resemble the names that would be used for these facts if \<open>basic_lift\<close> was
+  defined by hand via @{theory_text inductive}.
 \<close>
 
-interpretation basic: residual rel_basic_residual
+abbreviation
+  basic_lift :: "(['t, 't] \<Rightarrow> bool) \<Rightarrow> (['t basic_residual, 't basic_residual] \<Rightarrow> bool)"
+where
+  "basic_lift \<equiv> rel_basic_residual"
+
+lemmas basic_lift_intros = basic_residual.rel_intros
+lemmas acting_lift = basic_lift_intros(1)
+lemmas opening_lift = basic_lift_intros(2)
+lemmas basic_lift_cases = basic_residual.rel_cases
+
+text \<open>
+  Equipping \<^type>\<open>basic_residual\<close> with \<^const>\<open>basic_lift\<close> leads to a residual structure.
+\<close>
+
+interpretation basic: residual basic_lift
   by
     unfold_locales
     (
@@ -120,7 +137,7 @@ text \<open>
   The residual structure and \<^const>\<open>basic_transition\<close> together form a transition system.
 \<close>
 
-interpretation basic: transition_system rel_basic_residual basic_transition
+interpretation basic: transition_system basic_lift basic_transition
   by intro_locales
 
 text \<open>
@@ -211,18 +228,18 @@ private lemma sim_scoped_acting_intro:
   assumes with_new_channel:
     "\<And>P Q. (\<And>a. \<X> (P a) (Q a)) \<Longrightarrow> \<X> (\<nu> a. P a) (\<nu> a. Q a)"
   assumes step_1:
-    "\<And>t. \<X> s t \<Longrightarrow> \<exists>d\<^sub>1. t \<rightarrow>\<^sub>\<flat>d\<^sub>1 \<and> rel_basic_residual \<X> (\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a) d\<^sub>1"
+    "\<And>t. \<X> s t \<Longrightarrow> \<exists>d\<^sub>1. t \<rightarrow>\<^sub>\<flat>d\<^sub>1 \<and> basic_lift \<X> (\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a) d\<^sub>1"
   assumes step_2:
-    "\<And>a t\<^sub>1. \<X> (S\<^sub>1 a) t\<^sub>1 \<Longrightarrow> \<exists>d\<^sub>2. t\<^sub>1 \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> rel_basic_residual \<X> (\<lbrace>\<alpha>\<rbrace> S\<^sub>2 a) d\<^sub>2"
+    "\<And>a t\<^sub>1. \<X> (S\<^sub>1 a) t\<^sub>1 \<Longrightarrow> \<exists>d\<^sub>2. t\<^sub>1 \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<alpha>\<rbrace> S\<^sub>2 a) d\<^sub>2"
   assumes initial_relation:
     "\<X> s t"
   shows
-    "\<exists>d\<^sub>2. t \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> rel_basic_residual \<X> (\<lbrace>\<alpha>\<rbrace> \<nu> a. S\<^sub>2 a) d\<^sub>2"
+    "\<exists>d\<^sub>2. t \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<alpha>\<rbrace> \<nu> a. S\<^sub>2 a) d\<^sub>2"
 proof -
   from step_1 and \<open>\<X> s t\<close>
   obtain T\<^sub>1 where "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and "\<And>a. \<X> (S\<^sub>1 a) (T\<^sub>1 a)"
     using
-      basic_residual.rel_cases and
+      basic_lift_cases and
       rel_funE and
       basic_residual.distinct(1) and
       basic_residual.inject(2)
@@ -232,7 +249,7 @@ proof -
     from step_2 and \<open>\<And>a. \<X> (S\<^sub>1 a) (T\<^sub>1 a)\<close>
     have "\<forall>a. \<exists>v. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> v \<and> \<X> (S\<^sub>2 a) v"
       using
-        basic_residual.rel_cases and
+        basic_lift_cases and
         rel_funE and
         basic_residual.inject(1) and
         basic_residual.distinct(2)
@@ -244,7 +261,7 @@ proof -
   from \<open>t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a\<close> and \<open>\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a\<close> have "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. T\<^sub>2 a"
     by (fact basic_transition.scoped_acting)
   with \<open>\<And>a. \<X> (S\<^sub>2 a) (T\<^sub>2 a)\<close> show ?thesis
-    using with_new_channel and basic_residual.rel_intros(1)
+    using with_new_channel and acting_lift
     by smt
 qed
 
@@ -252,18 +269,18 @@ private lemma sim_scoped_opening_intro:
   assumes with_new_channel:
     "\<And>P Q. (\<And>a. \<X> (P a) (Q a)) \<Longrightarrow> \<X> (\<nu> a. P a) (\<nu> a. Q a)"
   assumes step_1:
-    "\<And>t. \<X> s t \<Longrightarrow> \<exists>d\<^sub>1. t \<rightarrow>\<^sub>\<flat>d\<^sub>1 \<and> rel_basic_residual \<X> (\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a) d\<^sub>1"
+    "\<And>t. \<X> s t \<Longrightarrow> \<exists>d\<^sub>1. t \<rightarrow>\<^sub>\<flat>d\<^sub>1 \<and> basic_lift \<X> (\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a) d\<^sub>1"
   assumes step_2:
-    "\<And>a t\<^sub>1. \<X> (S\<^sub>1 a) t\<^sub>1 \<Longrightarrow> \<exists>d\<^sub>2. t\<^sub>1 \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> rel_basic_residual \<X> (\<lbrace>\<nu> b\<rbrace> S\<^sub>2 a b) d\<^sub>2"
+    "\<And>a t\<^sub>1. \<X> (S\<^sub>1 a) t\<^sub>1 \<Longrightarrow> \<exists>d\<^sub>2. t\<^sub>1 \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<nu> b\<rbrace> S\<^sub>2 a b) d\<^sub>2"
   assumes initial_relation:
     "\<X> s t"
   shows
-    "\<exists>d\<^sub>2. t \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> rel_basic_residual \<X> (\<lbrace>\<nu> b\<rbrace> \<nu> a. S\<^sub>2 a b) d\<^sub>2"
+    "\<exists>d\<^sub>2. t \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift \<X> (\<lbrace>\<nu> b\<rbrace> \<nu> a. S\<^sub>2 a b) d\<^sub>2"
 proof -
   from step_1 and \<open>\<X> s t\<close>
   obtain T\<^sub>1 where "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and "\<And>a. \<X> (S\<^sub>1 a) (T\<^sub>1 a)"
     using
-      basic_residual.rel_cases and
+      basic_lift_cases and
       rel_funE and
       basic_residual.distinct(1) and
       basic_residual.inject(2)
@@ -273,7 +290,7 @@ proof -
     from step_2 and \<open>\<And>a. \<X> (S\<^sub>1 a) (T\<^sub>1 a)\<close>
     have "\<forall>a. \<exists>V. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> V b \<and> (\<forall>b. \<X> (S\<^sub>2 a b) (V b))"
       using
-        basic_residual.rel_cases and
+        basic_lift_cases and
         rel_funE and
         basic_residual.distinct(1) and
         basic_residual.inject(2)
@@ -285,13 +302,13 @@ proof -
   from \<open>t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a\<close> and \<open>\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b\<close> have "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. T\<^sub>2 a b"
     by (fact basic_transition.scoped_opening)
   with \<open>\<And>a b. \<X> (S\<^sub>2 a b) (T\<^sub>2 a b)\<close> show ?thesis
-    using with_new_channel and basic_residual.rel_intros(2) and rel_funI
+    using with_new_channel and opening_lift and rel_funI
     by smt
 qed
 
 private method solve_sim_scoped uses with_new_channel = (
   match conclusion in
-    "\<exists>d\<^sub>2. _ \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> rel_basic_residual _ (\<lbrace>_\<rbrace> \<nu> a. _ a) d\<^sub>2" \<Rightarrow> \<open>
+    "\<exists>d\<^sub>2. _ \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift _ (\<lbrace>_\<rbrace> \<nu> a. _ a) d\<^sub>2" \<Rightarrow> \<open>
       match premises in "s \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a" for s and S\<^sub>1 \<Rightarrow> \<open>
         match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>
           intro sim_scoped_acting_intro [where s = s and S\<^sub>1 = S\<^sub>1],
@@ -300,7 +317,7 @@ private method solve_sim_scoped uses with_new_channel = (
         \<close>
       \<close>
     \<close> \<bar>
-    "\<exists>d\<^sub>2. _ \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> rel_basic_residual _ (\<lbrace>\<nu> b\<rbrace> \<nu> a. _ a b) d\<^sub>2" \<Rightarrow> \<open>
+    "\<exists>d\<^sub>2. _ \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift _ (\<lbrace>\<nu> b\<rbrace> \<nu> a. _ a b) d\<^sub>2" \<Rightarrow> \<open>
       match premises in "s \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a" for s and S\<^sub>1 \<Rightarrow> \<open>
         match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>
           intro sim_scoped_opening_intro [where s = s and S\<^sub>1 = S\<^sub>1],
@@ -324,11 +341,11 @@ proof (standard, intro allI, intro impI)
   assume "\<And>x. P x \<sim>\<^sub>\<flat> Q x"
   fix c
   assume "a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>c"
-  then show "\<exists>d. a \<triangleright> x. Q x \<rightarrow>\<^sub>\<flat>d \<and> rel_basic_residual (\<sim>\<^sub>\<flat>) c d"
+  then show "\<exists>d. a \<triangleright> x. Q x \<rightarrow>\<^sub>\<flat>d \<and> basic_lift (\<sim>\<^sub>\<flat>) c d"
   proof cases
     case receiving
     with \<open>\<And>x. P x \<sim>\<^sub>\<flat> Q x\<close> show ?thesis
-      using basic_transition.receiving and basic_residual.rel_intros(1)
+      using basic_transition.receiving and acting_lift
       by (metis (no_types, lifting))
   qed (simp_all add: no_opening_transitions_from_receive)
 qed
@@ -369,12 +386,12 @@ next
           basic.pre_bisimilarity.cases and
           basic_residual.inject(1) and
           basic_residual.distinct(2) and
-          basic_residual.rel_cases
+          basic_lift_cases
         by smt
       from \<open>\<eta> \<bowtie> \<mu>\<close> and \<open>q \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> q'\<close> and \<open>r \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> r'\<close> have "q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> q' \<parallel> r'"
         by (fact basic_transition.communication)
       with \<open>t = q \<parallel> r\<close> and \<open>p' \<sim>\<^sub>\<flat> q'\<close> show ?thesis
-        using parallel_preservation_left_aux.without_new_channel and basic_residual.rel_intros(1)
+        using parallel_preservation_left_aux.without_new_channel and acting_lift
         by auto
     qed
   next
@@ -383,7 +400,7 @@ next
     proof cases
       case with_new_channel
       then show ?thesis
-        using basic_transition.opening and basic_residual.rel_intros(2) and rel_funI
+        using basic_transition.opening and opening_lift and rel_funI
         by (metis (full_types))
     qed
   next
@@ -396,12 +413,12 @@ next
           basic.pre_bisimilarity.cases and
           basic_residual.inject(1) and
           basic_residual.distinct(2) and
-          basic_residual.rel_cases
+          basic_lift_cases
         by smt
       from \<open>q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q'\<close> have "q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q' \<parallel> r"
         by (fact basic_transition.acting_left)
       with \<open>t = q \<parallel> r\<close> and \<open>p' \<sim>\<^sub>\<flat> q'\<close> show ?thesis
-        using parallel_preservation_left_aux.without_new_channel and basic_residual.rel_intros(1)
+        using parallel_preservation_left_aux.without_new_channel and acting_lift
         by auto
     qed
   next
@@ -413,7 +430,7 @@ next
         using
           basic_transition.acting_right and
           parallel_preservation_left_aux.without_new_channel and
-          basic_residual.rel_intros(1)
+          acting_lift
         by metis
     qed
   next
@@ -423,13 +440,13 @@ next
       case (without_new_channel q)
       from \<open>p \<sim>\<^sub>\<flat> q\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a\<close>
       obtain Q where "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a" and "\<And>a. P a \<sim>\<^sub>\<flat> Q a"
-        by (force elim: basic.pre_bisimilarity.cases basic_residual.rel_cases rel_funE)
+        by (force elim: basic.pre_bisimilarity.cases basic_lift_cases rel_funE)
       from \<open>q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a\<close> have "q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<parallel> r"
         by (fact basic_transition.opening_left)
       with \<open>t = q \<parallel> r\<close> and \<open>\<And>a. P a \<sim>\<^sub>\<flat> Q a\<close> show ?thesis
         using
           parallel_preservation_left_aux.without_new_channel and
-          basic_residual.rel_intros(2) and
+          opening_lift and
           rel_funI
         by smt
     qed
@@ -443,7 +460,7 @@ next
       from \<open>p \<sim>\<^sub>\<flat> q\<close> have "\<And>a. parallel_preservation_left_aux (p \<parallel> R a) (q \<parallel> R a)"
         by (fact parallel_preservation_left_aux.without_new_channel)
       with \<open>t = q \<parallel> r\<close> and \<open>q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> q \<parallel> R a\<close> show ?thesis
-        using basic_residual.rel_intros(2) and rel_funI
+        using opening_lift and rel_funI
         by smt
     qed
   qed (blast elim: parallel_preservation_left_aux.cases)+
@@ -504,7 +521,7 @@ next
     proof cases
       case with_new_channel
       then show ?thesis
-        using basic_transition.opening and basic_residual.rel_intros(2)
+        using basic_transition.opening and opening_lift
         by blast
     qed new_channel_preservation_aux_trivial_conveyance
   next
@@ -707,7 +724,7 @@ next
         by blast
     qed simp_all
     then show ?case
-      using parallel_scope_extension_left_aux.without_new_channel_ltr and basic_residual.rel_intros(1)
+      using parallel_scope_extension_left_aux.without_new_channel_ltr and acting_lift
       by auto
   next
     case (opening S t)
@@ -722,14 +739,14 @@ next
             basic_transition.opening and
             opening_left and
             parallel_scope_extension_left_aux.without_new_channel_rtl and
-            basic_residual.rel_intros(2) and
+            opening_lift and
             rel_funI
           by (metis (mono_tags, lifting))
       qed
     next
       case with_new_channel
       then show ?thesis
-        using basic_transition.opening and basic_residual.rel_intros(2) and rel_funI
+        using basic_transition.opening and opening_lift and rel_funI
         by metis
     qed
   next
@@ -792,7 +809,7 @@ next
         by blast
     qed simp_all
     then show ?case
-      using parallel_scope_extension_left_aux.without_new_channel_ltr and basic_residual.rel_intros(1)
+      using parallel_scope_extension_left_aux.without_new_channel_ltr and acting_lift
       by auto
   next
     case (acting_right q \<alpha> q' p t)
@@ -820,7 +837,7 @@ next
         by metis
     qed
     then show ?case
-      using parallel_scope_extension_left_aux.without_new_channel_ltr and basic_residual.rel_intros(1)
+      using parallel_scope_extension_left_aux.without_new_channel_ltr and opening_lift
       by auto
   next
     case (opening_left p P q t)
@@ -830,7 +847,7 @@ next
       using
         parallel_scope_extension_left_subaux_opening_conveyance and
         parallel_scope_extension_left_aux.without_new_channel_ltr and
-        basic_residual.rel_intros(2) and
+        opening_lift and
         rel_funI
       by smt
   next
@@ -861,7 +878,7 @@ next
     then show ?case
       using
         parallel_scope_extension_left_aux.without_new_channel_ltr and
-        basic_residual.rel_intros(2) and
+        opening_lift and
         rel_funI
       by smt
   qed (blast elim:
@@ -891,7 +908,7 @@ proof (standard, intro allI, intro impI)
     case scoped_opening
     then show ?case by (simp add: basic_transition.scoped_opening)
   qed
-  then show "\<exists>d. \<nu> a. \<nu> b. P a b \<rightarrow>\<^sub>\<flat>d \<and> rel_basic_residual (\<sim>\<^sub>\<flat>) c d"
+  then show "\<exists>d. \<nu> a. \<nu> b. P a b \<rightarrow>\<^sub>\<flat>d \<and> basic_lift (\<sim>\<^sub>\<flat>) c d"
     using basic.bisimilarity_reflexivity and basic.lift_reflexivity_propagation and reflpD
     by smt
 qed
@@ -919,7 +936,7 @@ private method parallel_unit_left_aux_trivial_conveyance =
     acting_right
     opening_right
     parallel_unit_left_aux.without_new_channel_rtl
-    basic_residual.rel_intros
+    basic_lift_intros
   )
 
 lemma basic_parallel_unit_left: "\<zero> \<parallel> p \<sim>\<^sub>\<flat> p"
@@ -954,7 +971,7 @@ next
     proof cases
       case with_new_channel
       then show ?thesis
-        using basic_transition.opening and basic_residual.rel_intros(2) and rel_funI
+        using basic_transition.opening and opening_lift and rel_funI
         by metis
     qed parallel_unit_left_aux_trivial_conveyance
   next
@@ -971,7 +988,7 @@ next
     proof cases
       case without_new_channel_ltr
       with acting_right.hyps show ?thesis
-        using parallel_unit_left_aux.without_new_channel_ltr and basic_residual.rel_intros(1)
+        using parallel_unit_left_aux.without_new_channel_ltr and acting_lift
         by auto
     qed parallel_unit_left_aux_trivial_conveyance
   next
@@ -990,7 +1007,7 @@ next
       with opening_right.hyps show ?thesis
         using
           parallel_unit_left_aux.without_new_channel_ltr and
-          basic_residual.rel_intros(2) and
+          opening_lift and
           rel_funI
         by smt
     qed parallel_unit_left_aux_trivial_conveyance
@@ -1181,7 +1198,7 @@ next
     then show ?case
       using
         nested_parallel_commutativity_aux.without_new_channel_ltr and
-        basic_residual.rel_intros(1)
+        acting_lift
       by auto
   next
     case (opening S t)
@@ -1196,14 +1213,14 @@ next
             basic_transition.opening and
             opening_left and
             nested_parallel_commutativity_aux.without_new_channel_rtl and
-            basic_residual.rel_intros(2) and
+            opening_lift and
             rel_funI
           by (metis (mono_tags, lifting))
       qed
     next
       case with_new_channel
       then show ?thesis
-        using basic_transition.opening and basic_residual.rel_intros(2)
+        using basic_transition.opening and opening_lift
         by blast
     qed
   next
@@ -1278,7 +1295,7 @@ next
     then show ?case
       using
         nested_parallel_commutativity_aux.without_new_channel_ltr and
-        basic_residual.rel_intros(1)
+        acting_lift
       by auto
   next
     case (acting_right r \<alpha> r' u t)
@@ -1309,7 +1326,7 @@ next
     then show ?case
       using
         nested_parallel_commutativity_aux.without_new_channel_ltr and
-        basic_residual.rel_intros(1)
+        acting_lift
       by auto
   next
     case (opening_left u U r t)
@@ -1319,7 +1336,7 @@ next
       using
         nested_parallel_commutativity_subaux_opening_conveyance and
         nested_parallel_commutativity_aux.without_new_channel_ltr and
-        basic_residual.rel_intros(2) and
+        opening_lift and
         rel_funI
       by smt
   next
@@ -1352,7 +1369,7 @@ next
     then show ?case
       using
         nested_parallel_commutativity_aux.without_new_channel_ltr and
-        basic_residual.rel_intros(2) and
+        opening_lift and
         rel_funI
       by smt
   next
