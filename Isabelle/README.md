@@ -25,7 +25,7 @@ Building
 ========
 
 Running `make` builds the PDF documents for the different Isabelle
-libraries and places them in `$ISABELLE_BROWSER_INFO/Cardano`. You can
+libraries and places them in `$ISABELLE_BROWSER_INFO/Ouroboros`. You can
 find out the value of `$ISABELLE_BROWSER_INFO` by running the following
 command:
 
