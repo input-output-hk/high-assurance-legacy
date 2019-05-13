@@ -621,13 +621,13 @@ proof -
   have move_2: "a\<^sub>3 \<leftrightarrow> a\<^sub>2 \<parallel> a\<^sub>3 \<rightarrow> a\<^sub>0 \<approx>\<^sub>\<flat> a\<^sub>3 \<leftrightarrow> a\<^sub>2 \<parallel> a\<^sub>2 \<rightarrow> a\<^sub>0"
     by (simp add: source_shift)
   have drop_1: "a\<^sub>0 \<leftrightarrow> a\<^sub>2 \<parallel> a\<^sub>2 \<rightarrow> a\<^sub>0 \<approx>\<^sub>\<flat> a\<^sub>0 \<leftrightarrow> a\<^sub>2"
-    by (simp add: backward_link_absorption basic_strong_bisimilarity_in_weak_bisimilarity')
+    by (simp add: backward_bridge_absorption basic_strong_bisimilarity_in_weak_bisimilarity')
   have move_3: "a\<^sub>0 \<leftrightarrow> a\<^sub>2 \<parallel> a\<^sub>0 \<rightarrow> a\<^sub>1 \<approx>\<^sub>\<flat> a\<^sub>0 \<leftrightarrow> a\<^sub>2 \<parallel> a\<^sub>2 \<rightarrow> a\<^sub>1"
     by (simp add: source_shift)
   have move_4: "a\<^sub>2 \<leftrightarrow> a\<^sub>3 \<parallel> a\<^sub>2 \<rightarrow> a\<^sub>1 \<approx>\<^sub>\<flat> a\<^sub>2 \<leftrightarrow> a\<^sub>3 \<parallel> a\<^sub>3 \<rightarrow> a\<^sub>1"
     by (simp add: source_shift)
   have drop_2: "a\<^sub>1 \<leftrightarrow> a\<^sub>3 \<parallel> a\<^sub>3 \<rightarrow> a\<^sub>1 \<approx>\<^sub>\<flat> a\<^sub>1 \<leftrightarrow> a\<^sub>3"
-    by (simp add: backward_link_absorption basic_strong_bisimilarity_in_weak_bisimilarity')
+    by (simp add: backward_bridge_absorption basic_strong_bisimilarity_in_weak_bisimilarity')
   have "
     a\<^sub>0 \<leftrightarrow> a\<^sub>1 \<parallel> a\<^sub>0 \<leftrightarrow> a\<^sub>2 \<parallel> a\<^sub>1 \<leftrightarrow> a\<^sub>3 \<parallel> a\<^sub>2 \<leftrightarrow> a\<^sub>3 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>0 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>1 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>2 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>3
     \<approx>\<^sub>\<flat>
