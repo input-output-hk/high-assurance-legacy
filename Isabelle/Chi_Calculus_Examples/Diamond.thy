@@ -742,12 +742,12 @@ end
 context
 begin
 
-private lemma loss_and_duplication_idempotency_aux: "\<currency>\<^sup>*a \<parallel> p \<parallel> \<currency>\<^sup>*a \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a \<parallel> p"
+private lemma duploss_idempotency_aux: "\<currency>\<^sup>*a \<parallel> p \<parallel> \<currency>\<^sup>*a \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a \<parallel> p"
 proof -
   have "\<currency>\<^sup>*a \<parallel> p \<parallel> \<currency>\<^sup>*a \<approx>\<^sub>\<sharp> (\<currency>\<^sup>*a \<parallel> \<currency>\<^sup>*a) \<parallel> p"
     by (metis (no_types, lifting) proper.weak.bisimilarity_transitivity_rule proper_weak_parallel_associativity proper_weak_parallel_commutativity)
   also have "(\<currency>\<^sup>*a \<parallel> \<currency>\<^sup>*a) \<parallel> p \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a \<parallel> p"
-    by (simp add: basic_bisimilarity_in_proper_bisimilarity_rule loss_and_duplication_idempotency proper_parallel_preservation_left proper_strong_bisimilarity_in_weak_bisimilarity')
+    by (simp add: basic_bisimilarity_in_proper_bisimilarity_rule duploss_idempotency proper_parallel_preservation_left proper_strong_bisimilarity_in_weak_bisimilarity')
   finally show "\<currency>\<^sup>*a \<parallel> p \<parallel> \<currency>\<^sup>*a \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a \<parallel> p"
     by simp
 qed
@@ -809,7 +809,7 @@ proof -
         \<nu> a\<^sub>2. (\<currency>\<^sup>*a\<^sub>2 \<parallel> a\<^sub>0 \<leftrightarrow> a\<^sub>2 \<parallel> (\<nu> a\<^sub>3. (\<currency>\<^sup>*a\<^sub>3 \<parallel> a\<^sub>2 \<leftrightarrow> a\<^sub>3)))"
       proof -
         have "\<And>a\<^sub>2 a\<^sub>3. \<currency>\<^sup>*a\<^sub>3 \<parallel> a\<^sub>2 \<leftrightarrow> a\<^sub>3 \<parallel> \<currency>\<^sup>*a\<^sub>3 \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a\<^sub>3 \<parallel> a\<^sub>2 \<leftrightarrow> a\<^sub>3"
-          by (simp add: loss_and_duplication_idempotency_aux)
+          by (simp add: duploss_idempotency_aux)
         then have "\<And>a\<^sub>2. \<currency>\<^sup>*a\<^sub>2 \<parallel> a\<^sub>0 \<leftrightarrow> a\<^sub>2 \<parallel> (\<nu> a\<^sub>3. (\<currency>\<^sup>*a\<^sub>3 \<parallel> a\<^sub>2 \<leftrightarrow> a\<^sub>3 \<parallel> \<currency>\<^sup>*a\<^sub>3)) \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a\<^sub>2 \<parallel> a\<^sub>0 \<leftrightarrow> a\<^sub>2 \<parallel> (\<nu> a\<^sub>3. (\<currency>\<^sup>*a\<^sub>3 \<parallel> a\<^sub>2 \<leftrightarrow> a\<^sub>3))"
           by (simp add: proper_weak_new_channel_preservation proper_weak_parallel_preservation_right)
         then show ?thesis
@@ -824,7 +824,7 @@ proof -
         \<nu> a\<^sub>2. (\<currency>\<^sup>*a\<^sub>2 \<parallel> a\<^sub>0 \<leftrightarrow> a\<^sub>2 \<parallel> \<currency>\<^sup>*a\<^sub>2)
         \<approx>\<^sub>\<sharp>
         \<nu> a\<^sub>2. (\<currency>\<^sup>*a\<^sub>2 \<parallel> a\<^sub>0 \<leftrightarrow> a\<^sub>2)"
-        by (simp add: loss_and_duplication_idempotency_aux proper_weak_new_channel_preservation)
+        by (simp add: duploss_idempotency_aux proper_weak_new_channel_preservation)
       also have "
         \<nu> a\<^sub>2. (\<currency>\<^sup>*a\<^sub>2 \<parallel> a\<^sub>0 \<leftrightarrow> a\<^sub>2)
         \<approx>\<^sub>\<sharp>
@@ -851,7 +851,7 @@ proof -
       moreover have "\<currency>\<^sup>*a\<^sub>0 \<parallel> \<currency>\<^sup>*a\<^sub>0 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>0 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>1 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>2 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>3 \<approx>\<^sub>\<sharp> (\<currency>\<^sup>*a\<^sub>0 \<parallel> \<currency>\<^sup>*a\<^sub>0) \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>0 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>1 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>2 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>3"
         by (simp add: proper_weak_parallel_associativity)
       also have "(\<currency>\<^sup>*a\<^sub>0 \<parallel> \<currency>\<^sup>*a\<^sub>0) \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>0 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>1 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>2 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>3 \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a\<^sub>0 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>0 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>1 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>2 \<parallel> a\<^sub>0 \<rightarrow> b\<^sub>3"
-        by (simp add: basic_bisimilarity_in_proper_bisimilarity_rule basic_parallel_preservation_left loss_and_duplication_idempotency proper_strong_bisimilarity_in_weak_bisimilarity')
+        by (simp add: basic_bisimilarity_in_proper_bisimilarity_rule basic_parallel_preservation_left duploss_idempotency proper_strong_bisimilarity_in_weak_bisimilarity')
       ultimately show ?thesis
         using proper.weak.bisimilarity_transitivity_rule by blast
     qed
