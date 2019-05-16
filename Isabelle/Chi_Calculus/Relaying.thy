@@ -1,7 +1,7 @@
-section \<open>Relaying Networks\<close>
+section \<open>Relaying of Data\<close>
 
 theory Relaying
-  imports Chi_Calculus.Communication
+  imports Communication
 begin
 
 abbreviation unidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "\<rightarrow>" 100) where

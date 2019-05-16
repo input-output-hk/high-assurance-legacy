@@ -14,5 +14,6 @@ session Chi_Calculus (ouroboros) = Transition_Systems +
     Typed_Basic_Transition_System
     Typed_Proper_Transition_System
     Communication
+    Relaying
   document_files
     "root.tex"
