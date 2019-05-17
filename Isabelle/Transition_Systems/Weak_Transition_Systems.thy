@@ -40,12 +40,11 @@ proof (intro ext, intro iffI)
   finally show "\<X> \<le> mixed.transfer \<X>" .
 next
   fix \<X>
-  assume "\<X> \<le> mixed.transfer \<X>"
-  show "\<X> \<le> weak.transfer \<X>"
-  proof (intro le_funI, intro le_boolI, intro allI, intro impI)
-    fix p and q and c
-    assume "p \<Rightarrow> c" and "\<X> p q"
-    then show "\<exists>d. q \<Rightarrow> d \<and> lift \<X> c d"
+  assume "mixed.sim \<X>"
+  show "weak.sim \<X>"
+  proof weak.is_simulation_standard
+    case (sim p q c)
+    then show ?case
     proof (induction arbitrary: q)
       case (strong_transition p c q)
       with \<open>\<X> \<le> mixed.transfer \<X>\<close> show ?case by blast
