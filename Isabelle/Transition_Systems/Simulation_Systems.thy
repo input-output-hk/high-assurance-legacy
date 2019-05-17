@@ -237,9 +237,12 @@ subsubsection \<open>Proof Methods\<close>
 
 text \<open>
   Any symmetric simulation relation is a bisimulation relation and thus a subrelation of
-  bisimilarity. Based on this fact, we define a standard method for proving statements of the form
-  \<^term>\<open>\<X> \<le> (\<sim>)\<close>. This method creates two cases: \<open>symmetry\<close>, with conclusion \<^term>\<open>symp \<X>\<close>, and
-  \<open>is_simulation\<close>, with conclusion \<^term>\<open>sim \<X>\<close>.
+  bisimilarity. Based on this fact, we define a method \<open>in_bisimilarity_standard\<close> for proving
+  statements of the form \<^term>\<open>\<X> \<le> (\<sim>)\<close>. This method creates the following two cases:
+
+    \<^item> \<open>symmetry\<close>, with conclusion \<^term>\<open>symp \<X>\<close>
+
+    \<^item> \<open>is_simulation\<close>, with conclusion \<^term>\<open>sim \<X>\<close>
 \<close>
 
 method in_bisimilarity_standard = (
