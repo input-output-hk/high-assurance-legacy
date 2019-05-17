@@ -236,6 +236,26 @@ lemma bisimilarity_is_greatest_bisimulation: "(\<sim>) = (GREATEST \<X>. bisim \
 subsubsection \<open>Proof Methods\<close>
 
 text \<open>
+  We define a method \<open>bisimilarity_standard\<close> for proving statements of the form
+  \<open>\<lbrakk> A\<^sub>1; \<dots>; A\<^sub>n \<rbrakk> \<Longrightarrow> s \<sim> t\<close>. For any binary process relation~\<open>\<X>\<close>, the invocation
+  \<open>(bisimilarity_standard \<X>)\<close> creates the following two cases:
+
+    \<^item> \<open>related\<close>, with premises \<open>A\<^sub>1\<close> to~\<open>A\<^sub>n\<close> and conclusion \<open>\<X> s t\<close>
+
+    \<^item> \<open>in_bisimilarity\<close>, with conclusion \<^term>\<open>\<X> \<le> (\<sim>)\<close>
+\<close>
+
+method bisimilarity_standard for \<X> :: "['process, 'process] \<Rightarrow> bool" = (
+  (
+    intro predicate2D [of \<X> "(\<sim>)", rotated];
+      match conclusion in
+        "\<X> _ _" \<Rightarrow> \<open>succeed\<close> \<bar>
+        "\<X> \<le> (\<sim>)" \<Rightarrow> \<open>match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>succeed\<close> | succeed\<close>
+  ),
+  goal_cases related in_bisimilarity
+)
+
+text \<open>
   Any symmetric simulation relation is a bisimulation relation and thus a subrelation of
   bisimilarity. Based on this fact, we define a method \<open>in_bisimilarity_standard\<close> for proving
   statements of the form \<^term>\<open>\<X> \<le> (\<sim>)\<close>. This method creates the following two cases:
@@ -252,63 +272,57 @@ method in_bisimilarity_standard = (
 )
 
 text \<open>
-  Based on \<open>in_bisimilarity_standard\<close>, we define a method \<open>bisimilarity_standard\<close> for proving
-  statements of the form \<open>\<lbrakk> A\<^sub>1; \<dots>; A\<^sub>n \<rbrakk> \<Longrightarrow> s \<sim> t\<close>. For any binary process relation~\<open>\<X>\<close>, the
-  invocation \<open>(bisimilarity_standard \<X>)\<close> creates the following three cases:
+  We define a method \<open>is_simulation_standard\<close> for proving statements of the form \<^term>\<open>sim \<X>\<close>. This
+  method creates the following single case:
 
-    \<^item> \<open>related\<close>, with premises \<open>A\<^sub>1\<close> to~\<open>A\<^sub>n\<close> and conclusion \<open>\<X> s t\<close>
+    \<^item> \<open>sim\<close>, with parameters \<open>p\<close>, \<open>q\<close>, and \<open>c\<close>, premises \<^term>\<open>s \<rightharpoonup> c\<close> and \<^term>\<open>\<X> p q\<close>, and
+      conclusion \<^term>\<open>\<exists>d. q \<rightharpoondown> d \<and> lift \<X> c d\<close>
 
-    \<^item> \<open>sym\<close>, with parameters \<open>p\<close> and~\<open>q\<close>, premise \<open>\<X> p q\<close>, and conclusion \<open>\<X> q p\<close>
-
-    \<^item> \<open>sim\<close>, with parameters \<open>p\<close>, \<open>q\<close>, and \<open>c\<close>, premises \<open>p \<rightharpoonup> c\<close> and \<open>\<X> p q\<close>, and conclusion
-      \<open>\<exists>d. q \<rightharpoondown> d \<and> lift \<X> c d\<close>
-
-  Note that, contrary to the \<open>symmetry\<close> and \<open>is_simulation\<close> cases of \<open>in_bisimilarity_standard\<close>, the
-  \<open>sym\<close> and \<open>sim\<close> cases of \<open>bisimilarity_standard\<close> do not use the \<^term>\<open>symp\<close> and \<^term>\<open>sim\<close>
-  predicates but are based directly on the underlying logical constructions. This often makes proofs
-  easier. Furthermore note that in the \<open>sim\<close> case the premise \<open>p \<rightharpoonup> c\<close> comes before the premise
-  \<open>\<X> p q\<close>. In the common situation of an inductively defined \<open>original_transition\<close> relation, this
-  arrangement makes it possible to directly handle the \<open>sim\<close> case via induction on the derivation of
-  \<open>p \<rightharpoonup> c\<close>, by writing @{theory_text \<open>then show ?case proof induction \<dots> qed\<close>}.
+  Note that the premise \<^term>\<open>p \<rightharpoonup> c\<close> of the \<open>sim\<close> case comes before the premise \<^term>\<open>\<X> p q\<close>. In
+  the common situation of an inductively defined relation~\<^term>\<open>(\<rightharpoonup>)\<close>, this arrangement makes it
+  possible to directly handle the \<open>sim\<close> case via induction on the derivation of \<open>p \<rightharpoonup> c\<close>, by writing
+  @{theory_text \<open>then show ?case proof induction \<dots> qed\<close>}.
 \<close>
 
 context begin
 
 text \<open>
-  We introduce two trivial auxiliary lemmas, which are used by the \<open>bisimilarity_standard\<close> proof
-  method. It would be simpler to let \<open>bisimilarity_standard\<close> employ some basic proof methods instead
-  of using these lemmas. However, the present solution allows us to choose default names for the
-  parameters of the \<open>sym\<close> and \<open>sim\<close> cases.
+  We introduce a trivial auxiliary lemma, which is used by the \<open>is_simulation_standard\<close> proof
+  method. It would be simpler to let \<open>is_simulation_standard\<close> employ some basic proof methods
+  instead of using this lemma. However, the present solution allows us to choose default names for
+  the parameters of the \<open>sim\<close> case.
 \<close>
-
-private lemma bisimilarity_standard_symp_intro:
-  assumes "(\<And>p q. \<X> p q \<Longrightarrow> \<X> q p)"
-  shows "symp \<X>"
-  using assms ..
-private lemma bisimilarity_standard_sim_intro:
-  assumes "(\<And>p q c. \<lbrakk> p \<rightharpoonup> c; \<X> p q \<rbrakk> \<Longrightarrow> \<exists>d. q \<rightharpoondown> d \<and> lift \<X> c d)"
-  shows "sim \<X>"
-  using assms by blast
 
 text \<open>
-  With the help of these auxiliary lemmas we define the proof method.
+  Actually, we would like to use \<^term>\<open>\<And>p q c. \<lbrakk>p \<rightharpoonup> c; \<X> p q\<rbrakk> \<Longrightarrow> \<exists>d. q \<rightharpoondown> d \<and> lift \<X> c d\<close> as the
+  assumption and \<^term>\<open>sim \<X>\<close> as the thesis. However, because of the presumed bug described at
+  \url{https://lists.cam.ac.uk/pipermail/cl-isabelle-users/2019-February/msg00024.html} we use a
+  sloppier definition. This definition has the advantage that it is independent from the concrete
+  locale interpretation. As a result we get the correct behavior even if Isabelle picks the method
+  from the wrong interpretation.
 \<close>
 
-method bisimilarity_standard for \<X> :: "['process, 'process] \<Rightarrow> bool" = (
-  (
-    intro predicate2D [of \<X> "(\<sim>)", rotated];
-      match conclusion in
-        "\<X> _ _" \<Rightarrow> \<open>succeed\<close> \<bar>
-        "\<X> \<le> (\<sim>)" \<Rightarrow> \<open>
-          (match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>succeed\<close> | succeed);
-            in_bisimilarity_standard;
-              match conclusion in
-                "symp \<X>" \<Rightarrow> \<open>intro bisimilarity_standard_symp_intro\<close> \<bar>
-                "sim \<X>" \<Rightarrow> \<open>intro bisimilarity_standard_sim_intro\<close>
-        \<close>
-  ),
-  goal_cases related sym sim
-)
+private lemma is_simulation_standard_sim_intro:
+  assumes "
+    \<And>p q c.
+    \<lbrakk>original_transition_dummy p c; \<X> p q\<rbrakk> \<Longrightarrow>
+    \<exists>d. simulating_transition_dummy q d \<and> lift_dummy \<X> c d"
+  shows "
+    \<X> \<le> (
+      \<lambda>p q. (
+        \<forall>c.
+        original_transition_dummy p c \<longrightarrow>
+        (\<exists>d. simulating_transition_dummy q d \<and> lift_dummy \<X> c d)
+      )
+    )"
+  using assms
+  by blast
+
+text \<open>
+  With the help of this auxiliary lemma we define the proof method.
+\<close>
+
+method is_simulation_standard = (intro is_simulation_standard_sim_intro, goal_cases sim)
 
 text \<open>
   This concludes the definition of the standard proof method for bisimilarity.

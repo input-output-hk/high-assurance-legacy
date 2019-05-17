@@ -163,10 +163,9 @@ qed
 subsection \<open>Relationships between Basic and Proper Bisimilarity\<close>
 
 lemma basic_bisimilarity_is_proper_simulation: "proper.sim (\<sim>\<^sub>\<flat>)"
-proof (intro predicate2I, intro allI, intro impI)
-  fix p and q and c
-  assume "p \<rightarrow>\<^sub>\<sharp>c" and "p \<sim>\<^sub>\<flat> q"
-  then show "\<exists>d. q \<rightarrow>\<^sub>\<sharp>d \<and> proper_lift (\<sim>\<^sub>\<flat>) c d"
+proof proper.is_simulation_standard
+  case (sim p q c)
+  then show ?case
   proof (induction arbitrary: q)
     case (simple p \<delta> p' q)
     from \<open>p \<sim>\<^sub>\<flat> q\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> p'\<close>

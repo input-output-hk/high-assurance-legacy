@@ -222,6 +222,27 @@ lemma no_opening_transitions_from_receive: "\<not> a \<triangleright> x. P x \<r
 
 subsection \<open>Concrete Bisimilarities\<close>
 
+(* NOTE:
+  The following code is introduced only temporarily to make the bisimilarity proofs below work with
+  the refactored simulation system methods. It will be removed as part of the generalization of the
+  bisimilarity proofs to strong and weak bisimilarity.
+*)
+method old_bisimilarity_standard for \<X> :: "[process, process] \<Rightarrow> bool" = (
+  (
+    intro predicate2D [of \<X> "(\<sim>\<^sub>\<flat>)", rotated];
+      match conclusion in
+        "\<X> _ _" \<Rightarrow> \<open>succeed\<close> \<bar>
+        "\<X> \<le> (\<sim>\<^sub>\<flat>)" \<Rightarrow> \<open>
+          (match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>succeed\<close> | succeed);
+            basic.in_bisimilarity_standard;
+              match conclusion in
+                "symp \<X>" \<Rightarrow> \<open>intro sympI\<close> \<bar>
+                "basic.sim \<X>" \<Rightarrow> \<open>basic.is_simulation_standard\<close>
+        \<close>
+  ),
+  goal_cases related sym sim
+)
+
 context begin
 
 private lemma sim_scoped_acting_intro:
@@ -367,7 +388,7 @@ where
     parallel_preservation_left_aux (\<nu> a. S a) (\<nu> a. T a)"
 
 lemma basic_parallel_preservation_left: "p \<sim>\<^sub>\<flat> q \<Longrightarrow> p \<parallel> r \<sim>\<^sub>\<flat> q \<parallel> r"
-proof (basic.bisimilarity_standard parallel_preservation_left_aux)
+proof (old_bisimilarity_standard parallel_preservation_left_aux)
   case related
   then show ?case by (fact parallel_preservation_left_aux.without_new_channel)
 next
@@ -494,7 +515,7 @@ private method new_channel_preservation_aux_trivial_conveyance =
     predicate2D)
 
 lemma basic_new_channel_preservation: "(\<And>a. P a \<sim>\<^sub>\<flat> Q a) \<Longrightarrow> \<nu> a. P a \<sim>\<^sub>\<flat> \<nu> a. Q a"
-proof (basic.bisimilarity_standard new_channel_preservation_aux)
+proof (old_bisimilarity_standard new_channel_preservation_aux)
   case related
   then show ?case by (simp add: new_channel_preservation_aux.intros)
 next
@@ -654,7 +675,7 @@ next
 qed
 
 lemma basic_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
-proof (basic.bisimilarity_standard parallel_scope_extension_left_aux)
+proof (old_bisimilarity_standard parallel_scope_extension_left_aux)
   case related
   show ?case
     by (simp add:
@@ -940,7 +961,7 @@ private method parallel_unit_left_aux_trivial_conveyance =
   )
 
 lemma basic_parallel_unit_left: "\<zero> \<parallel> p \<sim>\<^sub>\<flat> p"
-proof (basic.bisimilarity_standard parallel_unit_left_aux)
+proof (old_bisimilarity_standard parallel_unit_left_aux)
   case related
   show ?case by (fact parallel_unit_left_aux.without_new_channel_ltr)
 next
@@ -1123,7 +1144,7 @@ next
 qed
 
 private lemma basic_nested_parallel_commutativity: "(p \<parallel> q) \<parallel> r \<sim>\<^sub>\<flat> (p \<parallel> r) \<parallel> q"
-proof (basic.bisimilarity_standard nested_parallel_commutativity_aux)
+proof (old_bisimilarity_standard nested_parallel_commutativity_aux)
   case related
   show ?case
     by (simp add:
