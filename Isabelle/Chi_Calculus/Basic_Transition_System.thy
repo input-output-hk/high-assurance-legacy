@@ -93,7 +93,7 @@ text \<open>
 \<close>
 
 lemma communication_symmetry_rule [sym]: "\<eta> \<bowtie> \<mu> \<Longrightarrow> \<mu> \<bowtie> \<eta>"
-  using communication.simps by metis
+  by (blast elim: communication.cases intro: communication.intros)
 lemma communication_symmetry: "symp (\<bowtie>)"
   using communication_symmetry_rule ..
 
@@ -216,9 +216,9 @@ text \<open>
 \<close>
 
 lemma no_opening_transitions_from_send: "\<not> a \<triangleleft> x \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b"
-  using basic_transitions_from_send by fastforce
+  using basic_transitions_from_send by blast
 lemma no_opening_transitions_from_receive: "\<not> a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b"
-  using basic_transitions_from_receive by fastforce
+  using basic_transitions_from_receive by blast
 
 subsection \<open>Concrete Bisimilarities\<close>
 
