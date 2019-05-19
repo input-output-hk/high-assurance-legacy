@@ -39,6 +39,46 @@ proof -
     using basic.bisimilarity_transitivity_rule birectional_bridge_commutativity by blast
 qed
 
+lemma send_channel_switch:
+  shows "a \<leftrightarrow> b \<parallel> a \<triangleleft> x \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> b \<triangleleft> x"
+  sorry
+
+lemma receive_channel_switch:
+  shows "a \<leftrightarrow> b \<parallel> a \<triangleright> x. P x \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> b \<triangleright> x. P x"
+  sorry
+
+lemma multi_receive_channel_switch:
+  shows "a \<leftrightarrow> b \<parallel> a \<triangleright>\<^sup>\<infinity> x. P x \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> b \<triangleright> x. P x"
+  sorry
+
+lemma source_switch:
+  shows "a \<leftrightarrow> b \<parallel> a \<rightarrow> c \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> b \<rightarrow> c"
+  sorry
+
+lemma target_switch:
+  shows "a \<leftrightarrow> b \<parallel> c \<rightarrow> a \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<rightarrow> b"
+  sorry
+
+lemma loss_switch:
+  shows "a \<leftrightarrow> b \<parallel> \<currency>\<^sup>?a \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> \<currency>\<^sup>?b"
+  sorry
+
+lemma duplication_switch:
+  shows "a \<leftrightarrow> b \<parallel> \<currency>\<^sup>+a \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> \<currency>\<^sup>+b"
+  sorry
+
+lemma duploss_switch:
+  shows "a \<leftrightarrow> b \<parallel> \<currency>\<^sup>*a \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> \<currency>\<^sup>*b"
+  sorry
+
+lemma detour_squashing:
+  shows "\<nu> b. (a \<leftrightarrow> b) \<approx>\<^sub>\<sharp> a \<rightarrow> a"
+  sorry
+
+lemma duploss_detour_collapse:
+  shows "\<nu> b. (\<currency>\<^sup>*b \<parallel> a \<leftrightarrow> b) \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a"
+  sorry
+
 lemma source_shift: "a \<leftrightarrow> b \<parallel> a \<triangleright>\<^sup>\<infinity> x. P x \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
   sorry
 
