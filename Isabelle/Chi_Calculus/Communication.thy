@@ -33,4 +33,8 @@ abbreviation duploss :: "chan \<Rightarrow> process" ("\<currency>\<^sup>*_" [10
 lemma duploss_idempotency: "\<currency>\<^sup>*a \<parallel> \<currency>\<^sup>*a \<sim>\<^sub>\<flat> \<currency>\<^sup>*a"
   sorry
 
+lemma send_idempotency_under_duploss:
+  shows "\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x \<approx>\<^sub>\<flat> \<currency>\<^sup>* a \<parallel> a \<triangleleft> x"
+  sorry
+
 end
