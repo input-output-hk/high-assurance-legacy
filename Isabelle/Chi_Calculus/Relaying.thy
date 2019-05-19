@@ -10,6 +10,14 @@ abbreviation unidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infi
 (* TODO: Prove it. *)
 lemma unidirectional_bridge_idempotency: "a \<rightarrow> b \<parallel> a \<rightarrow> b \<approx>\<^sub>\<flat> a \<rightarrow> b" sorry
 
+lemma shortcut_addition:
+  shows "a \<rightarrow> b \<parallel> b \<rightarrow> c \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<rightarrow> c \<parallel> a \<rightarrow> c"
+  sorry
+
+lemma loop_redundancy_under_duploss:
+  shows "\<currency>\<^sup>*a \<parallel> a \<rightarrow> a \<approx>\<^sub>\<flat> \<currency>\<^sup>*a"
+  sorry
+
 abbreviation bidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "\<leftrightarrow>" 100) where
   "a \<leftrightarrow> b \<equiv> a \<rightarrow> b \<parallel> b \<rightarrow> a"
 
