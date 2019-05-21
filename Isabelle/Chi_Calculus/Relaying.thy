@@ -10,6 +10,14 @@ abbreviation unidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infi
 (* TODO: Prove it. *)
 lemma unidirectional_bridge_idempotency: "a \<rightarrow> b \<parallel> a \<rightarrow> b \<approx>\<^sub>\<flat> a \<rightarrow> b" sorry
 
+lemma shortcut_addition:
+  shows "a \<rightarrow> b \<parallel> b \<rightarrow> c \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<rightarrow> c \<parallel> a \<rightarrow> c"
+  sorry
+
+lemma loop_redundancy_under_duploss:
+  shows "\<currency>\<^sup>*a \<parallel> a \<rightarrow> a \<approx>\<^sub>\<flat> \<currency>\<^sup>*a"
+  sorry
+
 abbreviation bidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "\<leftrightarrow>" 100) where
   "a \<leftrightarrow> b \<equiv> a \<rightarrow> b \<parallel> b \<rightarrow> a"
 
@@ -78,12 +86,5 @@ lemma detour_squashing:
 lemma duploss_detour_collapse:
   shows "\<nu> b. (\<currency>\<^sup>*b \<parallel> a \<leftrightarrow> b) \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a"
   sorry
-
-lemma source_shift: "a \<leftrightarrow> b \<parallel> a \<triangleright>\<^sup>\<infinity> x. P x \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
-  sorry
-
-lemma dead_end_collapse: "\<nu> b. (\<currency>\<^sup>*b \<parallel> a \<leftrightarrow> b) \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a"
-  sorry
-  (* NOTE: The \<open>\<currency>\<^sup>?b\<close>-part of \<open>\<currency>\<^sup>*b\<close> can be handled with \<open>source_shift\<close> *)
 
 end
