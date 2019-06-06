@@ -42,6 +42,25 @@ abbreviation guard :: "[bool, process] \<Rightarrow> process" (infixr "?" 100) w
   "x ? p \<equiv> if x then p else \<zero>"
 
 text \<open>
+  We define parallel composition over a list of processes.
+\<close>
+
+abbreviation parallel_list :: "process list \<Rightarrow> process" where
+  "parallel_list ps \<equiv> foldr (\<parallel>) ps \<zero>"
+
+text \<open>
+  We define a notation for repeated parallel composition combined with mapping. This notation is
+  analogous to \<open>HOL.Groups_List._prod_list\<close>, which we have to remove in order to avoid a clash.
+\<close>
+
+no_syntax
+  "_prod_list" :: "pttrn => 'a list => 'b => 'b" ("(3\<Prod>_\<leftarrow>_. _)" [0, 51, 10] 10)
+syntax
+  "_parallel_list" :: "pttrn => 'a list => process => process" ("(3\<Prod>_\<leftarrow>_. _)" [0, 0, 100] 100)
+translations
+  "\<Prod>x\<leftarrow>xs. p" \<rightleftharpoons> "CONST parallel_list (CONST map (\<lambda>x. p) xs)"
+
+text \<open>
   This is all for processes.
 \<close>
 
