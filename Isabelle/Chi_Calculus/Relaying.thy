@@ -24,7 +24,7 @@ abbreviation bidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix
 (* TODO: Prove it. *)
 lemma bidirectional_bridge_idempotency: "a \<leftrightarrow> b \<parallel> a \<leftrightarrow> b \<approx>\<^sub>\<flat> a \<leftrightarrow> b" sorry
 
-lemma birectional_bridge_commutativity: "a \<leftrightarrow> b \<sim>\<^sub>\<flat> b \<leftrightarrow> a"
+lemma bidirectional_bridge_commutativity: "a \<leftrightarrow> b \<sim>\<^sub>\<flat> b \<leftrightarrow> a"
   by (simp add: basic_parallel_commutativity)
 
 lemma forward_bridge_absorption: "a \<leftrightarrow> b \<parallel> a \<rightarrow> b \<sim>\<^sub>\<flat> a \<leftrightarrow> b"
@@ -44,7 +44,7 @@ proof -
   also have "b \<leftrightarrow> a \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> b \<leftrightarrow> a"
     by (simp add: forward_bridge_absorption)
   finally show ?thesis
-    using basic.bisimilarity_transitivity_rule birectional_bridge_commutativity by blast
+    using basic.bisimilarity_transitivity_rule bidirectional_bridge_commutativity by blast
 qed
 
 lemma send_channel_switch:
