@@ -1,0 +1,11 @@
+chapter Ouroboros
+
+session Utilities (ouroboros) = HOL +
+  description
+    \<open>General-purpose utilities.\<close>
+  sessions
+    "HOL-Eisbach"
+  theories
+    Monotonicity
+  document_files
+    "root.tex"
