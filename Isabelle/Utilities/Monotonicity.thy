@@ -1,6 +1,6 @@
-section \<open>Utilities\<close>
+section \<open>Monotonicity\<close>
 
-theory Utilities
+theory Monotonicity
   imports Main "HOL-Eisbach.Eisbach"
 begin
 

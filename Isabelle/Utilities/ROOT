@@ -6,6 +6,6 @@ session Utilities (ouroboros) = HOL +
   sessions
     "HOL-Eisbach"
   theories
-    Utilities
+    Monotonicity
   document_files
     "root.tex"
