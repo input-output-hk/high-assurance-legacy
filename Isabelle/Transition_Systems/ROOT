@@ -1,10 +1,9 @@
 chapter Ouroboros
 
-session Transition_Systems (ouroboros) = HOL +
+session Transition_Systems (ouroboros) = Utilities +
   description
     \<open>A framework for labeled transition systems with support for scope openings.\<close>
   sessions
-    "HOL-Eisbach"
     "HOL-Library"
   theories
     Residuals
