@@ -1,6 +1,6 @@
 section \<open>Diamond-Shaped Relaying Network\<close>
 
-(* FIXME: Fill holes When bisimilarity reasoning is supported by the simplifier. *)
+(* FIXME: Fill holes when bisimilarity reasoning is supported by the simplifier. *)
 
 theory Diamond
   imports
