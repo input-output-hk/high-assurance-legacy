@@ -94,4 +94,8 @@ lemma distributor_split:
   "\<currency>\<^sup>+a \<parallel> \<Prod>b \<leftarrow> bs. \<currency>\<^sup>?b \<parallel> a \<Rightarrow> bs \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> \<Prod>b \<leftarrow> bs. (\<currency>\<^sup>?b \<parallel> a \<rightarrow> b)"
   sorry
 
+lemma sidetrack_addition:
+  shows "\<Prod>b \<leftarrow> bs. \<currency>\<^sup>?b \<parallel> a \<Rightarrow> (b\<^sub>0 # bs) \<approx>\<^sub>\<flat> \<Prod>b \<leftarrow> bs. \<currency>\<^sup>?b \<parallel> a \<Rightarrow> (b\<^sub>0 # bs) \<parallel> a \<rightarrow> b\<^sub>0"
+  sorry
+
 end
