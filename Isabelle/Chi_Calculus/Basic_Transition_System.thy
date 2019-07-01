@@ -224,8 +224,7 @@ subsection \<open>Concrete Bisimilarities\<close>
 
 (* NOTE:
   The following code is introduced only temporarily to make the bisimilarity proofs below work with
-  the refactored simulation system methods. It will be removed as part of the generalization of the
-  bisimilarity proofs to strong and weak bisimilarity.
+  the refactored simulation system methods. It will be removed as part of resolving #78.
 *)
 method old_bisimilarity_standard for \<X> :: "[process, process] \<Rightarrow> bool" = (
   (
