@@ -10,9 +10,13 @@ abbreviation unidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infi
 (* TODO: Prove it. *)
 lemma unidirectional_bridge_idempotency: "a \<rightarrow> b \<parallel> a \<rightarrow> b \<approx>\<^sub>\<flat> a \<rightarrow> b" sorry
 
+lemma early_multi_receive_addition:
+  shows "a \<rightarrow> b \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x \<parallel> a \<triangleright>\<^sup>\<infinity> x. P x"
+  sorry
+
 lemma shortcut_addition:
   shows "a \<rightarrow> b \<parallel> b \<rightarrow> c \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<rightarrow> c \<parallel> a \<rightarrow> c"
-  sorry
+  by (fact early_multi_receive_addition)
 
 lemma loop_redundancy_under_duploss:
   shows "\<currency>\<^sup>*a \<parallel> a \<rightarrow> a \<approx>\<^sub>\<flat> \<currency>\<^sup>*a"
