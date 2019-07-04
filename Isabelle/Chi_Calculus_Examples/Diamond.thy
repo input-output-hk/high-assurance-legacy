@@ -94,27 +94,27 @@ proof -
   have "\<And>l\<^sub>3\<^sub>0 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2.
     \<currency>\<^sup>+l\<^sub>3\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>?l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<Rightarrow> [r\<^sub>0, l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]
     \<approx>\<^sub>\<flat>
-    \<currency>\<^sup>+l\<^sub>3\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> \<currency>\<^sup>?l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>?l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2"
+    \<currency>\<^sup>+l\<^sub>3\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>?l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2"
     using distributor_split sorry
   moreover have "\<And>l\<^sub>0\<^sub>1 l\<^sub>1\<^sub>3.
     \<currency>\<^sup>+l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<Rightarrow> [r\<^sub>1, l\<^sub>1\<^sub>3]
     \<approx>\<^sub>\<flat>
-    \<currency>\<^sup>+l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> r\<^sub>1 \<parallel> \<currency>\<^sup>?l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3"
+    \<currency>\<^sup>+l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> r\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3"
     using distributor_split sorry
   moreover have "\<And>l\<^sub>0\<^sub>2 l\<^sub>2\<^sub>3.
     \<currency>\<^sup>+l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<Rightarrow> [r\<^sub>2, l\<^sub>2\<^sub>3]
     \<approx>\<^sub>\<flat>
-    \<currency>\<^sup>+l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> r\<^sub>2 \<parallel> \<currency>\<^sup>?l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3"
+    \<currency>\<^sup>+l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> r\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3"
     using distributor_split sorry
   moreover have "\<And>l\<^sub>1\<^sub>3 l\<^sub>3\<^sub>0.
     \<currency>\<^sup>+l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> \<currency>\<^sup>?l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 \<Rightarrow> [r\<^sub>3, l\<^sub>3\<^sub>0]
     \<approx>\<^sub>\<flat>
-    \<currency>\<^sup>+l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> \<currency>\<^sup>?l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0"
+    \<currency>\<^sup>+l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> \<currency>\<^sup>?l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0"
     using distributor_split sorry
   moreover have "\<And>l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0.
     \<currency>\<^sup>+l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> \<currency>\<^sup>?l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 \<Rightarrow> [r\<^sub>3, l\<^sub>3\<^sub>0]
     \<approx>\<^sub>\<flat>
-    \<currency>\<^sup>+l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> \<currency>\<^sup>?l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0"
+    \<currency>\<^sup>+l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> \<currency>\<^sup>?l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0"
     using distributor_split sorry
   ultimately show ?thesis
     using basic_weak_bisimilarity_in_proper_weak_bisimilarity sorry
