@@ -125,7 +125,9 @@ text \<open>
 lemma bisimilarity_transitivity: "transp (\<sim>)"
 unfolding transp_relcompp proof in_bisimilarity_standard
   case symmetry
-  show ?case by (blast intro: sympI)
+  show ?case
+    unfolding symp_def and bisimilarity_def
+    by blast
 next
   case is_simulation
   show ?case by (simp add: bisimilarity_is_simulation composition_sim_propagation)

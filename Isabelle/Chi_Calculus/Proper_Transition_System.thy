@@ -273,7 +273,7 @@ private lemma proper_pre_receive_scope_extension_ltr: "a \<triangleright> x. \<n
 proof (standard, intro allI, intro impI)
   fix c
   assume "a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<sharp>c"
-  then show "\<exists>d. \<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<sharp>d \<and> proper_lift (\<sim>\<^sub>\<sharp>) c d"
+  then show "\<exists>d. \<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<sharp>d \<and> proper_lift (\<lambda>p q. p \<lesssim>\<^sub>\<sharp> q \<and> q \<lesssim>\<^sub>\<sharp> p) c d"
   proof cases
     case (simple \<delta> q)
     from \<open>a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> q\<close>
@@ -285,7 +285,10 @@ proof (standard, intro allI, intro impI)
     with \<open>c = \<lparr>\<delta>\<rparr> q\<close> and \<open>q = \<nu> b. P x b\<close> have "\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<sharp>c"
       by (blast intro: proper_transition.simple)
     then show ?thesis
-      using proper.bisimilarity_reflexivity and proper.lift_reflexivity_propagation and reflpD
+      using
+        proper.bisimilarity_reflexivity [unfolded proper.bisimilarity_def] and
+        proper.lift_reflexivity_propagation and
+        reflpD
       by smt
   next
     case (output_without_opening a x q)
@@ -313,7 +316,7 @@ private lemma proper_pre_receive_scope_extension_rtl: "\<nu> b. a \<trianglerigh
 proof (standard, intro allI, intro impI)
   fix c
   assume "\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<sharp>c"
-  then show "\<exists>d. a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<sharp>d \<and> proper_lift (\<sim>\<^sub>\<sharp>) c d"
+  then show "\<exists>d. a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<sharp>d \<and> proper_lift (\<lambda>p q. p \<lesssim>\<^sub>\<sharp> q \<and> q \<lesssim>\<^sub>\<sharp> p) c d"
   proof cases
     case (simple \<delta> r)
     from \<open>\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> r\<close> show ?thesis
@@ -336,7 +339,10 @@ proof (standard, intro allI, intro impI)
       ultimately have "a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<sharp>c"
         by (blast intro: proper_transition.simple)
       then show ?thesis
-        using proper.bisimilarity_reflexivity and proper.lift_reflexivity_propagation and reflpD
+        using
+          proper.bisimilarity_reflexivity [unfolded proper.bisimilarity_def] and
+          proper.lift_reflexivity_propagation and
+          reflpD
         by smt
     qed
   next
@@ -370,6 +376,7 @@ proof (standard, intro allI, intro impI)
 qed
 
 lemma proper_receive_scope_extension: "a \<triangleright> x. \<nu> b. P x b \<sim>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
+  unfolding proper.bisimilarity_def
   by standard (
     fact proper_pre_receive_scope_extension_ltr,
     fact proper_pre_receive_scope_extension_rtl
@@ -448,7 +455,7 @@ proof
 qed
 
 private lemma proper_stop_scope_redundancy: "\<zero> \<sim>\<^sub>\<sharp> \<nu> a. \<zero>"
-proof
+unfolding proper.bisimilarity_def proof
   show "\<zero> \<lesssim>\<^sub>\<sharp> \<nu> a. \<zero>"
     using no_proper_transitions_from_stop
     by (blast intro: proper.pre_bisimilarity)

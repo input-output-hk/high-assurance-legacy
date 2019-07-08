@@ -121,10 +121,10 @@ text \<open>
 
 coinductive
   pre_bisimilarity :: "['process, 'process] \<Rightarrow> bool" (infix "\<lesssim>" 50)
-and
-  bisimilarity :: "['process, 'process] \<Rightarrow> bool" (infix "\<sim>" 50)
 where
-  pre_bisimilarity: "transfer (\<sim>) p q \<Longrightarrow> p \<lesssim> q" |
+  pre_bisimilarity: "transfer (\<lambda>p q. p \<lesssim> q \<and> q \<lesssim> p) p q \<Longrightarrow> p \<lesssim> q"
+
+definition bisimilarity :: "['process, 'process] \<Rightarrow> bool" (infix "\<sim>" 50) where
   "p \<sim> q \<equiv> p \<lesssim> q \<and> q \<lesssim> p"
 
 subsubsection \<open>Symmetry\<close>
@@ -137,7 +137,7 @@ text \<open>
 \<close>
 
 lemma bisimilarity_symmetry_rule [sym]: "p \<sim> q \<Longrightarrow> q \<sim> p"
-  by simp
+  by (simp add: bisimilarity_def)
 lemma bisimilarity_symmetry: "symp (\<sim>)"
   using bisimilarity_symmetry_rule ..
 
@@ -148,13 +148,8 @@ text \<open>
 \<close>
 
 lemma bisimilarity_is_simulation: "sim (\<sim>)"
-proof -
-  have "(\<sim>) \<le> (\<lesssim>)"
-    by blast
-  also have "\<dots> \<le> transfer (\<sim>)"
-    by (blast elim: pre_bisimilarity.cases)
-  finally show ?thesis .
-qed
+  unfolding bisimilarity_def
+  by (blast elim: pre_bisimilarity.cases)
 
 text \<open>
   Bisimilarity is a bisimulation relation.
@@ -216,6 +211,7 @@ proof -
   then have "\<X>\<inverse>\<inverse> \<le> (\<lesssim>)"
     by (fact bisimulation_in_pre_bisimilarity)
   ultimately show "\<X> \<le> (\<sim>)"
+    unfolding bisimilarity_def
     by blast
 qed
 
