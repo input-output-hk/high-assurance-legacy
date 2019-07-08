@@ -82,4 +82,47 @@ lemma basic_weak_parallel_commutativity: "p \<parallel> q \<approx>\<^sub>\<flat
 lemma basic_weak_parallel_associativity: "(p \<parallel> q) \<parallel> r \<approx>\<^sub>\<flat> p \<parallel> (q \<parallel> r)"
   sorry
 
+lemma basic_weak_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r) \<approx>\<^sub>\<flat> q \<parallel> (p \<parallel> r)"
+  sorry
+
+subsection \<open>Equivalence Simplifier Setup\<close>
+
+context begin
+
+private quotient_type behavior = process / "(\<approx>\<^sub>\<flat>)"
+  using basic.weak.bisimilarity_is_equivalence .
+
+private lift_definition stop :: behavior is Stop .
+
+private lift_definition send :: "[chan, val] \<Rightarrow> behavior" is Send .
+
+private lift_definition receive :: "[chan, val \<Rightarrow> behavior] \<Rightarrow> behavior" is Receive
+  using basic_weak_receive_preservation .
+
+private lift_definition parallel :: "[behavior, behavior] \<Rightarrow> behavior" is Parallel
+  using basic_weak_parallel_preservation .
+
+private lift_definition new_channel :: "(chan \<Rightarrow> behavior) \<Rightarrow> behavior" is NewChannel
+  using basic_weak_new_channel_preservation .
+
+lemmas [equivalence_simp_goal_preparation] =
+  behavior.abs_eq_iff
+  stop.abs_eq
+  send.abs_eq
+  receive.abs_eq
+  parallel.abs_eq
+  new_channel.abs_eq
+
+end
+
+lemmas [equivalence_simp] =
+  basic_weak_parallel_scope_extension_left
+  basic_weak_parallel_scope_extension_right
+  basic_weak_new_channel_scope_extension
+  basic_weak_parallel_unit_left
+  basic_weak_parallel_unit_right
+  basic_weak_parallel_associativity
+  basic_weak_parallel_commutativity
+  basic_weak_parallel_nested_commutativity
+
 end
