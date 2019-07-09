@@ -60,6 +60,35 @@ syntax
 translations
   "\<Prod>x\<leftarrow>xs. p" \<rightleftharpoons> "CONST parallel_list (CONST map (\<lambda>x. p) xs)"
 
+(* FIXME:
+  Every occurrence of “preservation” in the following part (including in comments) should be
+  replaced by “compatibility” later.
+*)
+
+text \<open>
+  We prove some lemmas from which we can construct \<open>\<Prod>\<close>-preservation laws for different bisimilarity
+  relations.
+\<close>
+
+lemma map_preservation:
+  fixes R (infix "\<sim>" 50)
+  assumes "\<And>x. f x \<sim> g x"
+  shows "list_all2 (\<sim>) (map f xs) (map g xs)"
+  using assms by (induction xs) simp_all
+
+lemma parallel_list_preservation:
+  fixes R (infix "\<sim>" 50)
+  assumes bisimilarity_reflexivity_rule:
+    "\<And>p. p \<sim> p"
+  assumes parallel_preservation:
+    "\<And>p\<^sub>1 p\<^sub>2 q\<^sub>1 q\<^sub>2. \<lbrakk>p\<^sub>1 \<sim> p\<^sub>2; q\<^sub>1 \<sim> q\<^sub>2\<rbrakk> \<Longrightarrow> p\<^sub>1 \<parallel> q\<^sub>1 \<sim> p\<^sub>2 \<parallel> q\<^sub>2"
+  assumes are_bisimilar:
+    "list_all2 (\<sim>) xs ys"
+  shows
+    "parallel_list xs \<sim> parallel_list ys"
+  using are_bisimilar and bisimilarity_reflexivity_rule and parallel_preservation
+  by induction simp_all
+  
 text \<open>
   This is all for processes.
 \<close>

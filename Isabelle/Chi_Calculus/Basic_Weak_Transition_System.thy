@@ -87,31 +87,58 @@ lemma basic_weak_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r)
 
 subsection \<open>Equivalence Simplifier Setup\<close>
 
-context begin
-
-private quotient_type behavior = process / "(\<approx>\<^sub>\<flat>)"
+quotient_type basic_weak_behavior = process / "(\<approx>\<^sub>\<flat>)"
   using basic.weak.bisimilarity_is_equivalence .
 
-private lift_definition stop :: behavior is Stop .
+declare basic_weak_behavior.abs_eq_iff [equivalence_simp_goal_preparation]
 
-private lift_definition send :: "[chan, val] \<Rightarrow> behavior" is Send .
+context begin
 
-private lift_definition receive :: "[chan, val \<Rightarrow> behavior] \<Rightarrow> behavior" is Receive
+private
+  lift_definition stop' :: basic_weak_behavior
+  is Stop .
+
+private
+  lift_definition send' :: "[chan, val] \<Rightarrow> basic_weak_behavior"
+  is Send .
+
+private
+  lift_definition receive' :: "[chan, val \<Rightarrow> basic_weak_behavior] \<Rightarrow> basic_weak_behavior"
+  is Receive
   using basic_weak_receive_preservation .
 
-private lift_definition parallel :: "[behavior, behavior] \<Rightarrow> behavior" is Parallel
+private
+  lift_definition parallel' :: "[basic_weak_behavior, basic_weak_behavior] \<Rightarrow> basic_weak_behavior"
+  is Parallel
   using basic_weak_parallel_preservation .
 
-private lift_definition new_channel :: "(chan \<Rightarrow> behavior) \<Rightarrow> behavior" is NewChannel
+private
+  lift_definition new_channel' :: "(chan \<Rightarrow> basic_weak_behavior) \<Rightarrow> basic_weak_behavior"
+  is NewChannel
   using basic_weak_new_channel_preservation .
 
+private
+  lift_definition map' :: "['a \<Rightarrow> basic_weak_behavior, 'a list] \<Rightarrow> basic_weak_behavior list"
+  is map
+  using map_preservation .
+
+private
+  lift_definition parallel_list' :: "basic_weak_behavior list \<Rightarrow> basic_weak_behavior"
+  is parallel_list
+  using
+    basic.weak.bisimilarity_reflexivity_rule and
+    basic_weak_parallel_preservation and
+    parallel_list_preservation
+  sorry
+
 lemmas [equivalence_simp_goal_preparation] =
-  behavior.abs_eq_iff
-  stop.abs_eq
-  send.abs_eq
-  receive.abs_eq
-  parallel.abs_eq
-  new_channel.abs_eq
+  stop'.abs_eq
+  send'.abs_eq
+  receive'.abs_eq
+  parallel'.abs_eq
+  new_channel'.abs_eq
+  map'.abs_eq
+  parallel_list'.abs_eq
 
 end
 
