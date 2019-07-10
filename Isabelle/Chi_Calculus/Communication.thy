@@ -12,6 +12,32 @@ syntax
 translations
   "a \<triangleright>\<^sup>\<infinity> x. p" \<rightleftharpoons> "CONST multi_receive a (\<lambda>x. p)"
 
+context begin
+
+private lift_definition basic :: "[chan, val \<Rightarrow> basic_behavior] \<Rightarrow> basic_behavior"
+  is multi_receive
+  sorry
+
+private lift_definition basic_weak :: "[chan, val \<Rightarrow> basic_weak_behavior] \<Rightarrow> basic_weak_behavior"
+  is multi_receive
+  sorry
+
+private lift_definition proper :: "[chan, val \<Rightarrow> proper_behavior] \<Rightarrow> proper_behavior"
+  is multi_receive
+  sorry
+
+private lift_definition proper_weak :: "[chan, val \<Rightarrow> proper_weak_behavior] \<Rightarrow> proper_weak_behavior"
+  is multi_receive
+  sorry
+
+lemmas [equivalence_simp_goal_preparation] =
+  basic.abs_eq
+  basic_weak.abs_eq
+  proper.abs_eq
+  proper_weak.abs_eq
+
+end
+
 lemma multi_receive_idempotency: "a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> a \<triangleright>\<^sup>\<infinity> x. P x \<sim>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. P x"
   sorry
 

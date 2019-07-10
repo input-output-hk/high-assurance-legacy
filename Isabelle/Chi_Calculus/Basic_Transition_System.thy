@@ -1,7 +1,7 @@
 section \<open>Basic Transition System\<close>
 
 theory Basic_Transition_System
-  imports Transition_Systems.Transition_Systems Processes
+  imports Utilities.Equivalences Transition_Systems.Transition_Systems Processes
 begin
 
 subsection \<open>Actions\<close>
@@ -1421,6 +1421,79 @@ proof -
 qed
 
 end
+
+text \<open>
+  Facts like the following are called left commutativity in Subsection~9.3.3 of the Isar Reference
+  Manual. We do not use this term, as it would be inconsistent with our use of the words ``left''
+  and ``right'' in other fact names.
+
+  Currently there is a similar fact proved as a private lemma \<open>nested_parallel_commutativity\<close> above.
+  Our goal for the future is to prove the lemma below directly and drop
+  \<open>nested_parallel_commutativity\<close>.
+\<close>
+
+lemma basic_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r) \<sim>\<^sub>\<flat> q \<parallel> (p \<parallel> r)"
+  sorry
+
+subsection \<open>Equivalence Simplifier Setup\<close>
+
+quotient_type basic_behavior = process / "(\<sim>\<^sub>\<flat>)"
+  using basic.bisimilarity_is_equivalence .
+
+declare basic_behavior.abs_eq_iff [equivalence_simp_goal_preparation]
+
+context begin
+
+private lift_definition stop' :: basic_behavior
+  is Stop .
+
+private lift_definition send' :: "[chan, val] \<Rightarrow> basic_behavior"
+  is Send .
+
+private lift_definition receive' :: "[chan, val \<Rightarrow> basic_behavior] \<Rightarrow> basic_behavior"
+  is Receive
+  using basic_receive_preservation .
+
+private lift_definition parallel' :: "[basic_behavior, basic_behavior] \<Rightarrow> basic_behavior"
+  is Parallel
+  using basic_parallel_preservation .
+
+private lift_definition new_channel' :: "(chan \<Rightarrow> basic_behavior) \<Rightarrow> basic_behavior"
+  is NewChannel
+  using basic_new_channel_preservation .
+
+private lift_definition map' :: "['a \<Rightarrow> basic_behavior, 'a list] \<Rightarrow> basic_behavior list"
+  is map
+  using map_preservation .
+
+private lift_definition parallel_list' :: "basic_behavior list \<Rightarrow> basic_behavior"
+  is parallel_list
+  using
+    basic.bisimilarity_reflexivity_rule and
+    basic_parallel_preservation and
+    parallel_list_preservation
+  sorry
+
+lemmas [equivalence_simp_goal_preparation] =
+  stop'.abs_eq
+  send'.abs_eq
+  receive'.abs_eq
+  parallel'.abs_eq
+  new_channel'.abs_eq
+  map'.abs_eq
+  parallel_list'.abs_eq
+
+end
+
+lemmas [equivalence_simp] =
+  basic_parallel_scope_extension_left
+  basic_parallel_scope_extension_right
+  basic_new_channel_scope_extension
+  basic_parallel_unit_left
+  basic_parallel_unit_right
+  basic_parallel_associativity
+  basic_parallel_commutativity
+  basic_parallel_nested_commutativity
 
 subsection \<open>Conclusion\<close>
 

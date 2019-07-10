@@ -90,4 +90,75 @@ lemma proper_weak_parallel_commutativity: "p \<parallel> q \<approx>\<^sub>\<sha
 lemma proper_weak_parallel_associativity: "(p \<parallel> q) \<parallel> r \<approx>\<^sub>\<sharp> p \<parallel> (q \<parallel> r)"
   sorry
 
+lemma proper_weak_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r) \<approx>\<^sub>\<sharp> q \<parallel> (p \<parallel> r)"
+  sorry
+
+subsection \<open>Equivalence Simplifier Setup\<close>
+
+quotient_type proper_weak_behavior = process / "(\<approx>\<^sub>\<sharp>)"
+  using proper.weak.bisimilarity_is_equivalence .
+
+declare proper_weak_behavior.abs_eq_iff [equivalence_simp_goal_preparation]
+
+context begin
+
+private
+  lift_definition stop' :: proper_weak_behavior
+  is Stop .
+
+private
+  lift_definition send' :: "[chan, val] \<Rightarrow> proper_weak_behavior"
+  is Send .
+
+private
+  lift_definition receive' :: "[chan, val \<Rightarrow> proper_weak_behavior] \<Rightarrow> proper_weak_behavior"
+  is Receive
+  using proper_weak_receive_preservation .
+
+private
+  lift_definition parallel' :: "[proper_weak_behavior, proper_weak_behavior] \<Rightarrow> proper_weak_behavior"
+  is Parallel
+  using proper_weak_parallel_preservation .
+
+private
+  lift_definition new_channel' :: "(chan \<Rightarrow> proper_weak_behavior) \<Rightarrow> proper_weak_behavior"
+  is NewChannel
+  using proper_weak_new_channel_preservation .
+
+private
+  lift_definition map' :: "['a \<Rightarrow> proper_weak_behavior, 'a list] \<Rightarrow> proper_weak_behavior list"
+  is map
+  using map_preservation .
+
+private
+  lift_definition parallel_list' :: "proper_weak_behavior list \<Rightarrow> proper_weak_behavior"
+  is parallel_list
+  using
+    proper.weak.bisimilarity_reflexivity_rule and
+    proper_weak_parallel_preservation and
+    parallel_list_preservation
+  sorry
+
+lemmas [equivalence_simp_goal_preparation] =
+  stop'.abs_eq
+  send'.abs_eq
+  receive'.abs_eq
+  parallel'.abs_eq
+  new_channel'.abs_eq
+  map'.abs_eq
+  parallel_list'.abs_eq
+
+end
+
+lemmas [equivalence_simp] =
+  proper_weak_receive_scope_extension
+  proper_weak_parallel_scope_extension_left
+  proper_weak_parallel_scope_extension_right
+  proper_weak_new_channel_scope_extension
+  proper_weak_parallel_unit_left
+  proper_weak_parallel_unit_right
+  proper_weak_parallel_associativity
+  proper_weak_parallel_commutativity
+  proper_weak_parallel_nested_commutativity
+
 end

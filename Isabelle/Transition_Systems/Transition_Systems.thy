@@ -133,6 +133,14 @@ qed
 lemma bisimilarity_transitivity_rule [trans]: "\<lbrakk> p \<sim> q; q \<sim> r \<rbrakk> \<Longrightarrow> p \<sim> r"
   using bisimilarity_transitivity ..
 
+subsubsection \<open>Bisimilarity as an Equivalence Relation\<close>
+
+lemma bisimilarity_is_equivalence:
+  shows "equivp (\<sim>)"
+  by
+    (intro equivpI)
+    (fact bisimilarity_reflexivity, fact bisimilarity_symmetry, fact bisimilarity_transitivity)
+
 subsection \<open>Conclusion\<close>
 
 text \<open>

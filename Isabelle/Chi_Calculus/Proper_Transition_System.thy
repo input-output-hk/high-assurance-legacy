@@ -403,6 +403,10 @@ lemma proper_parallel_associativity: "(p \<parallel> q) \<parallel> r \<sim>\<^s
   using basic_parallel_associativity
   by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
 
+lemma proper_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r) \<sim>\<^sub>\<sharp> q \<parallel> (p \<parallel> r)"
+  using basic_parallel_nested_commutativity
+  by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
+
 context begin
 
 private lemma opening_transitions_from_new_channel_stop: "\<nu> a. \<zero> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<Longrightarrow> P a = \<zero>"
@@ -472,6 +476,67 @@ proof -
 qed
 
 end
+
+subsection \<open>Equivalence Simplifier Setup\<close>
+
+quotient_type proper_behavior = process / "(\<sim>\<^sub>\<sharp>)"
+  using proper.bisimilarity_is_equivalence .
+
+declare proper_behavior.abs_eq_iff [equivalence_simp_goal_preparation]
+
+context begin
+
+private lift_definition stop' :: proper_behavior
+  is Stop .
+
+private lift_definition send' :: "[chan, val] \<Rightarrow> proper_behavior"
+  is Send .
+
+private lift_definition receive' :: "[chan, val \<Rightarrow> proper_behavior] \<Rightarrow> proper_behavior"
+  is Receive
+  using proper_receive_preservation .
+
+private lift_definition parallel' :: "[proper_behavior, proper_behavior] \<Rightarrow> proper_behavior"
+  is Parallel
+  using proper_parallel_preservation .
+
+private lift_definition new_channel' :: "(chan \<Rightarrow> proper_behavior) \<Rightarrow> proper_behavior"
+  is NewChannel
+  using proper_new_channel_preservation .
+
+private lift_definition map' :: "['a \<Rightarrow> proper_behavior, 'a list] \<Rightarrow> proper_behavior list"
+  is map
+  using map_preservation .
+
+private lift_definition parallel_list' :: "proper_behavior list \<Rightarrow> proper_behavior"
+  is parallel_list
+  using
+    proper.bisimilarity_reflexivity_rule and
+    proper_parallel_preservation and
+    parallel_list_preservation
+  sorry
+
+lemmas [equivalence_simp_goal_preparation] =
+  stop'.abs_eq
+  send'.abs_eq
+  receive'.abs_eq
+  parallel'.abs_eq
+  new_channel'.abs_eq
+  map'.abs_eq
+  parallel_list'.abs_eq
+
+end
+
+lemmas [equivalence_simp] =
+  proper_receive_scope_extension
+  proper_parallel_scope_extension_left
+  proper_parallel_scope_extension_right
+  proper_new_channel_scope_extension
+  proper_parallel_unit_left
+  proper_parallel_unit_right
+  proper_parallel_associativity
+  proper_parallel_commutativity
+  proper_parallel_nested_commutativity
 
 subsection \<open>Conclusion\<close>
 
