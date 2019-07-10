@@ -361,17 +361,18 @@ proof (standard, intro allI, intro impI)
   assume "\<And>x. P x \<sim>\<^sub>\<flat> Q x"
   fix c
   assume "a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>c"
-  then show "\<exists>d. a \<triangleright> x. Q x \<rightarrow>\<^sub>\<flat>d \<and> basic_lift (\<sim>\<^sub>\<flat>) c d"
+  then show "\<exists>d. a \<triangleright> x. Q x \<rightarrow>\<^sub>\<flat>d \<and> basic_lift (\<lambda>p q. p \<lesssim>\<^sub>\<flat> q \<and> q \<lesssim>\<^sub>\<flat> p) c d"
   proof cases
     case receiving
     with \<open>\<And>x. P x \<sim>\<^sub>\<flat> Q x\<close> show ?thesis
+      unfolding basic.bisimilarity_def
       using basic_transition.receiving and acting_lift
       by (metis (no_types, lifting))
   qed (simp_all add: no_opening_transitions_from_receive)
 qed
 
 lemma basic_receive_preservation: "(\<And>x. P x \<sim>\<^sub>\<flat> Q x) \<Longrightarrow> a \<triangleright> x. P x \<sim>\<^sub>\<flat> a \<triangleright> x. Q x"
-  by (simp add: basic_pre_receive_preservation)
+  by (simp add: basic_pre_receive_preservation basic.bisimilarity_def)
 
 end
 
@@ -392,7 +393,8 @@ proof (old_bisimilarity_standard parallel_preservation_left_aux)
   then show ?case by (fact parallel_preservation_left_aux.without_new_channel)
 next
   case sym
-  then show ?case by induction (simp_all add: parallel_preservation_left_aux.intros)
+  then show ?case
+    by induction (simp_all add: basic.bisimilarity_def parallel_preservation_left_aux.intros)
 next
   case (sim s t c)
   then show ?case
@@ -402,6 +404,7 @@ next
     proof cases
       case (without_new_channel q)
       from \<open>p \<sim>\<^sub>\<flat> q\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'\<close> obtain q' where "q \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> q'" and "p' \<sim>\<^sub>\<flat> q'"
+        unfolding basic.bisimilarity_def
         using 
           basic.pre_bisimilarity.cases and
           basic_residual.inject(1) and
@@ -429,6 +432,7 @@ next
     proof cases
       case (without_new_channel q)
       from \<open>p \<sim>\<^sub>\<flat> q\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p'\<close> obtain q' where "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q'" and "p' \<sim>\<^sub>\<flat> q'"
+        unfolding basic.bisimilarity_def
         using 
           basic.pre_bisimilarity.cases and
           basic_residual.inject(1) and
@@ -460,6 +464,7 @@ next
       case (without_new_channel q)
       from \<open>p \<sim>\<^sub>\<flat> q\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a\<close>
       obtain Q where "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a" and "\<And>a. P a \<sim>\<^sub>\<flat> Q a"
+        unfolding basic.bisimilarity_def
         by (force elim: basic.pre_bisimilarity.cases basic_lift_cases rel_funE)
       from \<open>q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a\<close> have "q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<parallel> r"
         by (fact basic_transition.opening_left)
@@ -507,6 +512,7 @@ where
 
 private method new_channel_preservation_aux_trivial_conveyance =
   (smt
+    basic.bisimilarity_def
     basic.pre_bisimilarity.cases
     new_channel_preservation_aux.without_new_channel
     basic.lift_monotonicity
@@ -519,7 +525,8 @@ proof (old_bisimilarity_standard new_channel_preservation_aux)
   then show ?case by (simp add: new_channel_preservation_aux.intros)
 next
   case sym
-  then show ?case by induction (simp_all add: new_channel_preservation_aux.intros)
+  then show ?case
+    by induction (simp_all add: basic.bisimilarity_def new_channel_preservation_aux.intros)
 next
   case (sim s t c)
   from this and \<open>s \<rightarrow>\<^sub>\<flat>c\<close> show ?case
@@ -928,13 +935,16 @@ proof (standard, intro allI, intro impI)
     case scoped_opening
     then show ?case by (simp add: basic_transition.scoped_opening)
   qed
-  then show "\<exists>d. \<nu> a. \<nu> b. P a b \<rightarrow>\<^sub>\<flat>d \<and> basic_lift (\<sim>\<^sub>\<flat>) c d"
-    using basic.bisimilarity_reflexivity and basic.lift_reflexivity_propagation and reflpD
+  then show "\<exists>d. \<nu> a. \<nu> b. P a b \<rightarrow>\<^sub>\<flat>d \<and> basic_lift (\<lambda>p q. p \<lesssim>\<^sub>\<flat> q \<and> q \<lesssim>\<^sub>\<flat> p) c d"
+    using
+      basic.bisimilarity_reflexivity [unfolded basic.bisimilarity_def] and
+      basic.lift_reflexivity_propagation and
+      reflpD
     by smt
 qed
 
 lemma basic_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<sim>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
-  by (simp add: basic_pre_new_channel_scope_extension)
+  by (simp add: basic_pre_new_channel_scope_extension basic.bisimilarity_def)
 
 end
 
@@ -1401,7 +1411,8 @@ qed
 lemma basic_parallel_commutativity: "p \<parallel> q \<sim>\<^sub>\<flat> q \<parallel> p"
 proof -
   have "p \<parallel> q \<sim>\<^sub>\<flat> (\<zero> \<parallel> p) \<parallel> q"
-    using basic_parallel_unit_left and basic_parallel_preservation_left by blast
+    using basic_parallel_unit_left and basic_parallel_preservation_left
+    by (simp add: basic.bisimilarity_def)
   also have "(\<zero> \<parallel> p) \<parallel> q \<sim>\<^sub>\<flat> (\<zero> \<parallel> q) \<parallel> p"
     by (fact basic_nested_parallel_commutativity)
   also have "(\<zero> \<parallel> q) \<parallel> p \<sim>\<^sub>\<flat> q \<parallel> p"

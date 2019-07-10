@@ -165,13 +165,13 @@ lemma receive_collapse:
     \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> receive_collapsed_network r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3"
 proof -
   have "\<And>l\<^sub>3\<^sub>0 l\<^sub>0\<^sub>1. l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> r\<^sub>1 \<approx>\<^sub>\<flat> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>1"
-    by (simp add: source_switch bidirectional_bridge_commutativity)
+    by (simp add: source_switch [THEN basic.weak.bisimilarity_symmetry_rule] bidirectional_bridge_commutativity)
   moreover have "\<And>l\<^sub>3\<^sub>0 l\<^sub>0\<^sub>2. l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> r\<^sub>2 \<approx>\<^sub>\<flat> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>2"
-    by (simp add: source_switch bidirectional_bridge_commutativity)
+    by (simp add: source_switch [THEN basic.weak.bisimilarity_symmetry_rule] bidirectional_bridge_commutativity)
   moreover have "\<And>l\<^sub>3\<^sub>0 l\<^sub>1\<^sub>3. l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> r\<^sub>3 \<approx>\<^sub>\<flat> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3"
-    by (simp add: source_switch bidirectional_bridge_commutativity)
+    by (simp add: source_switch [THEN basic.weak.bisimilarity_symmetry_rule] bidirectional_bridge_commutativity)
   moreover have "\<And>l\<^sub>3\<^sub>0 l\<^sub>2\<^sub>3. l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3 \<approx>\<^sub>\<flat> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3"
-    by (simp add: source_switch bidirectional_bridge_commutativity)
+    by (simp add: source_switch [THEN basic.weak.bisimilarity_symmetry_rule] bidirectional_bridge_commutativity)
   moreover have "\<And>l\<^sub>3\<^sub>0. l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3 \<approx>\<^sub>\<flat> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3"
     by (simp add: unidirectional_bridge_idempotency)
   ultimately show ?thesis
@@ -331,34 +331,34 @@ lemma links_collapse:
 proof -
   (* Disconnect l\<^sub>0\<^sub>1 and l\<^sub>0\<^sub>2. *)
   have "\<And>l\<^sub>0\<^sub>1 l\<^sub>3\<^sub>0 l\<^sub>0\<^sub>2. l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>0\<^sub>2 \<approx>\<^sub>\<flat> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2"
-    by (simp add: shortcut_addition)
+    by (simp add: shortcut_addition [THEN basic.weak.bisimilarity_symmetry_rule])
   moreover have "\<And>l\<^sub>0\<^sub>1 l\<^sub>3\<^sub>0 l\<^sub>0\<^sub>2. l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>0\<^sub>1 \<approx>\<^sub>\<flat> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1"
-    by (simp add: shortcut_addition)
+    by (simp add: shortcut_addition [THEN basic.weak.bisimilarity_symmetry_rule])
   (* Disconnect l\<^sub>0\<^sub>1 and l\<^sub>1\<^sub>3. *)
   moreover have "\<And>l\<^sub>0\<^sub>1 l\<^sub>3\<^sub>0 l\<^sub>1\<^sub>3. l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<approx>\<^sub>\<flat> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3"
-    by (simp add: shortcut_addition)
+    by (simp add: shortcut_addition [THEN basic.weak.bisimilarity_symmetry_rule])
   moreover have "\<And>l\<^sub>1\<^sub>3 l\<^sub>3\<^sub>0 l\<^sub>0\<^sub>1. l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<approx>\<^sub>\<flat> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1"
-    by (simp add: shortcut_addition)
+    by (simp add: shortcut_addition [THEN basic.weak.bisimilarity_symmetry_rule])
   (* Disconnect l\<^sub>0\<^sub>1 and l\<^sub>2\<^sub>3. *)
   moreover have "\<And>l\<^sub>0\<^sub>1 l\<^sub>3\<^sub>0 l\<^sub>2\<^sub>3. l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>2\<^sub>3 \<approx>\<^sub>\<flat> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3"
-    by (simp add: shortcut_addition)
+    by (simp add: shortcut_addition [THEN basic.weak.bisimilarity_symmetry_rule])
   moreover have "\<And>l\<^sub>0\<^sub>1 l\<^sub>3\<^sub>0 l\<^sub>2\<^sub>3. l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<approx>\<^sub>\<flat> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1"
-    by (simp add: shortcut_addition)
+    by (simp add: shortcut_addition [THEN basic.weak.bisimilarity_symmetry_rule])
   (* Disconnect l\<^sub>0\<^sub>2 and l\<^sub>1\<^sub>3. *)
   moreover have "\<And>l\<^sub>0\<^sub>2 l\<^sub>3\<^sub>0 l\<^sub>1\<^sub>3. l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>1\<^sub>3 \<approx>\<^sub>\<flat> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3"
-    by (simp add: shortcut_addition)
+    by (simp add: shortcut_addition [THEN basic.weak.bisimilarity_symmetry_rule])
   moreover have "\<And>l\<^sub>1\<^sub>3 l\<^sub>3\<^sub>0 l\<^sub>0\<^sub>2. l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2 \<approx>\<^sub>\<flat> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2"
-    by (simp add: shortcut_addition)
+    by (simp add: shortcut_addition [THEN basic.weak.bisimilarity_symmetry_rule])
   (* Disconnect l\<^sub>0\<^sub>2 and l\<^sub>2\<^sub>3. *)
   moreover have "\<And>l\<^sub>0\<^sub>2 l\<^sub>3\<^sub>0 l\<^sub>2\<^sub>3. l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<approx>\<^sub>\<flat> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3"
-    by (simp add: shortcut_addition)
+    by (simp add: shortcut_addition [THEN basic.weak.bisimilarity_symmetry_rule])
   moreover have "\<And>l\<^sub>0\<^sub>2 l\<^sub>3\<^sub>0 l\<^sub>2\<^sub>3. l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2 \<approx>\<^sub>\<flat> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2"
-    by (simp add: shortcut_addition)
+    by (simp add: shortcut_addition [THEN basic.weak.bisimilarity_symmetry_rule])
   (* Disconnect l\<^sub>1\<^sub>3 and l\<^sub>2\<^sub>3. *)
   moreover have "\<And>l\<^sub>1\<^sub>3 l\<^sub>3\<^sub>0 l\<^sub>2\<^sub>3. l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>2\<^sub>3 \<approx>\<^sub>\<flat> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3"
-    by (simp add: shortcut_addition)
+    by (simp add: shortcut_addition [THEN basic.weak.bisimilarity_symmetry_rule])
   moreover have "\<And>l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 l\<^sub>1\<^sub>3. l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>1\<^sub>3 \<approx>\<^sub>\<flat> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3"
-    by (simp add: shortcut_addition)
+    by (simp add: shortcut_addition [THEN basic.weak.bisimilarity_symmetry_rule])
   (* Remove l\<^sub>0\<^sub>1. *)
   moreover have "\<And>l\<^sub>3\<^sub>0. \<nu> l\<^sub>0\<^sub>1. (\<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1) \<approx>\<^sub>\<sharp> \<currency>\<^sup>*l\<^sub>3\<^sub>0"
     by (simp add: duploss_detour_collapse)
