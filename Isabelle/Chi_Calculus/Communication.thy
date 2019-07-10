@@ -12,6 +12,11 @@ syntax
 translations
   "a \<triangleright>\<^sup>\<infinity> x. p" \<rightleftharpoons> "CONST multi_receive a (\<lambda>x. p)"
 
+(* FIXME:
+  We should base the following either on \<open>natural_transition_system\<close> or on a sublocale of it (a
+  sublocale might be necessary as the axioms of \<open>natural_transition_system\<close> might not be enough to
+  prove the compatibility law for \<open>\<triangleright>\<^sup>\<infinity>\<close>).
+*)
 context begin
 
 private lift_definition basic :: "[chan, val \<Rightarrow> basic_behavior] \<Rightarrow> basic_behavior"

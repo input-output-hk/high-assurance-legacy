@@ -267,6 +267,18 @@ lemma proper_parallel_preservation: "\<lbrakk>p\<^sub>1 \<sim>\<^sub>\<sharp> p\
 lemma proper_new_channel_preservation: "(\<And>a. P a \<sim>\<^sub>\<sharp> Q a) \<Longrightarrow> \<nu> a. P a \<sim>\<^sub>\<sharp> \<nu> a. Q a"
   sorry
 
+(* FIXME:
+  This interpretation should not just appear inside the part on core properties.
+*)
+interpretation proper: natural_transition_system proper_lift proper_transition
+  by
+    unfold_locales
+    (
+      fact proper_receive_preservation,
+      fact proper_parallel_preservation,
+      fact proper_new_channel_preservation
+    )
+
 context begin
 
 private lemma proper_pre_receive_scope_extension_ltr: "a \<triangleright> x. \<nu> b. P x b \<lesssim>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
@@ -513,15 +525,11 @@ private lift_definition new_channel' :: "(chan \<Rightarrow> proper_behavior) \<
 
 private lift_definition map' :: "['a \<Rightarrow> proper_behavior, 'a list] \<Rightarrow> proper_behavior list"
   is map
-  using map_preservation .
+  using proper.map_preservation .
 
 private lift_definition parallel_list' :: "proper_behavior list \<Rightarrow> proper_behavior"
   is parallel_list
-  using
-    proper.bisimilarity_reflexivity_rule and
-    proper_parallel_preservation and
-    parallel_list_preservation
-  sorry
+  using proper.parallel_list_preservation .
 
 lemmas [equivalence_simp_goal_preparation] =
   stop'.abs_eq

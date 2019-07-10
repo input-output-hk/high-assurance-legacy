@@ -1,7 +1,7 @@
 section \<open>Basic Transition System\<close>
 
 theory Basic_Transition_System
-  imports Utilities.Equivalences Transition_Systems.Transition_Systems Processes
+  imports Utilities.Equivalences Natural_Transition_Systems
 begin
 
 subsection \<open>Actions\<close>
@@ -571,6 +571,18 @@ next
 qed
 
 end
+
+(* FIXME:
+  This interpretation should not just appear inside the part on core properties.
+*)
+interpretation basic: natural_transition_system basic_lift basic_transition
+  by
+    unfold_locales
+    (
+      fact basic_receive_preservation,
+      fact basic_parallel_preservation,
+      fact basic_new_channel_preservation
+    )
 
 context begin
 
@@ -1475,15 +1487,11 @@ private lift_definition new_channel' :: "(chan \<Rightarrow> basic_behavior) \<R
 
 private lift_definition map' :: "['a \<Rightarrow> basic_behavior, 'a list] \<Rightarrow> basic_behavior list"
   is map
-  using map_preservation .
+  using basic.map_preservation .
 
 private lift_definition parallel_list' :: "basic_behavior list \<Rightarrow> basic_behavior"
   is parallel_list
-  using
-    basic.bisimilarity_reflexivity_rule and
-    basic_parallel_preservation and
-    parallel_list_preservation
-  sorry
+  using basic.parallel_list_preservation .
 
 lemmas [equivalence_simp_goal_preparation] =
   stop'.abs_eq
