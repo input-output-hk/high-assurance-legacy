@@ -92,6 +92,10 @@ quotient_type basic_weak_behavior = process / "(\<approx>\<^sub>\<flat>)"
 
 declare basic_weak_behavior.abs_eq_iff [equivalence_simp_goal_preparation]
 
+(* FIXME:
+  Once #14 is resolved, the following should be done based on \<open>natural_transition_system\<close>, like in
+  the strong case.
+*)
 context begin
 
 private
@@ -120,15 +124,11 @@ private
 private
   lift_definition map' :: "['a \<Rightarrow> basic_weak_behavior, 'a list] \<Rightarrow> basic_weak_behavior list"
   is map
-  using map_preservation .
+  sorry
 
 private
   lift_definition parallel_list' :: "basic_weak_behavior list \<Rightarrow> basic_weak_behavior"
   is parallel_list
-  using
-    basic.weak.bisimilarity_reflexivity_rule and
-    basic_weak_parallel_preservation and
-    parallel_list_preservation
   sorry
 
 lemmas [equivalence_simp_goal_preparation] =
