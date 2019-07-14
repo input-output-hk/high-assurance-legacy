@@ -243,14 +243,14 @@ lemma basic_bisimilarity_is_proper_bisimulation: "proper.bisim (\<sim>\<^sub>\<f
   using basic.bisimilarity_symmetry and basic_bisimilarity_is_proper_simulation
   by (fact proper.symmetric_simulation_is_bisimulation)
 
-lemma basic_bisimilarity_in_proper_bisimilarity: "(\<sim>\<^sub>\<flat>) \<le> (\<sim>\<^sub>\<sharp>)"
+lemma basic_bisimilarity_in_proper_bisimilarity [equivalence]: "(\<sim>\<^sub>\<flat>) \<le> (\<sim>\<^sub>\<sharp>)"
   using basic_bisimilarity_is_proper_bisimulation
   by (fact proper.bisimulation_in_bisimilarity)
 
 lemma basic_bisimilarity_in_proper_bisimilarity_rule: "p \<sim>\<^sub>\<flat> q \<Longrightarrow> p \<sim>\<^sub>\<sharp> q"
   using basic_bisimilarity_in_proper_bisimilarity ..
 
-subsection \<open>Concrete Bisimilarities\<close>
+subsection \<open>The Basic Transition System as a Natural Transition System\<close>
 
 lemma proper_receive_preservation: "(\<And>x. P x \<sim>\<^sub>\<sharp> Q x) \<Longrightarrow> a \<triangleright> x. P x \<sim>\<^sub>\<sharp> a \<triangleright> x. Q x"
   sorry
@@ -267,9 +267,6 @@ lemma proper_parallel_preservation: "\<lbrakk>p\<^sub>1 \<sim>\<^sub>\<sharp> p\
 lemma proper_new_channel_preservation: "(\<And>a. P a \<sim>\<^sub>\<sharp> Q a) \<Longrightarrow> \<nu> a. P a \<sim>\<^sub>\<sharp> \<nu> a. Q a"
   sorry
 
-(* FIXME:
-  This interpretation should not just appear inside the part on core properties.
-*)
 interpretation proper: natural_transition_system proper_lift proper_transition
   by
     unfold_locales
@@ -278,6 +275,54 @@ interpretation proper: natural_transition_system proper_lift proper_transition
       fact proper_parallel_preservation,
       fact proper_new_channel_preservation
     )
+
+subsection \<open>Setup of the \<^theory_text>\<open>equivalence_simp\<close> Proof Method\<close>
+
+quotient_type proper_behavior = process / "(\<sim>\<^sub>\<sharp>)"
+  using proper.bisimilarity_is_equivalence .
+
+declare proper_behavior.abs_eq_iff [equivalence_transfer]
+
+context begin
+
+private lift_definition stop' :: proper_behavior
+  is Stop .
+
+private lift_definition send' :: "[chan, val] \<Rightarrow> proper_behavior"
+  is Send .
+
+private lift_definition receive' :: "[chan, val \<Rightarrow> proper_behavior] \<Rightarrow> proper_behavior"
+  is Receive
+  using proper_receive_preservation .
+
+private lift_definition parallel' :: "[proper_behavior, proper_behavior] \<Rightarrow> proper_behavior"
+  is Parallel
+  using proper_parallel_preservation .
+
+private lift_definition new_channel' :: "(chan \<Rightarrow> proper_behavior) \<Rightarrow> proper_behavior"
+  is NewChannel
+  using proper_new_channel_preservation .
+
+private lift_definition map' :: "['a \<Rightarrow> proper_behavior, 'a list] \<Rightarrow> proper_behavior list"
+  is map
+  using proper.map_preservation .
+
+private lift_definition parallel_list' :: "proper_behavior list \<Rightarrow> proper_behavior"
+  is parallel_list
+  using proper.parallel_list_preservation .
+
+lemmas [equivalence_transfer] =
+  stop'.abs_eq
+  send'.abs_eq
+  receive'.abs_eq
+  parallel'.abs_eq
+  new_channel'.abs_eq
+  map'.abs_eq
+  parallel_list'.abs_eq
+
+end
+
+subsection \<open>Core Bisimilarities\<close>
 
 context begin
 
@@ -387,7 +432,7 @@ proof (standard, intro allI, intro impI)
   qed
 qed
 
-lemma proper_receive_scope_extension: "a \<triangleright> x. \<nu> b. P x b \<sim>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
+lemma proper_receive_scope_extension [equivalence]: "a \<triangleright> x. \<nu> b. P x b \<sim>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
   unfolding proper.bisimilarity_def
   by standard (
     fact proper_pre_receive_scope_extension_ltr,
@@ -395,6 +440,13 @@ lemma proper_receive_scope_extension: "a \<triangleright> x. \<nu> b. P x b \<si
   )
 
 end
+
+subsection \<open>Core Bisimilarities\<close>
+
+(* FIXME:
+  The following lemmas until \<open>proper_parallel_nested_commutativity\<close> should be removed once all code
+  uses the automatic relaxation provided by the @{method equivalence} proof method.
+*)
 
 lemma proper_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<sharp> \<nu> a. (P a \<parallel> q)"
   using basic_parallel_scope_extension_left
@@ -495,63 +547,6 @@ proof -
 qed
 
 end
-
-subsection \<open>Equivalence Simplifier Setup\<close>
-
-quotient_type proper_behavior = process / "(\<sim>\<^sub>\<sharp>)"
-  using proper.bisimilarity_is_equivalence .
-
-declare proper_behavior.abs_eq_iff [equivalence_simp_goal_preparation]
-
-context begin
-
-private lift_definition stop' :: proper_behavior
-  is Stop .
-
-private lift_definition send' :: "[chan, val] \<Rightarrow> proper_behavior"
-  is Send .
-
-private lift_definition receive' :: "[chan, val \<Rightarrow> proper_behavior] \<Rightarrow> proper_behavior"
-  is Receive
-  using proper_receive_preservation .
-
-private lift_definition parallel' :: "[proper_behavior, proper_behavior] \<Rightarrow> proper_behavior"
-  is Parallel
-  using proper_parallel_preservation .
-
-private lift_definition new_channel' :: "(chan \<Rightarrow> proper_behavior) \<Rightarrow> proper_behavior"
-  is NewChannel
-  using proper_new_channel_preservation .
-
-private lift_definition map' :: "['a \<Rightarrow> proper_behavior, 'a list] \<Rightarrow> proper_behavior list"
-  is map
-  using proper.map_preservation .
-
-private lift_definition parallel_list' :: "proper_behavior list \<Rightarrow> proper_behavior"
-  is parallel_list
-  using proper.parallel_list_preservation .
-
-lemmas [equivalence_simp_goal_preparation] =
-  stop'.abs_eq
-  send'.abs_eq
-  receive'.abs_eq
-  parallel'.abs_eq
-  new_channel'.abs_eq
-  map'.abs_eq
-  parallel_list'.abs_eq
-
-end
-
-lemmas [equivalence_simp] =
-  proper_receive_scope_extension
-  proper_parallel_scope_extension_left
-  proper_parallel_scope_extension_right
-  proper_new_channel_scope_extension
-  proper_parallel_unit_left
-  proper_parallel_unit_right
-  proper_parallel_associativity
-  proper_parallel_commutativity
-  proper_parallel_nested_commutativity
 
 subsection \<open>Conclusion\<close>
 

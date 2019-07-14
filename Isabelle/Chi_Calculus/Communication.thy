@@ -35,7 +35,7 @@ private lift_definition proper_weak :: "[chan, val \<Rightarrow> proper_weak_beh
   is multi_receive
   sorry
 
-lemmas [equivalence_simp_goal_preparation] =
+lemmas [equivalence_transfer] =
   basic.abs_eq
   basic_weak.abs_eq
   proper.abs_eq
