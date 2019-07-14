@@ -40,16 +40,18 @@ notation proper.weak.bisimilarity (infix "\<approx>\<^sub>\<sharp>" 50)
   This will become obsolete once there is only one locale interpretation for the strong transition
   system.
 *)
-lemma basic_strong_bisimilarity_in_weak_bisimilarity: "(\<sim>\<^sub>\<sharp>) \<le> (\<approx>\<^sub>\<sharp>)"
+lemma proper_strong_bisimilarity_in_weak_bisimilarity [equivalence]: "(\<sim>\<^sub>\<sharp>) \<le> (\<approx>\<^sub>\<sharp>)"
   sorry
 
-lemma basic_weak_bisimilarity_in_proper_weak_bisimilarity: "(\<approx>\<^sub>\<flat>) \<le> (\<approx>\<^sub>\<sharp>)"
+lemma basic_weak_bisimilarity_in_proper_weak_bisimilarity [equivalence]: "(\<approx>\<^sub>\<flat>) \<le> (\<approx>\<^sub>\<sharp>)"
   sorry
 
-(* NOTE:
-  Lemmas like the following should go away once we have a solution for automatically appyling facts
-  like \<open>basic_weak_bisimilarity_in_proper_weak_bisimilarity\<close>.
-*)
+lemma basic_strong_bisimilarity_in_proper_weak_bisimilarity [equivalence]: "(\<sim>\<^sub>\<flat>) \<le> (\<approx>\<^sub>\<sharp>)"
+proof -
+  have "(\<sim>\<^sub>\<flat>) \<le> (\<sim>\<^sub>\<sharp>)" using basic_bisimilarity_in_proper_bisimilarity .
+  also have "\<dots> \<le> (\<approx>\<^sub>\<sharp>)" using proper_strong_bisimilarity_in_weak_bisimilarity .
+  finally show ?thesis .
+qed
 
 lemma proper_weak_receive_preservation: "(\<And>x. P x \<approx>\<^sub>\<sharp> Q x) \<Longrightarrow> a \<triangleright> x. P x \<approx>\<^sub>\<sharp> a \<triangleright> x. Q x"
   sorry
@@ -66,39 +68,10 @@ lemma proper_weak_parallel_preservation: "\<lbrakk>p\<^sub>1 \<approx>\<^sub>\<s
 lemma proper_weak_new_channel_preservation: "(\<And>a. P a \<approx>\<^sub>\<sharp> Q a) \<Longrightarrow> \<nu> a. P a \<approx>\<^sub>\<sharp> \<nu> a. Q a"
   sorry
 
-lemma proper_weak_receive_scope_extension: "a \<triangleright> x. \<nu> b. P x b \<approx>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
-  sorry
-
-lemma proper_weak_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<approx>\<^sub>\<sharp> \<nu> a. (P a \<parallel> q)"
-  sorry
-
-lemma proper_weak_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<approx>\<^sub>\<sharp> \<nu> a. (p \<parallel> Q a)"
-  sorry
-
-lemma proper_weak_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<approx>\<^sub>\<sharp> \<nu> a. \<nu> b. P a b"
-  sorry
-
-lemma proper_weak_parallel_unit_left: "\<zero> \<parallel> p \<approx>\<^sub>\<sharp> p"
-  sorry
-
-lemma proper_weak_parallel_unit_right: "p \<parallel> \<zero> \<approx>\<^sub>\<sharp> p"
-  sorry
-
-lemma proper_weak_parallel_commutativity: "p \<parallel> q \<approx>\<^sub>\<sharp> q \<parallel> p"
-  sorry
-
-lemma proper_weak_parallel_associativity: "(p \<parallel> q) \<parallel> r \<approx>\<^sub>\<sharp> p \<parallel> (q \<parallel> r)"
-  sorry
-
-lemma proper_weak_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r) \<approx>\<^sub>\<sharp> q \<parallel> (p \<parallel> r)"
-  sorry
-
-subsection \<open>Equivalence Simplifier Setup\<close>
-
 quotient_type proper_weak_behavior = process / "(\<approx>\<^sub>\<sharp>)"
   using proper.weak.bisimilarity_is_equivalence .
 
-declare proper_weak_behavior.abs_eq_iff [equivalence_simp_goal_preparation]
+declare proper_weak_behavior.abs_eq_iff [equivalence_transfer]
 
 (* FIXME:
   Once #14 is resolved, the following should be done based on \<open>natural_transition_system\<close>, like in
@@ -139,7 +112,7 @@ private
   is parallel_list
   sorry
 
-lemmas [equivalence_simp_goal_preparation] =
+lemmas [equivalence_transfer] =
   stop'.abs_eq
   send'.abs_eq
   receive'.abs_eq
@@ -150,15 +123,36 @@ lemmas [equivalence_simp_goal_preparation] =
 
 end
 
-lemmas [equivalence_simp] =
-  proper_weak_receive_scope_extension
-  proper_weak_parallel_scope_extension_left
-  proper_weak_parallel_scope_extension_right
-  proper_weak_new_channel_scope_extension
-  proper_weak_parallel_unit_left
-  proper_weak_parallel_unit_right
-  proper_weak_parallel_associativity
-  proper_weak_parallel_commutativity
-  proper_weak_parallel_nested_commutativity
+(* FIXME:
+  The following lemmas should be removed once all code uses the automatic relaxation provided by the
+  @{method equivalence} proof method.
+*)
+
+lemma proper_weak_receive_scope_extension: "a \<triangleright> x. \<nu> b. P x b \<approx>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
+  sorry
+
+lemma proper_weak_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<approx>\<^sub>\<sharp> \<nu> a. (P a \<parallel> q)"
+  sorry
+
+lemma proper_weak_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<approx>\<^sub>\<sharp> \<nu> a. (p \<parallel> Q a)"
+  sorry
+
+lemma proper_weak_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<approx>\<^sub>\<sharp> \<nu> a. \<nu> b. P a b"
+  sorry
+
+lemma proper_weak_parallel_unit_left: "\<zero> \<parallel> p \<approx>\<^sub>\<sharp> p"
+  sorry
+
+lemma proper_weak_parallel_unit_right: "p \<parallel> \<zero> \<approx>\<^sub>\<sharp> p"
+  sorry
+
+lemma proper_weak_parallel_commutativity: "p \<parallel> q \<approx>\<^sub>\<sharp> q \<parallel> p"
+  sorry
+
+lemma proper_weak_parallel_associativity: "(p \<parallel> q) \<parallel> r \<approx>\<^sub>\<sharp> p \<parallel> (q \<parallel> r)"
+  sorry
+
+lemma proper_weak_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r) \<approx>\<^sub>\<sharp> q \<parallel> (p \<parallel> r)"
+  sorry
 
 end

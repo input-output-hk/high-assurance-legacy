@@ -220,7 +220,7 @@ lemma no_opening_transitions_from_send: "\<not> a \<triangleleft> x \<rightarrow
 lemma no_opening_transitions_from_receive: "\<not> a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b"
   using basic_transitions_from_receive by blast
 
-subsection \<open>Concrete Bisimilarities\<close>
+subsection \<open>Proof Tools\<close>
 
 (* NOTE:
   The following code is introduced only temporarily to make the bisimilarity proofs below work with
@@ -353,6 +353,8 @@ method basic_sim_induction for t uses with_new_channel =
   (induction arbitrary: t; solve_sim_scoped with_new_channel: with_new_channel)
 
 end
+
+subsection \<open>The Basic Transition System as a Natural Transition System\<close>
 
 context begin
 
@@ -572,9 +574,6 @@ qed
 
 end
 
-(* FIXME:
-  This interpretation should not just appear inside the part on core properties.
-*)
 interpretation basic: natural_transition_system basic_lift basic_transition
   by
     unfold_locales
@@ -583,6 +582,54 @@ interpretation basic: natural_transition_system basic_lift basic_transition
       fact basic_parallel_preservation,
       fact basic_new_channel_preservation
     )
+
+subsection \<open>Setup of the @{method equivalence} Proof Method\<close>
+
+quotient_type basic_behavior = process / "(\<sim>\<^sub>\<flat>)"
+  using basic.bisimilarity_is_equivalence .
+
+declare basic_behavior.abs_eq_iff [equivalence_transfer]
+
+context begin
+
+private lift_definition stop' :: basic_behavior
+  is Stop .
+
+private lift_definition send' :: "[chan, val] \<Rightarrow> basic_behavior"
+  is Send .
+
+private lift_definition receive' :: "[chan, val \<Rightarrow> basic_behavior] \<Rightarrow> basic_behavior"
+  is Receive
+  using basic_receive_preservation .
+
+private lift_definition parallel' :: "[basic_behavior, basic_behavior] \<Rightarrow> basic_behavior"
+  is Parallel
+  using basic_parallel_preservation .
+
+private lift_definition new_channel' :: "(chan \<Rightarrow> basic_behavior) \<Rightarrow> basic_behavior"
+  is NewChannel
+  using basic_new_channel_preservation .
+
+private lift_definition map' :: "['a \<Rightarrow> basic_behavior, 'a list] \<Rightarrow> basic_behavior list"
+  is map
+  using basic.map_preservation .
+
+private lift_definition parallel_list' :: "basic_behavior list \<Rightarrow> basic_behavior"
+  is parallel_list
+  using basic.parallel_list_preservation .
+
+lemmas [equivalence_transfer] =
+  stop'.abs_eq
+  send'.abs_eq
+  receive'.abs_eq
+  parallel'.abs_eq
+  new_channel'.abs_eq
+  map'.abs_eq
+  parallel_list'.abs_eq
+
+end
+
+subsection \<open>Core Bisimilarities\<close>
 
 context begin
 
@@ -692,7 +739,7 @@ next
     by blast
 qed
 
-lemma basic_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
+lemma basic_parallel_scope_extension_left [equivalence]: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
 proof (old_bisimilarity_standard parallel_scope_extension_left_aux)
   case related
   show ?case
@@ -927,7 +974,7 @@ qed
 
 end
 
-lemma basic_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<sim>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
+lemma basic_parallel_scope_extension_right [equivalence]: "p \<parallel> \<nu> a. Q a \<sim>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
   sorry
 
 context begin
@@ -955,7 +1002,7 @@ proof (standard, intro allI, intro impI)
     by smt
 qed
 
-lemma basic_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<sim>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
+lemma basic_new_channel_scope_extension [equivalence]: "\<nu> b. \<nu> a. P a b \<sim>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
   by (simp add: basic_pre_new_channel_scope_extension basic.bisimilarity_def)
 
 end
@@ -981,7 +1028,7 @@ private method parallel_unit_left_aux_trivial_conveyance =
     basic_lift_intros
   )
 
-lemma basic_parallel_unit_left: "\<zero> \<parallel> p \<sim>\<^sub>\<flat> p"
+lemma basic_parallel_unit_left [equivalence]: "\<zero> \<parallel> p \<sim>\<^sub>\<flat> p"
 proof (old_bisimilarity_standard parallel_unit_left_aux)
   case related
   show ?case by (fact parallel_unit_left_aux.without_new_channel_ltr)
@@ -1056,7 +1103,7 @@ next
   qed
 qed
 
-lemma basic_parallel_unit_right: "p \<parallel> \<zero> \<sim>\<^sub>\<flat> p"
+lemma basic_parallel_unit_right [equivalence]: "p \<parallel> \<zero> \<sim>\<^sub>\<flat> p"
   sorry
 
 end
@@ -1420,7 +1467,7 @@ next
     nested_parallel_commutativity_aux.cases)+
 qed
 
-lemma basic_parallel_commutativity: "p \<parallel> q \<sim>\<^sub>\<flat> q \<parallel> p"
+lemma basic_parallel_commutativity [equivalence]: "p \<parallel> q \<sim>\<^sub>\<flat> q \<parallel> p"
 proof -
   have "p \<parallel> q \<sim>\<^sub>\<flat> (\<zero> \<parallel> p) \<parallel> q"
     using basic_parallel_unit_left and basic_parallel_preservation_left
@@ -1432,7 +1479,7 @@ proof -
   finally show ?thesis .
 qed
 
-lemma basic_parallel_associativity: "(p \<parallel> q) \<parallel> r \<sim>\<^sub>\<flat> p \<parallel> (q \<parallel> r)"
+lemma basic_parallel_associativity [equivalence]: "(p \<parallel> q) \<parallel> r \<sim>\<^sub>\<flat> p \<parallel> (q \<parallel> r)"
 proof -
   have "(p \<parallel> q) \<parallel> r \<sim>\<^sub>\<flat> (q \<parallel> p) \<parallel> r"
     using basic_parallel_commutativity and basic_parallel_preservation_left by blast
@@ -1455,64 +1502,8 @@ text \<open>
   \<open>nested_parallel_commutativity\<close>.
 \<close>
 
-lemma basic_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r) \<sim>\<^sub>\<flat> q \<parallel> (p \<parallel> r)"
+lemma basic_parallel_nested_commutativity [equivalence]: "p \<parallel> (q \<parallel> r) \<sim>\<^sub>\<flat> q \<parallel> (p \<parallel> r)"
   sorry
-
-subsection \<open>Equivalence Simplifier Setup\<close>
-
-quotient_type basic_behavior = process / "(\<sim>\<^sub>\<flat>)"
-  using basic.bisimilarity_is_equivalence .
-
-declare basic_behavior.abs_eq_iff [equivalence_simp_goal_preparation]
-
-context begin
-
-private lift_definition stop' :: basic_behavior
-  is Stop .
-
-private lift_definition send' :: "[chan, val] \<Rightarrow> basic_behavior"
-  is Send .
-
-private lift_definition receive' :: "[chan, val \<Rightarrow> basic_behavior] \<Rightarrow> basic_behavior"
-  is Receive
-  using basic_receive_preservation .
-
-private lift_definition parallel' :: "[basic_behavior, basic_behavior] \<Rightarrow> basic_behavior"
-  is Parallel
-  using basic_parallel_preservation .
-
-private lift_definition new_channel' :: "(chan \<Rightarrow> basic_behavior) \<Rightarrow> basic_behavior"
-  is NewChannel
-  using basic_new_channel_preservation .
-
-private lift_definition map' :: "['a \<Rightarrow> basic_behavior, 'a list] \<Rightarrow> basic_behavior list"
-  is map
-  using basic.map_preservation .
-
-private lift_definition parallel_list' :: "basic_behavior list \<Rightarrow> basic_behavior"
-  is parallel_list
-  using basic.parallel_list_preservation .
-
-lemmas [equivalence_simp_goal_preparation] =
-  stop'.abs_eq
-  send'.abs_eq
-  receive'.abs_eq
-  parallel'.abs_eq
-  new_channel'.abs_eq
-  map'.abs_eq
-  parallel_list'.abs_eq
-
-end
-
-lemmas [equivalence_simp] =
-  basic_parallel_scope_extension_left
-  basic_parallel_scope_extension_right
-  basic_new_channel_scope_extension
-  basic_parallel_unit_left
-  basic_parallel_unit_right
-  basic_parallel_associativity
-  basic_parallel_commutativity
-  basic_parallel_nested_commutativity
 
 subsection \<open>Conclusion\<close>
 

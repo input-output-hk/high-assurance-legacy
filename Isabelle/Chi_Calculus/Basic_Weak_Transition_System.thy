@@ -43,7 +43,7 @@ notation basic.weak.bisimilarity (infix "\<approx>\<^sub>\<flat>" 50)
   This will become obsolete once there is only one locale interpretation for the strong transition
   system.
 *)
-lemma basic_strong_bisimilarity_in_weak_bisimilarity: "(\<sim>\<^sub>\<flat>) \<le> (\<approx>\<^sub>\<flat>)"
+lemma basic_strong_bisimilarity_in_weak_bisimilarity [equivalence]: "(\<sim>\<^sub>\<flat>) \<le> (\<approx>\<^sub>\<flat>)"
   sorry
 
 lemma basic_weak_receive_preservation: "(\<And>x. P x \<approx>\<^sub>\<flat> Q x) \<Longrightarrow> a \<triangleright> x. P x \<approx>\<^sub>\<flat> a \<triangleright> x. Q x"
@@ -61,36 +61,10 @@ lemma basic_weak_parallel_preservation: "\<lbrakk>p\<^sub>1 \<approx>\<^sub>\<fl
 lemma basic_weak_new_channel_preservation: "(\<And>a. P a \<approx>\<^sub>\<flat> Q a) \<Longrightarrow> \<nu> a. P a \<approx>\<^sub>\<flat> \<nu> a. Q a"
   sorry
 
-lemma basic_weak_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<approx>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
-  sorry
-
-lemma basic_weak_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<approx>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
-  sorry
-
-lemma basic_weak_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<approx>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
-  sorry
-
-lemma basic_weak_parallel_unit_left: "\<zero> \<parallel> p \<approx>\<^sub>\<flat> p"
-  sorry
-
-lemma basic_weak_parallel_unit_right: "p \<parallel> \<zero> \<approx>\<^sub>\<flat> p"
-  sorry
-
-lemma basic_weak_parallel_commutativity: "p \<parallel> q \<approx>\<^sub>\<flat> q \<parallel> p"
-  sorry
-
-lemma basic_weak_parallel_associativity: "(p \<parallel> q) \<parallel> r \<approx>\<^sub>\<flat> p \<parallel> (q \<parallel> r)"
-  sorry
-
-lemma basic_weak_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r) \<approx>\<^sub>\<flat> q \<parallel> (p \<parallel> r)"
-  sorry
-
-subsection \<open>Equivalence Simplifier Setup\<close>
-
 quotient_type basic_weak_behavior = process / "(\<approx>\<^sub>\<flat>)"
   using basic.weak.bisimilarity_is_equivalence .
 
-declare basic_weak_behavior.abs_eq_iff [equivalence_simp_goal_preparation]
+declare basic_weak_behavior.abs_eq_iff [equivalence_transfer]
 
 (* FIXME:
   Once #14 is resolved, the following should be done based on \<open>natural_transition_system\<close>, like in
@@ -131,7 +105,7 @@ private
   is parallel_list
   sorry
 
-lemmas [equivalence_simp_goal_preparation] =
+lemmas [equivalence_transfer] =
   stop'.abs_eq
   send'.abs_eq
   receive'.abs_eq
@@ -140,16 +114,35 @@ lemmas [equivalence_simp_goal_preparation] =
   map'.abs_eq
   parallel_list'.abs_eq
 
-end
+(* FIXME:
+  The following lemmas should be removed once all code uses the automatic relaxation provided by the
+  @{method equivalence} proof method.
+*)
 
-lemmas [equivalence_simp] =
-  basic_weak_parallel_scope_extension_left
-  basic_weak_parallel_scope_extension_right
-  basic_weak_new_channel_scope_extension
-  basic_weak_parallel_unit_left
-  basic_weak_parallel_unit_right
-  basic_weak_parallel_associativity
-  basic_weak_parallel_commutativity
-  basic_weak_parallel_nested_commutativity
+lemma basic_weak_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<approx>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
+  sorry
+
+lemma basic_weak_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<approx>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
+  sorry
+
+lemma basic_weak_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<approx>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
+  sorry
+
+lemma basic_weak_parallel_unit_left: "\<zero> \<parallel> p \<approx>\<^sub>\<flat> p"
+  sorry
+
+lemma basic_weak_parallel_unit_right: "p \<parallel> \<zero> \<approx>\<^sub>\<flat> p"
+  sorry
+
+lemma basic_weak_parallel_commutativity: "p \<parallel> q \<approx>\<^sub>\<flat> q \<parallel> p"
+  sorry
+
+lemma basic_weak_parallel_associativity: "(p \<parallel> q) \<parallel> r \<approx>\<^sub>\<flat> p \<parallel> (q \<parallel> r)"
+  sorry
+
+lemma basic_weak_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r) \<approx>\<^sub>\<flat> q \<parallel> (p \<parallel> r)"
+  sorry
+
+end
 
 end
