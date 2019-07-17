@@ -13,9 +13,8 @@ translations
   "a \<triangleright>\<^sup>\<infinity> x. p" \<rightleftharpoons> "CONST multi_receive a (\<lambda>x. p)"
 
 (* FIXME:
-  We should base the following either on \<open>natural_transition_system\<close> or on a sublocale of it (a
-  sublocale might be necessary as the axioms of \<open>natural_transition_system\<close> might not be enough to
-  prove the compatibility law for \<open>\<triangleright>\<^sup>\<infinity>\<close>).
+  We should base the following on \<open>natural_transition_system\<close>, which would have to be extended with
+  support for simulation up to context to be able to prove the compatibility law for \<open>\<triangleright>\<^sup>\<infinity>\<close>.
 *)
 context begin
 
