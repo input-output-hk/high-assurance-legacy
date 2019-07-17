@@ -631,6 +631,14 @@ end
 
 subsection \<open>Core Bisimilarities\<close>
 
+text \<open>
+  We introduce a named theorem \<^theory_text>\<open>natural_simps\<close> that is analogous to \<^theory_text>\<open>algebra_simps\<close> in that it
+  contains core laws like associativity and commutativity that are often, but not always, desired
+  as rewrite rules.
+\<close>
+
+named_theorems natural_simps
+
 context begin
 
 private inductive
@@ -739,7 +747,7 @@ next
     by blast
 qed
 
-lemma basic_parallel_scope_extension_left [equivalence]: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
+lemma basic_parallel_scope_extension_left [natural_simps]: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
 proof (old_bisimilarity_standard parallel_scope_extension_left_aux)
   case related
   show ?case
@@ -974,7 +982,7 @@ qed
 
 end
 
-lemma basic_parallel_scope_extension_right [equivalence]: "p \<parallel> \<nu> a. Q a \<sim>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
+lemma basic_parallel_scope_extension_right [natural_simps]: "p \<parallel> \<nu> a. Q a \<sim>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
   sorry
 
 context begin
@@ -1002,7 +1010,7 @@ proof (standard, intro allI, intro impI)
     by smt
 qed
 
-lemma basic_new_channel_scope_extension [equivalence]: "\<nu> b. \<nu> a. P a b \<sim>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
+lemma basic_new_channel_scope_extension [natural_simps]: "\<nu> b. \<nu> a. P a b \<sim>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
   by (simp add: basic_pre_new_channel_scope_extension basic.bisimilarity_def)
 
 end
@@ -1028,7 +1036,7 @@ private method parallel_unit_left_aux_trivial_conveyance =
     basic_lift_intros
   )
 
-lemma basic_parallel_unit_left [equivalence]: "\<zero> \<parallel> p \<sim>\<^sub>\<flat> p"
+lemma basic_parallel_unit_left [natural_simps]: "\<zero> \<parallel> p \<sim>\<^sub>\<flat> p"
 proof (old_bisimilarity_standard parallel_unit_left_aux)
   case related
   show ?case by (fact parallel_unit_left_aux.without_new_channel_ltr)
@@ -1103,7 +1111,7 @@ next
   qed
 qed
 
-lemma basic_parallel_unit_right [equivalence]: "p \<parallel> \<zero> \<sim>\<^sub>\<flat> p"
+lemma basic_parallel_unit_right [natural_simps]: "p \<parallel> \<zero> \<sim>\<^sub>\<flat> p"
   sorry
 
 end
@@ -1467,7 +1475,7 @@ next
     nested_parallel_commutativity_aux.cases)+
 qed
 
-lemma basic_parallel_commutativity [equivalence]: "p \<parallel> q \<sim>\<^sub>\<flat> q \<parallel> p"
+lemma basic_parallel_commutativity [natural_simps]: "p \<parallel> q \<sim>\<^sub>\<flat> q \<parallel> p"
 proof -
   have "p \<parallel> q \<sim>\<^sub>\<flat> (\<zero> \<parallel> p) \<parallel> q"
     using basic_parallel_unit_left and basic_parallel_preservation_left
@@ -1479,7 +1487,7 @@ proof -
   finally show ?thesis .
 qed
 
-lemma basic_parallel_associativity [equivalence]: "(p \<parallel> q) \<parallel> r \<sim>\<^sub>\<flat> p \<parallel> (q \<parallel> r)"
+lemma basic_parallel_associativity [natural_simps]: "(p \<parallel> q) \<parallel> r \<sim>\<^sub>\<flat> p \<parallel> (q \<parallel> r)"
 proof -
   have "(p \<parallel> q) \<parallel> r \<sim>\<^sub>\<flat> (q \<parallel> p) \<parallel> r"
     using basic_parallel_commutativity and basic_parallel_preservation_left by blast
@@ -1502,7 +1510,7 @@ text \<open>
   \<open>nested_parallel_commutativity\<close>.
 \<close>
 
-lemma basic_parallel_nested_commutativity [equivalence]: "p \<parallel> (q \<parallel> r) \<sim>\<^sub>\<flat> q \<parallel> (p \<parallel> r)"
+lemma basic_parallel_nested_commutativity [natural_simps]: "p \<parallel> (q \<parallel> r) \<sim>\<^sub>\<flat> q \<parallel> (p \<parallel> r)"
   sorry
 
 subsection \<open>Conclusion\<close>
