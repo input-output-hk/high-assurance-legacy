@@ -42,8 +42,36 @@ lemmas [equivalence_transfer] =
 
 end
 
-lemma multi_receive_idempotency: "a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> a \<triangleright>\<^sup>\<infinity> x. P x \<sim>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. P x"
+text \<open>
+  We extend \<^theory_text>\<open>natural_simps\<close> with rules for eliminating duplicates of \<open>\<triangleright>\<^sup>\<infinity>\<close>-processes, which are
+  based on the observation that \<^const>\<open>multi_receive\<close> is idempotent.
+
+  Incidentally, duplicate removal based on idempotence plays rather well with associativity and
+  commutativity rules. The reason is the simplifier's handling of permutative rules, like
+  commutativity: these rules are applied only when they lead to a smaller term, where ``smaller'' by
+  default means ``lexicographically smaller'' (see Subsection~9.3.3 of the Isabelle/Isar Reference
+  Manual). A result of this behavior is that equal processes in a chain of parallel compositions
+  will sooner or later stand next to each other. If then a pair of equal processes stands at the end
+  of the chain, it can be collapsed by applying an idempotency rule; if it does not stand at the
+  end, it can be collapsed by a ``nested'' variant of an idempotency rule, analogous to the
+  ``nested'' variant of commutativity.
+\<close>
+(* FIXME:
+  Add a proper reference to the reference manual.
+*)
+
+lemma multi_receive_idempotency [natural_simps]: "a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> a \<triangleright>\<^sup>\<infinity> x. P x \<sim>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. P x"
   sorry
+
+lemma multi_receive_nested_idempotency [natural_simps]:
+  shows "a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> (a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> q) \<sim>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> q"
+proof -
+  have "a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> (a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> q) \<sim>\<^sub>\<flat> (a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> a \<triangleright>\<^sup>\<infinity> x. P x) \<parallel> q"
+    using basic_parallel_associativity by equivalence
+  also have "\<dots> \<sim>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> q"
+    using multi_receive_idempotency by equivalence
+  finally show ?thesis .
+qed
 
 lemma context_localization:
   shows "a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> b \<triangleright>\<^sup>\<infinity> x. Q x \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> b \<triangleright>\<^sup>\<infinity> x. (a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> Q x)"
@@ -52,14 +80,8 @@ lemma context_localization:
 abbreviation loss :: "chan \<Rightarrow> process" ("\<currency>\<^sup>?_" [1000] 1000) where
   "\<currency>\<^sup>?a \<equiv> a \<triangleright>\<^sup>\<infinity> _. \<zero>"
 
-lemma loss_idempotency: "\<currency>\<^sup>?a \<parallel> \<currency>\<^sup>?a \<sim>\<^sub>\<flat> \<currency>\<^sup>?a"
-  by (fact multi_receive_idempotency)
-
 abbreviation duplication :: "chan \<Rightarrow> process" ("\<currency>\<^sup>+_" [1000] 1000) where
   "\<currency>\<^sup>+a \<equiv> a \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)"
-
-lemma duplication_idempotency: "\<currency>\<^sup>+a \<parallel> \<currency>\<^sup>+a \<sim>\<^sub>\<flat> \<currency>\<^sup>+a"
-  by (fact multi_receive_idempotency)
 
 lemma multi_receive_split:
   assumes "\<And>x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<zero>" and "\<And>x. Q x \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<zero>"
@@ -68,9 +90,6 @@ lemma multi_receive_split:
 
 abbreviation duploss :: "chan \<Rightarrow> process" ("\<currency>\<^sup>*_" [1000] 1000) where
   "\<currency>\<^sup>*a \<equiv> \<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a"
-
-lemma duploss_idempotency: "\<currency>\<^sup>*a \<parallel> \<currency>\<^sup>*a \<sim>\<^sub>\<flat> \<currency>\<^sup>*a"
-  sorry
 
 lemma send_idempotency_under_duploss:
   shows "\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x \<approx>\<^sub>\<flat> \<currency>\<^sup>* a \<parallel> a \<triangleleft> x"

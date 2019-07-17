@@ -7,9 +7,6 @@ begin
 abbreviation unidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "\<rightarrow>" 100) where
   "a \<rightarrow> b \<equiv> a \<triangleright>\<^sup>\<infinity> x. b \<triangleleft> x"
 
-(* TODO: Prove it. *)
-lemma unidirectional_bridge_idempotency: "a \<rightarrow> b \<parallel> a \<rightarrow> b \<approx>\<^sub>\<flat> a \<rightarrow> b" sorry
-
 lemma early_multi_receive_addition:
   shows "a \<rightarrow> b \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x \<parallel> a \<triangleright>\<^sup>\<infinity> x. P x"
   sorry
@@ -24,9 +21,6 @@ lemma loop_redundancy_under_duploss:
 
 abbreviation bidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "\<leftrightarrow>" 100) where
   "a \<leftrightarrow> b \<equiv> a \<rightarrow> b \<parallel> b \<rightarrow> a"
-
-(* TODO: Prove it. *)
-lemma bidirectional_bridge_idempotency: "a \<leftrightarrow> b \<parallel> a \<leftrightarrow> b \<approx>\<^sub>\<flat> a \<leftrightarrow> b" sorry
 
 lemma bidirectional_bridge_commutativity: "a \<leftrightarrow> b \<sim>\<^sub>\<flat> b \<leftrightarrow> a"
   by (simp add: basic_parallel_commutativity)
