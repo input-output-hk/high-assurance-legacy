@@ -14,7 +14,7 @@ method equivalence = (
   (
     (
       match premises in
-        inclusion [thin]: "\<X> \<le> \<Y>" for \<X> :: "['a, 'a] \<Rightarrow> bool" and \<Y> \<Rightarrow> \<open>
+        inclusion [thin]: "\<X> \<le> \<Y>" (cut) for \<X> :: "['a, 'a] \<Rightarrow> bool" and \<Y> \<Rightarrow> \<open>
           \<comment> \<open>If the conclusion uses~\<^term>\<open>\<Y>\<close>, relax all equivalence premises that use~\<^term>\<open>\<X>\<close>:\<close>
           match conclusion in
             "\<Y> _ _" \<Rightarrow> \<open>
