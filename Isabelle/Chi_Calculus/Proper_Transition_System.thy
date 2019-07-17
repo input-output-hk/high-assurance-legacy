@@ -522,27 +522,27 @@ proof
   qed (simp_all add: no_acting_transitions_from_new_channel_stop)
 qed
 
-private lemma proper_stop_scope_redundancy: "\<zero> \<sim>\<^sub>\<sharp> \<nu> a. \<zero>"
+private lemma proper_stop_scope_redundancy: "\<nu> a. \<zero> \<sim>\<^sub>\<sharp> \<zero>"
 unfolding proper.bisimilarity_def proof
-  show "\<zero> \<lesssim>\<^sub>\<sharp> \<nu> a. \<zero>"
-    using no_proper_transitions_from_stop
-    by (blast intro: proper.pre_bisimilarity)
-next
   show "\<nu> a. \<zero> \<lesssim>\<^sub>\<sharp> \<zero>"
     using no_proper_transitions_from_new_channel_stop
     by (blast intro: proper.pre_bisimilarity)
+next
+  show "\<zero> \<lesssim>\<^sub>\<sharp> \<nu> a. \<zero>"
+    using no_proper_transitions_from_stop
+    by (blast intro: proper.pre_bisimilarity)
 qed
 
-lemma proper_scope_redundancy: "p \<sim>\<^sub>\<sharp> \<nu> a. p"
+lemma proper_scope_redundancy [natural_simps]: "\<nu> a. p \<sim>\<^sub>\<sharp> p"
 proof -
-  have "p \<sim>\<^sub>\<sharp> \<zero> \<parallel> p"
-    by (rule proper.bisimilarity_symmetry_rule) (fact proper_parallel_unit_left)
-  also have "\<zero> \<parallel> p \<sim>\<^sub>\<sharp> \<nu> a. \<zero> \<parallel> p"
-    using proper_stop_scope_redundancy and proper_parallel_preservation_left by blast
-  also have "\<nu> a. \<zero> \<parallel> p \<sim>\<^sub>\<sharp> \<nu> a. (\<zero> \<parallel> p)"
-    by (fact proper_parallel_scope_extension_left)
-  also have "\<nu> a. (\<zero> \<parallel> p) \<sim>\<^sub>\<sharp> \<nu> a. p"
-    using proper_parallel_unit_left and proper_new_channel_preservation by metis
+  have "\<nu> a. p \<sim>\<^sub>\<sharp> \<nu> a. (\<zero> \<parallel> p)"
+    using basic_parallel_unit_left by equivalence
+  also have "\<nu> a. (\<zero> \<parallel> p) \<sim>\<^sub>\<sharp> \<nu> a. \<zero> \<parallel> p"
+    using basic_parallel_scope_extension_left by equivalence
+  also have "\<nu> a. \<zero> \<parallel> p \<sim>\<^sub>\<sharp> \<zero> \<parallel> p"
+    using proper_stop_scope_redundancy by equivalence
+  also have "\<zero> \<parallel> p \<sim>\<^sub>\<sharp> p"
+    using basic_parallel_unit_left by equivalence
   finally show ?thesis .
 qed
 
