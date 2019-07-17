@@ -1010,7 +1010,7 @@ proof (standard, intro allI, intro impI)
     by smt
 qed
 
-lemma basic_new_channel_scope_extension [natural_simps]: "\<nu> b. \<nu> a. P a b \<sim>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
+lemma basic_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<sim>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
   by (simp add: basic_pre_new_channel_scope_extension basic.bisimilarity_def)
 
 end
