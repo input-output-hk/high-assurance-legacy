@@ -42,6 +42,24 @@ lemmas [equivalence_transfer] =
 
 end
 
+text \<open>
+  We extend \<^theory_text>\<open>natural_simps\<close> with rules for eliminating duplicates of \<open>\<triangleright>\<^sup>\<infinity>\<close>-processes, which are
+  based on the observation that \<^const>\<open>multi_receive\<close> is idempotent.
+
+  Incidentally, duplicate removal based on idempotence plays rather well with associativity and
+  commutativity rules. The reason is the simplifier's handling of permutative rules, like
+  commutativity: these rules are applied only when they lead to a smaller term, where ``smaller'' by
+  default means ``lexicographically smaller'' (see Subsection~9.3.3 of the Isabelle/Isar Reference
+  Manual). A result of this behavior is that equal processes in a chain of parallel compositions
+  will sooner or later stand next to each other. If then a pair of equal processes stands at the end
+  of the chain, it can be collapsed by applying an idempotency rule; if it does not stand at the
+  end, it can be collapsed by a ``nested'' variant of an idempotency rule, analogous to the
+  ``nested'' variant of commutativity.
+\<close>
+(* FIXME:
+  Add a proper reference to the reference manual.
+*)
+
 lemma multi_receive_idempotency [natural_simps]: "a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> a \<triangleright>\<^sup>\<infinity> x. P x \<sim>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. P x"
   sorry
 
