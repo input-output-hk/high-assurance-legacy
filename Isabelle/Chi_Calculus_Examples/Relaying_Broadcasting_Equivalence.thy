@@ -1,8 +1,8 @@
-section \<open>Diamond-Shaped Relaying Network\<close>
+section \<open>Equivalence of a Diamond-Shaped Relaying Network and a Broadcasting Network\<close>
 
 (* FIXME: Fill holes when bisimilarity reasoning is supported by the simplifier. *)
 
-theory Diamond
+theory Relaying_Broadcasting_Equivalence
   imports
     Chi_Calculus.Relaying
     Chi_Calculus.Proper_Weak_Transition_System
