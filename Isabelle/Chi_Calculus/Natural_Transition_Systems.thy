@@ -24,17 +24,12 @@ text \<open>
   The following two lemmas establish \<open>\<Prod>\<close>-preservation.
 \<close>
 
-lemma map_preservation:
+lemma general_parallel_preservation:
   assumes "\<And>x. f x \<sim> g x"
-  shows "list_all2 (\<sim>) (map f xs) (map g xs)"
-  using assms by (induction xs) simp_all
-
-lemma parallel_list_preservation:
-  assumes "list_all2 (\<sim>) xs ys"
-  shows "parallel_list xs \<sim> parallel_list ys"
+  shows "general_parallel f xs \<sim> general_parallel g xs"
   using assms and parallel_preservation
-  by induction simp_all
-  
+  by (induction xs) simp_all
+
 end
 
 end

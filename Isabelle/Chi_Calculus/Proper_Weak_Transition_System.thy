@@ -103,13 +103,8 @@ private
   using proper_weak_new_channel_preservation .
 
 private
-  lift_definition map' :: "['a \<Rightarrow> proper_weak_behavior, 'a list] \<Rightarrow> proper_weak_behavior list"
-  is map
-  sorry
-
-private
-  lift_definition parallel_list' :: "proper_weak_behavior list \<Rightarrow> proper_weak_behavior"
-  is parallel_list
+  lift_definition general_parallel' :: "['a \<Rightarrow> proper_weak_behavior, 'a list] \<Rightarrow> proper_weak_behavior"
+  is general_parallel
   sorry
 
 lemmas [equivalence_transfer] =
@@ -118,8 +113,7 @@ lemmas [equivalence_transfer] =
   receive'.abs_eq
   parallel'.abs_eq
   new_channel'.abs_eq
-  map'.abs_eq
-  parallel_list'.abs_eq
+  general_parallel'.abs_eq
 
 end
 

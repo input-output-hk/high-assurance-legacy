@@ -610,13 +610,9 @@ private lift_definition new_channel' :: "(chan \<Rightarrow> basic_behavior) \<R
   is NewChannel
   using basic_new_channel_preservation .
 
-private lift_definition map' :: "['a \<Rightarrow> basic_behavior, 'a list] \<Rightarrow> basic_behavior list"
-  is map
-  using basic.map_preservation .
-
-private lift_definition parallel_list' :: "basic_behavior list \<Rightarrow> basic_behavior"
-  is parallel_list
-  using basic.parallel_list_preservation .
+private lift_definition general_parallel' :: "['a \<Rightarrow> basic_behavior, 'a list] \<Rightarrow> basic_behavior"
+  is general_parallel
+  using basic.general_parallel_preservation .
 
 lemmas [equivalence_transfer] =
   stop'.abs_eq
@@ -624,8 +620,7 @@ lemmas [equivalence_transfer] =
   receive'.abs_eq
   parallel'.abs_eq
   new_channel'.abs_eq
-  map'.abs_eq
-  parallel_list'.abs_eq
+  general_parallel'.abs_eq
 
 end
 
