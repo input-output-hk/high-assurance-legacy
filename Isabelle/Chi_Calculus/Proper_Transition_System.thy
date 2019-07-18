@@ -427,7 +427,7 @@ proof (standard, intro allI, intro impI)
   qed
 qed
 
-lemma proper_receive_scope_extension [equivalence]: "a \<triangleright> x. \<nu> b. P x b \<sim>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
+lemma proper_receive_scope_extension [natural_simps]: "a \<triangleright> x. \<nu> b. P x b \<sim>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
   unfolding proper.bisimilarity_def
   by standard (
     fact proper_pre_receive_scope_extension_ltr,
