@@ -96,13 +96,8 @@ private
   using basic_weak_new_channel_preservation .
 
 private
-  lift_definition map' :: "['a \<Rightarrow> basic_weak_behavior, 'a list] \<Rightarrow> basic_weak_behavior list"
-  is map
-  sorry
-
-private
-  lift_definition parallel_list' :: "basic_weak_behavior list \<Rightarrow> basic_weak_behavior"
-  is parallel_list
+  lift_definition general_parallel' :: "['a \<Rightarrow> basic_weak_behavior, 'a list] \<Rightarrow> basic_weak_behavior"
+  is general_parallel
   sorry
 
 lemmas [equivalence_transfer] =
@@ -111,8 +106,7 @@ lemmas [equivalence_transfer] =
   receive'.abs_eq
   parallel'.abs_eq
   new_channel'.abs_eq
-  map'.abs_eq
-  parallel_list'.abs_eq
+  general_parallel'.abs_eq
 
 (* FIXME:
   The following lemmas should be removed once all code uses the automatic relaxation provided by the
