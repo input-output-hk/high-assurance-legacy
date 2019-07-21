@@ -117,36 +117,4 @@ lemmas [equivalence_transfer] =
 
 end
 
-(* FIXME:
-  The following lemmas should be removed once all code uses the automatic relaxation provided by the
-  @{method equivalence} proof method.
-*)
-
-lemma proper_weak_receive_scope_extension: "a \<triangleright> x. \<nu> b. P x b \<approx>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
-  sorry
-
-lemma proper_weak_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<approx>\<^sub>\<sharp> \<nu> a. (P a \<parallel> q)"
-  sorry
-
-lemma proper_weak_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<approx>\<^sub>\<sharp> \<nu> a. (p \<parallel> Q a)"
-  sorry
-
-lemma proper_weak_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<approx>\<^sub>\<sharp> \<nu> a. \<nu> b. P a b"
-  sorry
-
-lemma proper_weak_parallel_unit_left: "\<zero> \<parallel> p \<approx>\<^sub>\<sharp> p"
-  sorry
-
-lemma proper_weak_parallel_unit_right: "p \<parallel> \<zero> \<approx>\<^sub>\<sharp> p"
-  sorry
-
-lemma proper_weak_parallel_commutativity: "p \<parallel> q \<approx>\<^sub>\<sharp> q \<parallel> p"
-  sorry
-
-lemma proper_weak_parallel_associativity: "(p \<parallel> q) \<parallel> r \<approx>\<^sub>\<sharp> p \<parallel> (q \<parallel> r)"
-  sorry
-
-lemma proper_weak_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r) \<approx>\<^sub>\<sharp> q \<parallel> (p \<parallel> r)"
-  sorry
-
 end
