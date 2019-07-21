@@ -118,7 +118,7 @@ next
     by blast
 qed
 
-lemma basic_parallel_scope_extension_left [natural_simps]: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
+lemma basic_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
 proof (old_bisimilarity_standard parallel_scope_extension_left_aux)
   case related
   show ?case
@@ -353,7 +353,7 @@ qed
 
 end
 
-lemma basic_parallel_scope_extension_right [natural_simps]: "p \<parallel> \<nu> a. Q a \<sim>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
+lemma basic_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<sim>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
   sorry
 
 context begin
