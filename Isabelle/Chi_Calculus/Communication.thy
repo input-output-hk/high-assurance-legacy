@@ -1,7 +1,7 @@
 section \<open>Notions of Communication\<close>
 
 theory Communication
-  imports Proper_Weak_Transition_System "HOL-Library.BNF_Corec"
+  imports Core_Bisimilarities "HOL-Library.BNF_Corec"
 begin
 
 corec multi_receive :: "[chan, val \<Rightarrow> process] \<Rightarrow> process" where

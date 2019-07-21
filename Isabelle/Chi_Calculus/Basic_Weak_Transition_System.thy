@@ -108,35 +108,6 @@ lemmas [equivalence_transfer] =
   new_channel'.abs_eq
   general_parallel'.abs_eq
 
-(* FIXME:
-  The following lemmas should be removed once all code uses the automatic relaxation provided by the
-  @{method equivalence} proof method.
-*)
-
-lemma basic_weak_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<approx>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
-  sorry
-
-lemma basic_weak_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<approx>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
-  sorry
-
-lemma basic_weak_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<approx>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
-  sorry
-
-lemma basic_weak_parallel_unit_left: "\<zero> \<parallel> p \<approx>\<^sub>\<flat> p"
-  sorry
-
-lemma basic_weak_parallel_unit_right: "p \<parallel> \<zero> \<approx>\<^sub>\<flat> p"
-  sorry
-
-lemma basic_weak_parallel_commutativity: "p \<parallel> q \<approx>\<^sub>\<flat> q \<parallel> p"
-  sorry
-
-lemma basic_weak_parallel_associativity: "(p \<parallel> q) \<parallel> r \<approx>\<^sub>\<flat> p \<parallel> (q \<parallel> r)"
-  sorry
-
-lemma basic_weak_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r) \<approx>\<^sub>\<flat> q \<parallel> (p \<parallel> r)"
-  sorry
-
 end
 
 end
