@@ -118,7 +118,7 @@ next
     by blast
 qed
 
-lemma basic_parallel_scope_extension_left [natural_simps]: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
+lemma basic_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
 proof (old_bisimilarity_standard parallel_scope_extension_left_aux)
   case related
   show ?case
@@ -353,7 +353,7 @@ qed
 
 end
 
-lemma basic_parallel_scope_extension_right [natural_simps]: "p \<parallel> \<nu> a. Q a \<sim>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
+lemma basic_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<sim>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
   sorry
 
 context begin
@@ -1165,5 +1165,97 @@ lemma proper_weak_parallel_associativity: "(p \<parallel> q) \<parallel> r \<app
 
 lemma proper_weak_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r) \<approx>\<^sub>\<sharp> q \<parallel> (p \<parallel> r)"
   sorry
+
+definition tagged_new_channel :: "[bool list, chan \<Rightarrow> process] \<Rightarrow> process" where
+  "tagged_new_channel _ P = \<nu> a. P a"
+
+syntax
+  "_tagged_new_channel" :: "[bool list, pttrn, process] \<Rightarrow> process"
+  ("(3\<langle>_\<rangle> \<nu>_./ _)" [0, 0, 100] 100)
+translations
+  "\<langle>t\<rangle> \<nu> a. p" \<rightleftharpoons> "CONST tagged_new_channel t (\<lambda>a. p)"
+
+context begin
+
+private
+  lift_definition basic :: "[bool list, chan \<Rightarrow> basic_behavior] \<Rightarrow> basic_behavior"
+  is tagged_new_channel
+  unfolding tagged_new_channel_def
+  using basic_new_channel_preservation .
+
+private
+  lift_definition basic_weak :: "[bool list, chan \<Rightarrow> basic_weak_behavior] \<Rightarrow> basic_weak_behavior"
+  is tagged_new_channel
+  unfolding tagged_new_channel_def
+  using basic_weak_new_channel_preservation .
+
+private
+  lift_definition proper :: "[bool list, chan \<Rightarrow> proper_behavior] \<Rightarrow> proper_behavior"
+  is tagged_new_channel
+  unfolding tagged_new_channel_def
+  using proper_new_channel_preservation .
+
+private
+  lift_definition proper_weak :: "[bool list, chan \<Rightarrow> proper_weak_behavior] \<Rightarrow> proper_weak_behavior"
+  is tagged_new_channel
+  unfolding tagged_new_channel_def
+  using proper_weak_new_channel_preservation .
+
+lemmas [equivalence_transfer] =
+  basic.abs_eq
+  basic_weak.abs_eq
+  proper.abs_eq
+  proper_weak.abs_eq
+
+end
+
+lemma new_channel_tagging:
+  shows "\<nu> a. P a = \<langle>[]\<rangle> \<nu> a. P a"
+  unfolding tagged_new_channel_def using refl .
+
+lemma tagged_parallel_scope_extension_left:
+  shows "\<langle>t\<rangle> \<nu> a. P a \<parallel> q \<sim>\<^sub>\<flat> \<langle>False # t\<rangle> \<nu> a. (P a \<parallel> q)"
+  unfolding tagged_new_channel_def
+  using basic_parallel_scope_extension_left .
+
+lemma tagged_parallel_scope_extension_right:
+  shows "p \<parallel> \<langle>t\<rangle> \<nu> a. Q a \<sim>\<^sub>\<flat> \<langle>True # t\<rangle> \<nu> a. (p \<parallel> Q a)"
+  unfolding tagged_new_channel_def
+  using basic_parallel_scope_extension_right .
+
+lemma guarded_tagged_new_channel_scope_extension:
+  assumes "ord_class.lexordp s t"
+  shows "\<langle>t\<rangle> \<nu> b. \<langle>s\<rangle> \<nu> a. P a b \<sim>\<^sub>\<flat> \<langle>s\<rangle> \<nu> a. \<langle>t\<rangle> \<nu> b. P a b"
+  unfolding tagged_new_channel_def
+  using basic_new_channel_scope_extension .
+
+lemmas tagged_scope_extension =
+  tagged_parallel_scope_extension_left
+  tagged_parallel_scope_extension_right
+  guarded_tagged_new_channel_scope_extension
+
+(* NOTE:
+  This method is only guaranteed to succeed if there is at least one scope that can be extended. (If
+  this is not the case, either the @{method simp} invocation in this method or the final one in
+  @{method equivalence} will fail.
+*)
+method parallel_scope_extension = (
+  \<comment> \<open>Tag \<open>\<nu>\<close>-expressions:\<close>
+  simp (no_asm) only: new_channel_tagging,
+  \<comment> \<open>Add tagged scope extension rules:\<close>
+  insert tagged_scope_extension,
+  (
+    \<comment> \<open>Run the @{method equivalence} method:\<close>
+    equivalence;
+    (
+      \<comment> \<open>Remove premises left over from @{method equivalence}:\<close>
+      match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>succeed\<close>,
+      \<comment> \<open>Transfer the simplified conclusion back into a bisimilarity problem:\<close>
+      transfer,
+      \<comment> \<open>Remove the tags and apply the reflexivity rule of the respective bisimilarity relation:\<close>
+      simp add: tagged_new_channel_def
+    )
+  )
+)
 
 end
