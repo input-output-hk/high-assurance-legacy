@@ -1249,7 +1249,7 @@ method parallel_scope_extension = (
     equivalence;
     (
       \<comment> \<open>Remove premises left over from @{method equivalence}:\<close>
-      match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>succeed\<close>,
+      match premises in prems [thin]: _ (cut, multi) \<Rightarrow> \<open>succeed\<close>,
       \<comment> \<open>Transfer the simplified conclusion back into a bisimilarity problem:\<close>
       transfer,
       \<comment> \<open>Remove the tags and apply the reflexivity rule of the respective bisimilarity relation:\<close>
