@@ -245,8 +245,8 @@ method bisimilarity_standard for \<X> :: "['process, 'process] \<Rightarrow> boo
   (
     intro predicate2D [of \<X> "(\<sim>)", rotated];
       match conclusion in
-        "\<X> _ _" \<Rightarrow> \<open>succeed\<close> \<bar>
-        "\<X> \<le> (\<sim>)" \<Rightarrow> \<open>match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>succeed\<close> | succeed\<close>
+        "\<X> _ _" (cut) \<Rightarrow> \<open>succeed\<close> \<bar>
+        "\<X> \<le> (\<sim>)" (cut) \<Rightarrow> \<open>match premises in prems [thin]: _ (cut, multi) \<Rightarrow> \<open>succeed\<close> | succeed\<close>
   ),
   goal_cases related in_bisimilarity
 )
