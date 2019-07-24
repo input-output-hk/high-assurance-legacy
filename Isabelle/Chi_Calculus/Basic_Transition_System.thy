@@ -230,16 +230,16 @@ method old_bisimilarity_standard for \<X> :: "[process, process] \<Rightarrow> b
   (
     intro predicate2D [of \<X> "(\<sim>\<^sub>\<flat>)", rotated];
       match conclusion in
-        "\<X> _ _" \<Rightarrow> \<open>succeed\<close> \<bar>
-        "\<X> \<le> (\<sim>\<^sub>\<flat>)" \<Rightarrow> \<open>
-          (match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>succeed\<close> | succeed);
+        "\<X> _ _" (cut) \<Rightarrow> \<open>succeed\<close> \<bar>
+        "\<X> \<le> (\<sim>\<^sub>\<flat>)" (cut) \<Rightarrow> \<open>
+          (match premises in prems [thin]: _ (cut, multi) \<Rightarrow> \<open>succeed\<close> | succeed);
             (
               intro basic.bisimulation_in_bisimilarity,
               intro basic.symmetric_simulation_is_bisimulation
             );
               match conclusion in
-                "symp \<X>" \<Rightarrow> \<open>intro sympI\<close> \<bar>
-                "basic.sim \<X>" \<Rightarrow> \<open>basic.is_simulation_standard\<close>
+                "symp \<X>" (cut) \<Rightarrow> \<open>intro sympI\<close> \<bar>
+                "basic.sim \<X>" (cut) \<Rightarrow> \<open>basic.is_simulation_standard\<close>
         \<close>
   ),
   goal_cases related sym sim
@@ -331,7 +331,7 @@ qed
 
 private method solve_sim_scoped uses with_new_channel = (
   match conclusion in
-    "\<exists>d\<^sub>2. _ \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift _ (\<lbrace>_\<rbrace> \<nu> a. _ a) d\<^sub>2" \<Rightarrow> \<open>
+    "\<exists>d\<^sub>2. _ \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift _ (\<lbrace>_\<rbrace> \<nu> a. _ a) d\<^sub>2" (cut) \<Rightarrow> \<open>
       match premises in "s \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a" for s and S\<^sub>1 \<Rightarrow> \<open>
         match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>
           intro sim_scoped_acting_intro [where s = s and S\<^sub>1 = S\<^sub>1],
@@ -340,7 +340,7 @@ private method solve_sim_scoped uses with_new_channel = (
         \<close>
       \<close>
     \<close> \<bar>
-    "\<exists>d\<^sub>2. _ \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift _ (\<lbrace>\<nu> b\<rbrace> \<nu> a. _ a b) d\<^sub>2" \<Rightarrow> \<open>
+    "\<exists>d\<^sub>2. _ \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift _ (\<lbrace>\<nu> b\<rbrace> \<nu> a. _ a b) d\<^sub>2" (cut) \<Rightarrow> \<open>
       match premises in "s \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a" for s and S\<^sub>1 \<Rightarrow> \<open>
         match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>
           intro sim_scoped_opening_intro [where s = s and S\<^sub>1 = S\<^sub>1],
@@ -349,7 +349,7 @@ private method solve_sim_scoped uses with_new_channel = (
         \<close>
       \<close>
     \<close> \<bar>
-    _ \<Rightarrow> \<open>succeed\<close>
+    _ (cut) \<Rightarrow> \<open>succeed\<close>
 )
 
 method basic_sim_induction for t uses with_new_channel =
