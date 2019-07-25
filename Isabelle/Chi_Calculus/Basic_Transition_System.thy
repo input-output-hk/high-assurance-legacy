@@ -1,7 +1,7 @@
 section \<open>Basic Transition System\<close>
 
 theory Basic_Transition_System
-  imports Utilities.Equivalences Natural_Transition_Systems
+  imports Relation_Methods.Equivalence Natural_Transition_Systems
 begin
 
 subsection \<open>Actions\<close>

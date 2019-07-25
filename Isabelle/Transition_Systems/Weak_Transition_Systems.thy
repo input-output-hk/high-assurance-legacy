@@ -1,7 +1,7 @@
 section \<open>Weak Transition Systems\<close>
 
 theory Weak_Transition_Systems
-  imports Utilities.Monotonicity Transition_Systems Weak_Residuals
+  imports Relation_Methods.Monotonicity Transition_Systems Weak_Residuals
 begin
 
 locale weak_transition_system =

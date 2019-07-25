@@ -1,4 +1,4 @@
-theory Equivalences
+theory Equivalence
   imports Main "HOL-Eisbach.Eisbach_Tools"
 begin
 
