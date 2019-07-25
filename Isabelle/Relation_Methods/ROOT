@@ -1,12 +1,12 @@
 chapter Ouroboros
 
-session Utilities (ouroboros) = HOL +
+session Relation_Methods (ouroboros) = HOL +
   description
-    \<open>General-purpose utilities.\<close>
+    \<open>Proof methods for dealing with relations.\<close>
   sessions
     "HOL-Eisbach"
   theories
     Monotonicity
-    Equivalences
+    Equivalence
   document_files
     "root.tex"
