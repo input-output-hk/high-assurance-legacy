@@ -134,7 +134,7 @@ proof -
   have "a \<leftrightarrow> b \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> b \<rightarrow> a"
     using basic.bisimilarity_transitivity_rule parallel_associativity parallel_commutativity by blast
   also have "b \<leftrightarrow> a \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> b \<leftrightarrow> a"
-    using forward_bridge_absorption by blast
+    using forward_bridge_absorption .
   finally show ?thesis
     using basic.bisimilarity_transitivity_rule bidirectional_bridge_commutativity by blast
 qed
