@@ -23,12 +23,12 @@ abbreviation bidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix
   "a \<leftrightarrow> b \<equiv> a \<rightarrow> b \<parallel> b \<rightarrow> a"
 
 lemma bidirectional_bridge_commutativity: "a \<leftrightarrow> b \<sim>\<^sub>\<flat> b \<leftrightarrow> a"
-  by (simp add: basic_parallel_commutativity)
+  by (simp add: parallel_commutativity)
 
 lemma forward_bridge_absorption: "a \<leftrightarrow> b \<parallel> a \<rightarrow> b \<sim>\<^sub>\<flat> a \<leftrightarrow> b"
 proof -
   have "a \<leftrightarrow> b \<parallel> a \<rightarrow> b \<sim>\<^sub>\<flat> (a \<rightarrow> b \<parallel> a \<rightarrow> b) \<parallel> b \<rightarrow> a"
-    using basic.bisimilarity_transitivity_rule basic_parallel_associativity basic_parallel_commutativity by blast
+    using basic.bisimilarity_transitivity_rule parallel_associativity parallel_commutativity by blast
   also have "(a \<rightarrow> b \<parallel> a \<rightarrow> b) \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<rightarrow> a"
     using multi_receive_idempotency basic_parallel_preservation_left by blast
   finally show ?thesis
@@ -38,7 +38,7 @@ qed
 lemma backward_bridge_absorption: "a \<leftrightarrow> b \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> a \<leftrightarrow> b"
 proof -
   have "a \<leftrightarrow> b \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> b \<rightarrow> a"
-    using basic.bisimilarity_transitivity_rule basic_parallel_associativity basic_parallel_commutativity by blast
+    using basic.bisimilarity_transitivity_rule parallel_associativity parallel_commutativity by blast
   also have "b \<leftrightarrow> a \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> b \<leftrightarrow> a"
     by (simp add: forward_bridge_absorption)
   finally show ?thesis

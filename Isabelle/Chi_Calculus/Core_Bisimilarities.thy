@@ -118,7 +118,7 @@ next
     by blast
 qed
 
-lemma basic_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
+lemma parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
 proof (old_bisimilarity_standard parallel_scope_extension_left_aux)
   case related
   show ?case
@@ -353,12 +353,12 @@ qed
 
 end
 
-lemma basic_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<sim>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
+lemma parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<sim>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
   sorry
 
 context begin
 
-private lemma basic_pre_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<lesssim>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
+private lemma pre_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<lesssim>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
 proof (standard, intro allI, intro impI)
   fix c
   assume "\<nu> b. \<nu> a. P a b \<rightarrow>\<^sub>\<flat>c"
@@ -385,50 +385,50 @@ proof (standard, intro allI, intro impI)
   qed
 qed
 
-lemma basic_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<sim>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
-  by (simp add: basic_pre_new_channel_scope_extension basic.bisimilarity_def)
+lemma new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<sim>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
+  by (simp add: pre_new_channel_scope_extension basic.bisimilarity_def)
 
 end
 
 context begin
 
 private inductive
-  parallel_unit_left_aux :: "process \<Rightarrow> process \<Rightarrow> bool"
+  parallel_neutrality_left_aux :: "process \<Rightarrow> process \<Rightarrow> bool"
 where
   without_new_channel_ltr: "
-    parallel_unit_left_aux (\<zero> \<parallel> p) p" |
+    parallel_neutrality_left_aux (\<zero> \<parallel> p) p" |
   without_new_channel_rtl: "
-    parallel_unit_left_aux p (\<zero> \<parallel> p)" |
+    parallel_neutrality_left_aux p (\<zero> \<parallel> p)" |
   with_new_channel: "
-    (\<And>a. parallel_unit_left_aux (S a) (T a)) \<Longrightarrow>
-    parallel_unit_left_aux (\<nu> a. S a) (\<nu> a. T a)"
+    (\<And>a. parallel_neutrality_left_aux (S a) (T a)) \<Longrightarrow>
+    parallel_neutrality_left_aux (\<nu> a. S a) (\<nu> a. T a)"
 
-private method parallel_unit_left_aux_trivial_conveyance =
+private method parallel_neutrality_left_aux_trivial_conveyance =
   (blast intro:
     acting_right
     opening_right
-    parallel_unit_left_aux.without_new_channel_rtl
+    parallel_neutrality_left_aux.without_new_channel_rtl
     basic_lift_intros
   )
 
-lemma basic_parallel_unit_left [natural_simps]: "\<zero> \<parallel> p \<sim>\<^sub>\<flat> p"
-proof (old_bisimilarity_standard parallel_unit_left_aux)
+lemma basic_parallel_neutrality_left [natural_simps]: "\<zero> \<parallel> p \<sim>\<^sub>\<flat> p"
+proof (old_bisimilarity_standard parallel_neutrality_left_aux)
   case related
-  show ?case by (fact parallel_unit_left_aux.without_new_channel_ltr)
+  show ?case by (fact parallel_neutrality_left_aux.without_new_channel_ltr)
 next
   case sym
-  then show ?case by induction (simp_all add: parallel_unit_left_aux.intros)
+  then show ?case by induction (simp_all add: parallel_neutrality_left_aux.intros)
 next
   case (sim s t c)
   from this and \<open>s \<rightarrow>\<^sub>\<flat>c\<close> show ?case
-  proof (basic_sim_induction t with_new_channel: parallel_unit_left_aux.with_new_channel)
+  proof (basic_sim_induction t with_new_channel: parallel_neutrality_left_aux.with_new_channel)
     case sending
     from sending.prems show ?case
-      by cases parallel_unit_left_aux_trivial_conveyance
+      by cases parallel_neutrality_left_aux_trivial_conveyance
   next
     case receiving
     from receiving.prems show ?case
-      by cases parallel_unit_left_aux_trivial_conveyance
+      by cases parallel_neutrality_left_aux_trivial_conveyance
   next
     case communication
     from communication.prems show ?case
@@ -436,7 +436,7 @@ next
       case without_new_channel_ltr
       with communication.hyps show ?thesis
         by (simp add: no_basic_transitions_from_stop)
-    qed parallel_unit_left_aux_trivial_conveyance
+    qed parallel_neutrality_left_aux_trivial_conveyance
   next
     case opening
     from opening.prems show ?case
@@ -445,7 +445,7 @@ next
       then show ?thesis
         using basic_transition.opening and opening_lift and rel_funI
         by metis
-    qed parallel_unit_left_aux_trivial_conveyance
+    qed parallel_neutrality_left_aux_trivial_conveyance
   next
     case acting_left
     from acting_left.prems show ?case
@@ -453,16 +453,16 @@ next
       case without_new_channel_ltr
       with acting_left.hyps show ?thesis
         by (simp add: no_basic_transitions_from_stop)
-    qed parallel_unit_left_aux_trivial_conveyance
+    qed parallel_neutrality_left_aux_trivial_conveyance
   next
     case acting_right
     from acting_right.prems show ?case
     proof cases
       case without_new_channel_ltr
       with acting_right.hyps show ?thesis
-        using parallel_unit_left_aux.without_new_channel_ltr and acting_lift
+        using parallel_neutrality_left_aux.without_new_channel_ltr and acting_lift
         by auto
-    qed parallel_unit_left_aux_trivial_conveyance
+    qed parallel_neutrality_left_aux_trivial_conveyance
   next
     case opening_left
     from opening_left.prems show ?case
@@ -470,7 +470,7 @@ next
       case without_new_channel_ltr
       with opening_left.hyps show ?thesis
         by (simp add: no_basic_transitions_from_stop)
-    qed parallel_unit_left_aux_trivial_conveyance
+    qed parallel_neutrality_left_aux_trivial_conveyance
   next
     case opening_right
     from opening_right.prems show ?case
@@ -478,15 +478,15 @@ next
       case without_new_channel_ltr
       with opening_right.hyps show ?thesis
         using
-          parallel_unit_left_aux.without_new_channel_ltr and
+          parallel_neutrality_left_aux.without_new_channel_ltr and
           opening_lift and
           rel_funI
         by smt
-    qed parallel_unit_left_aux_trivial_conveyance
+    qed parallel_neutrality_left_aux_trivial_conveyance
   qed
 qed
 
-lemma basic_parallel_unit_right [natural_simps]: "p \<parallel> \<zero> \<sim>\<^sub>\<flat> p"
+lemma parallel_neutrality_right [natural_simps]: "p \<parallel> \<zero> \<sim>\<^sub>\<flat> p"
   sorry
 
 end
@@ -850,26 +850,26 @@ next
     nested_parallel_commutativity_aux.cases)+
 qed
 
-lemma basic_parallel_commutativity [natural_simps]: "p \<parallel> q \<sim>\<^sub>\<flat> q \<parallel> p"
+lemma parallel_commutativity [natural_simps]: "p \<parallel> q \<sim>\<^sub>\<flat> q \<parallel> p"
 proof -
   have "p \<parallel> q \<sim>\<^sub>\<flat> (\<zero> \<parallel> p) \<parallel> q"
-    using basic_parallel_unit_left and basic_parallel_preservation_left
+    using basic_parallel_neutrality_left and basic_parallel_preservation_left
     by (simp add: basic.bisimilarity_def)
   also have "(\<zero> \<parallel> p) \<parallel> q \<sim>\<^sub>\<flat> (\<zero> \<parallel> q) \<parallel> p"
     by (fact basic_nested_parallel_commutativity)
   also have "(\<zero> \<parallel> q) \<parallel> p \<sim>\<^sub>\<flat> q \<parallel> p"
-    using basic_parallel_unit_left and basic_parallel_preservation_left by blast
+    using basic_parallel_neutrality_left and basic_parallel_preservation_left by blast
   finally show ?thesis .
 qed
 
-lemma basic_parallel_associativity [natural_simps]: "(p \<parallel> q) \<parallel> r \<sim>\<^sub>\<flat> p \<parallel> (q \<parallel> r)"
+lemma parallel_associativity [natural_simps]: "(p \<parallel> q) \<parallel> r \<sim>\<^sub>\<flat> p \<parallel> (q \<parallel> r)"
 proof -
   have "(p \<parallel> q) \<parallel> r \<sim>\<^sub>\<flat> (q \<parallel> p) \<parallel> r"
-    using basic_parallel_commutativity and basic_parallel_preservation_left by blast
+    using parallel_commutativity and basic_parallel_preservation_left by blast
   also have "(q \<parallel> p) \<parallel> r \<sim>\<^sub>\<flat> (q \<parallel> r) \<parallel> p"
     by (fact basic_nested_parallel_commutativity)
   also have "(q \<parallel> r) \<parallel> p \<sim>\<^sub>\<flat> p \<parallel> (q \<parallel> r)"
-    by (fact basic_parallel_commutativity)
+    by (fact parallel_commutativity)
   finally show ?thesis .
 qed
 
@@ -885,12 +885,12 @@ text \<open>
   \<open>nested_parallel_commutativity\<close>.
 \<close>
 
-lemma basic_parallel_nested_commutativity [natural_simps]: "p \<parallel> (q \<parallel> r) \<sim>\<^sub>\<flat> q \<parallel> (p \<parallel> r)"
+lemma parallel_nested_commutativity [natural_simps]: "p \<parallel> (q \<parallel> r) \<sim>\<^sub>\<flat> q \<parallel> (p \<parallel> r)"
   sorry
 
 context begin
 
-private lemma proper_pre_receive_scope_extension_ltr: "a \<triangleright> x. \<nu> b. P x b \<lesssim>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
+private lemma pre_receive_scope_extension_ltr: "a \<triangleright> x. \<nu> b. P x b \<lesssim>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
 proof (standard, intro allI, intro impI)
   fix c
   assume "a \<triangleright> x. \<nu> b. P x b \<rightarrow>\<^sub>\<sharp>c"
@@ -934,7 +934,7 @@ next
   then show ?case using no_opening_transitions_from_receive by metis
 qed
 
-private lemma proper_pre_receive_scope_extension_rtl: "\<nu> b. a \<triangleright> x. P x b \<lesssim>\<^sub>\<sharp> a \<triangleright> x. \<nu> b. P x b"
+private lemma pre_receive_scope_extension_rtl: "\<nu> b. a \<triangleright> x. P x b \<lesssim>\<^sub>\<sharp> a \<triangleright> x. \<nu> b. P x b"
 proof (standard, intro allI, intro impI)
   fix c
   assume "\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<sharp>c"
@@ -1001,11 +1001,11 @@ proof (standard, intro allI, intro impI)
   qed
 qed
 
-lemma proper_receive_scope_extension [natural_simps]: "a \<triangleright> x. \<nu> b. P x b \<sim>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
+lemma receive_scope_extension [natural_simps]: "a \<triangleright> x. \<nu> b. P x b \<sim>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
   unfolding proper.bisimilarity_def
   by standard (
-    fact proper_pre_receive_scope_extension_ltr,
-    fact proper_pre_receive_scope_extension_rtl
+    fact pre_receive_scope_extension_ltr,
+    fact pre_receive_scope_extension_rtl
   )
 
 end
@@ -1054,7 +1054,7 @@ proof
   qed (simp_all add: no_acting_transitions_from_new_channel_stop)
 qed
 
-private lemma proper_stop_scope_redundancy: "\<nu> a. \<zero> \<sim>\<^sub>\<sharp> \<zero>"
+private lemma stop_scope_redundancy: "\<nu> a. \<zero> \<sim>\<^sub>\<sharp> \<zero>"
 unfolding proper.bisimilarity_def proof
   show "\<nu> a. \<zero> \<lesssim>\<^sub>\<sharp> \<zero>"
     using no_proper_transitions_from_new_channel_stop
@@ -1065,106 +1065,20 @@ next
     by (blast intro: proper.pre_bisimilarity)
 qed
 
-lemma proper_scope_redundancy [natural_simps]: "\<nu> a. p \<sim>\<^sub>\<sharp> p"
+lemma scope_redundancy [natural_simps]: "\<nu> a. p \<sim>\<^sub>\<sharp> p"
 proof -
   have "\<nu> a. p \<sim>\<^sub>\<sharp> \<nu> a. (\<zero> \<parallel> p)"
-    using basic_parallel_unit_left by equivalence
+    using basic_parallel_neutrality_left by equivalence
   also have "\<nu> a. (\<zero> \<parallel> p) \<sim>\<^sub>\<sharp> \<nu> a. \<zero> \<parallel> p"
-    using basic_parallel_scope_extension_left by equivalence
+    using parallel_scope_extension_left by equivalence
   also have "\<nu> a. \<zero> \<parallel> p \<sim>\<^sub>\<sharp> \<zero> \<parallel> p"
-    using proper_stop_scope_redundancy by equivalence
+    using stop_scope_redundancy by equivalence
   also have "\<zero> \<parallel> p \<sim>\<^sub>\<sharp> p"
-    using basic_parallel_unit_left by equivalence
+    using basic_parallel_neutrality_left by equivalence
   finally show ?thesis .
 qed
 
 end
-
-(* FIXME:
-  The remaining lemmas should be removed once all code uses the automatic relaxation provided by the
-  @{method equivalence} proof method.
-*)
-
-lemma basic_weak_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<approx>\<^sub>\<flat> \<nu> a. (P a \<parallel> q)"
-  sorry
-
-lemma basic_weak_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<approx>\<^sub>\<flat> \<nu> a. (p \<parallel> Q a)"
-  sorry
-
-lemma basic_weak_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<approx>\<^sub>\<flat> \<nu> a. \<nu> b. P a b"
-  sorry
-
-lemma basic_weak_parallel_unit_left: "\<zero> \<parallel> p \<approx>\<^sub>\<flat> p"
-  sorry
-
-lemma basic_weak_parallel_unit_right: "p \<parallel> \<zero> \<approx>\<^sub>\<flat> p"
-  sorry
-
-lemma basic_weak_parallel_commutativity: "p \<parallel> q \<approx>\<^sub>\<flat> q \<parallel> p"
-  sorry
-
-lemma basic_weak_parallel_associativity: "(p \<parallel> q) \<parallel> r \<approx>\<^sub>\<flat> p \<parallel> (q \<parallel> r)"
-  sorry
-
-lemma basic_weak_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r) \<approx>\<^sub>\<flat> q \<parallel> (p \<parallel> r)"
-  sorry
-
-lemma proper_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<sim>\<^sub>\<sharp> \<nu> a. (P a \<parallel> q)"
-  using basic_parallel_scope_extension_left
-  by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
-
-lemma proper_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<sim>\<^sub>\<sharp> \<nu> a. (p \<parallel> Q a)"
-  sorry
-
-lemma proper_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<sim>\<^sub>\<sharp> \<nu> a. \<nu> b. P a b"
-  using basic_new_channel_scope_extension
-  by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
-
-lemma proper_parallel_unit_left: "\<zero> \<parallel> p \<sim>\<^sub>\<sharp> p"
-  using basic_parallel_unit_left
-  by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
-
-lemma proper_parallel_unit_right: "p \<parallel> \<zero> \<sim>\<^sub>\<sharp> p"
-  sorry
-
-lemma proper_parallel_commutativity: "p \<parallel> q \<sim>\<^sub>\<sharp> q \<parallel> p"
-  using basic_parallel_commutativity
-  by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
-
-lemma proper_parallel_associativity: "(p \<parallel> q) \<parallel> r \<sim>\<^sub>\<sharp> p \<parallel> (q \<parallel> r)"
-  using basic_parallel_associativity
-  by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
-
-lemma proper_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r) \<sim>\<^sub>\<sharp> q \<parallel> (p \<parallel> r)"
-  using basic_parallel_nested_commutativity
-  by (intro basic_bisimilarity_in_proper_bisimilarity_rule)
-
-lemma proper_weak_receive_scope_extension: "a \<triangleright> x. \<nu> b. P x b \<approx>\<^sub>\<sharp> \<nu> b. a \<triangleright> x. P x b"
-  sorry
-
-lemma proper_weak_parallel_scope_extension_left: "\<nu> a. P a \<parallel> q \<approx>\<^sub>\<sharp> \<nu> a. (P a \<parallel> q)"
-  sorry
-
-lemma proper_weak_parallel_scope_extension_right: "p \<parallel> \<nu> a. Q a \<approx>\<^sub>\<sharp> \<nu> a. (p \<parallel> Q a)"
-  sorry
-
-lemma proper_weak_new_channel_scope_extension: "\<nu> b. \<nu> a. P a b \<approx>\<^sub>\<sharp> \<nu> a. \<nu> b. P a b"
-  sorry
-
-lemma proper_weak_parallel_unit_left: "\<zero> \<parallel> p \<approx>\<^sub>\<sharp> p"
-  sorry
-
-lemma proper_weak_parallel_unit_right: "p \<parallel> \<zero> \<approx>\<^sub>\<sharp> p"
-  sorry
-
-lemma proper_weak_parallel_commutativity: "p \<parallel> q \<approx>\<^sub>\<sharp> q \<parallel> p"
-  sorry
-
-lemma proper_weak_parallel_associativity: "(p \<parallel> q) \<parallel> r \<approx>\<^sub>\<sharp> p \<parallel> (q \<parallel> r)"
-  sorry
-
-lemma proper_weak_parallel_nested_commutativity: "p \<parallel> (q \<parallel> r) \<approx>\<^sub>\<sharp> q \<parallel> (p \<parallel> r)"
-  sorry
 
 definition tagged_new_channel :: "[nat, chan \<Rightarrow> process] \<Rightarrow> process" where
   "tagged_new_channel _ P = \<nu> a. P a"
@@ -1212,17 +1126,17 @@ end
 lemma tagged_parallel_scope_extension_left [natural_simps]:
   shows "\<langle>t\<rangle> \<nu> a. P a \<parallel> q \<sim>\<^sub>\<flat> \<langle>t\<rangle> \<nu> a. (P a \<parallel> q)"
   unfolding tagged_new_channel_def
-  using basic_parallel_scope_extension_left .
+  using parallel_scope_extension_left .
 
 lemma tagged_parallel_scope_extension_right [natural_simps]:
   shows "p \<parallel> \<langle>t\<rangle> \<nu> a. Q a \<sim>\<^sub>\<flat> \<langle>t\<rangle> \<nu> a. (p \<parallel> Q a)"
   unfolding tagged_new_channel_def
-  using basic_parallel_scope_extension_right .
+  using parallel_scope_extension_right .
 
 lemma guarded_tagged_new_channel_scope_extension [natural_simps]:
   assumes "s < t"
   shows "\<langle>t\<rangle> \<nu> b. \<langle>s\<rangle> \<nu> a. P a b \<sim>\<^sub>\<flat> \<langle>s\<rangle> \<nu> a. \<langle>t\<rangle> \<nu> b. P a b"
   unfolding tagged_new_channel_def
-  using basic_new_channel_scope_extension .
+  using new_channel_scope_extension .
 
 end

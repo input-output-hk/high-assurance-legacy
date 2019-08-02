@@ -1,6 +1,6 @@
 chapter Ouroboros
 
-session Transition_Systems (ouroboros) = Utilities +
+session Transition_Systems (ouroboros) = Relation_Methods +
   description
     \<open>A framework for labeled transition systems with support for scope openings.\<close>
   sessions
