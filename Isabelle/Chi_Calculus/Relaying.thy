@@ -5,7 +5,7 @@ theory Relaying
 begin
 
 abbreviation unidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "\<rightarrow>" 100) where
-  "a \<rightarrow> b \<equiv> a \<triangleright>\<^sup>\<infinity> x. b \<triangleleft> x"
+  "a \<rightarrow> b \<equiv> a \<Rightarrow> [b]"
 
 lemma early_multi_receive_addition:
   shows "a \<rightarrow> b \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x \<parallel> a \<triangleright>\<^sup>\<infinity> x. P x"
@@ -40,7 +40,7 @@ proof -
   have "a \<leftrightarrow> b \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> b \<rightarrow> a"
     using basic.bisimilarity_transitivity_rule parallel_associativity parallel_commutativity by blast
   also have "b \<leftrightarrow> a \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> b \<leftrightarrow> a"
-    by (simp add: forward_bridge_absorption)
+    using forward_bridge_absorption by blast
   finally show ?thesis
     using basic.bisimilarity_transitivity_rule bidirectional_bridge_commutativity by blast
 qed
@@ -84,9 +84,6 @@ lemma detour_squashing:
 lemma duploss_detour_collapse:
   shows "\<nu> b. (\<currency>\<^sup>*b \<parallel> a \<leftrightarrow> b) \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a"
   sorry
-
-abbreviation distributor :: "[chan, chan list] \<Rightarrow> process" (infix "\<Rightarrow>" 100) where
-  "a \<Rightarrow> bs \<equiv> a \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>bs. b \<triangleleft> x"
 
 lemma distributor_split:
   "\<currency>\<^sup>+a \<parallel> \<Prod>b \<leftarrow> bs. \<currency>\<^sup>?b \<parallel> a \<Rightarrow> bs \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> \<Prod>b \<leftarrow> bs. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> bs. a \<rightarrow> b"
