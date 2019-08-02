@@ -198,10 +198,6 @@ proof -
     by simp
 qed
 
-lemma singleton_distributor_switch:
-  shows "a \<leftrightarrow> b \<parallel> c \<Rightarrow> [a] \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<rightarrow> b"
-  using target_switch by blast
-
 lemma distributor_idempotency_under_duploss:
   shows "\<currency>\<^sup>*a \<parallel> b \<Rightarrow> [a,a] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<rightarrow> a"
 proof -
@@ -298,9 +294,9 @@ lemma send_collapse:
     \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> send_collapsed_network r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3"
 proof -
   have "\<And>l\<^sub>1\<^sub>3 l\<^sub>3\<^sub>0. l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<approx>\<^sub>\<flat> l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0"
-    using singleton_distributor_switch by blast
+    using target_switch by blast
   moreover have "\<And>l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0. l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<approx>\<^sub>\<flat> l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0"
-    using singleton_distributor_switch by blast
+    using target_switch by blast
   moreover have "\<And>l\<^sub>3\<^sub>0. s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<approx>\<^sub>\<flat> s\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0"
     using singleton_distribution by blast
   moreover have "\<And>l\<^sub>3\<^sub>0 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2.
