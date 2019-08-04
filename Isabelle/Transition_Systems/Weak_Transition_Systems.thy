@@ -32,8 +32,8 @@ notation weak.bisimilarity (infix "\<approx>" 50)
 sublocale mixed: simulation_system lift strong_transition weak_transition
   by intro_locales
 
-lemma weak_sim_equals_mixed_sim: "weak.sim = mixed.sim"
-proof (intro ext, intro iffI)
+lemma weak_simulation_is_mixed_simulation_and_vice_versa: "weak.sim \<X> \<longleftrightarrow> mixed.sim \<X>"
+proof
   fix \<X>
   assume "\<X> \<le> weak.transfer \<X>" 
   also have "\<dots> \<le> mixed.transfer \<X>" by (blast intro: strong_transition)
@@ -92,14 +92,14 @@ next
     qed
   qed
 qed
-lemma weak_bisim_equals_mixed_bisim: "weak.bisim = mixed.bisim"
-  by (simp add: fun_cong [OF weak_sim_equals_mixed_sim])
+lemma weak_bisimulation_is_mixed_bisimulation_and_vice_versa: "weak.bisim \<X> \<longleftrightarrow> mixed.bisim \<X>"
+  by (simp add: weak_simulation_is_mixed_simulation_and_vice_versa)
 lemma weak_bisimilarity_equals_mixed_bisimilarity: "weak.bisimilarity = mixed.bisimilarity"
 proof -
   have "weak.bisimilarity = (GREATEST \<X>. weak.bisim \<X>)"
     by (fact weak.bisimilarity_is_greatest_bisimulation)
   also have "\<dots> = (GREATEST \<X>. mixed.bisim \<X>)"
-    by (simp add: weak_bisim_equals_mixed_bisim)
+    by (simp add: weak_bisimulation_is_mixed_bisimulation_and_vice_versa)
   also have "\<dots> = mixed.bisimilarity"
     by (simp add: mixed.bisimilarity_is_greatest_bisimulation)
   finally show ?thesis .
@@ -109,7 +109,7 @@ proof -
   assume "\<X> \<le> strong.transfer \<X>"
   also have "\<dots> \<le> mixed.transfer \<X>" by (blast intro: strong_transition)
   finally have "mixed.sim \<X>" .
-  then show "weak.sim \<X>" by (simp add: fun_cong [OF weak_sim_equals_mixed_sim])
+  then show "weak.sim \<X>" unfolding weak_simulation_is_mixed_simulation_and_vice_versa .
 qed
 lemma strong_bisimulation_is_weak_bisimulation: "strong.bisim \<X> \<Longrightarrow> weak.bisim \<X>"
   using strong_simulation_is_weak_simulation by blast
