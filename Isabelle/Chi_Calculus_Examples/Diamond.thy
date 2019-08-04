@@ -203,15 +203,15 @@ proof -
   have "a \<leftrightarrow> b \<parallel> c \<Rightarrow> [a] \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<rightarrow> a"
     using singleton_distribution sorry
   also have "a \<leftrightarrow> b \<parallel> c \<rightarrow> a \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> a \<triangleleft> x)"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   also have "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> a \<triangleleft> x) \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<leftrightarrow> b \<parallel> a \<triangleleft> x)"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   also have "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<leftrightarrow> b \<parallel> a \<triangleleft> x) \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<leftrightarrow> b \<parallel> b \<triangleleft> x)"
     using send_channel_switch and basic_weak_multi_receive_preservation sorry
   also have "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<leftrightarrow> b \<parallel> b \<triangleleft> x) \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> b \<triangleleft> x)"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   also have "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> b \<triangleleft> x) \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<rightarrow> b"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   finally show ?thesis .
 qed
 
@@ -221,9 +221,9 @@ proof -
   have "\<currency>\<^sup>*a \<parallel> b \<Rightarrow> [a,a] \<approx>\<^sub>\<flat> \<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)"
     sorry
   also have "\<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x) \<approx>\<^sub>\<flat> \<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>+a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x)"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   also have "\<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>+a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x) \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x)"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   also have "\<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x) \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x)"
   proof -
     have "\<And>x. \<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> a \<triangleleft> x"
@@ -234,9 +234,9 @@ proof -
       sorry
   qed
   also have "\<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x) \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>+a \<parallel> a \<triangleleft> x)"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   also have "\<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>+a \<parallel> a \<triangleleft> x) \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. a \<triangleleft> x"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   finally show ?thesis .
 qed
 
@@ -249,12 +249,12 @@ proof -
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<triangleleft> x \<parallel> c \<triangleleft> x)
     \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> b \<triangleleft> x \<parallel> c \<triangleleft> x)"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   also have "
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> b \<triangleleft> x \<parallel> c \<triangleleft> x)
     \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> a \<parallel> b \<triangleleft> x \<parallel> c \<triangleleft> x)"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   also have "
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> a \<parallel> b \<triangleleft> x \<parallel> c \<triangleleft> x)
     \<approx>\<^sub>\<flat>
@@ -264,22 +264,22 @@ proof -
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> a \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)
     \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   also have "
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)
     \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> c \<triangleleft> x)"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   also have "
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> c \<triangleleft> x)
     \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<rightarrow> a \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   also have "
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<rightarrow> a \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)
     \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<leftrightarrow> a \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   also have "
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<leftrightarrow> a \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)
     \<approx>\<^sub>\<flat>
@@ -289,12 +289,12 @@ proof -
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<leftrightarrow> a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x)
     \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<rightarrow> a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x)"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   also have "
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<rightarrow> a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x)
     \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)"
-    using context_localization sorry
+    using inner_multi_receive_redundancy sorry
   also have "
     \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)
     \<approx>\<^sub>\<flat>
