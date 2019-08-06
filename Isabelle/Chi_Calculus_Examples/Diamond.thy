@@ -195,7 +195,7 @@ proof -
   then have "a \<triangleright>\<^sup>\<infinity> x. \<Prod> c\<leftarrow>[b]. c \<triangleleft> x \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. b \<triangleleft> x"
     by (simp add: basic_weak_multi_receive_preservation)
   then show ?thesis
-    by (simp add: distributor_def unidirectional_bridge_def)
+    unfolding distributor_def and unidirectional_bridge_def .
 qed
 
 lemma singleton_distributor_switch:

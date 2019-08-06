@@ -13,7 +13,7 @@ lemma early_multi_receive_redundancy:
 
 lemma shortcut_redundancy:
   shows "a \<rightarrow> b \<parallel> b \<rightarrow> c \<parallel> a \<rightarrow> c \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<rightarrow> c"
-  using unidirectional_bridge_def and early_multi_receive_redundancy by simp
+  using early_multi_receive_redundancy unfolding unidirectional_bridge_def .
 
 lemma loop_redundancy_under_duploss:
   shows "\<currency>\<^sup>*a \<parallel> a \<rightarrow> a \<approx>\<^sub>\<flat> \<currency>\<^sup>*a"
@@ -23,22 +23,17 @@ definition bidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "
   "a \<leftrightarrow> b \<equiv> a \<rightarrow> b \<parallel> b \<rightarrow> a"
 
 lemma bidirectional_bridge_commutativity: "a \<leftrightarrow> b \<sim>\<^sub>\<flat> b \<leftrightarrow> a"
-  by (simp add: parallel_commutativity bidirectional_bridge_def)
+  unfolding bidirectional_bridge_def using parallel_commutativity .
 
 lemma forward_bridge_absorption: "a \<leftrightarrow> b \<parallel> a \<rightarrow> b \<sim>\<^sub>\<flat> a \<leftrightarrow> b"
 proof -
   have "a \<leftrightarrow> b \<parallel> a \<rightarrow> b \<sim>\<^sub>\<flat> (a \<rightarrow> b \<parallel> a \<rightarrow> b) \<parallel> b \<rightarrow> a"
-    using
-      unidirectional_bridge_def and
-      bidirectional_bridge_def and
-      basic.bisimilarity_transitivity_rule and
-      parallel_associativity parallel_commutativity
-    by metis
+    unfolding unidirectional_bridge_def and bidirectional_bridge_def
+    using basic.bisimilarity_transitivity_rule and parallel_associativity parallel_commutativity
+    by blast
   also have "(a \<rightarrow> b \<parallel> a \<rightarrow> b) \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<rightarrow> a"
-    using
-      unidirectional_bridge_def and
-      multi_receive_idempotency and
-      basic_parallel_preservation_left
+    unfolding unidirectional_bridge_def
+    using multi_receive_idempotency and basic_parallel_preservation_left
     by simp
   finally show ?thesis
     by (simp add: bidirectional_bridge_def)
