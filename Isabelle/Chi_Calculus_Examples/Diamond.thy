@@ -175,7 +175,7 @@ proof -
   moreover have "\<And>l\<^sub>3\<^sub>0. l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3 \<approx>\<^sub>\<flat> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3"
     by
       (rule predicate2D [OF basic_strong_bisimilarity_in_weak_bisimilarity])
-      (simp add: multi_receive_idempotency)
+      (simp add: multi_receive_idempotency unidirectional_bridge_def)
   ultimately show ?thesis
     using basic_weak_bisimilarity_in_proper_weak_bisimilarity sorry
 qed
@@ -194,7 +194,8 @@ proof -
     sorry
   then have "a \<triangleright>\<^sup>\<infinity> x. \<Prod> c\<leftarrow>[b]. c \<triangleleft> x \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. b \<triangleleft> x"
     by (simp add: basic_weak_multi_receive_preservation)
-  then show ?thesis .
+  then show ?thesis
+    by (simp add: distributor_def unidirectional_bridge_def)
 qed
 
 lemma singleton_distributor_switch:
@@ -237,7 +238,8 @@ proof -
     using inner_multi_receive_redundancy sorry
   also have "\<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>+a \<parallel> a \<triangleleft> x) \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. a \<triangleleft> x"
     using inner_multi_receive_redundancy sorry
-  finally show ?thesis .
+  finally show ?thesis
+    by (simp add: unidirectional_bridge_def)
 qed
 
 lemma two_channel_distributor_switch:
