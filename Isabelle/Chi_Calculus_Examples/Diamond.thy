@@ -173,9 +173,10 @@ proof -
   moreover have "\<And>l\<^sub>3\<^sub>0 l\<^sub>2\<^sub>3. l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3 \<approx>\<^sub>\<flat> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3"
     by (simp add: source_switch [THEN basic.weak.bisimilarity_symmetry_rule] bidirectional_bridge_commutativity)
   moreover have "\<And>l\<^sub>3\<^sub>0. l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3 \<approx>\<^sub>\<flat> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3"
+    unfolding unidirectional_bridge_def
     by
       (rule predicate2D [OF basic_strong_bisimilarity_in_weak_bisimilarity])
-      (simp add: multi_receive_idempotency unidirectional_bridge_def)
+      (simp add: multi_receive_idempotency)
   ultimately show ?thesis
     using basic_weak_bisimilarity_in_proper_weak_bisimilarity sorry
 qed
@@ -239,7 +240,7 @@ proof -
   also have "\<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>+a \<parallel> a \<triangleleft> x) \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. a \<triangleleft> x"
     using inner_multi_receive_redundancy sorry
   finally show ?thesis
-    by (simp add: unidirectional_bridge_def)
+    unfolding unidirectional_bridge_def .
 qed
 
 lemma two_channel_distributor_switch:

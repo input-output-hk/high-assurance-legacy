@@ -36,18 +36,15 @@ proof -
     using multi_receive_idempotency and basic_parallel_preservation_left
     by simp
   finally show ?thesis
-    by (simp add: bidirectional_bridge_def)
+    unfolding bidirectional_bridge_def by blast
 qed
 
 lemma backward_bridge_absorption: "a \<leftrightarrow> b \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> a \<leftrightarrow> b"
 proof -
   have "a \<leftrightarrow> b \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> b \<rightarrow> a"
-    using
-      unidirectional_bridge_def and
-      bidirectional_bridge_def and
-      basic.bisimilarity_transitivity_rule and
-      parallel_associativity parallel_commutativity
-    by metis
+    unfolding unidirectional_bridge_def and bidirectional_bridge_def
+    using basic.bisimilarity_transitivity_rule and parallel_associativity parallel_commutativity
+    by blast
   also have "b \<leftrightarrow> a \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> b \<leftrightarrow> a"
     by (simp add: forward_bridge_absorption)
   finally show ?thesis
