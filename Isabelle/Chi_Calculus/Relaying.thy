@@ -4,7 +4,7 @@ theory Relaying
   imports Communication
 begin
 
-abbreviation unidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "\<rightarrow>" 100) where
+definition unidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "\<rightarrow>" 100) where
   "a \<rightarrow> b \<equiv> a \<triangleright>\<^sup>\<infinity> x. b \<triangleleft> x"
 
 lemma early_multi_receive_redundancy:
@@ -13,32 +13,38 @@ lemma early_multi_receive_redundancy:
 
 lemma shortcut_redundancy:
   shows "a \<rightarrow> b \<parallel> b \<rightarrow> c \<parallel> a \<rightarrow> c \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<rightarrow> c"
-  by (fact early_multi_receive_redundancy)
+  using early_multi_receive_redundancy unfolding unidirectional_bridge_def .
 
 lemma loop_redundancy_under_duploss:
   shows "\<currency>\<^sup>*a \<parallel> a \<rightarrow> a \<approx>\<^sub>\<flat> \<currency>\<^sup>*a"
   sorry
 
-abbreviation bidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "\<leftrightarrow>" 100) where
+definition bidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "\<leftrightarrow>" 100) where
   "a \<leftrightarrow> b \<equiv> a \<rightarrow> b \<parallel> b \<rightarrow> a"
 
 lemma bidirectional_bridge_commutativity: "a \<leftrightarrow> b \<sim>\<^sub>\<flat> b \<leftrightarrow> a"
-  by (simp add: parallel_commutativity)
+  unfolding bidirectional_bridge_def using parallel_commutativity .
 
 lemma forward_bridge_absorption: "a \<leftrightarrow> b \<parallel> a \<rightarrow> b \<sim>\<^sub>\<flat> a \<leftrightarrow> b"
 proof -
   have "a \<leftrightarrow> b \<parallel> a \<rightarrow> b \<sim>\<^sub>\<flat> (a \<rightarrow> b \<parallel> a \<rightarrow> b) \<parallel> b \<rightarrow> a"
-    using basic.bisimilarity_transitivity_rule parallel_associativity parallel_commutativity by blast
-  also have "(a \<rightarrow> b \<parallel> a \<rightarrow> b) \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<rightarrow> a"
-    using multi_receive_idempotency basic_parallel_preservation_left by blast
-  finally show ?thesis
+    unfolding unidirectional_bridge_def and bidirectional_bridge_def
+    using basic.bisimilarity_transitivity_rule and parallel_associativity parallel_commutativity
     by blast
+  also have "(a \<rightarrow> b \<parallel> a \<rightarrow> b) \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<rightarrow> a"
+    unfolding unidirectional_bridge_def
+    using multi_receive_idempotency and basic_parallel_preservation_left
+    by simp
+  finally show ?thesis
+    unfolding bidirectional_bridge_def by blast
 qed
 
 lemma backward_bridge_absorption: "a \<leftrightarrow> b \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> a \<leftrightarrow> b"
 proof -
   have "a \<leftrightarrow> b \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> b \<rightarrow> a"
-    using basic.bisimilarity_transitivity_rule parallel_associativity parallel_commutativity by blast
+    unfolding unidirectional_bridge_def and bidirectional_bridge_def
+    using basic.bisimilarity_transitivity_rule and parallel_associativity parallel_commutativity
+    by blast
   also have "b \<leftrightarrow> a \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> b \<leftrightarrow> a"
     by (simp add: forward_bridge_absorption)
   finally show ?thesis
@@ -85,7 +91,7 @@ lemma duploss_detour_collapse:
   shows "\<nu> b. (\<currency>\<^sup>*b \<parallel> a \<leftrightarrow> b) \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a"
   sorry
 
-abbreviation distributor :: "[chan, chan list] \<Rightarrow> process" (infix "\<Rightarrow>" 100) where
+definition distributor :: "[chan, chan list] \<Rightarrow> process" (infix "\<Rightarrow>" 100) where
   "a \<Rightarrow> bs \<equiv> a \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>bs. b \<triangleleft> x"
 
 lemma distributor_split:
