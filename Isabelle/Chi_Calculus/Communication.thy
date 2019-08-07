@@ -81,8 +81,37 @@ lemma inner_multi_receive_redundancy:
   shows "a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> b \<triangleright>\<^sup>\<infinity> x. (a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> Q x) \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> b \<triangleright>\<^sup>\<infinity> x. Q x"
   sorry
 
+definition distributor :: "[chan, chan list] \<Rightarrow> process" (infix "\<Rightarrow>" 100) where
+  "a \<Rightarrow> bs \<equiv> a \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>bs. b \<triangleleft> x"
+
+context begin
+
+private lift_definition basic_distributor :: "[chan, chan list] \<Rightarrow> basic_behavior"
+  is distributor
+  sorry
+
+private lift_definition basic_weak_distributor :: "[chan, chan list] \<Rightarrow> basic_weak_behavior"
+  is distributor
+  sorry
+
+private lift_definition proper_distributor :: "[chan, chan list] \<Rightarrow> proper_behavior"
+  is distributor
+  sorry
+
+private lift_definition proper_weak_distributor :: "[chan, chan list] \<Rightarrow> proper_weak_behavior"
+  is distributor
+  sorry
+
+lemmas [equivalence_transfer] =
+  basic_distributor.abs_eq
+  basic_weak_distributor.abs_eq
+  proper_distributor.abs_eq
+  proper_weak_distributor.abs_eq
+
+end
+
 definition loss :: "chan \<Rightarrow> process" ("\<currency>\<^sup>?_" [1000] 1000) where
-  "\<currency>\<^sup>?a \<equiv> a \<triangleright>\<^sup>\<infinity> _. \<zero>"
+  "\<currency>\<^sup>?a \<equiv> a \<Rightarrow> []"
 
 context begin
 
@@ -111,7 +140,7 @@ lemmas [equivalence_transfer] =
 end
 
 definition duplication :: "chan \<Rightarrow> process" ("\<currency>\<^sup>+_" [1000] 1000) where
-  "\<currency>\<^sup>+a \<equiv> a \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)"
+  "\<currency>\<^sup>+a \<equiv> a \<Rightarrow> [a, a]"
 
 context begin
 
@@ -178,7 +207,7 @@ lemma send_idempotency_under_duploss:
   sorry
 
 definition unidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "\<rightarrow>" 100) where
-  "a \<rightarrow> b \<equiv> a \<triangleright>\<^sup>\<infinity> x. b \<triangleleft> x"
+  "a \<rightarrow> b \<equiv> a \<Rightarrow> [b]"
 
 context begin
 
@@ -212,7 +241,7 @@ lemma early_multi_receive_redundancy:
 
 lemma shortcut_redundancy:
   shows "a \<rightarrow> b \<parallel> b \<rightarrow> c \<parallel> a \<rightarrow> c \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<rightarrow> c"
-  using early_multi_receive_redundancy unfolding unidirectional_bridge_def .
+  using early_multi_receive_redundancy unfolding unidirectional_bridge_def and distributor_def .
 
 lemma loop_redundancy_under_duploss:
   shows "\<currency>\<^sup>*a \<parallel> a \<rightarrow> a \<approx>\<^sub>\<flat> \<currency>\<^sup>*a"
@@ -257,8 +286,8 @@ proof -
     using basic.bisimilarity_transitivity_rule and parallel_associativity parallel_commutativity
     by blast
   also have "(a \<rightarrow> b \<parallel> a \<rightarrow> b) \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<rightarrow> a"
-    unfolding unidirectional_bridge_def
     using multi_receive_idempotency and basic_parallel_preservation_left
+    unfolding unidirectional_bridge_def and distributor_def
     by simp
   finally show ?thesis
     unfolding bidirectional_bridge_def by blast
@@ -315,35 +344,6 @@ lemma detour_squashing:
 lemma duploss_detour_collapse:
   shows "\<nu> b. (\<currency>\<^sup>*b \<parallel> a \<leftrightarrow> b) \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a"
   sorry
-
-definition distributor :: "[chan, chan list] \<Rightarrow> process" (infix "\<Rightarrow>" 100) where
-  "a \<Rightarrow> bs \<equiv> a \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>bs. b \<triangleleft> x"
-
-context begin
-
-private lift_definition basic_distributor :: "[chan, chan list] \<Rightarrow> basic_behavior"
-  is distributor
-  sorry
-
-private lift_definition basic_weak_distributor :: "[chan, chan list] \<Rightarrow> basic_weak_behavior"
-  is distributor
-  sorry
-
-private lift_definition proper_distributor :: "[chan, chan list] \<Rightarrow> proper_behavior"
-  is distributor
-  sorry
-
-private lift_definition proper_weak_distributor :: "[chan, chan list] \<Rightarrow> proper_weak_behavior"
-  is distributor
-  sorry
-
-lemmas [equivalence_transfer] =
-  basic_distributor.abs_eq
-  basic_weak_distributor.abs_eq
-  proper_distributor.abs_eq
-  proper_weak_distributor.abs_eq
-
-end
 
 lemma distributor_split:
   "\<currency>\<^sup>+a \<parallel> \<Prod>b \<leftarrow> bs. \<currency>\<^sup>?b \<parallel> a \<Rightarrow> bs \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> \<Prod>b \<leftarrow> bs. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> bs. a \<rightarrow> b"
