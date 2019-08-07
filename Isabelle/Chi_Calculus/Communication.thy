@@ -18,27 +18,31 @@ translations
 *)
 context begin
 
-private lift_definition basic :: "[chan, val \<Rightarrow> basic_behavior] \<Rightarrow> basic_behavior"
+private lift_definition
+  basic_multi_receive :: "[chan, val \<Rightarrow> basic_behavior] \<Rightarrow> basic_behavior"
   is multi_receive
   sorry
 
-private lift_definition basic_weak :: "[chan, val \<Rightarrow> basic_weak_behavior] \<Rightarrow> basic_weak_behavior"
+private lift_definition
+  basic_weak_multi_receive :: "[chan, val \<Rightarrow> basic_weak_behavior] \<Rightarrow> basic_weak_behavior"
   is multi_receive
   sorry
 
-private lift_definition proper :: "[chan, val \<Rightarrow> proper_behavior] \<Rightarrow> proper_behavior"
+private lift_definition
+  proper_multi_receive :: "[chan, val \<Rightarrow> proper_behavior] \<Rightarrow> proper_behavior"
   is multi_receive
   sorry
 
-private lift_definition proper_weak :: "[chan, val \<Rightarrow> proper_weak_behavior] \<Rightarrow> proper_weak_behavior"
+private lift_definition
+  proper_weak_multi_receive :: "[chan, val \<Rightarrow> proper_weak_behavior] \<Rightarrow> proper_weak_behavior"
   is multi_receive
   sorry
 
 lemmas [equivalence_transfer] =
-  basic.abs_eq
-  basic_weak.abs_eq
-  proper.abs_eq
-  proper_weak.abs_eq
+  basic_multi_receive.abs_eq
+  basic_weak_multi_receive.abs_eq
+  proper_multi_receive.abs_eq
+  proper_weak_multi_receive.abs_eq
 
 end
 
@@ -80,8 +84,60 @@ lemma inner_multi_receive_redundancy:
 definition loss :: "chan \<Rightarrow> process" ("\<currency>\<^sup>?_" [1000] 1000) where
   "\<currency>\<^sup>?a \<equiv> a \<triangleright>\<^sup>\<infinity> _. \<zero>"
 
+context begin
+
+private lift_definition basic_loss :: "chan \<Rightarrow> basic_behavior"
+  is loss
+  sorry
+
+private lift_definition basic_weak_loss :: "chan \<Rightarrow> basic_weak_behavior"
+  is loss
+  sorry
+
+private lift_definition proper_loss :: "chan \<Rightarrow> proper_behavior"
+  is loss
+  sorry
+
+private lift_definition proper_weak_loss :: "chan \<Rightarrow> proper_weak_behavior"
+  is loss
+  sorry
+
+lemmas [equivalence_transfer] =
+  basic_loss.abs_eq
+  basic_weak_loss.abs_eq
+  proper_loss.abs_eq
+  proper_weak_loss.abs_eq
+
+end
+
 definition duplication :: "chan \<Rightarrow> process" ("\<currency>\<^sup>+_" [1000] 1000) where
   "\<currency>\<^sup>+a \<equiv> a \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)"
+
+context begin
+
+private lift_definition basic_duplication :: "chan \<Rightarrow> basic_behavior"
+  is duplication
+  sorry
+
+private lift_definition basic_weak_duplication :: "chan \<Rightarrow> basic_weak_behavior"
+  is duplication
+  sorry
+
+private lift_definition proper_duplication :: "chan \<Rightarrow> proper_behavior"
+  is duplication
+  sorry
+
+private lift_definition proper_weak_duplication :: "chan \<Rightarrow> proper_weak_behavior"
+  is duplication
+  sorry
+
+lemmas [equivalence_transfer] =
+  basic_duplication.abs_eq
+  basic_weak_duplication.abs_eq
+  proper_duplication.abs_eq
+  proper_weak_duplication.abs_eq
+
+end
 
 lemma multi_receive_split:
   assumes "\<And>x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<zero>" and "\<And>x. Q x \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<zero>"
@@ -91,12 +147,64 @@ lemma multi_receive_split:
 definition duploss :: "chan \<Rightarrow> process" ("\<currency>\<^sup>*_" [1000] 1000) where
   "\<currency>\<^sup>*a \<equiv> \<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a"
 
+context begin
+
+private lift_definition basic_duploss :: "chan \<Rightarrow> basic_behavior"
+  is duploss
+  sorry
+
+private lift_definition basic_weak_duploss :: "chan \<Rightarrow> basic_weak_behavior"
+  is duploss
+  sorry
+
+private lift_definition proper_duploss :: "chan \<Rightarrow> proper_behavior"
+  is duploss
+  sorry
+
+private lift_definition proper_weak_duploss :: "chan \<Rightarrow> proper_weak_behavior"
+  is duploss
+  sorry
+
+lemmas [equivalence_transfer] =
+  basic_duploss.abs_eq
+  basic_weak_duploss.abs_eq
+  proper_duploss.abs_eq
+  proper_weak_duploss.abs_eq
+
+end
+
 lemma send_idempotency_under_duploss:
   shows "\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x \<approx>\<^sub>\<flat> \<currency>\<^sup>* a \<parallel> a \<triangleleft> x"
   sorry
 
 definition unidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "\<rightarrow>" 100) where
   "a \<rightarrow> b \<equiv> a \<triangleright>\<^sup>\<infinity> x. b \<triangleleft> x"
+
+context begin
+
+private lift_definition basic_unidirectional_bridge :: "[chan, chan] \<Rightarrow> basic_behavior"
+  is unidirectional_bridge
+  sorry
+
+private lift_definition basic_weak_unidirectional_bridge :: "[chan, chan] \<Rightarrow> basic_weak_behavior"
+  is unidirectional_bridge
+  sorry
+
+private lift_definition proper_unidirectional_bridge :: "[chan, chan] \<Rightarrow> proper_behavior"
+  is unidirectional_bridge
+  sorry
+
+private lift_definition proper_weak_unidirectional_bridge :: "[chan, chan] \<Rightarrow> proper_weak_behavior"
+  is unidirectional_bridge
+  sorry
+
+lemmas [equivalence_transfer] =
+  basic_unidirectional_bridge.abs_eq
+  basic_weak_unidirectional_bridge.abs_eq
+  proper_unidirectional_bridge.abs_eq
+  proper_weak_unidirectional_bridge.abs_eq
+
+end
 
 lemma early_multi_receive_redundancy:
   shows "a \<rightarrow> b \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x \<parallel> a \<triangleright>\<^sup>\<infinity> x. P x \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
@@ -112,6 +220,32 @@ lemma loop_redundancy_under_duploss:
 
 definition bidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "\<leftrightarrow>" 100) where
   "a \<leftrightarrow> b \<equiv> a \<rightarrow> b \<parallel> b \<rightarrow> a"
+
+context begin
+
+private lift_definition basic_bidirectional_bridge :: "[chan, chan] \<Rightarrow> basic_behavior"
+  is bidirectional_bridge
+  sorry
+
+private lift_definition basic_weak_bidirectional_bridge :: "[chan, chan] \<Rightarrow> basic_weak_behavior"
+  is bidirectional_bridge
+  sorry
+
+private lift_definition proper_bidirectional_bridge :: "[chan, chan] \<Rightarrow> proper_behavior"
+  is bidirectional_bridge
+  sorry
+
+private lift_definition proper_weak_bidirectional_bridge :: "[chan, chan] \<Rightarrow> proper_weak_behavior"
+  is bidirectional_bridge
+  sorry
+
+lemmas [equivalence_transfer] =
+  basic_bidirectional_bridge.abs_eq
+  basic_weak_bidirectional_bridge.abs_eq
+  proper_bidirectional_bridge.abs_eq
+  proper_weak_bidirectional_bridge.abs_eq
+
+end
 
 lemma bidirectional_bridge_commutativity: "a \<leftrightarrow> b \<sim>\<^sub>\<flat> b \<leftrightarrow> a"
   unfolding bidirectional_bridge_def using parallel_commutativity .
@@ -184,6 +318,32 @@ lemma duploss_detour_collapse:
 
 definition distributor :: "[chan, chan list] \<Rightarrow> process" (infix "\<Rightarrow>" 100) where
   "a \<Rightarrow> bs \<equiv> a \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>bs. b \<triangleleft> x"
+
+context begin
+
+private lift_definition basic_distributor :: "[chan, chan list] \<Rightarrow> basic_behavior"
+  is distributor
+  sorry
+
+private lift_definition basic_weak_distributor :: "[chan, chan list] \<Rightarrow> basic_weak_behavior"
+  is distributor
+  sorry
+
+private lift_definition proper_distributor :: "[chan, chan list] \<Rightarrow> proper_behavior"
+  is distributor
+  sorry
+
+private lift_definition proper_weak_distributor :: "[chan, chan list] \<Rightarrow> proper_weak_behavior"
+  is distributor
+  sorry
+
+lemmas [equivalence_transfer] =
+  basic_distributor.abs_eq
+  basic_weak_distributor.abs_eq
+  proper_distributor.abs_eq
+  proper_weak_distributor.abs_eq
+
+end
 
 lemma distributor_split:
   "\<currency>\<^sup>+a \<parallel> \<Prod>b \<leftarrow> bs. \<currency>\<^sup>?b \<parallel> a \<Rightarrow> bs \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> \<Prod>b \<leftarrow> bs. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> bs. a \<rightarrow> b"
