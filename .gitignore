@@ -1,7 +1,2 @@
-*.aux
-*.bbl
-*.blg
-*.log
-*.pdf
 *.swp
 .stack-work/
