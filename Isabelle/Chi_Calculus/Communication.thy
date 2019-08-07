@@ -110,6 +110,14 @@ lemmas [equivalence_transfer] =
 
 end
 
+lemma distributor_idempotency [natural_simps]:
+  shows "a \<Rightarrow> bs \<parallel> a \<Rightarrow> bs \<sim>\<^sub>\<flat> a \<Rightarrow> bs"
+  unfolding distributor_def using multi_receive_idempotency .
+
+lemma distributor_nested_idempotency [natural_simps]:
+  shows "a \<Rightarrow> bs \<parallel> (a \<Rightarrow> bs \<parallel> p) \<sim>\<^sub>\<flat> a \<Rightarrow> bs \<parallel> p"
+  unfolding distributor_def using multi_receive_nested_idempotency .
+
 definition loss :: "chan \<Rightarrow> process" ("\<currency>\<^sup>?_" [1000] 1000) where
   "\<currency>\<^sup>?a \<equiv> a \<Rightarrow> []"
 
@@ -139,6 +147,14 @@ lemmas [equivalence_transfer] =
 
 end
 
+lemma loss_idempotency [natural_simps]:
+  shows "\<currency>\<^sup>?a \<parallel> \<currency>\<^sup>?a \<sim>\<^sub>\<flat> \<currency>\<^sup>?a"
+  unfolding loss_def using distributor_idempotency .
+
+lemma loss_nested_idempotency [natural_simps]:
+  shows "\<currency>\<^sup>?a \<parallel> (\<currency>\<^sup>?a \<parallel> p) \<sim>\<^sub>\<flat> \<currency>\<^sup>?a \<parallel> p"
+  unfolding loss_def using distributor_nested_idempotency .
+
 definition duplication :: "chan \<Rightarrow> process" ("\<currency>\<^sup>+_" [1000] 1000) where
   "\<currency>\<^sup>+a \<equiv> a \<Rightarrow> [a, a]"
 
@@ -167,6 +183,14 @@ lemmas [equivalence_transfer] =
   proper_weak_duplication.abs_eq
 
 end
+
+lemma duplication_idempotency [natural_simps]:
+  shows "\<currency>\<^sup>+a \<parallel> \<currency>\<^sup>+a \<sim>\<^sub>\<flat> \<currency>\<^sup>+a"
+  unfolding duplication_def using distributor_idempotency .
+
+lemma duplication_nested_idempotency [natural_simps]:
+  shows "\<currency>\<^sup>+a \<parallel> (\<currency>\<^sup>+a \<parallel> p) \<sim>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> p"
+  unfolding duplication_def using distributor_nested_idempotency .
 
 lemma multi_receive_split:
   assumes "\<And>x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<zero>" and "\<And>x. Q x \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> \<zero>"
@@ -202,6 +226,14 @@ lemmas [equivalence_transfer] =
 
 end
 
+lemma duploss_idempotency [natural_simps]:
+  shows "\<currency>\<^sup>*a \<parallel> \<currency>\<^sup>*a \<sim>\<^sub>\<flat> \<currency>\<^sup>*a"
+  unfolding duploss_def using natural_simps by equivalence
+
+lemma duploss_nested_idempotency [natural_simps]:
+  shows "\<currency>\<^sup>*a \<parallel> (\<currency>\<^sup>*a \<parallel> p) \<sim>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> p"
+  unfolding duploss_def using natural_simps by equivalence
+
 lemma send_idempotency_under_duploss:
   shows "\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x \<approx>\<^sub>\<flat> \<currency>\<^sup>* a \<parallel> a \<triangleleft> x"
   sorry
@@ -234,6 +266,14 @@ lemmas [equivalence_transfer] =
   proper_weak_unidirectional_bridge.abs_eq
 
 end
+
+lemma unidirectional_bridge_idempotency [natural_simps]:
+  shows "a \<rightarrow> b \<parallel> a \<rightarrow> b \<sim>\<^sub>\<flat> a \<rightarrow> b"
+  unfolding unidirectional_bridge_def using distributor_idempotency .
+
+lemma unidirectional_bridge_nested_idempotency [natural_simps]:
+  shows "a \<rightarrow> b \<parallel> (a \<rightarrow> b \<parallel> p) \<sim>\<^sub>\<flat> a \<rightarrow> b \<parallel> p"
+  unfolding unidirectional_bridge_def using distributor_nested_idempotency .
 
 lemma early_multi_receive_redundancy:
   shows "a \<rightarrow> b \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x \<parallel> a \<triangleright>\<^sup>\<infinity> x. P x \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
@@ -275,6 +315,14 @@ lemmas [equivalence_transfer] =
   proper_weak_bidirectional_bridge.abs_eq
 
 end
+
+lemma bidirectional_bridge_idempotency [natural_simps]:
+  shows "a \<leftrightarrow> b \<parallel> a \<leftrightarrow> b \<sim>\<^sub>\<flat> a \<leftrightarrow> b"
+  unfolding bidirectional_bridge_def using natural_simps by equivalence
+
+lemma bidirectional_bridge_nested_idempotency [natural_simps]:
+  shows "a \<leftrightarrow> b \<parallel> (a \<leftrightarrow> b \<parallel> p) \<sim>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> p"
+  unfolding bidirectional_bridge_def using natural_simps by equivalence
 
 lemma bidirectional_bridge_commutativity: "a \<leftrightarrow> b \<sim>\<^sub>\<flat> b \<leftrightarrow> a"
   unfolding bidirectional_bridge_def using parallel_commutativity .
