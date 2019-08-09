@@ -38,7 +38,7 @@ method equivalence = (
   \<comment> \<open>Curry all conditional premises:\<close>
   ((match premises in prem [thin]: "_ &&& _ \<Longrightarrow> _" (cut) \<Rightarrow> \<open>insert prem [curry]\<close>)+)?,
   \<comment> \<open>Turn the equivalence premises into quotient type equalities:\<close>
-  match premises in prems [thin]: _ (cut, multi) \<Rightarrow> \<open>insert prems [transferred]\<close>,
+  (match premises in prems [thin]: _ (cut, multi) \<Rightarrow> \<open>insert prems [transferred]\<close>)?,
   \<comment> \<open>Try to solve the constructed goal:\<close>
   (
     \<comment> \<open>Turn the conclusion into a quotient type equality with process operations lifted:\<close>
