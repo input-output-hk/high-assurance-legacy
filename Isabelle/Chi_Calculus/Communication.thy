@@ -81,12 +81,12 @@ proof -
 qed
 
 lemma inner_multi_receive_redundancy:
-  shows "a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> b \<triangleright>\<^sup>\<infinity> y. (a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> Q y) \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> b \<triangleright>\<^sup>\<infinity> y. Q y"
+  shows "a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> b \<triangleright>\<^sup>\<infinity> y. (a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> Q y) \<sim>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. P x \<parallel> b \<triangleright>\<^sup>\<infinity> y. Q y"
   sorry
 
 lemma inner_general_parallel_redundancy:
-  assumes "\<And>x Q. P x \<parallel> a \<triangleright>\<^sup>\<infinity> y. (P x \<parallel> Q y) \<approx>\<^sub>\<flat> P x \<parallel> a \<triangleright>\<^sup>\<infinity> y. Q y"
-  shows "\<Prod>x\<leftarrow>xs. P x \<parallel> a \<triangleright>\<^sup>\<infinity> y. (\<Prod>x\<leftarrow>xs. P x \<parallel> Q y) \<approx>\<^sub>\<flat> \<Prod>x\<leftarrow>xs. P x \<parallel> a \<triangleright>\<^sup>\<infinity> y. Q y"
+  assumes "\<And>x Q. P x \<parallel> a \<triangleright>\<^sup>\<infinity> y. (P x \<parallel> Q y) \<sim>\<^sub>\<flat> P x \<parallel> a \<triangleright>\<^sup>\<infinity> y. Q y"
+  shows "\<Prod>x\<leftarrow>xs. P x \<parallel> a \<triangleright>\<^sup>\<infinity> y. (\<Prod>x\<leftarrow>xs. P x \<parallel> Q y) \<sim>\<^sub>\<flat> \<Prod>x\<leftarrow>xs. P x \<parallel> a \<triangleright>\<^sup>\<infinity> y. Q y"
 proof (induction xs arbitrary: Q)
   case Nil
   show ?case
@@ -96,16 +96,16 @@ next
   case (Cons x xs Q)
   have "
     (P x \<parallel> \<Prod>x\<leftarrow>xs. P x) \<parallel> a \<triangleright>\<^sup>\<infinity> y. ((P x \<parallel> \<Prod>x\<leftarrow>xs. P x) \<parallel> Q y)
-    \<approx>\<^sub>\<flat>
+    \<sim>\<^sub>\<flat>
     P x \<parallel> (\<Prod>x\<leftarrow>xs. P x \<parallel> a \<triangleright>\<^sup>\<infinity> y. (\<Prod>x\<leftarrow>xs. P x \<parallel> (P x \<parallel> Q y)))"
     using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> P x \<parallel> (\<Prod>x\<leftarrow>xs. P x \<parallel> a \<triangleright>\<^sup>\<infinity> y. (P x \<parallel> Q y))"
-    using Cons.IH by (rule basic_weak_parallel_preservation_right)
-  also have "\<dots> \<approx>\<^sub>\<flat> \<Prod>x\<leftarrow>xs. P x \<parallel> (P x \<parallel> a \<triangleright>\<^sup>\<infinity> y. (P x \<parallel> Q y))"
+  also have "\<dots> \<sim>\<^sub>\<flat> P x \<parallel> (\<Prod>x\<leftarrow>xs. P x \<parallel> a \<triangleright>\<^sup>\<infinity> y. (P x \<parallel> Q y))"
+    using Cons.IH by (rule basic_parallel_preservation_right)
+  also have "\<dots> \<sim>\<^sub>\<flat> \<Prod>x\<leftarrow>xs. P x \<parallel> (P x \<parallel> a \<triangleright>\<^sup>\<infinity> y. (P x \<parallel> Q y))"
     using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<Prod>x\<leftarrow>xs. P x \<parallel> (P x \<parallel> a \<triangleright>\<^sup>\<infinity> y. Q y)"
-    using assms by (rule basic_weak_parallel_preservation_right)
-  also have "\<dots> \<approx>\<^sub>\<flat> (P x \<parallel> \<Prod>x\<leftarrow>xs. P x) \<parallel> a \<triangleright>\<^sup>\<infinity> y. Q y"
+  also have "\<dots> \<sim>\<^sub>\<flat> \<Prod>x\<leftarrow>xs. P x \<parallel> (P x \<parallel> a \<triangleright>\<^sup>\<infinity> y. Q y)"
+    using assms by (rule basic_parallel_preservation_right)
+  also have "\<dots> \<sim>\<^sub>\<flat> (P x \<parallel> \<Prod>x\<leftarrow>xs. P x) \<parallel> a \<triangleright>\<^sup>\<infinity> y. Q y"
     using natural_simps by equivalence
   finally show ?case
     unfolding general_parallel.simps(2) .
@@ -147,7 +147,7 @@ lemma distributor_nested_idempotency [natural_simps]:
   unfolding distributor_def using multi_receive_nested_idempotency .
 
 lemma inner_distributor_redundancy:
-  shows "a \<Rightarrow> bs \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<Rightarrow> bs \<parallel> P x) \<approx>\<^sub>\<flat> a \<Rightarrow> bs \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
+  shows "a \<Rightarrow> bs \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<Rightarrow> bs \<parallel> P x) \<sim>\<^sub>\<flat> a \<Rightarrow> bs \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
   unfolding distributor_def using inner_multi_receive_redundancy .
 
 subsection \<open>Loss Servers\<close>
@@ -186,7 +186,7 @@ lemma loss_nested_idempotency [natural_simps]:
   unfolding loss_def using distributor_nested_idempotency .
 
 lemma inner_loss_redundancy:
-  shows "\<currency>\<^sup>?a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>?a \<parallel> P x) \<approx>\<^sub>\<flat> \<currency>\<^sup>?a \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
+  shows "\<currency>\<^sup>?a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>?a \<parallel> P x) \<sim>\<^sub>\<flat> \<currency>\<^sup>?a \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
   unfolding loss_def using inner_distributor_redundancy .
 
 subsection \<open>Duplication Servers\<close>
@@ -225,7 +225,7 @@ lemma duplication_nested_idempotency [natural_simps]:
   unfolding duplication_def using distributor_nested_idempotency .
 
 lemma inner_duplication_redundancy:
-  shows "\<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>+a \<parallel> P x) \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
+  shows "\<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>+a \<parallel> P x) \<sim>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
   unfolding duplication_def using inner_distributor_redundancy .
 
 lemma multi_receive_split:
@@ -269,17 +269,17 @@ lemma duploss_nested_idempotency [natural_simps]:
   unfolding duploss_def using natural_simps by equivalence
 
 lemma inner_duploss_redundancy:
-  shows "\<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> P x) \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
+  shows "\<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> P x) \<sim>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
 proof -
-  have "(\<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a) \<parallel> b \<triangleright>\<^sup>\<infinity> x. ((\<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a) \<parallel> P x) \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> (\<currency>\<^sup>?a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>?a \<parallel> (\<currency>\<^sup>+a \<parallel> P x)))"
+  have "(\<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a) \<parallel> b \<triangleright>\<^sup>\<infinity> x. ((\<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a) \<parallel> P x) \<sim>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> (\<currency>\<^sup>?a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>?a \<parallel> (\<currency>\<^sup>+a \<parallel> P x)))"
     using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> (\<currency>\<^sup>?a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>+a \<parallel> P x))"
+  also have "\<dots> \<sim>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> (\<currency>\<^sup>?a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>+a \<parallel> P x))"
     using inner_loss_redundancy by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>?a \<parallel> (\<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>+a \<parallel> P x))"
+  also have "\<dots> \<sim>\<^sub>\<flat> \<currency>\<^sup>?a \<parallel> (\<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>+a \<parallel> P x))"
     using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>?a \<parallel> (\<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x)"
+  also have "\<dots> \<sim>\<^sub>\<flat> \<currency>\<^sup>?a \<parallel> (\<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x)"
     using inner_duplication_redundancy by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> (\<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a) \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
+  also have "\<dots> \<sim>\<^sub>\<flat> (\<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a) \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
     using natural_simps by equivalence
   finally show ?thesis unfolding duploss_def .
 qed
@@ -324,7 +324,7 @@ lemma unidirectional_bridge_nested_idempotency [natural_simps]:
   unfolding unidirectional_bridge_def using distributor_nested_idempotency .
 
 lemma inner_unidirectional_bridge_redundancy:
-  shows "a \<rightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> P x) \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
+  shows "a \<rightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> P x) \<sim>\<^sub>\<flat> a \<rightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
   unfolding unidirectional_bridge_def using inner_distributor_redundancy .
 
 lemma multi_receive_shortcut_redundancy:
@@ -387,20 +387,20 @@ lemma bidirectional_bridge_nested_idempotency [natural_simps]:
   unfolding bidirectional_bridge_def using natural_simps by equivalence
 
 lemma inner_bidirectional_bridge_redundancy:
-  shows "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<leftrightarrow> b \<parallel> P x) \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
+  shows "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<leftrightarrow> b \<parallel> P x) \<sim>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
 proof -
   have "
     (a \<rightarrow> b \<parallel> b \<rightarrow> a) \<parallel> c \<triangleright>\<^sup>\<infinity> x. ((a \<rightarrow> b \<parallel> b \<rightarrow> a) \<parallel> P x)
-    \<approx>\<^sub>\<flat>
+    \<sim>\<^sub>\<flat>
     b \<rightarrow> a \<parallel> (a \<rightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> (b \<rightarrow> a \<parallel> P x)))"
     using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> b \<rightarrow> a \<parallel> (a \<rightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x))"
+  also have "\<dots> \<sim>\<^sub>\<flat> b \<rightarrow> a \<parallel> (a \<rightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x))"
     using inner_unidirectional_bridge_redundancy by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> (b \<rightarrow> a \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x))"
+  also have "\<dots> \<sim>\<^sub>\<flat> a \<rightarrow> b \<parallel> (b \<rightarrow> a \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x))"
     using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> (b \<rightarrow> a \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x)"
+  also have "\<dots> \<sim>\<^sub>\<flat> a \<rightarrow> b \<parallel> (b \<rightarrow> a \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x)"
     using inner_unidirectional_bridge_redundancy by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> (a \<rightarrow> b \<parallel> b \<rightarrow> a) \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
+  also have "\<dots> \<sim>\<^sub>\<flat> (a \<rightarrow> b \<parallel> b \<rightarrow> a) \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
     using natural_simps by equivalence
   finally show ?thesis unfolding bidirectional_bridge_def .
 qed
@@ -462,7 +462,7 @@ lemma distributor_target_switch:
     (is "?p \<parallel> _ \<approx>\<^sub>\<flat> ?p \<parallel> _")
 proof -
   \<comment> \<open>Specializations of lemmas about~\<open>\<Prod>\<close>:\<close>
-  have inner_target_bridges_redundancy: "?p \<parallel> a \<triangleright>\<^sup>\<infinity> y. (?p \<parallel> Q y) \<approx>\<^sub>\<flat> ?p \<parallel> a \<triangleright>\<^sup>\<infinity> y. Q y" for Q
+  have inner_target_bridges_redundancy: "?p \<parallel> a \<triangleright>\<^sup>\<infinity> y. (?p \<parallel> Q y) \<sim>\<^sub>\<flat> ?p \<parallel> a \<triangleright>\<^sup>\<infinity> y. Q y" for Q
     using inner_bidirectional_bridge_redundancy by (rule inner_general_parallel_redundancy)
   have targets_switch: "?p \<parallel> \<Prod>x\<leftarrow>xs. fst x \<triangleleft> y \<approx>\<^sub>\<flat> ?p \<parallel> \<Prod>x\<leftarrow>xs. snd x \<triangleleft> y" for y
     using send_channel_switch by (rule general_parallel_channel_switch)
