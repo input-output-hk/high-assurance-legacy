@@ -61,6 +61,10 @@ syntax
 translations
   "\<Prod>x\<leftarrow>xs. p" \<rightleftharpoons> "CONST general_parallel (\<lambda>x. p) xs"
 
+lemma general_parallel_conversion_deferral:
+  shows "\<Prod>y\<leftarrow>map f xs. P y = \<Prod>x\<leftarrow>xs. P (f x)"
+  by (induction xs) simp_all
+
 text \<open>
   This is all for processes.
 \<close>
