@@ -572,6 +572,25 @@ lemma detour_squashing:
 
 lemma duploss_detour_collapse:
   shows "\<nu> b. (\<currency>\<^sup>*b \<parallel> a \<leftrightarrow> b) \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a"
-  sorry
+proof -
+  have "\<langle>0\<rangle> \<nu> b. (\<currency>\<^sup>*b \<parallel> a \<leftrightarrow> b) \<approx>\<^sub>\<sharp> \<langle>0\<rangle> \<nu> b. (b \<leftrightarrow> a \<parallel> \<currency>\<^sup>*b)"
+    using natural_simps by equivalence
+  also have "\<dots> \<approx>\<^sub>\<sharp> \<langle>0\<rangle> \<nu> b. (b \<leftrightarrow> a \<parallel> \<currency>\<^sup>*a)"
+    unfolding tagged_new_channel_def
+    using
+      duploss_channel_switch and
+      basic_weak_new_channel_preservation and
+      basic_weak_bisimilarity_in_proper_weak_bisimilarity
+    by (meson predicate2D)
+  also have "\<dots> \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a \<parallel> \<langle>0\<rangle> \<nu> b. (a \<leftrightarrow> b)"
+    using natural_simps by equivalence
+  also have "\<dots> \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a \<parallel> a \<rightarrow> a"
+    unfolding tagged_new_channel_def
+    using detour_squashing by equivalence
+  also have "\<dots> \<approx>\<^sub>\<sharp> \<currency>\<^sup>*a"
+    using loop_redundancy_under_duploss by equivalence
+  finally show ?thesis
+    unfolding tagged_new_channel_def .
+qed
 
 end
