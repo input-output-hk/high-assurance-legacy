@@ -2,7 +2,7 @@ section \<open>Equivalence of a Diamond-Shaped Relaying Network and a Broadcasti
 
 theory Relaying_Broadcasting_Equivalence
   imports
-    Chi_Calculus.Relaying
+    Chi_Calculus.Communication
     Chi_Calculus.Proper_Weak_Transition_System
     Chi_Calculus.Basic_Weak_Transition_System
 begin
@@ -167,7 +167,7 @@ proof -
     \<dots>
     \<approx>\<^sub>\<flat>
     l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -177,7 +177,7 @@ proof -
     \<dots>
     \<approx>\<^sub>\<flat>
     l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>0\<^sub>2"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -188,7 +188,7 @@ proof -
     \<approx>\<^sub>\<flat>
     l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>2\<^sub>3"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -200,7 +200,7 @@ proof -
     \<approx>\<^sub>\<flat>
     l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
     l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -212,7 +212,7 @@ proof -
     \<approx>\<^sub>\<flat>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
     l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>0\<^sub>1"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -224,7 +224,7 @@ proof -
     \<approx>\<^sub>\<flat>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
     l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>1\<^sub>3"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -236,7 +236,7 @@ proof -
     \<approx>\<^sub>\<flat>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -248,7 +248,7 @@ proof -
     \<approx>\<^sub>\<flat>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
     l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>2\<^sub>3"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -260,7 +260,7 @@ proof -
     \<approx>\<^sub>\<flat>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
     l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -272,7 +272,7 @@ proof -
     \<approx>\<^sub>\<flat>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
     l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -285,7 +285,7 @@ proof -
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
     l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -299,7 +299,7 @@ proof -
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
     l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>1\<^sub>3"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -313,7 +313,7 @@ proof -
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
     l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
     l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -327,7 +327,7 @@ proof -
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
     l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
     l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -353,7 +353,7 @@ proof -
     \<dots>
     \<approx>\<^sub>\<flat>
     (l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>1) \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> r\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3"
-    using source_switch by equivalence
+    using unidirectional_bridge_source_switch by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -363,7 +363,7 @@ proof -
     \<dots>
     \<approx>\<^sub>\<flat>
     l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>1 \<parallel> (l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>2) \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3"
-    using source_switch by equivalence
+    using unidirectional_bridge_source_switch by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -373,7 +373,7 @@ proof -
     \<dots>
     \<approx>\<^sub>\<flat>
     l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>2 \<parallel> (l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3) \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3"
-    using source_switch by equivalence
+    using unidirectional_bridge_source_switch by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -383,7 +383,7 @@ proof -
     \<dots>
     \<approx>\<^sub>\<flat>
     l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3 \<parallel> (l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3)"
-    using source_switch by equivalence
+    using unidirectional_bridge_source_switch by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<flat>
@@ -405,8 +405,10 @@ proof -
   have "\<Prod>c \<leftarrow> [b]. c \<triangleleft> x \<approx>\<^sub>\<flat> b \<triangleleft> x" for x
     using natural_simps by (simp, equivalence)
   then have "a \<triangleright>\<^sup>\<infinity> x. \<Prod>c \<leftarrow> [b]. c \<triangleleft> x \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. b \<triangleleft> x"
-    by (simp add: basic_weak_multi_receive_preservation)
-  then show ?thesis .
+    by equivalence
+  then show ?thesis
+    unfolding distributor_def and unidirectional_bridge_def and general_parallel.simps
+    by equivalence
 qed
 
 lemma bridge_localization:
@@ -416,19 +418,19 @@ lemma bridge_localization:
     "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x) \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
 proof -
   have "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> P x) \<approx>\<^sub>\<flat> b \<rightarrow> a \<parallel> a \<rightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> P x)"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> b \<rightarrow> a \<parallel> a \<rightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
-    using context_localization by equivalence
+    using inner_unidirectional_bridge_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   finally show "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> P x) \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x" .
 next
   have "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x) \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<rightarrow> a \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x)"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<rightarrow> a \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
-    using context_localization by equivalence
+    using inner_unidirectional_bridge_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   finally show "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x) \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x" .
 qed
 
@@ -436,15 +438,15 @@ lemma duploss_localization:
   shows "\<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> P x) \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
 proof -
   have "\<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> P x) \<approx>\<^sub>\<flat> \<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>+a \<parallel> \<currency>\<^sup>?a \<parallel> P x)"
-    using natural_simps by equivalence
+    unfolding duploss_def using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>?a \<parallel> P x)"
-    using context_localization by equivalence
+    using inner_duplication_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> \<currency>\<^sup>?a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>?a \<parallel> P x)"
     using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> \<currency>\<^sup>?a \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
-    using context_localization by equivalence
+    using inner_loss_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
-    using natural_simps by equivalence
+    unfolding duploss_def using natural_simps by equivalence
   finally show ?thesis .
 qed
 
@@ -469,7 +471,7 @@ lemma distributor_idempotency_under_duploss:
   shows "\<currency>\<^sup>*a \<parallel> b \<Rightarrow> [a, a] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<rightarrow> a"
 proof -
   have "\<currency>\<^sup>*a \<parallel> b \<Rightarrow> [a, a] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)"
-    using natural_simps by (simp, equivalence)
+    unfolding distributor_def using natural_simps by (simp, equivalence)
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x)"
     using duploss_localization by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x)"
@@ -483,7 +485,12 @@ proof -
   qed
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. a \<triangleleft> x"
     using duploss_localization by equivalence
-  finally show ?thesis .
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> \<zero>)"
+    using natural_simps by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[a]. b \<triangleleft> x"
+    by simp
+  finally show ?thesis
+    unfolding unidirectional_bridge_def and distributor_def .
 qed
 
 lemma singleton_distributor_switch:
@@ -491,34 +498,43 @@ lemma singleton_distributor_switch:
 proof -
   have "a \<leftrightarrow> b \<parallel> c \<Rightarrow> [a] \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<rightarrow> a"
     using singleton_distribution by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[a]. b \<triangleleft> x"
+    unfolding unidirectional_bridge_def and distributor_def by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. a \<triangleleft> x"
+    using natural_simps by (simp, equivalence)
   also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> a \<rightarrow> b \<parallel> a \<triangleleft> x)"
-    using bridge_localization by equivalence
+     using bridge_localization by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> a \<parallel> a \<triangleleft> x \<parallel> \<zero>)"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> a \<parallel> b \<triangleleft> x \<parallel> \<zero>)"
     using multi_receive_send_channel_switch by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> b \<rightarrow> a \<parallel> b \<triangleleft> x)"
-    using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<rightarrow> b"
+  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> b \<rightarrow> a \<parallel> b \<triangleleft> x \<parallel> \<zero>)"
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<triangleleft> x \<parallel> \<zero>)"
     using bridge_localization by equivalence
-  finally show ?thesis .
+  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[b]. b \<triangleleft> x"
+    by simp
+  finally show ?thesis
+    unfolding unidirectional_bridge_def and distributor_def .
 qed
 
 lemma two_channel_distributor_switch:
   shows "\<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<Rightarrow> [b, c] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<rightarrow> a"
 proof -
-  have "\<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<Rightarrow> [b, c] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<triangleleft> x \<parallel> c \<triangleleft> x)"
+  have "\<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<Rightarrow> [b, c] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[b, c]. b \<triangleleft> x"
+    unfolding unidirectional_bridge_def and distributor_def by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<triangleleft> x \<parallel> c \<triangleleft> x \<parallel> \<zero>)"
     using natural_simps by (simp, equivalence)
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> b \<triangleleft> x \<parallel> c \<triangleleft> x)"
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> b \<triangleleft> x \<parallel> c \<triangleleft> x \<parallel> \<zero>)"
     using bridge_localization by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> b \<rightarrow> a \<parallel> b \<triangleleft> x \<parallel> c \<triangleleft> x)"
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> b \<rightarrow> a \<parallel> b \<triangleleft> x \<parallel> c \<triangleleft> x \<parallel> \<zero>)"
     using bridge_localization by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> a \<parallel> b \<triangleleft> x \<parallel> c \<triangleleft> x)"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> a \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)"
     using multi_receive_send_channel_switch by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> a \<rightarrow> b \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)"
     using bridge_localization by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> c \<triangleleft> x)"
@@ -530,17 +546,21 @@ proof -
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> c \<parallel> c \<rightarrow> a \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)"
     using bridge_localization by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<leftrightarrow> a \<parallel> c \<triangleleft> x \<parallel> a \<triangleleft> x)"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<leftrightarrow> a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x)"
     using multi_receive_send_channel_switch by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<rightarrow> a \<parallel> a \<rightarrow> c \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x)"
-    using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> c \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x)"
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<rightarrow> a \<parallel> a \<rightarrow> c \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x \<parallel> \<zero>)"
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> c \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x \<parallel> \<zero>)"
     using bridge_localization by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)"
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x \<parallel> \<zero>)"
     using bridge_localization by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[a, a]. b \<triangleleft> x"
+    by simp
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<Rightarrow> [a, a]"
+    unfolding unidirectional_bridge_def and distributor_def by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> \<currency>\<^sup>*a \<parallel> d \<Rightarrow> [a, a]"
-    using natural_simps by (simp, equivalence)
+    using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> \<currency>\<^sup>*a \<parallel> d \<rightarrow> a"
     using distributor_idempotency_under_duploss by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<rightarrow> a"
@@ -636,13 +656,13 @@ proof -
     \<approx>\<^sub>\<sharp>
     l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
     l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>0\<^sub>2"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
     l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
     l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
@@ -654,20 +674,20 @@ proof -
     \<approx>\<^sub>\<sharp>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel>
     l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   (* Disconnect l\<^sub>0\<^sub>1 and l\<^sub>1\<^sub>3. *)
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
     l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
     l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
     l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
     l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
@@ -679,20 +699,20 @@ proof -
     \<approx>\<^sub>\<sharp>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel>
     l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   (* Disconnect l\<^sub>0\<^sub>1 and l\<^sub>2\<^sub>3. *)
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
     l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
     l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>2\<^sub>3"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
     l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
     l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
@@ -704,20 +724,20 @@ proof -
     \<approx>\<^sub>\<sharp>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel>
     l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   (* Disconnect l\<^sub>0\<^sub>2 and l\<^sub>1\<^sub>3. *)
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
     l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
     l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>1\<^sub>3"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
     l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
     l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
@@ -729,20 +749,20 @@ proof -
     \<approx>\<^sub>\<sharp>
     l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
     l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   (* Disconnect l\<^sub>0\<^sub>2 and l\<^sub>2\<^sub>3. *)
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
     l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
     l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
     l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
     l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
@@ -754,20 +774,20 @@ proof -
     \<approx>\<^sub>\<sharp>
     l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
     l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   (* Disconnect l\<^sub>1\<^sub>3 and l\<^sub>2\<^sub>3. *)
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
     l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>2\<^sub>3"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
     l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
@@ -778,12 +798,12 @@ proof -
     \<dots>
     \<approx>\<^sub>\<sharp>
     l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3"
-    using shortcut_addition by equivalence
+    using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
     l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   finally show ?thesis .
 qed
 
@@ -836,7 +856,7 @@ proof -
       \<currency>\<^sup>+l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<Rightarrow> [r\<^sub>2, l\<^sub>2\<^sub>3] \<parallel>
       \<currency>\<^sup>+l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> \<currency>\<^sup>?l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 \<Rightarrow> [r\<^sub>3, l\<^sub>3\<^sub>0] \<parallel> \<currency>\<^sup>+l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> \<currency>\<^sup>?l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 \<Rightarrow> [r\<^sub>3, l\<^sub>3\<^sub>0]
     )"
-    using natural_simps by equivalence
+    unfolding duploss_def using natural_simps by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
@@ -854,7 +874,7 @@ proof -
     \<dots>
     \<approx>\<^sub>\<sharp>
     \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> split_distributors_diamond r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3"
-    using natural_simps by equivalence
+    unfolding duploss_def using natural_simps by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
@@ -881,7 +901,7 @@ proof -
     \<dots>
     \<approx>\<^sub>\<sharp>
     \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> strongly_connected_network r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3"
-    using natural_simps by equivalence
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
