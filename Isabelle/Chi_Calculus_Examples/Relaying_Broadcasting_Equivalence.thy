@@ -11,20 +11,20 @@ abbreviation diamond where
   "diamond r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<equiv>
     \<nu> l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-      (* node 0 *) l\<^sub>3\<^sub>0 \<Rightarrow> [r\<^sub>0, l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
-      (* node 1 *) l\<^sub>0\<^sub>1 \<Rightarrow> [r\<^sub>1, l\<^sub>1\<^sub>3] \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
-      (* node 2 *) l\<^sub>0\<^sub>2 \<Rightarrow> [r\<^sub>2, l\<^sub>2\<^sub>3] \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
-      (* node 3 *) l\<^sub>1\<^sub>3 \<Rightarrow> [r\<^sub>3, l\<^sub>3\<^sub>0] \<parallel> l\<^sub>2\<^sub>3 \<Rightarrow> [r\<^sub>3, l\<^sub>3\<^sub>0] \<parallel> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]
+      \<comment> \<open>node 0\<close> l\<^sub>3\<^sub>0 \<Rightarrow> [r\<^sub>0, l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
+      \<comment> \<open>node 1\<close> l\<^sub>0\<^sub>1 \<Rightarrow> [r\<^sub>1, l\<^sub>1\<^sub>3] \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
+      \<comment> \<open>node 2\<close> l\<^sub>0\<^sub>2 \<Rightarrow> [r\<^sub>2, l\<^sub>2\<^sub>3] \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
+      \<comment> \<open>node 3\<close> l\<^sub>1\<^sub>3 \<Rightarrow> [r\<^sub>3, l\<^sub>3\<^sub>0] \<parallel> l\<^sub>2\<^sub>3 \<Rightarrow> [r\<^sub>3, l\<^sub>3\<^sub>0] \<parallel> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]
     )"
 
 abbreviation split_distributors_diamond where
   "split_distributors_diamond r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<equiv>
     \<nu> l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-      (* node 0 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
-      (* node 1 *) l\<^sub>0\<^sub>1 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
-      (* node 2 *) l\<^sub>0\<^sub>2 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
-      (* node 3 *) l\<^sub>1\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
+      \<comment> \<open>node 0\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
+      \<comment> \<open>node 1\<close> l\<^sub>0\<^sub>1 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
+      \<comment> \<open>node 2\<close> l\<^sub>0\<^sub>2 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
+      \<comment> \<open>node 3\<close> l\<^sub>1\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
       l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
       l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
       l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
@@ -35,10 +35,10 @@ abbreviation strongly_connected_network where
   "strongly_connected_network r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<equiv>
     \<nu> l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-      (* node 0 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
-      (* node 1 *) l\<^sub>0\<^sub>1 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
-      (* node 2 *) l\<^sub>0\<^sub>2 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
-      (* node 3 *) l\<^sub>1\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
+      \<comment> \<open>node 0\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
+      \<comment> \<open>node 1\<close> l\<^sub>0\<^sub>1 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
+      \<comment> \<open>node 2\<close> l\<^sub>0\<^sub>2 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
+      \<comment> \<open>node 3\<close> l\<^sub>1\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
       l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
       l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
       l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel>
@@ -49,10 +49,10 @@ abbreviation receive_collapsed_network where
   "receive_collapsed_network r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<equiv>
     \<nu> l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-      (* node 0 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
-      (* node 1 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
-      (* node 2 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
-      (* node 3 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
+      \<comment> \<open>node 0\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
+      \<comment> \<open>node 1\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
+      \<comment> \<open>node 2\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
+      \<comment> \<open>node 3\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
       l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
       l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
       l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel>
@@ -63,10 +63,10 @@ abbreviation send_collapsed_network where
   "send_collapsed_network r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<equiv>
     \<nu> l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-      (* node 0 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
-      (* node 1 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
-      (* node 2 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
-      (* node 3 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+      \<comment> \<open>node 0\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+      \<comment> \<open>node 1\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+      \<comment> \<open>node 2\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+      \<comment> \<open>node 3\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
       l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
       l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
       l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel>
@@ -77,10 +77,10 @@ abbreviation broadcast where
   "broadcast r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<equiv>
     \<nu> m. (
       \<currency>\<^sup>*m \<parallel>
-      (* node 0 *) s\<^sub>0 \<rightarrow> m \<parallel> m \<rightarrow> r\<^sub>0 \<parallel>
-      (* node 1 *) s\<^sub>1 \<rightarrow> m \<parallel> m \<rightarrow> r\<^sub>1 \<parallel>
-      (* node 2 *) s\<^sub>2 \<rightarrow> m \<parallel> m \<rightarrow> r\<^sub>2 \<parallel>
-      (* node 3 *) s\<^sub>3 \<rightarrow> m \<parallel> m \<rightarrow> r\<^sub>3
+      \<comment> \<open>node 0\<close> s\<^sub>0 \<rightarrow> m \<parallel> m \<rightarrow> r\<^sub>0 \<parallel>
+      \<comment> \<open>node 1\<close> s\<^sub>1 \<rightarrow> m \<parallel> m \<rightarrow> r\<^sub>1 \<parallel>
+      \<comment> \<open>node 2\<close> s\<^sub>2 \<rightarrow> m \<parallel> m \<rightarrow> r\<^sub>2 \<parallel>
+      \<comment> \<open>node 3\<close> s\<^sub>3 \<rightarrow> m \<parallel> m \<rightarrow> r\<^sub>3
     )"
 
 lemma two_target_distributor_split:
@@ -875,10 +875,10 @@ proof -
     \<approx>\<^sub>\<sharp>
     \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> \<langle>0\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>1\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>2\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>3\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>4\<rangle> \<nu> l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-      (* node 0 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
-      (* node 1 *) l\<^sub>0\<^sub>1 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
-      (* node 2 *) l\<^sub>0\<^sub>2 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
-      (* node 3 *) l\<^sub>1\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
+      \<comment> \<open>node 0\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
+      \<comment> \<open>node 1\<close> l\<^sub>0\<^sub>1 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
+      \<comment> \<open>node 2\<close> l\<^sub>0\<^sub>2 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
+      \<comment> \<open>node 3\<close> l\<^sub>1\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
       l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
       l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
       l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
@@ -917,10 +917,10 @@ proof -
     \<approx>\<^sub>\<sharp>
     \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> \<langle>0\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>1\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>2\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>3\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>4\<rangle> \<nu> l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-      (* node 0 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
-      (* node 1 *) l\<^sub>0\<^sub>1 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
-      (* node 2 *) l\<^sub>0\<^sub>2 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
-      (* node 3 *) l\<^sub>1\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
+      \<comment> \<open>node 0\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
+      \<comment> \<open>node 1\<close> l\<^sub>0\<^sub>1 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
+      \<comment> \<open>node 2\<close> l\<^sub>0\<^sub>2 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
+      \<comment> \<open>node 3\<close> l\<^sub>1\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
       l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
       l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
       l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel>
@@ -957,10 +957,10 @@ proof -
     \<approx>\<^sub>\<sharp>
     \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> \<langle>0\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>1\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>2\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>3\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>4\<rangle> \<nu> l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-      (* node 0 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
-      (* node 1 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
-      (* node 2 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
-      (* node 3 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
+      \<comment> \<open>node 0\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
+      \<comment> \<open>node 1\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
+      \<comment> \<open>node 2\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
+      \<comment> \<open>node 3\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
       l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
       l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
       l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel>
@@ -999,10 +999,10 @@ proof -
     \<approx>\<^sub>\<sharp>
     \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> \<langle>0\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>1\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>2\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>3\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>4\<rangle> \<nu> l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-      (* node 0 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
-      (* node 1 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
-      (* node 2 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
-      (* node 3 *) l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+      \<comment> \<open>node 0\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0 \<parallel> s\<^sub>0 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+      \<comment> \<open>node 1\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>1 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+      \<comment> \<open>node 2\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>2 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+      \<comment> \<open>node 3\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3 \<parallel> s\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
       l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
       l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel>
       l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel>
