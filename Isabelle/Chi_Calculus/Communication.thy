@@ -15,30 +15,51 @@ translations
   "a \<triangleright>\<^sup>\<infinity> x. p" \<rightleftharpoons> "CONST multi_receive a (\<lambda>x. p)"
 
 (* FIXME:
-  We should base the following on \<open>natural_transition_system\<close>, which would have to be extended with
-  support for simulation up to context to be able to prove the compatibility laws for \<open>\<triangleright>\<^sup>\<infinity>\<close>.
+  We should base the proofs of the compatibility laws on \<open>natural_transition_system\<close>, which would
+  have to be extended with support for simulation up to context for that.
 *)
+
+lemma basic_multi_receive_preservation:
+  assumes "\<And>x. P x \<sim>\<^sub>\<flat> Q x"
+  shows "a \<triangleright>\<^sup>\<infinity> x. P x \<sim>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. Q x"
+  sorry
+
+lemma basic_weak_multi_receive_preservation:
+  assumes "\<And>x. P x \<approx>\<^sub>\<flat> Q x"
+  shows "a \<triangleright>\<^sup>\<infinity> x. P x \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. Q x"
+  sorry
+
+lemma proper_multi_receive_preservation:
+  assumes "\<And>x. P x \<sim>\<^sub>\<sharp> Q x"
+  shows "a \<triangleright>\<^sup>\<infinity> x. P x \<sim>\<^sub>\<sharp> a \<triangleright>\<^sup>\<infinity> x. Q x"
+  sorry
+
+lemma proper_weak_multi_receive_preservation:
+  assumes "\<And>x. P x \<approx>\<^sub>\<sharp> Q x"
+  shows "a \<triangleright>\<^sup>\<infinity> x. P x \<approx>\<^sub>\<sharp> a \<triangleright>\<^sup>\<infinity> x. Q x"
+  sorry
+
 context begin
 
 private lift_definition
   basic_multi_receive :: "[chan, val \<Rightarrow> basic_behavior] \<Rightarrow> basic_behavior"
   is multi_receive
-  sorry
+  using basic_multi_receive_preservation .
 
 private lift_definition
   basic_weak_multi_receive :: "[chan, val \<Rightarrow> basic_weak_behavior] \<Rightarrow> basic_weak_behavior"
   is multi_receive
-  sorry
+  using basic_weak_multi_receive_preservation .
 
 private lift_definition
   proper_multi_receive :: "[chan, val \<Rightarrow> proper_behavior] \<Rightarrow> proper_behavior"
   is multi_receive
-  sorry
+  using proper_multi_receive_preservation .
 
 private lift_definition
   proper_weak_multi_receive :: "[chan, val \<Rightarrow> proper_weak_behavior] \<Rightarrow> proper_weak_behavior"
   is multi_receive
-  sorry
+  using proper_weak_multi_receive_preservation .
 
 lemmas [equivalence_transfer] =
   basic_multi_receive.abs_eq
