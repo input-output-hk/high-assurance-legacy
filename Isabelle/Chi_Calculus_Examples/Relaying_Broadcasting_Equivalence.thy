@@ -392,12 +392,6 @@ proof -
   finally show ?thesis .
 qed
 
-(* FIXME: Prove it and move to Communication.thy. *)
-lemma basic_weak_multi_receive_preservation:
-  assumes "\<And>x. P x \<approx>\<^sub>\<flat> Q x"
-  shows "a \<triangleright>\<^sup>\<infinity> x. P x \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. Q x"
-  sorry
-
 (* FIXME: Move to Relaying.thy. *)
 lemma singleton_distribution:
   shows "a \<Rightarrow> [b] \<approx>\<^sub>\<flat> a \<rightarrow> b"
@@ -456,12 +450,13 @@ proof -
   have "a \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> c \<parallel> b \<triangleleft> x \<parallel> P x) \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. ((b \<leftrightarrow> c \<parallel> b \<triangleleft> x) \<parallel> P x)"
     using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. ((b \<leftrightarrow> c \<parallel> c \<triangleleft> x) \<parallel> P x)"
-    by (simp add:
-          basic_weak_parallel_preservation_left
-          basic_weak_multi_receive_preservation
-          send_channel_switch)
-    (* FIXME: Why does the following not work? 
-       using send_channel_switch and basic_weak_multi_receive_preservation by equivalence *)
+  proof -
+    have "b \<leftrightarrow> c \<parallel> b \<triangleleft> x \<approx>\<^sub>\<flat> b \<leftrightarrow> c \<parallel> c \<triangleleft> x" for x
+      using send_channel_switch .
+    then have "a \<triangleright>\<^sup>\<infinity> x. ((b \<leftrightarrow> c \<parallel> b \<triangleleft> x) \<parallel> P x) \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. ((b \<leftrightarrow> c \<parallel> c \<triangleleft> x) \<parallel> P x)"
+      by equivalence
+    then show ?thesis .
+  qed
   also have "\<dots> \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> c \<parallel> c \<triangleleft> x \<parallel> P x)"
     using natural_simps by equivalence
   finally show ?thesis .
@@ -478,10 +473,9 @@ proof -
   proof -
     have "\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> a \<triangleleft> x" for x
       by (simp add: send_idempotency_under_duploss)
-    then have "b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x) \<approx>\<^sub>\<flat> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x)"
-      by (simp add: basic_weak_multi_receive_preservation)
-    then show ?thesis
+    then have "\<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x) \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x)"
       by equivalence
+    then show ?thesis .
   qed
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. a \<triangleleft> x"
     using duploss_localization by equivalence
