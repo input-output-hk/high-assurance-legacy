@@ -87,11 +87,11 @@ lemma two_target_distributor_split:
   shows "\<currency>\<^sup>+a \<parallel> \<currency>\<^sup>?b\<^sub>1 \<parallel> \<currency>\<^sup>?b\<^sub>2 \<parallel> a \<Rightarrow> [b\<^sub>1, b\<^sub>2] \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> \<currency>\<^sup>?b\<^sub>1 \<parallel> \<currency>\<^sup>?b\<^sub>2 \<parallel> a \<rightarrow> b\<^sub>1 \<parallel> a \<rightarrow> b\<^sub>2"
 proof -
   have "\<currency>\<^sup>+a \<parallel> \<currency>\<^sup>?b\<^sub>1 \<parallel> \<currency>\<^sup>?b\<^sub>2 \<parallel> a \<Rightarrow> [b\<^sub>1, b\<^sub>2] \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> \<Prod>b \<leftarrow> [b\<^sub>1, b\<^sub>2]. \<currency>\<^sup>?b \<parallel> a \<Rightarrow> [b\<^sub>1, b\<^sub>2]"
-    using natural_simps by (simp, equivalence)
+    using natural_simps unfolding general_parallel.simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> \<Prod>b \<leftarrow> [b\<^sub>1, b\<^sub>2]. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> [b\<^sub>1, b\<^sub>2]. a \<rightarrow> b"
     using distributor_split by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> \<currency>\<^sup>?b\<^sub>1 \<parallel> \<currency>\<^sup>?b\<^sub>2 \<parallel> a \<rightarrow> b\<^sub>1 \<parallel> a \<rightarrow> b\<^sub>2"
-    using natural_simps by (simp, equivalence)
+    using natural_simps unfolding general_parallel.simps by equivalence
   finally show ?thesis .
 qed
 
@@ -105,11 +105,11 @@ proof -
     \<currency>\<^sup>+a \<parallel> \<currency>\<^sup>?b\<^sub>1 \<parallel> \<currency>\<^sup>?b\<^sub>2 \<parallel> \<currency>\<^sup>?b\<^sub>3 \<parallel> a \<Rightarrow> [b\<^sub>1, b\<^sub>2, b\<^sub>3]
     \<approx>\<^sub>\<flat>
     \<currency>\<^sup>+a \<parallel> \<Prod>b \<leftarrow> [b\<^sub>1, b\<^sub>2, b\<^sub>3]. \<currency>\<^sup>?b \<parallel> a \<Rightarrow> [b\<^sub>1, b\<^sub>2, b\<^sub>3]"
-    using natural_simps by (simp, equivalence)
+    using natural_simps unfolding general_parallel.simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> \<Prod>b \<leftarrow> [b\<^sub>1, b\<^sub>2, b\<^sub>3]. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> [b\<^sub>1, b\<^sub>2, b\<^sub>3]. a \<rightarrow> b"
     using distributor_split by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> \<currency>\<^sup>?b\<^sub>1 \<parallel> \<currency>\<^sup>?b\<^sub>2 \<parallel> \<currency>\<^sup>?b\<^sub>3 \<parallel> a \<rightarrow> b\<^sub>1 \<parallel> a \<rightarrow> b\<^sub>2 \<parallel> a \<rightarrow> b\<^sub>3"
-    using natural_simps by (simp, equivalence)
+    using natural_simps unfolding general_parallel.simps by equivalence
   finally show ?thesis .
 qed
 
@@ -403,7 +403,7 @@ lemma singleton_distribution:
   shows "a \<Rightarrow> [b] \<approx>\<^sub>\<flat> a \<rightarrow> b"
 proof -
   have "\<Prod>c \<leftarrow> [b]. c \<triangleleft> x \<approx>\<^sub>\<flat> b \<triangleleft> x" for x
-    using natural_simps by (simp, equivalence)
+    using natural_simps unfolding general_parallel.simps by equivalence
   then have "a \<triangleright>\<^sup>\<infinity> x. \<Prod>c \<leftarrow> [b]. c \<triangleleft> x \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. b \<triangleleft> x"
     by equivalence
   then show ?thesis
@@ -471,7 +471,7 @@ lemma distributor_idempotency_under_duploss:
   shows "\<currency>\<^sup>*a \<parallel> b \<Rightarrow> [a, a] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<rightarrow> a"
 proof -
   have "\<currency>\<^sup>*a \<parallel> b \<Rightarrow> [a, a] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)"
-    unfolding distributor_def using natural_simps by (simp, equivalence)
+    unfolding distributor_def and general_parallel.simps using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x)"
     using duploss_localization by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x)"
@@ -501,7 +501,7 @@ proof -
   also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[a]. b \<triangleleft> x"
     unfolding unidirectional_bridge_def and distributor_def by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. a \<triangleleft> x"
-    using natural_simps by (simp, equivalence)
+    using natural_simps unfolding general_parallel.simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> a \<rightarrow> b \<parallel> a \<triangleleft> x)"
      using bridge_localization by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> a \<parallel> a \<triangleleft> x \<parallel> \<zero>)"
@@ -524,7 +524,7 @@ proof -
   have "\<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<Rightarrow> [b, c] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[b, c]. b \<triangleleft> x"
     unfolding unidirectional_bridge_def and distributor_def by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<triangleleft> x \<parallel> c \<triangleleft> x \<parallel> \<zero>)"
-    using natural_simps by (simp, equivalence)
+    using natural_simps unfolding general_parallel.simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> b \<triangleleft> x \<parallel> c \<triangleleft> x \<parallel> \<zero>)"
     using bridge_localization by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> b \<rightarrow> a \<parallel> b \<triangleleft> x \<parallel> c \<triangleleft> x \<parallel> \<zero>)"
