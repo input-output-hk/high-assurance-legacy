@@ -629,12 +629,12 @@ qed
 lemma inner_backward_bridge_redundancy:
   shows "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x) \<sim>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
 proof -
-  have "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x) \<sim>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<rightarrow> a \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x)"
-    unfolding bidirectional_bridge_def using natural_simps by equivalence
-  also have "\<dots> \<sim>\<^sub>\<flat> a \<rightarrow> b \<parallel> b \<rightarrow> a \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
-    using inner_unidirectional_bridge_redundancy by equivalence
+  have "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x) \<sim>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x)"
+    using natural_simps by equivalence
+  also have "\<dots> \<sim>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
+    using inner_forward_bridge_redundancy by equivalence
   also have "\<dots> \<sim>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
-    unfolding bidirectional_bridge_def using natural_simps by equivalence
+    using natural_simps by equivalence
   finally show ?thesis .
 qed
 
