@@ -438,6 +438,34 @@ lemma backward_bridge_absorption:
   shows "a \<leftrightarrow> b \<parallel> b \<rightarrow> a \<sim>\<^sub>\<flat> a \<leftrightarrow> b"
   unfolding bidirectional_bridge_def using natural_simps by equivalence
 
+lemma inner_forward_bridge_redundancy:
+  shows "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> P x) \<sim>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
+proof -
+  have "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> P x) \<sim>\<^sub>\<flat> (a \<leftrightarrow> b \<parallel> a \<rightarrow> b) \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> P x)"
+    using forward_bridge_absorption by equivalence
+  also have "\<dots> \<sim>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> (a \<rightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> P x))"
+    using natural_simps by equivalence
+  also have "\<dots> \<sim>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> (a \<rightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x)"
+    using inner_unidirectional_bridge_redundancy by equivalence
+  also have "\<dots> \<sim>\<^sub>\<flat> (a \<leftrightarrow> b \<parallel> a \<rightarrow> b) \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
+    using natural_simps by equivalence
+  also have "\<dots>\<sim>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
+    using forward_bridge_absorption by equivalence
+  finally show ?thesis .
+qed
+
+lemma inner_backward_bridge_redundancy:
+  shows "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x) \<sim>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
+proof -
+  have "a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x) \<sim>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> P x)"
+    using natural_simps by equivalence
+  also have "\<dots> \<sim>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
+    using inner_forward_bridge_redundancy by equivalence
+  also have "\<dots> \<sim>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. P x"
+    using natural_simps by equivalence
+  finally show ?thesis .
+qed
+
 lemma send_channel_switch:
   shows "a \<leftrightarrow> b \<parallel> a \<triangleleft> x \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> b \<triangleleft> x"
   sorry
