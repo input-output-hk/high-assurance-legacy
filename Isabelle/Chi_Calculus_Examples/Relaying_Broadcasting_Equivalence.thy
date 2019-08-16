@@ -421,24 +421,6 @@ proof -
   finally show ?thesis .
 qed
 
-lemma multi_receive_send_channel_switch:
-  shows "a \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> c \<parallel> b \<triangleleft> x \<parallel> P x) \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> c \<parallel> c \<triangleleft> x \<parallel> P x)"
-proof -
-  have "a \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> c \<parallel> b \<triangleleft> x \<parallel> P x) \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. ((b \<leftrightarrow> c \<parallel> b \<triangleleft> x) \<parallel> P x)"
-    using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. ((b \<leftrightarrow> c \<parallel> c \<triangleleft> x) \<parallel> P x)"
-  proof -
-    have "b \<leftrightarrow> c \<parallel> b \<triangleleft> x \<approx>\<^sub>\<flat> b \<leftrightarrow> c \<parallel> c \<triangleleft> x" for x
-      using send_channel_switch .
-    then have "a \<triangleright>\<^sup>\<infinity> x. ((b \<leftrightarrow> c \<parallel> b \<triangleleft> x) \<parallel> P x) \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. ((b \<leftrightarrow> c \<parallel> c \<triangleleft> x) \<parallel> P x)"
-      by equivalence
-    then show ?thesis .
-  qed
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> c \<parallel> c \<triangleleft> x \<parallel> P x)"
-    using natural_simps by equivalence
-  finally show ?thesis .
-qed
-
 lemma distributor_idempotency_under_duploss:
   shows "\<currency>\<^sup>*a \<parallel> b \<Rightarrow> [a, a] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<rightarrow> a"
 proof -
@@ -494,19 +476,35 @@ proof -
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<triangleleft> x \<parallel> c \<triangleleft> x)"
     using natural_simps unfolding general_parallel.simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> a \<parallel> b \<triangleleft> x \<parallel> c \<triangleleft> x)"
-     using inner_bidirectional_bridge_redundancy by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> a \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)"
-    using multi_receive_send_channel_switch by equivalence
+    using inner_bidirectional_bridge_redundancy by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. ((b \<leftrightarrow> a \<parallel> b \<triangleleft> x) \<parallel> c \<triangleleft> x)"
+    using natural_simps by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. ((b \<leftrightarrow> a \<parallel> a \<triangleleft> x) \<parallel> c \<triangleleft> x)"
+    using send_channel_switch
+    by (blast intro:
+      basic_weak_parallel_preservation_right
+      basic_weak_multi_receive_preservation
+      basic_weak_parallel_preservation_left
+    )
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> a \<parallel> (a \<triangleleft> x \<parallel> c \<triangleleft> x))"
+    using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> c \<triangleleft> x)"
      using inner_bidirectional_bridge_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> c \<triangleleft> x)"
     using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<leftrightarrow> a \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)"
      using inner_bidirectional_bridge_redundancy by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<leftrightarrow> a \<parallel> c \<triangleleft> x \<parallel> a \<triangleleft> x)"
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. ((c \<leftrightarrow> a \<parallel> c \<triangleleft> x) \<parallel> a \<triangleleft> x)"
     using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<leftrightarrow> a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x)"
-    using multi_receive_send_channel_switch by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. ((c \<leftrightarrow> a \<parallel> a \<triangleleft> x) \<parallel> a \<triangleleft> x)"
+    using send_channel_switch
+    by (blast intro:
+      basic_weak_parallel_preservation_right
+      basic_weak_multi_receive_preservation
+      basic_weak_parallel_preservation_left
+    )
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<leftrightarrow> a \<parallel> (a \<triangleleft> x \<parallel> a \<triangleleft> x))"
+    using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)"
      using inner_bidirectional_bridge_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[a, a]. b \<triangleleft> x"
