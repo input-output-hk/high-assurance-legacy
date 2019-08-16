@@ -392,19 +392,6 @@ proof -
   finally show ?thesis .
 qed
 
-(* FIXME: Move to Relaying.thy. *)
-lemma singleton_distribution:
-  shows "a \<Rightarrow> [b] \<approx>\<^sub>\<flat> a \<rightarrow> b"
-proof -
-  have "\<Prod>c \<leftarrow> [b]. c \<triangleleft> x \<approx>\<^sub>\<flat> b \<triangleleft> x" for x
-    using natural_simps unfolding general_parallel.simps by equivalence
-  then have "a \<triangleright>\<^sup>\<infinity> x. \<Prod>c \<leftarrow> [b]. c \<triangleleft> x \<approx>\<^sub>\<flat> a \<triangleright>\<^sup>\<infinity> x. b \<triangleleft> x"
-    by equivalence
-  then show ?thesis
-    unfolding distributor_def and unidirectional_bridge_def and general_parallel.simps
-    by equivalence
-qed
-
 lemma distributor_idempotency_under_duploss:
   shows "\<currency>\<^sup>*a \<parallel> b \<Rightarrow> [a, a] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<rightarrow> a"
 proof -
@@ -426,28 +413,6 @@ proof -
     using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[a]. b \<triangleleft> x"
     by simp
-  finally show ?thesis
-    unfolding unidirectional_bridge_def and distributor_def .
-qed
-
-lemma singleton_distributor_switch:
-  shows "a \<leftrightarrow> b \<parallel> c \<Rightarrow> [a] \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<rightarrow> b"
-proof -
-  have "a \<leftrightarrow> b \<parallel> c \<Rightarrow> [a] \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<rightarrow> a"
-    using singleton_distribution by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[a]. b \<triangleleft> x"
-    unfolding unidirectional_bridge_def and distributor_def by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. a \<triangleleft> x"
-    using natural_simps unfolding general_parallel.simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<leftrightarrow> b \<parallel> a \<triangleleft> x)"
-    using inner_bidirectional_bridge_redundancy by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<leftrightarrow> b \<parallel> b \<triangleleft> x)"
-    using send_channel_switch
-    by (blast intro: basic_weak_parallel_preservation_right basic_weak_multi_receive_preservation)
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. b \<triangleleft> x"
-     using inner_bidirectional_bridge_redundancy by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[b]. b \<triangleleft> x"
-    unfolding general_parallel.simps using natural_simps by equivalence
   finally show ?thesis
     unfolding unidirectional_bridge_def and distributor_def .
 qed
@@ -510,7 +475,7 @@ lemma send_collapse:
     l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
     s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
     \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]
-    \<approx>\<^sub>\<sharp>
+    \<approx>\<^sub>\<flat>
     l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
     l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
     s\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
@@ -521,47 +486,47 @@ proof -
     l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
     s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
     \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]
-    \<approx>\<^sub>\<sharp>
-    (l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3]) \<parallel>
-    l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
-    s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
-    \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]"
-    using natural_simps by equivalence
-  also have "
-    \<dots>
-    \<approx>\<^sub>\<sharp>
-    (l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0) \<parallel>
-    l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
-    s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
-    \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]"
-    using singleton_distributor_switch by equivalence
-  also have "
-    \<dots>
-    \<approx>\<^sub>\<sharp>
-    l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
-    (l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3]) \<parallel>
-    s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
-    \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]"
-    using natural_simps by equivalence
-  also have "
-    \<dots>
-    \<approx>\<^sub>\<sharp>
-    l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
-    (l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0) \<parallel>
-    s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
-    \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]"
-    using singleton_distributor_switch by equivalence
-  also have "
-    \<dots>
-    \<approx>\<^sub>\<sharp>
-    l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
-    (l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0) \<parallel>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
+    l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
     s\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
     \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]"
-    using singleton_distribution by equivalence
+    unfolding unidirectional_bridge_def by equivalence
   also have "
     \<dots>
-    \<approx>\<^sub>\<sharp>
+    \<approx>\<^sub>\<flat>
+    (l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3) \<parallel>
+    l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
+    s\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    (l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0) \<parallel>
+    l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
+    s\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]"
+    using unidirectional_bridge_target_switch by (rule basic_weak_parallel_preservation_left)
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    (l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3) \<parallel>
+    l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    s\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    (l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0) \<parallel>
+    l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    s\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]"
+    using unidirectional_bridge_target_switch by (rule basic_weak_parallel_preservation_left)
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
     l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
     l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
     s\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
@@ -569,7 +534,7 @@ proof -
     using natural_simps by equivalence
   also have "
     \<dots>
-    \<approx>\<^sub>\<sharp>
+    \<approx>\<^sub>\<flat>
     l\<^sub>1\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
     l\<^sub>2\<^sub>3 \<leftrightarrow> l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
     s\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
@@ -962,8 +927,6 @@ proof -
       l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3
     )"
     unfolding tagged_new_channel_def using links_disconnect by equivalence
-
-
   also have "
     \<dots>
     \<approx>\<^sub>\<sharp>
