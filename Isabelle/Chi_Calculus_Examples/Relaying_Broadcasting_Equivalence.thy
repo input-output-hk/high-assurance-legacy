@@ -405,29 +405,13 @@ proof -
     by equivalence
 qed
 
-lemma duploss_localization:
-  shows "\<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> P x) \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
-proof -
-  have "\<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> P x) \<approx>\<^sub>\<flat> \<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>+a \<parallel> \<currency>\<^sup>?a \<parallel> P x)"
-    unfolding duploss_def using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>?a \<parallel> P x)"
-    using inner_duplication_redundancy by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> \<currency>\<^sup>?a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>?a \<parallel> P x)"
-    using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>+a \<parallel> \<currency>\<^sup>?a \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
-    using inner_loss_redundancy by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. P x"
-    unfolding duploss_def using natural_simps by equivalence
-  finally show ?thesis .
-qed
-
 lemma distributor_idempotency_under_duploss:
   shows "\<currency>\<^sup>*a \<parallel> b \<Rightarrow> [a, a] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<rightarrow> a"
 proof -
   have "\<currency>\<^sup>*a \<parallel> b \<Rightarrow> [a, a] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)"
     unfolding distributor_def and general_parallel.simps using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x)"
-    using duploss_localization by equivalence
+    using inner_duploss_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x)"
   proof -
     have "\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> a \<triangleleft> x" for x
@@ -437,7 +421,7 @@ proof -
     then show ?thesis .
   qed
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. a \<triangleleft> x"
-    using duploss_localization by equivalence
+    using inner_duploss_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> \<zero>)"
     using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[a]. b \<triangleleft> x"
