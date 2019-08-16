@@ -392,31 +392,6 @@ proof -
   finally show ?thesis .
 qed
 
-lemma distributor_idempotency_under_duploss:
-  shows "\<currency>\<^sup>*a \<parallel> b \<Rightarrow> [a, a] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<rightarrow> a"
-proof -
-  have "\<currency>\<^sup>*a \<parallel> b \<Rightarrow> [a, a] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)"
-    unfolding distributor_def and general_parallel.simps using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x)"
-    using inner_duploss_redundancy by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x)"
-  proof -
-    have "\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> a \<triangleleft> x" for x
-      by (simp add: send_idempotency_under_duploss)
-    then have "\<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x) \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x)"
-      by equivalence
-    then show ?thesis .
-  qed
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. a \<triangleleft> x"
-    using inner_duploss_redundancy by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> \<zero>)"
-    using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[a]. b \<triangleleft> x"
-    by simp
-  finally show ?thesis
-    unfolding unidirectional_bridge_def and distributor_def .
-qed
-
 lemma two_channel_distributor_switch:
   shows "\<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<Rightarrow> [b, c] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<rightarrow> a"
 proof -
@@ -455,17 +430,21 @@ proof -
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<leftrightarrow> a \<parallel> (a \<triangleleft> x \<parallel> a \<triangleleft> x))"
     using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)"
-     using inner_bidirectional_bridge_redundancy by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[a, a]. b \<triangleleft> x"
-    unfolding general_parallel.simps using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<Rightarrow> [a, a]"
-    unfolding unidirectional_bridge_def and distributor_def by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> \<currency>\<^sup>*a \<parallel> d \<Rightarrow> [a, a]"
+    using inner_bidirectional_bridge_redundancy by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> \<currency>\<^sup>*a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)"
     using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> \<currency>\<^sup>*a \<parallel> d \<rightarrow> a"
-    using distributor_idempotency_under_duploss by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> \<currency>\<^sup>*a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x)"
+    using inner_duploss_redundancy by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> \<currency>\<^sup>*a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*a \<parallel> a \<triangleleft> x)"
+    using send_idempotency_under_duploss by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> \<currency>\<^sup>*a \<parallel> d \<triangleright>\<^sup>\<infinity> x. a \<triangleleft> x"
+    using inner_duploss_redundancy by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> \<zero>)"
+    using natural_simps by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[a]. b \<triangleleft> x"
+    by simp
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<rightarrow> a"
-    using natural_simps by equivalence
+    unfolding unidirectional_bridge_def and distributor_def by equivalence
   finally show ?thesis .
 qed
 
