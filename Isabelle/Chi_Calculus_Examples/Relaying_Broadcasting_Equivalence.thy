@@ -473,18 +473,15 @@ proof -
     unfolding unidirectional_bridge_def and distributor_def by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. a \<triangleleft> x"
     using natural_simps unfolding general_parallel.simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> a \<rightarrow> b \<parallel> a \<triangleleft> x)"
-     using inner_forward_bridge_redundancy and inner_backward_bridge_redundancy by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> a \<parallel> a \<triangleleft> x \<parallel> \<zero>)"
-    unfolding bidirectional_bridge_def using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> a \<parallel> b \<triangleleft> x \<parallel> \<zero>)"
-    using multi_receive_send_channel_switch by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> b \<rightarrow> a \<parallel> b \<triangleleft> x \<parallel> \<zero>)"
-    unfolding bidirectional_bridge_def using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (b \<triangleleft> x \<parallel> \<zero>)"
-     using inner_forward_bridge_redundancy and inner_backward_bridge_redundancy by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<leftrightarrow> b \<parallel> a \<triangleleft> x)"
+    using inner_bidirectional_bridge_redundancy by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. (a \<leftrightarrow> b \<parallel> b \<triangleleft> x)"
+    using send_channel_switch
+    by (blast intro: basic_weak_parallel_preservation_right basic_weak_multi_receive_preservation)
+  also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. b \<triangleleft> x"
+     using inner_bidirectional_bridge_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> c \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[b]. b \<triangleleft> x"
-    by simp
+    unfolding general_parallel.simps using natural_simps by equivalence
   finally show ?thesis
     unfolding unidirectional_bridge_def and distributor_def .
 qed
@@ -494,32 +491,26 @@ lemma two_channel_distributor_switch:
 proof -
   have "\<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<Rightarrow> [b, c] \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[b, c]. b \<triangleleft> x"
     unfolding unidirectional_bridge_def and distributor_def by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<triangleleft> x \<parallel> c \<triangleleft> x \<parallel> \<zero>)"
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<triangleleft> x \<parallel> c \<triangleleft> x)"
     using natural_simps unfolding general_parallel.simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> b \<parallel> b \<rightarrow> a \<parallel> b \<triangleleft> x \<parallel> c \<triangleleft> x \<parallel> \<zero>)"
-     using inner_forward_bridge_redundancy and inner_backward_bridge_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> a \<parallel> b \<triangleleft> x \<parallel> c \<triangleleft> x)"
-    unfolding bidirectional_bridge_def using natural_simps by equivalence
+     using inner_bidirectional_bridge_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<leftrightarrow> a \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)"
     using multi_receive_send_channel_switch by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (b \<rightarrow> a \<parallel> a \<rightarrow> b \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)"
-    unfolding bidirectional_bridge_def using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> c \<leftrightarrow> a \<parallel> b \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> c \<triangleleft> x)"
-     using inner_forward_bridge_redundancy and inner_backward_bridge_redundancy by equivalence
+     using inner_bidirectional_bridge_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> c \<triangleleft> x)"
     using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<rightarrow> c \<parallel> c \<rightarrow> a \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)"
-     using inner_forward_bridge_redundancy and inner_backward_bridge_redundancy by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<leftrightarrow> a \<parallel> a \<triangleleft> x \<parallel> c \<triangleleft> x)"
+     using inner_bidirectional_bridge_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<leftrightarrow> a \<parallel> c \<triangleleft> x \<parallel> a \<triangleleft> x)"
-    unfolding bidirectional_bridge_def using natural_simps by equivalence
+    using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<leftrightarrow> a \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x)"
     using multi_receive_send_channel_switch by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (c \<rightarrow> a \<parallel> a \<rightarrow> c \<parallel> a \<triangleleft> x \<parallel> a \<triangleleft> x \<parallel> \<zero>)"
-    unfolding bidirectional_bridge_def using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x \<parallel> \<zero>)"
-     using inner_forward_bridge_redundancy and inner_backward_bridge_redundancy by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. (a \<triangleleft> x \<parallel> a \<triangleleft> x)"
+     using inner_bidirectional_bridge_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>[a, a]. b \<triangleleft> x"
-    by simp
+    unfolding general_parallel.simps using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> \<currency>\<^sup>*a \<parallel> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> d \<Rightarrow> [a, a]"
     unfolding unidirectional_bridge_def and distributor_def by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> b \<leftrightarrow> a \<parallel> c \<leftrightarrow> a \<parallel> \<currency>\<^sup>*a \<parallel> d \<Rightarrow> [a, a]"
