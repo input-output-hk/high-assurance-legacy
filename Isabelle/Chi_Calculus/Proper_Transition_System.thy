@@ -32,7 +32,7 @@ text \<open>
 
 datatype 't output_rest =
   WithoutOpening \<open>val\<close> \<open>'t\<close> ("_\<rparr> _" [52, 51] 51) |
-  WithOpening \<open>chan \<Rightarrow> 't output_rest\<close> (binder "\<nu>" 51)
+  WithOpening \<open>chan \<Rightarrow> 't output_rest\<close> (binder "\<nu> " 51)
 
 text \<open>
   Note that the definition of \<open>output_rest\<close> is actually more permissive than the verbal definition
