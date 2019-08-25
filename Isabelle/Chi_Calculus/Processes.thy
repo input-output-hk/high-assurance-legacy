@@ -14,7 +14,7 @@ codatatype process =
   Send \<open>chan\<close> \<open>val\<close> (infix "\<triangleleft>" 100) |
   Receive \<open>chan\<close> \<open>val \<Rightarrow> process\<close> |
   Parallel \<open>process\<close> \<open>process\<close> (infixr "\<parallel>" 65) |
-  NewChannel \<open>chan \<Rightarrow> process\<close> (binder "\<nu>" 100)
+  NewChannel \<open>chan \<Rightarrow> process\<close> (binder "\<nu> " 100)
 
 text \<open>
   The notation for \<^const>\<open>Receive\<close> cannot be declared with @{theory_text \<open>binder\<close>}, for the
