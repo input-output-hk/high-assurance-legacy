@@ -26,9 +26,13 @@ syntax
   ("\<lbrace>\<nu>\<degree>_\<rbrace> _" [0, 51] 51)
 translations
   "\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<pp>" \<rightleftharpoons> "CONST typed_opening (\<lambda>\<aa>. \<pp>)"
-print_translation \<open>[
-  Syntax_Trans.preserve_binder_abs_tr' @{const_syntax typed_opening} @{syntax_const "_typed_opening"}
-]\<close>
+print_translation \<open>
+  [
+    Syntax_Trans.preserve_binder_abs_tr'
+      @{const_syntax typed_opening}
+      @{syntax_const "_typed_opening"}
+  ]
+\<close>
 (* FIXME:
   The @{command print_translation} part will only work once we have changed @{command abbreviation}
   to @{command definition}.

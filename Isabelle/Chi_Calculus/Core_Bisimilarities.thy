@@ -1088,11 +1088,13 @@ syntax
   ("(3\<langle>_\<rangle> \<nu> _./ _)" [0, 0, 100] 100)
 translations
   "\<langle>t\<rangle> \<nu> a. p" \<rightleftharpoons> "CONST tagged_new_channel t (\<lambda>a. p)"
-print_translation \<open>[
-  preserve_binder_abs_receive_tr'
-    @{const_syntax tagged_new_channel}
-    @{syntax_const "_tagged_new_channel"}
-]\<close>
+print_translation \<open>
+  [
+    preserve_binder_abs_receive_tr'
+      @{const_syntax tagged_new_channel}
+      @{syntax_const "_tagged_new_channel"}
+  ]
+\<close>
 
 context begin
 

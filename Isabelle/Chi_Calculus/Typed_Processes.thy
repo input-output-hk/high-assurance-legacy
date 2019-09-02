@@ -11,9 +11,9 @@ syntax
   ("(3_ \<triangleright>\<degree> _./ _)" [101, 0, 100] 100)
 translations
   "\<aa> \<triangleright>\<degree> \<xx>. \<pp>" \<rightleftharpoons> "CONST typed_receive \<aa> (\<lambda>\<xx>. \<pp>)"
-print_translation \<open>[
-  preserve_binder_abs_receive_tr' @{const_syntax typed_receive} @{syntax_const "_typed_receive"}
-]\<close>
+print_translation \<open>
+  [preserve_binder_abs_receive_tr' @{const_syntax typed_receive} @{syntax_const "_typed_receive"}]
+\<close>
 (* FIXME:
   The @{command print_translation} part will only work once we have changed @{command abbreviation}
   to @{command definition}.
