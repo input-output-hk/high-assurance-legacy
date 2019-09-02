@@ -13,6 +13,9 @@ syntax
   ("(3_ \<triangleright>\<^sup>\<infinity> _./ _)" [101, 0, 100] 100)
 translations
   "a \<triangleright>\<^sup>\<infinity> x. p" \<rightleftharpoons> "CONST multi_receive a (\<lambda>x. p)"
+print_translation \<open>
+  [preserve_binder_abs_receive_tr' @{const_syntax multi_receive} @{syntax_const "_multi_receive"}]
+\<close>
 
 (* FIXME:
   We should base the proofs of the compatibility laws on \<open>natural_transition_system\<close>, which would

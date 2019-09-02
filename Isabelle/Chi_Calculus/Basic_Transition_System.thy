@@ -37,6 +37,9 @@ syntax
   ("\<lbrace>\<nu> _\<rbrace> _" [0, 51] 51)
 translations
   "\<lbrace>\<nu> a\<rbrace> p" \<rightleftharpoons> "CONST Opening (\<lambda>a. p)"
+print_translation \<open>
+  [Syntax_Trans.preserve_binder_abs_tr' @{const_syntax Opening} @{syntax_const "_Opening"}]
+\<close>
 
 text \<open>
   We introduce the alias \<open>basic_lift\<close> for the automatically generated relator

@@ -4,6 +4,8 @@ theory Processes
   imports Channels
 begin
 
+ML_file \<open>binder_preservation.ML\<close>
+
 text \<open>
   The definition of the type of processes is fairly straightforward.
 \<close>
@@ -24,8 +26,8 @@ text \<open>
 
     \<^item> It has an extra parameter (for the channel) before the binder.
 
-  Therefore we introduce this notation using the low-level @{theory_text \<open>syntax\<close>} and
-  @{theory_text \<open>translations\<close>} constructs.
+  Therefore we introduce this notation using the low-level @{theory_text \<open>syntax\<close>},
+  @{theory_text \<open>translations\<close>}, and @{theory_text \<open>print_translation\<close>} constructs.
 \<close>
 
 syntax
@@ -33,6 +35,9 @@ syntax
   ("(3_ \<triangleright> _./ _)" [101, 0, 100] 100)
 translations
   "a \<triangleright> x. p" \<rightleftharpoons> "CONST Receive a (\<lambda>x. p)"
+print_translation \<open>
+  [preserve_binder_abs_receive_tr' @{const_syntax Receive} @{syntax_const "_Receive"}]
+\<close>
 
 text \<open>
   We define guarding of processes at the host-language level.
@@ -60,6 +65,13 @@ syntax
   "_general_parallel" :: "pttrn => 'a list => process => process" ("(3\<Prod>_\<leftarrow>_. _)" [0, 0, 100] 100)
 translations
   "\<Prod>x\<leftarrow>xs. p" \<rightleftharpoons> "CONST general_parallel (\<lambda>x. p) xs"
+print_translation \<open>
+  [
+    preserve_binder_abs_general_parallel_tr'
+      @{const_syntax general_parallel}
+      @{syntax_const "_general_parallel"}
+  ]
+\<close>
 
 lemma general_parallel_conversion_deferral:
   shows "\<Prod>y\<leftarrow>map f xs. P y = \<Prod>x\<leftarrow>xs. P (f x)"
