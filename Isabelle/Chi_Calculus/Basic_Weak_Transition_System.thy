@@ -7,7 +7,7 @@ theory Basic_Weak_Transition_System
     Basic_Transition_System
 begin
 
-inductive basic_silent :: "[process, process basic_residual] \<Rightarrow> bool" where
+inductive basic_silent :: "['p, 'p basic_residual] \<Rightarrow> bool" where
   basic_internal_is_silent: "basic_silent p (\<lbrace>\<tau>\<rbrace> p)"
 
 interpretation basic: std_weak_residual basic_lift basic_silent

@@ -29,11 +29,11 @@ text \<open>
   variable.
 \<close>
 
-datatype 't basic_residual =
-  Acting \<open>basic_action\<close> \<open>'t\<close> ("\<lbrace>_\<rbrace> _" [0, 51] 51) |
-  Opening \<open>chan \<Rightarrow> 't\<close>
+datatype 'p basic_residual =
+  Acting \<open>basic_action\<close> \<open>'p\<close> ("\<lbrace>_\<rbrace> _" [0, 51] 51) |
+  Opening \<open>chan \<Rightarrow> 'p\<close>
 syntax
-  "_Opening" :: "pttrn \<Rightarrow> process \<Rightarrow> 't basic_residual"
+  "_Opening" :: "pttrn \<Rightarrow> process \<Rightarrow> 'p basic_residual"
   ("\<lbrace>\<nu> _\<rbrace> _" [0, 51] 51)
 translations
   "\<lbrace>\<nu> a\<rbrace> p" \<rightleftharpoons> "CONST Opening (\<lambda>a. p)"
@@ -49,7 +49,7 @@ text \<open>
 \<close>
 
 abbreviation
-  basic_lift :: "(['t, 't] \<Rightarrow> bool) \<Rightarrow> (['t basic_residual, 't basic_residual] \<Rightarrow> bool)"
+  basic_lift :: "(['p, 'q] \<Rightarrow> bool) \<Rightarrow> (['p basic_residual, 'q basic_residual] \<Rightarrow> bool)"
 where
   "basic_lift \<equiv> rel_basic_residual"
 
