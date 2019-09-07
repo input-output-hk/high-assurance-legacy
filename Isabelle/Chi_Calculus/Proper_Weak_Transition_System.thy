@@ -33,6 +33,7 @@ qed
 interpretation proper: weak_transition_system proper_silent proper.absorb proper_transition
   by intro_locales
 
+notation proper.weak_transition (infix "\<Rightarrow>\<^sub>\<sharp>" 50)
 notation proper.weak.pre_bisimilarity (infix "\<lessapprox>\<^sub>\<sharp>" 50)
 notation proper.weak.bisimilarity (infix "\<approx>\<^sub>\<sharp>" 50)
 
