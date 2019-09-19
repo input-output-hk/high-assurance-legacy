@@ -830,6 +830,20 @@ abbreviation diamond where
       \<comment> \<open>node 3\<close> \<nu> ib\<^sub>3 ob\<^sub>3. (s\<^sub>3 \<rightarrow> ob\<^sub>3 \<parallel> ob\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3])
     )"
 
+abbreviation sidetrack_addition_diamond where
+  "sidetrack_addition_diamond r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi> \<equiv>
+    \<nu> l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0. (
+      \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
+      \<comment> \<open>node 0\<close> \<nu> ib\<^sub>0 ob\<^sub>0. (
+          s\<^sub>0 \<rightarrow> ob\<^sub>0 \<parallel> ob\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> ib\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0) \<parallel>
+      \<comment> \<open>node 1\<close> \<nu> ib\<^sub>1 ob\<^sub>1. (
+          s\<^sub>1 \<rightarrow> ob\<^sub>1 \<parallel> ob\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> ib\<^sub>1 \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1) \<parallel>
+      \<comment> \<open>node 2\<close> \<nu> ib\<^sub>2 ob\<^sub>2. (
+          s\<^sub>2 \<rightarrow> ob\<^sub>2 \<parallel> ob\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> ib\<^sub>2 \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>2 {\<phi>}\<rightarrow> ob\<^sub>2) \<parallel>
+      \<comment> \<open>node 3\<close> \<nu> ib\<^sub>3 ob\<^sub>3. (
+          s\<^sub>3 \<rightarrow> ob\<^sub>3 \<parallel> ob\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel> ib\<^sub>3 {\<phi>}\<rightarrow> ob\<^sub>3)
+    )"
+
 abbreviation broadcast where
   "broadcast r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi> \<equiv>
     \<nu> m. (
@@ -840,10 +854,143 @@ abbreviation broadcast where
       \<comment> \<open>node 3\<close> s\<^sub>3 \<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> r\<^sub>3
     )"
 
+(* FIXME: Move this lemma to a common place for reuse. *)
+lemma diamond_sidetrack_addition:
+  shows "
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel>
+    ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3]
+    \<approx>\<^sub>\<flat>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel>
+    ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel>
+    ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0 \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1 \<parallel> ib\<^sub>2 {\<phi>}\<rightarrow> ob\<^sub>2 \<parallel> ib\<^sub>3 {\<phi>}\<rightarrow> ob\<^sub>3"
+proof -
+  have "
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel>
+    ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3]
+    \<approx>\<^sub>\<flat>
+    \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel>
+    \<Prod>b \<leftarrow> [r\<^sub>0]. \<currency>\<^sup>?b \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [ob\<^sub>0, r\<^sub>0]"
+    unfolding distributor_def and general_parallel.simps using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel>
+    \<Prod>b \<leftarrow> [r\<^sub>0]. \<currency>\<^sup>?b \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [ob\<^sub>0, r\<^sub>0] \<parallel> ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0"
+    using sidetrack_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel> \<currency>\<^sup>?r\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel>
+    ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0 \<parallel> \<Prod>b \<leftarrow> [r\<^sub>1]. \<currency>\<^sup>?b \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [ob\<^sub>1, r\<^sub>1]"
+    unfolding distributor_def and general_parallel.simps using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel> \<currency>\<^sup>?r\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel>
+    ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0 \<parallel> \<Prod>b \<leftarrow> [r\<^sub>1]. \<currency>\<^sup>?b \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [ob\<^sub>1, r\<^sub>1] \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1"
+    using sidetrack_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    \<currency>\<^sup>?r\<^sub>3 \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel> \<currency>\<^sup>?r\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel>
+    ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1 \<parallel> \<Prod>b \<leftarrow> [r\<^sub>2]. \<currency>\<^sup>?b \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [ob\<^sub>2, r\<^sub>2]"
+    unfolding distributor_def and general_parallel.simps using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    \<currency>\<^sup>?r\<^sub>3 \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel> \<currency>\<^sup>?r\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel>
+    ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1 \<parallel> \<Prod>b \<leftarrow> [r\<^sub>2]. \<currency>\<^sup>?b \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [ob\<^sub>2, r\<^sub>2] \<parallel> ib\<^sub>2 {\<phi>}\<rightarrow> ob\<^sub>2"
+    using sidetrack_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel>
+    ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>2 {\<phi>}\<rightarrow> ob\<^sub>2 \<parallel> \<Prod>b \<leftarrow> [r\<^sub>3]. \<currency>\<^sup>?b \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [ob\<^sub>3, r\<^sub>3]"
+    unfolding distributor_def and general_parallel.simps using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel>
+    ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>2 {\<phi>}\<rightarrow> ob\<^sub>2 \<parallel> \<Prod>b \<leftarrow> [r\<^sub>3]. \<currency>\<^sup>?b \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [ob\<^sub>3, r\<^sub>3] \<parallel> ib\<^sub>3 {\<phi>}\<rightarrow> ob\<^sub>3"
+    using sidetrack_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel>
+    ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel> ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0 \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1 \<parallel> ib\<^sub>2 {\<phi>}\<rightarrow> ob\<^sub>2 \<parallel> ib\<^sub>3 {\<phi>}\<rightarrow> ob\<^sub>3"
+    unfolding distributor_def and general_parallel.simps using natural_simps by equivalence
+  finally show ?thesis .
+qed
+
 theorem diamond_collapse: "
   \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> diamond r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi>
   \<approx>\<^sub>\<sharp>
   \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> broadcast r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi>"
-  sorry
+proof -
+  have "
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> diamond r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi>
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> \<langle>0\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>1\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>2\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>3\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>4\<rangle> \<nu> l\<^sub>3\<^sub>0. (
+      \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
+      \<langle>5\<rangle> \<nu> ib\<^sub>0. \<langle>6\<rangle> \<nu> ob\<^sub>0. (s\<^sub>0 \<rightarrow> ob\<^sub>0 \<parallel> ob\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> ib\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0]) \<parallel>
+      \<langle>7\<rangle> \<nu> ib\<^sub>1. \<langle>8\<rangle> \<nu> ob\<^sub>1. (s\<^sub>1 \<rightarrow> ob\<^sub>1 \<parallel> ob\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> ib\<^sub>1 \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1]) \<parallel>
+      \<langle>9\<rangle> \<nu> ib\<^sub>2. \<langle>10\<rangle> \<nu> ob\<^sub>2. (s\<^sub>2 \<rightarrow> ob\<^sub>2 \<parallel> ob\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> ib\<^sub>2 \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2]) \<parallel>
+      \<langle>11\<rangle> \<nu> ib\<^sub>3. \<langle>12\<rangle> \<nu> ob\<^sub>3. (s\<^sub>3 \<rightarrow> ob\<^sub>3 \<parallel> ob\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3])
+    )"
+    unfolding tagged_new_channel_def ..
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>1\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>2\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>3\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>4\<rangle> \<nu> l\<^sub>3\<^sub>0. (
+      \<langle>5\<rangle> \<nu> ib\<^sub>0. \<langle>6\<rangle> \<nu> ob\<^sub>0. \<langle>7\<rangle> \<nu> ib\<^sub>1. \<langle>8\<rangle> \<nu> ob\<^sub>1. \<langle>9\<rangle> \<nu> ib\<^sub>2. \<langle>10\<rangle> \<nu> ob\<^sub>2. \<langle>11\<rangle> \<nu> ib\<^sub>3. \<langle>12\<rangle> \<nu> ob\<^sub>3. (
+      \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
+      (s\<^sub>0 \<rightarrow> ob\<^sub>0 \<parallel> ob\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> ib\<^sub>0) \<parallel>
+      (s\<^sub>1 \<rightarrow> ob\<^sub>1 \<parallel> ob\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> ib\<^sub>1) \<parallel>
+      (s\<^sub>2 \<rightarrow> ob\<^sub>2 \<parallel> ob\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> ib\<^sub>2) \<parallel>
+      (s\<^sub>3 \<rightarrow> ob\<^sub>3 \<parallel> ob\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> ib\<^sub>3) \<parallel>
+      \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel>
+      ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3]
+    ))"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>1\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>2\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>3\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>4\<rangle> \<nu> l\<^sub>3\<^sub>0. (
+      \<langle>5\<rangle> \<nu> ib\<^sub>0. \<langle>6\<rangle> \<nu> ob\<^sub>0. \<langle>7\<rangle> \<nu> ib\<^sub>1. \<langle>8\<rangle> \<nu> ob\<^sub>1. \<langle>9\<rangle> \<nu> ib\<^sub>2. \<langle>10\<rangle> \<nu> ob\<^sub>2. \<langle>11\<rangle> \<nu> ib\<^sub>3. \<langle>12\<rangle> \<nu> ob\<^sub>3. (
+      \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
+      (s\<^sub>0 \<rightarrow> ob\<^sub>0 \<parallel> ob\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> ib\<^sub>0) \<parallel>
+      (s\<^sub>1 \<rightarrow> ob\<^sub>1 \<parallel> ob\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> ib\<^sub>1) \<parallel>
+      (s\<^sub>2 \<rightarrow> ob\<^sub>2 \<parallel> ob\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> ib\<^sub>2) \<parallel>
+      (s\<^sub>3 \<rightarrow> ob\<^sub>3 \<parallel> ob\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> ib\<^sub>3) \<parallel>
+      \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel>
+      ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel>
+      ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0 \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1 \<parallel> ib\<^sub>2 {\<phi>}\<rightarrow> ob\<^sub>2 \<parallel> ib\<^sub>3 {\<phi>}\<rightarrow> ob\<^sub>3
+    ))"
+    using diamond_sidetrack_addition by equivalence
+  (* FIXME: The following two steps are not strictly necessary, they're there so we can use
+     `sidetrack_addition_diamond` as an aid to the reader. Discuss if this is really useful. *)
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> \<langle>0\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>1\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>2\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>3\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>4\<rangle> \<nu> l\<^sub>3\<^sub>0. (
+      \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
+      \<langle>5\<rangle> \<nu> ib\<^sub>0. \<langle>6\<rangle> \<nu> ob\<^sub>0. (
+        s\<^sub>0 \<rightarrow> ob\<^sub>0 \<parallel> ob\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> ib\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0) \<parallel>
+      \<langle>7\<rangle> \<nu> ib\<^sub>1. \<langle>8\<rangle> \<nu> ob\<^sub>1. (
+        s\<^sub>1 \<rightarrow> ob\<^sub>1 \<parallel> ob\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> ib\<^sub>1 \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1) \<parallel>
+      \<langle>9\<rangle> \<nu> ib\<^sub>2. \<langle>10\<rangle> \<nu> ob\<^sub>2. (
+        s\<^sub>2 \<rightarrow> ob\<^sub>2 \<parallel> ob\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> ib\<^sub>2 \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>2 {\<phi>}\<rightarrow> ob\<^sub>2) \<parallel>
+      \<langle>11\<rangle> \<nu> ib\<^sub>3. \<langle>12\<rangle> \<nu> ob\<^sub>3. (
+        s\<^sub>3 \<rightarrow> ob\<^sub>3 \<parallel> ob\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel> ib\<^sub>3 {\<phi>}\<rightarrow> ob\<^sub>3)
+    )"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> sidetrack_addition_diamond r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi>"
+    unfolding tagged_new_channel_def ..
+  finally show ?thesis
+    sorry
+qed
 
 end
