@@ -1902,6 +1902,216 @@ proof -
   finally show ?thesis .
 qed
 
+(* FIXME: Move this lemma to a common place for reuse. *)
+lemma buffers_removal:
+  shows "
+    \<nu> ib ob. (\<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ob \<rightarrow> m \<parallel> m \<rightarrow> ib \<parallel> ib {\<phi>}\<Rightarrow> [r, ob] \<parallel> ib {\<phi>}\<rightarrow> ob)
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> r"
+proof -
+  have "
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (\<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ob \<rightarrow> m \<parallel> m \<rightarrow> ib \<parallel> ib {\<phi>}\<Rightarrow> [r, ob] \<parallel> ib {\<phi>}\<rightarrow> ob)
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (\<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ib {\<phi>}\<Rightarrow> [r, ob] \<parallel> ib {\<phi>}\<rightarrow> ob \<parallel> ob \<rightarrow> m \<parallel> m \<rightarrow> ib)"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (
+      \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ib {\<phi>}\<Rightarrow> [r, ob] \<parallel> ib {\<phi>}\<rightarrow> ob \<parallel> ob \<rightarrow> m \<parallel> m \<rightarrow> ib \<parallel> ob \<rightarrow> ib)"
+    using unfiltering_unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (
+      \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ib {\<phi>}\<Rightarrow> [r, ob] \<parallel> ob \<rightarrow> m \<parallel> ob \<rightarrow> ib \<parallel>
+      m {\<top>}\<rightarrow> ib \<parallel> ib {\<phi>}\<rightarrow> ob)"
+    unfolding unidirectional_bridge_def using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (
+      \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ib {\<phi>}\<Rightarrow> [r, ob] \<parallel> ob \<rightarrow> m \<parallel> ob \<rightarrow> ib \<parallel>
+      m {\<top>}\<rightarrow> ib \<parallel> ib {\<phi>}\<rightarrow> ob \<parallel> m {\<phi>}\<rightarrow> ob)"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (
+      \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ib {\<phi>}\<Rightarrow> [r, ob] \<parallel> m \<rightarrow> ib \<parallel> m {\<phi>}\<rightarrow> ob \<parallel> ob \<rightarrow> ib \<parallel>
+      ib {\<phi>}\<rightarrow> ob \<parallel> ob {\<top>}\<rightarrow> m)"
+    unfolding unidirectional_bridge_def using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (
+      \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ib {\<phi>}\<Rightarrow> [r, ob] \<parallel> m \<rightarrow> ib \<parallel> m {\<phi>}\<rightarrow> ob \<parallel> ob \<rightarrow> ib \<parallel>
+      ib {\<phi>}\<rightarrow> ob \<parallel> ob {\<top>}\<rightarrow> m \<parallel> ib {\<phi>}\<rightarrow> m)"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (
+      \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ib {\<phi>}\<Rightarrow> [r, ob] \<parallel> ob \<leftrightarrow>{\<phi>} m \<parallel> ib {\<phi>}\<leftrightarrow> ob \<parallel> m \<leftrightarrow>{\<phi>} ib \<parallel> \<currency>\<^sup>+m)"
+    unfolding bidirectional_bridge_def and unidirectional_bridge_def and duploss_def using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (
+      \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ib {\<phi>}\<Rightarrow> [r, ob] \<parallel> ob \<leftrightarrow>{\<phi>} m \<parallel> ib {\<phi>}\<leftrightarrow> ob \<parallel> m \<leftrightarrow>{\<phi>} ib \<parallel> \<currency>\<^sup>+ib)"
+    unfolding tagged_new_channel_def
+    using
+      duplication_channel_switch and
+      proper_weak_parallel_preservation_right and
+      proper_weak_new_channel_preservation and
+      basic_weak_bisimilarity_in_proper_weak_bisimilarity
+    by (smt predicate2D)
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (
+      \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ib {\<phi>}\<Rightarrow> [r, ob] \<parallel> ib {\<phi>}\<leftrightarrow> ob \<parallel> m \<leftrightarrow>{\<phi>} ib \<parallel> \<currency>\<^sup>+ib \<parallel> m {\<phi>}\<leftrightarrow> ob \<parallel> \<currency>\<^sup>?m)"
+    unfolding duploss_def using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (
+      \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ib {\<phi>}\<Rightarrow> [r, ob] \<parallel> ib {\<phi>}\<leftrightarrow> ob \<parallel> m \<leftrightarrow>{\<phi>} ib \<parallel> \<currency>\<^sup>+ib \<parallel> m {\<phi>}\<leftrightarrow> ob \<parallel> \<currency>\<^sup>?ob)"
+    unfolding tagged_new_channel_def
+    using
+      loss_channel_switch
+      proper_weak_parallel_preservation_right and
+      proper_weak_new_channel_preservation and
+      basic_weak_bisimilarity_in_proper_weak_bisimilarity
+    by (smt predicate2D)
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (
+      \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ib {\<phi>}\<leftrightarrow> ob \<parallel> m \<leftrightarrow>{\<phi>} ib \<parallel> m {\<phi>}\<leftrightarrow> ob \<parallel>
+      \<currency>\<^sup>+ib \<parallel> \<Prod>b \<leftarrow> [r, ob]. \<currency>\<^sup>?b \<parallel> ib {\<phi>}\<Rightarrow> [r, ob])"
+    unfolding general_parallel.simps using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (
+      \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ib {\<phi>}\<leftrightarrow> ob \<parallel> m \<leftrightarrow>{\<phi>} ib \<parallel> m {\<phi>}\<leftrightarrow> ob \<parallel>
+      \<currency>\<^sup>+ib \<parallel> \<Prod>b \<leftarrow> [r, ob]. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> [r, ob]. ib {\<phi>}\<rightarrow> b)"
+    using distributor_split by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (
+      \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ob {\<top>}\<rightarrow> ib \<parallel> m {\<top>}\<rightarrow> ib \<parallel> ob {\<top>}\<rightarrow> m \<parallel> \<currency>\<^sup>+ib \<parallel> \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>?ob \<parallel> ib {\<phi>}\<rightarrow> r \<parallel>
+      ib {\<phi>}\<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> ob \<parallel> ib {\<phi> \<sqinter> \<phi>}\<rightarrow> ob)"
+    unfolding bidirectional_bridge_def and general_parallel.simps using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (
+      \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> ob {\<top>}\<rightarrow> ib \<parallel> m {\<top>}\<rightarrow> ib \<parallel> ob {\<top>}\<rightarrow> m \<parallel> \<currency>\<^sup>+ib \<parallel> \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>?ob \<parallel> ib {\<phi>}\<rightarrow> r \<parallel>
+      ib {\<phi>}\<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> ob)"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (
+      \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> \<currency>\<^sup>+ib \<parallel> \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>?ob \<parallel> ib {\<phi>}\<rightarrow> r \<parallel> ib {\<phi>}\<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> ob \<parallel>
+      ob \<rightarrow> m \<parallel> m \<rightarrow> ib \<parallel> ob \<rightarrow> ib)"
+    unfolding unidirectional_bridge_def using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (
+      \<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> \<currency>\<^sup>+ib \<parallel> \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>?ob \<parallel> ib {\<phi>}\<rightarrow> r \<parallel> ib {\<phi>}\<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> ob \<parallel>
+      ob \<rightarrow> m \<parallel> m \<rightarrow> ib)"
+    using unfiltering_unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (\<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> \<currency>\<^sup>+ib \<parallel> \<currency>\<^sup>?r \<parallel> ib {\<phi>}\<rightarrow> r \<parallel> m {\<phi>}\<leftrightarrow> ob \<parallel> \<currency>\<^sup>?ob \<parallel>
+      m \<leftrightarrow>{\<phi>} ib \<parallel> \<currency>\<^sup>*m)"
+    unfolding bidirectional_bridge_def and unidirectional_bridge_def using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (\<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> \<currency>\<^sup>+ib \<parallel> \<currency>\<^sup>?r \<parallel> ib {\<phi>}\<rightarrow> r \<parallel> m {\<phi>}\<leftrightarrow> ob \<parallel> \<currency>\<^sup>?ob \<parallel>
+      m \<leftrightarrow>{\<phi>} ib \<parallel> \<currency>\<^sup>*ib)"
+    unfolding tagged_new_channel_def
+    using
+      duploss_channel_switch and
+      proper_weak_parallel_preservation_right and
+      proper_weak_new_channel_preservation and
+      basic_weak_bisimilarity_in_proper_weak_bisimilarity
+    by (smt predicate2D)
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (\<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> \<currency>\<^sup>?r \<parallel> ib {\<phi>}\<rightarrow> r \<parallel> \<currency>\<^sup>?ob \<parallel> m \<leftrightarrow>{\<phi>} ib \<parallel> \<currency>\<^sup>*ib \<parallel>
+      m {\<phi>}\<leftrightarrow> ob \<parallel> \<currency>\<^sup>*m)"
+    unfolding duploss_def using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (\<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> \<currency>\<^sup>?r \<parallel> ib {\<phi>}\<rightarrow> r \<parallel> \<currency>\<^sup>?ob \<parallel> m \<leftrightarrow>{\<phi>} ib \<parallel> \<currency>\<^sup>*ib \<parallel>
+      m {\<phi>}\<leftrightarrow> ob \<parallel> \<currency>\<^sup>*ob)"
+    unfolding tagged_new_channel_def
+    using
+      duploss_channel_switch and
+      proper_weak_parallel_preservation_right and
+      proper_weak_new_channel_preservation and
+      basic_weak_bisimilarity_in_proper_weak_bisimilarity
+    by (smt predicate2D)
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (\<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*ib \<parallel> m {\<phi>}\<leftrightarrow> ob \<parallel> \<currency>\<^sup>*ob \<parallel> ib {\<phi>}\<leftrightarrow> m \<parallel> ib {\<phi>}\<rightarrow> r)"
+    unfolding duploss_def using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (\<currency>\<^sup>*m \<parallel> s \<rightarrow> ob \<parallel> \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*ib \<parallel> m {\<phi>}\<leftrightarrow> ob \<parallel> \<currency>\<^sup>*ob \<parallel> ib {\<phi>}\<leftrightarrow> m \<parallel> m {\<phi>}\<rightarrow> r)"
+    unfolding tagged_new_channel_def
+    using
+      unidirectional_bridge_source_switch and
+      proper_weak_parallel_preservation_right and
+      proper_weak_new_channel_preservation and
+      basic_weak_bisimilarity_in_proper_weak_bisimilarity
+    by (smt predicate2D)
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (\<currency>\<^sup>*m \<parallel> \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*ib \<parallel> \<currency>\<^sup>*ob \<parallel> ib {\<phi>}\<leftrightarrow> m \<parallel> m {\<phi>}\<rightarrow> r \<parallel> ob \<leftrightarrow>{\<phi>} m \<parallel> s {\<top>}\<rightarrow> ob)"
+    unfolding unidirectional_bridge_def using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<langle>0\<rangle> \<nu> ib. \<langle>1\<rangle> \<nu> ob. (\<currency>\<^sup>*m \<parallel> \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*ib \<parallel> \<currency>\<^sup>*ob \<parallel> ib {\<phi>}\<leftrightarrow> m \<parallel> m {\<phi>}\<rightarrow> r \<parallel> ob \<leftrightarrow>{\<phi>} m \<parallel> s {\<top>}\<rightarrow> m)"
+    unfolding tagged_new_channel_def
+    using
+      unidirectional_bridge_target_switch and
+      proper_weak_parallel_preservation_right and
+      proper_weak_new_channel_preservation and
+      basic_weak_bisimilarity_in_proper_weak_bisimilarity
+    by (smt predicate2D)
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> r \<parallel> \<langle>0\<rangle> \<nu> ib. (\<currency>\<^sup>*ib \<parallel> m \<leftrightarrow>{\<phi>} ib) \<parallel> \<langle>1\<rangle> \<nu> ob. (\<currency>\<^sup>*ob \<parallel> m {\<phi>}\<leftrightarrow> ob)"
+    unfolding unidirectional_bridge_def using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> r \<parallel> \<currency>\<^sup>*m \<parallel> \<currency>\<^sup>*m"
+    unfolding tagged_new_channel_def using duploss_detour_collapse by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> r"
+    using natural_simps by equivalence
+  finally show ?thesis unfolding tagged_new_channel_def .
+qed
+
 theorem diamond_collapse: "
   \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> diamond r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi>
   \<approx>\<^sub>\<sharp>
@@ -2307,8 +2517,64 @@ proof -
     \<approx>\<^sub>\<sharp>
     \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> buffered_broadcast r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi>"
     using natural_simps by equivalence
-  finally show ?thesis
-    sorry
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel>
+    \<langle>0\<rangle> \<nu> m. (
+      \<currency>\<^sup>*m \<parallel>
+      \<langle>1\<rangle> \<nu> ib\<^sub>0. \<langle>2\<rangle> \<nu> ob\<^sub>0. (s\<^sub>0 \<rightarrow> ob\<^sub>0 \<parallel> ob\<^sub>0 \<rightarrow> m \<parallel> m \<rightarrow> ib\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0) \<parallel>
+      \<langle>3\<rangle> \<nu> ib\<^sub>1. \<langle>4\<rangle> \<nu> ob\<^sub>1. (s\<^sub>1 \<rightarrow> ob\<^sub>1 \<parallel> ob\<^sub>1 \<rightarrow> m \<parallel> m \<rightarrow> ib\<^sub>1 \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1) \<parallel>
+      \<langle>5\<rangle> \<nu> ib\<^sub>2. \<langle>6\<rangle> \<nu> ob\<^sub>2. (s\<^sub>2 \<rightarrow> ob\<^sub>2 \<parallel> ob\<^sub>2 \<rightarrow> m \<parallel> m \<rightarrow> ib\<^sub>2 \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>2 {\<phi>}\<rightarrow> ob\<^sub>2) \<parallel>
+      (\<langle>7\<rangle> \<nu> ib\<^sub>3. \<langle>8\<rangle> \<nu> ob\<^sub>3. (s\<^sub>3 \<rightarrow> ob\<^sub>3 \<parallel> ob\<^sub>3 \<rightarrow> m \<parallel> m \<rightarrow> ib\<^sub>3 \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel> ib\<^sub>3 {\<phi>}\<rightarrow> ob\<^sub>3))
+    )"
+    unfolding tagged_new_channel_def ..
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel>
+    \<langle>0\<rangle> \<nu> m. (
+      \<currency>\<^sup>*m \<parallel>
+      \<langle>1\<rangle> \<nu> ib\<^sub>0. \<langle>2\<rangle> \<nu> ob\<^sub>0. (
+        \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>0 \<rightarrow> ob\<^sub>0 \<parallel> ob\<^sub>0 \<rightarrow> m \<parallel> m \<rightarrow> ib\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0) \<parallel>
+      \<langle>3\<rangle> \<nu> ib\<^sub>1. \<langle>4\<rangle> \<nu> ob\<^sub>1. (
+        \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>1 \<rightarrow> ob\<^sub>1 \<parallel> ob\<^sub>1 \<rightarrow> m \<parallel> m \<rightarrow> ib\<^sub>1 \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1) \<parallel>
+      \<langle>5\<rangle> \<nu> ib\<^sub>2. \<langle>6\<rangle> \<nu> ob\<^sub>2. (
+        \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>2 \<rightarrow> ob\<^sub>2 \<parallel> ob\<^sub>2 \<rightarrow> m \<parallel> m \<rightarrow> ib\<^sub>2 \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>2 {\<phi>}\<rightarrow> ob\<^sub>2) \<parallel>
+      \<langle>7\<rangle> \<nu> ib\<^sub>3. \<langle>8\<rangle> \<nu> ob\<^sub>3. (
+        \<currency>\<^sup>?r\<^sub>3 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>3 \<rightarrow> ob\<^sub>3 \<parallel> ob\<^sub>3 \<rightarrow> m \<parallel> m \<rightarrow> ib\<^sub>3 \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel> ib\<^sub>3 {\<phi>}\<rightarrow> ob\<^sub>3)
+    )"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel>
+    \<nu> m. (
+      \<currency>\<^sup>*m \<parallel>
+      \<nu> ib\<^sub>0 ob\<^sub>0. (\<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>0 \<rightarrow> ob\<^sub>0 \<parallel> ob\<^sub>0 \<rightarrow> m \<parallel> m \<rightarrow> ib\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0) \<parallel>
+      \<nu> ib\<^sub>1 ob\<^sub>1. (\<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>1 \<rightarrow> ob\<^sub>1 \<parallel> ob\<^sub>1 \<rightarrow> m \<parallel> m \<rightarrow> ib\<^sub>1 \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1) \<parallel>
+      \<nu> ib\<^sub>2 ob\<^sub>2. (\<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>2 \<rightarrow> ob\<^sub>2 \<parallel> ob\<^sub>2 \<rightarrow> m \<parallel> m \<rightarrow> ib\<^sub>2 \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>2 {\<phi>}\<rightarrow> ob\<^sub>2) \<parallel>
+      \<nu> ib\<^sub>3 ob\<^sub>3. (\<currency>\<^sup>?r\<^sub>3 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>3 \<rightarrow> ob\<^sub>3 \<parallel> ob\<^sub>3 \<rightarrow> m \<parallel> m \<rightarrow> ib\<^sub>3 \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel> ib\<^sub>3 {\<phi>}\<rightarrow> ob\<^sub>3)
+    )"
+    using natural_simps unfolding tagged_new_channel_def by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel>
+    \<nu> m. (
+      \<currency>\<^sup>*m \<parallel>
+      (\<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>0 \<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> r\<^sub>0) \<parallel>
+      (\<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>1 \<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> r\<^sub>1) \<parallel>
+      (\<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>2 \<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> r\<^sub>2) \<parallel>
+      (\<currency>\<^sup>?r\<^sub>3 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>3 \<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> r\<^sub>3)
+    )"
+    using buffers_removal by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> broadcast r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi>"
+    using natural_simps unfolding tagged_new_channel_def by equivalence
+  finally show ?thesis .
 qed
 
 end
