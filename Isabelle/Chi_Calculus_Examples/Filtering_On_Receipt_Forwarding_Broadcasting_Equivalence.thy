@@ -859,6 +859,22 @@ abbreviation buffered_relaying_diamond where
       l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0
     )"
 
+abbreviation strongly_connected_network where
+  "strongly_connected_network r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi> \<equiv>
+    \<nu> l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0. (
+      \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
+      \<comment> \<open>node 0\<close> \<nu> ib\<^sub>0 ob\<^sub>0. (
+        s\<^sub>0 \<rightarrow> ob\<^sub>0 \<parallel> ob\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> ib\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0) \<parallel>
+      \<comment> \<open>node 1\<close> \<nu> ib\<^sub>1 ob\<^sub>1. (
+        s\<^sub>1 \<rightarrow> ob\<^sub>1 \<parallel> ob\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> ib\<^sub>1 \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1) \<parallel>
+      \<comment> \<open>node 2\<close> \<nu> ib\<^sub>2 ob\<^sub>2. (
+        s\<^sub>2 \<rightarrow> ob\<^sub>2 \<parallel> ob\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> ib\<^sub>2 \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>2 {\<phi>}\<rightarrow> ob\<^sub>2) \<parallel>
+      \<comment> \<open>node 3\<close> \<nu> ib\<^sub>3 ob\<^sub>3. (
+        s\<^sub>3 \<rightarrow> ob\<^sub>3 \<parallel> ob\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel> ib\<^sub>3 {\<phi>}\<rightarrow> ob\<^sub>3) \<parallel>
+      l\<^sub>0\<^sub>1 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>1\<^sub>3 \<parallel>
+      l\<^sub>0\<^sub>1 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>2\<^sub>3
+    )"
+
 abbreviation broadcast where
   "broadcast r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi> \<equiv>
     \<nu> m. (
@@ -1152,6 +1168,212 @@ proof -
   finally show ?thesis .
 qed
 
+(* FIXME: Move this lemma to a common place for reuse. *)
+lemma diamond_closure:
+  shows "
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0
+    \<approx>\<^sub>\<flat>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
+    l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3"
+proof -
+  have "
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0
+    \<approx>\<^sub>\<flat>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
+    l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
+    l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
+    l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
+    l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
+    l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
+    l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
+    l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
+    l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
+    l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
+    l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
+    l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
+    l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
+    l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
+    l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
+    l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
+    l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
+    l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
+    l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3"
+    using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
+    l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel>
+    l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel>
+    l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<flat>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+    l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
+    l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
+    l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3"
+    using natural_simps by equivalence
+  finally show ?thesis .
+qed
+
 theorem diamond_collapse: "
   \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> diamond r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi>
   \<approx>\<^sub>\<sharp>
@@ -1293,6 +1515,65 @@ proof -
     \<dots>
     \<approx>\<^sub>\<sharp>
     \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> buffered_relaying_diamond r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi>"
+    unfolding tagged_new_channel_def ..
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> \<langle>0\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>1\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>2\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>3\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>4\<rangle> \<nu> l\<^sub>3\<^sub>0. (
+      \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
+      \<nu> ib\<^sub>0 ob\<^sub>0. (
+        s\<^sub>0 \<rightarrow> ob\<^sub>0 \<parallel> ob\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> ib\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0) \<parallel>
+      \<nu> ib\<^sub>1 ob\<^sub>1. (
+        s\<^sub>1 \<rightarrow> ob\<^sub>1 \<parallel> ob\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> ib\<^sub>1 \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1) \<parallel>
+      \<nu> ib\<^sub>2 ob\<^sub>2. (
+        s\<^sub>2 \<rightarrow> ob\<^sub>2 \<parallel> ob\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> ib\<^sub>2 \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>2 {\<phi>}\<rightarrow> ob\<^sub>2) \<parallel>
+      \<nu> ib\<^sub>3 ob\<^sub>3. (
+        s\<^sub>3 \<rightarrow> ob\<^sub>3 \<parallel> ob\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel> ib\<^sub>3 {\<phi>}\<rightarrow> ob\<^sub>3) \<parallel>
+      l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0
+    )"
+    unfolding tagged_new_channel_def ..
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> \<langle>0\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>1\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>2\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>3\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>4\<rangle> \<nu> l\<^sub>3\<^sub>0. (
+      \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
+      \<nu> ib\<^sub>0 ob\<^sub>0. (
+        s\<^sub>0 \<rightarrow> ob\<^sub>0 \<parallel> ob\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> ib\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0) \<parallel>
+      \<nu> ib\<^sub>1 ob\<^sub>1. (
+        s\<^sub>1 \<rightarrow> ob\<^sub>1 \<parallel> ob\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> ib\<^sub>1 \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1) \<parallel>
+      \<nu> ib\<^sub>2 ob\<^sub>2. (
+        s\<^sub>2 \<rightarrow> ob\<^sub>2 \<parallel> ob\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> ib\<^sub>2 \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>2 {\<phi>}\<rightarrow> ob\<^sub>2) \<parallel>
+      \<nu> ib\<^sub>3 ob\<^sub>3. (
+        s\<^sub>3 \<rightarrow> ob\<^sub>3 \<parallel> ob\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel> ib\<^sub>3 {\<phi>}\<rightarrow> ob\<^sub>3) \<parallel>
+      l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
+      l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
+      l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>2\<^sub>3 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
+      l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<rightarrow> l\<^sub>2\<^sub>3
+    )"
+    using diamond_closure by equivalence
+  (* FIXME: The following two steps are not strictly necessary, they're there so we can use
+     `strongly_connected_network` as an aid to the reader. Discuss if this is really useful. *)
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> \<langle>0\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>1\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>2\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>3\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>4\<rangle> \<nu> l\<^sub>3\<^sub>0. (
+      \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
+      \<nu> ib\<^sub>0 ob\<^sub>0. (
+        s\<^sub>0 \<rightarrow> ob\<^sub>0 \<parallel> ob\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> ib\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel> ib\<^sub>0 {\<phi>}\<rightarrow> ob\<^sub>0) \<parallel>
+      \<nu> ib\<^sub>1 ob\<^sub>1. (
+        s\<^sub>1 \<rightarrow> ob\<^sub>1 \<parallel> ob\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> ib\<^sub>1 \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1] \<parallel> ib\<^sub>1 {\<phi>}\<rightarrow> ob\<^sub>1) \<parallel>
+      \<nu> ib\<^sub>2 ob\<^sub>2. (
+        s\<^sub>2 \<rightarrow> ob\<^sub>2 \<parallel> ob\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> ib\<^sub>2 \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel> ib\<^sub>2 {\<phi>}\<rightarrow> ob\<^sub>2) \<parallel>
+      \<nu> ib\<^sub>3 ob\<^sub>3. (
+        s\<^sub>3 \<rightarrow> ob\<^sub>3 \<parallel> ob\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3] \<parallel> ib\<^sub>3 {\<phi>}\<rightarrow> ob\<^sub>3) \<parallel>
+      l\<^sub>0\<^sub>1 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>1\<^sub>3 \<parallel>
+      l\<^sub>0\<^sub>1 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>1 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 {\<phi>}\<leftrightarrow>{\<phi>} l\<^sub>2\<^sub>3
+    )"
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
+  also have "
+    \<dots>
+    \<approx>\<^sub>\<sharp>
+    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> strongly_connected_network r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi>"
     unfolding tagged_new_channel_def ..
   finally show ?thesis
     sorry
