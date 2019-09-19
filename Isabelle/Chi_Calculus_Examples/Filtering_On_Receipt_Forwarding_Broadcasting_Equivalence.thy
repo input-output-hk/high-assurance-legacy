@@ -820,4 +820,30 @@ qed
 
 (*** END Communication.thy ***)
 
+abbreviation diamond where
+  "diamond r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi> \<equiv>
+    \<nu> l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0. (
+      \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
+      \<comment> \<open>node 0\<close> \<nu> ib\<^sub>0 ob\<^sub>0. (s\<^sub>0 \<rightarrow> ob\<^sub>0 \<parallel> ob\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> ib\<^sub>0 \<parallel> ib\<^sub>0 {\<phi>}\<Rightarrow> [r\<^sub>0, ob\<^sub>0]) \<parallel>
+      \<comment> \<open>node 1\<close> \<nu> ib\<^sub>1 ob\<^sub>1. (s\<^sub>1 \<rightarrow> ob\<^sub>1 \<parallel> ob\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> ib\<^sub>1 \<parallel> ib\<^sub>1 {\<phi>}\<Rightarrow> [r\<^sub>1, ob\<^sub>1]) \<parallel>
+      \<comment> \<open>node 2\<close> \<nu> ib\<^sub>2 ob\<^sub>2. (s\<^sub>2 \<rightarrow> ob\<^sub>2 \<parallel> ob\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> ib\<^sub>2 \<parallel> ib\<^sub>2 {\<phi>}\<Rightarrow> [r\<^sub>2, ob\<^sub>2]) \<parallel>
+      \<comment> \<open>node 3\<close> \<nu> ib\<^sub>3 ob\<^sub>3. (s\<^sub>3 \<rightarrow> ob\<^sub>3 \<parallel> ob\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel> ib\<^sub>3 {\<phi>}\<Rightarrow> [r\<^sub>3, ob\<^sub>3])
+    )"
+
+abbreviation broadcast where
+  "broadcast r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi> \<equiv>
+    \<nu> m. (
+      \<currency>\<^sup>*m \<parallel>
+      \<comment> \<open>node 0\<close> s\<^sub>0 \<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> r\<^sub>0 \<parallel>
+      \<comment> \<open>node 1\<close> s\<^sub>1 \<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> r\<^sub>1 \<parallel>
+      \<comment> \<open>node 2\<close> s\<^sub>2 \<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> r\<^sub>2 \<parallel>
+      \<comment> \<open>node 3\<close> s\<^sub>3 \<rightarrow> m \<parallel> m {\<phi>}\<rightarrow> r\<^sub>3
+    )"
+
+theorem diamond_collapse: "
+  \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> diamond r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi>
+  \<approx>\<^sub>\<sharp>
+  \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> broadcast r\<^sub>0 s\<^sub>0 r\<^sub>1 s\<^sub>1 r\<^sub>2 s\<^sub>2 r\<^sub>3 s\<^sub>3 \<phi>"
+  sorry
+
 end
