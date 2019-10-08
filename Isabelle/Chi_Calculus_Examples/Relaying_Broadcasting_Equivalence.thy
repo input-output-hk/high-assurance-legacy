@@ -231,35 +231,35 @@ proof -
     )
   also have "\<dots> \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-    transformed_core  l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
     \<comment> \<open>Node 0:\<close> s\<^sub>0 \<Rightarrow> [l\<^sub>3\<^sub>0, l\<^sub>3\<^sub>0] \<parallel>
     \<comment> \<open>Node 1:\<close> s\<^sub>1 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
     \<comment> \<open>Node 2:\<close> s\<^sub>2 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
     \<comment> \<open>Node 3:\<close> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]"
     unfolding general_parallel.simps using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat>
-    transformed_core  l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
     \<comment> \<open>Node 0:\<close> (\<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<triangleright>\<^sup>\<infinity> x. (l\<^sub>3\<^sub>0 \<triangleleft> x \<parallel> l\<^sub>3\<^sub>0 \<triangleleft> x)) \<parallel>
     \<comment> \<open>Node 1:\<close> s\<^sub>1 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
     \<comment> \<open>Node 2:\<close> s\<^sub>2 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
     \<comment> \<open>Node 3:\<close> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]"
     unfolding distributor_def and general_parallel.simps using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat>
-    transformed_core  l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
     \<comment> \<open>Node 0:\<close> (\<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<triangleleft> x \<parallel> l\<^sub>3\<^sub>0 \<triangleleft> x)) \<parallel>
     \<comment> \<open>Node 1:\<close> s\<^sub>1 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
     \<comment> \<open>Node 2:\<close> s\<^sub>2 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
     \<comment> \<open>Node 3:\<close> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]"
     using inner_duploss_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat>
-    transformed_core  l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
     \<comment> \<open>Node 0:\<close> (\<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<triangleright>\<^sup>\<infinity> x. (\<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<triangleleft> x)) \<parallel>
     \<comment> \<open>Node 1:\<close> s\<^sub>1 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
     \<comment> \<open>Node 2:\<close> s\<^sub>2 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
     \<comment> \<open>Node 3:\<close> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]"
     using send_idempotency_under_duploss by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat>
-    transformed_core  l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
     \<comment> \<open>Node 0:\<close> (\<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<triangleright>\<^sup>\<infinity> x. l\<^sub>3\<^sub>0 \<triangleleft> x) \<parallel>
     \<comment> \<open>Node 1:\<close> s\<^sub>1 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
     \<comment> \<open>Node 2:\<close> s\<^sub>2 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
@@ -267,7 +267,7 @@ proof -
     using inner_duploss_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-    transformed_core  l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
     \<comment> \<open>Node 0:\<close> s\<^sub>0 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
     \<comment> \<open>Node 1:\<close> s\<^sub>1 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
     \<comment> \<open>Node 2:\<close> s\<^sub>2 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
