@@ -4,7 +4,7 @@ theory Proper_Weak_Transition_System
   imports Basic_Weak_Transition_System Proper_Transition_System
 begin
 
-inductive proper_silent :: "[process, process proper_residual] \<Rightarrow> bool" where
+inductive proper_silent :: "['p, 'p proper_residual] \<Rightarrow> bool" where
   proper_internal_is_silent: "proper_silent p (\<lparr>\<tau>\<rparr> p)"
 
 interpretation proper: std_weak_residual proper_lift proper_silent
@@ -33,6 +33,7 @@ qed
 interpretation proper: weak_transition_system proper_silent proper.absorb proper_transition
   by intro_locales
 
+notation proper.weak_transition (infix "\<Rightarrow>\<^sub>\<sharp>" 50)
 notation proper.weak.pre_bisimilarity (infix "\<lessapprox>\<^sub>\<sharp>" 50)
 notation proper.weak.bisimilarity (infix "\<approx>\<^sub>\<sharp>" 50)
 

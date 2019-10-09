@@ -19,13 +19,24 @@ abbreviation
 where
   "\<aa> \<triangleright>\<degree> \<xx> \<equiv> untyped_channel \<aa> \<triangleright> untyped_value \<xx>"
 
-abbreviation typed_opening :: "('a channel \<Rightarrow> 't) \<Rightarrow> 't basic_residual" where
+abbreviation typed_opening :: "('a channel \<Rightarrow> 'p) \<Rightarrow> 'p basic_residual" where
   "typed_opening \<PP> \<equiv> \<lbrace>\<nu> a\<rbrace> \<PP> (typed_channel a)"
 syntax
-  "_typed_opening" :: "pttrn \<Rightarrow> process \<Rightarrow> 't basic_residual"
+  "_typed_opening" :: "pttrn \<Rightarrow> process \<Rightarrow> 'p basic_residual"
   ("\<lbrace>\<nu>\<degree>_\<rbrace> _" [0, 51] 51)
 translations
   "\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<pp>" \<rightleftharpoons> "CONST typed_opening (\<lambda>\<aa>. \<pp>)"
+print_translation \<open>
+  [
+    Syntax_Trans.preserve_binder_abs_tr'
+      @{const_syntax typed_opening}
+      @{syntax_const "_typed_opening"}
+  ]
+\<close>
+(* FIXME:
+  The @{command print_translation} part will only work once we have changed @{command abbreviation}
+  to @{command definition}.
+*)
 
 lemma typed_ltr: "typed_basic_out \<aa> \<xx> \<bowtie> typed_basic_in \<aa> \<xx>"
   by (fact ltr)

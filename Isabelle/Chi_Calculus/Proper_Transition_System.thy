@@ -30,9 +30,9 @@ text \<open>
   transition. Its syntax is part of the syntax of output transitions.
 \<close>
 
-datatype 't output_rest =
-  WithoutOpening \<open>val\<close> \<open>'t\<close> ("_\<rparr> _" [52, 51] 51) |
-  WithOpening \<open>chan \<Rightarrow> 't output_rest\<close> (binder "\<nu>" 51)
+datatype 'p output_rest =
+  WithoutOpening \<open>val\<close> \<open>'p\<close> ("_\<rparr> _" [52, 51] 51) |
+  WithOpening \<open>chan \<Rightarrow> 'p output_rest\<close> (binder "\<nu> " 51)
 
 text \<open>
   Note that the definition of \<open>output_rest\<close> is actually more permissive than the verbal definition
@@ -50,7 +50,7 @@ text \<open>
 \<close>
 
 abbreviation
-  output_rest_lift :: "(['t, 't] \<Rightarrow> bool) \<Rightarrow> (['t output_rest, 't output_rest] \<Rightarrow> bool)"
+  output_rest_lift :: "(['p, 'q] \<Rightarrow> bool) \<Rightarrow> (['p output_rest, 'q output_rest] \<Rightarrow> bool)"
 where
   "output_rest_lift \<equiv> rel_output_rest"
 
@@ -83,9 +83,9 @@ text \<open>
   \<open>\<lparr>a \<triangleleft> \<nu> b\<^sub>1 \<dots> b\<^sub>n. X b\<^sub>1 \<dots> b\<^sub>n\<rparr> Q b\<^sub>1 \<dots> b\<^sub>n\<close> where \<open>a\<close> is a channel and the \<open>b\<^sub>i\<close> are channel variables.
 \<close>
 
-datatype 't proper_residual =
-  Simple \<open>proper_action\<close> \<open>'t\<close> ("\<lparr>_\<rparr> _" [0, 51] 51) |
-  Output \<open>chan\<close> \<open>'t output_rest\<close> ("\<lparr>_ \<triangleleft> _" [0, 51] 51)
+datatype 'p proper_residual =
+  Simple \<open>proper_action\<close> \<open>'p\<close> ("\<lparr>_\<rparr> _" [0, 51] 51) |
+  Output \<open>chan\<close> \<open>'p output_rest\<close> ("\<lparr>_ \<triangleleft> _" [0, 51] 51)
 
 text \<open>
   We introduce the alias \<open>proper_lift\<close> for the automatically generated relator
@@ -95,7 +95,7 @@ text \<open>
 \<close>
 
 abbreviation
-  proper_lift :: "(['t, 't] \<Rightarrow> bool) \<Rightarrow> (['t proper_residual, 't proper_residual] \<Rightarrow> bool)"
+  proper_lift :: "(['p, 'q] \<Rightarrow> bool) \<Rightarrow> (['p proper_residual, 'q proper_residual] \<Rightarrow> bool)"
 where
   "proper_lift \<equiv> rel_proper_residual"
 
