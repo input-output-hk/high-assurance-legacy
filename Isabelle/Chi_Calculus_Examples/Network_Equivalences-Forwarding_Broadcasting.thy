@@ -1,63 +1,18 @@
-(* TODO:
-
-  - Factor out the common parts with `Relaying_Broadcasting_Equivalence.thy`.
-
-*)
 section \<open>Equivalence of a Diamond-Shaped Forwarding Network and a Cross-Shaped Broadcasting Network\<close>
 
-theory Forwarding_Broadcasting_Equivalence
-  imports
-    Chi_Calculus.Communication
+theory "Network_Equivalences-Forwarding_Broadcasting"
+  imports Network_Equivalences
 begin
-
-type_synonym four_node_network = "
-  \<comment> \<open>Send interface:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  \<comment> \<open>Receive interface:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  process"
 
 type_synonym diamond_send_interfacing = "
   \<comment> \<open>Send interface:\<close> [chan, chan, chan, chan] \<Rightarrow>
   \<comment> \<open>Send buffer:\<close> [chan, chan, chan, chan] \<Rightarrow>
   process"
 
-type_synonym diamond_send_buffering = "
-  \<comment> \<open>Send buffer:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  \<comment> \<open>Links:\<close> [chan, chan, chan, chan, chan] \<Rightarrow>
-  process"
-
 type_synonym diamond_receive_interfacing = "
   \<comment> \<open>Receive interface:\<close> [chan, chan, chan, chan] \<Rightarrow>
   \<comment> \<open>Receive buffering:\<close> [chan, chan, chan, chan] \<Rightarrow>
   \<comment> \<open>Send buffering:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  process"
-
-type_synonym diamond_receive_buffering = "
-  \<comment> \<open>Receive buffering:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  \<comment> \<open>Links:\<close> [chan, chan, chan, chan, chan] \<Rightarrow>
-  process"
-
-type_synonym diamond_core = "
-  \<comment> \<open>Links:\<close> [chan, chan, chan, chan, chan] \<Rightarrow>
-  process"
-
-type_synonym cross_send_buffering = "
-  \<comment> \<open>Send buffering:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  \<comment> \<open>Broadcast medium:\<close> chan \<Rightarrow>
-  process"
-
-type_synonym cross_receive_buffering = "
-  \<comment> \<open>Receive buffering:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  \<comment> \<open>Broadcast medium:\<close> chan \<Rightarrow>
-  process"
-
-type_synonym cross_send_interfacing = "
-  \<comment> \<open>Send interface:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  \<comment> \<open>Broadcast medium:\<close> chan \<Rightarrow>
-  process"
-
-type_synonym cross_receive_interfacing = "
-  \<comment> \<open>Receive interface:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  \<comment> \<open>Broadcast medium:\<close> chan \<Rightarrow>
   process"
 
 abbreviation diamond_send_interfacing :: diamond_send_interfacing where
@@ -67,13 +22,6 @@ abbreviation diamond_send_interfacing :: diamond_send_interfacing where
     \<comment> \<open>Node 2:\<close> s\<^sub>2 \<rightarrow> ob\<^sub>2 \<parallel>
     \<comment> \<open>Node 3:\<close> s\<^sub>3 \<rightarrow> ob\<^sub>3"
 
-abbreviation diamond_send_buffering :: diamond_send_buffering where
-  "diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<equiv>
-    \<comment> \<open>Node 0:\<close> ob\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
-    \<comment> \<open>Node 1:\<close> ob\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
-    \<comment> \<open>Node 2:\<close> ob\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
-    \<comment> \<open>Node 3:\<close> ob\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]"
-
 abbreviation diamond_receive_interfacing :: diamond_receive_interfacing where
   "diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<equiv>
     \<comment> \<open>Node 0:\<close> ib\<^sub>0 \<Rightarrow> [r\<^sub>0, ob\<^sub>0] \<parallel>
@@ -81,22 +29,14 @@ abbreviation diamond_receive_interfacing :: diamond_receive_interfacing where
     \<comment> \<open>Node 2:\<close> ib\<^sub>2 \<Rightarrow> [r\<^sub>2, ob\<^sub>2] \<parallel>
     \<comment> \<open>Node 3:\<close> ib\<^sub>3 \<Rightarrow> [r\<^sub>3, ob\<^sub>3]"
 
-abbreviation diamond_receive_buffering :: diamond_receive_buffering where
-  "diamond_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<equiv>
-    \<comment> \<open>Link 0--1:\<close> l\<^sub>0\<^sub>1 \<rightarrow> ib\<^sub>1 \<parallel>
-    \<comment> \<open>Link 0--2:\<close> l\<^sub>0\<^sub>2 \<rightarrow> ib\<^sub>2 \<parallel>
-    \<comment> \<open>Link 1--3:\<close> l\<^sub>1\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel>
-    \<comment> \<open>Link 2--3:\<close> l\<^sub>2\<^sub>3 \<rightarrow> ib\<^sub>3 \<parallel>
-    \<comment> \<open>Link 3--0:\<close> l\<^sub>3\<^sub>0 \<rightarrow> ib\<^sub>0"
-
 abbreviation diamond :: four_node_network where
   "diamond s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 \<equiv>
     \<nu> ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
       diamond_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
-      diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-      diamond_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
+      diamond_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      diamond_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
     )"
 
 abbreviation receive_send_sidetrack where
@@ -106,55 +46,12 @@ abbreviation receive_send_sidetrack where
     \<comment> \<open>Node 2:\<close> ib\<^sub>2 \<rightarrow> ob\<^sub>2 \<parallel>
     \<comment> \<open>Node 3:\<close> ib\<^sub>3 \<rightarrow> ob\<^sub>3"
 
-abbreviation relaying_core :: diamond_core where
-  "relaying_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<equiv>
-    \<comment> \<open>From link 0--1:\<close> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
-    \<comment> \<open>From link 0--2:\<close> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
-    \<comment> \<open>From link 1--3:\<close> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
-    \<comment> \<open>From link 2--3:\<close> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
-    \<comment> \<open>From link 3--0:\<close> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2"
-
-abbreviation transformed_core :: diamond_core where
-  "transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<equiv>
-    \<comment> \<open>Link 0--1:\<close> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel>
-    \<comment> \<open>Link 0--2:\<close> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel>
-    \<comment> \<open>Link 1--3:\<close> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel>
-    \<comment> \<open>Link 2--3:\<close> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3"
-
-abbreviation cross_receive_buffering :: cross_receive_buffering where
-  "cross_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 m \<equiv>
-    \<comment> \<open>Node 0:\<close> m \<rightarrow> ib\<^sub>0 \<parallel>
-    \<comment> \<open>Node 1:\<close> m \<rightarrow> ib\<^sub>1 \<parallel>
-    \<comment> \<open>Node 2:\<close> m \<rightarrow> ib\<^sub>2 \<parallel>
-    \<comment> \<open>Node 3:\<close> m \<rightarrow> ib\<^sub>3"
-
-abbreviation cross_send_buffering :: cross_send_buffering where
-  "cross_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 m \<equiv>
-    \<comment> \<open>Node 0:\<close> ob\<^sub>0 \<rightarrow> m \<parallel>
-    \<comment> \<open>Node 1:\<close> ob\<^sub>1 \<rightarrow> m \<parallel>
-    \<comment> \<open>Node 2:\<close> ob\<^sub>2 \<rightarrow> m \<parallel>
-    \<comment> \<open>Node 3:\<close> ob\<^sub>3 \<rightarrow> m"
-
-abbreviation cross_receive_interfacing :: cross_receive_interfacing where
-  "cross_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 m \<equiv>
-    \<comment> \<open>Node 0:\<close> m \<rightarrow> r\<^sub>0 \<parallel>
-    \<comment> \<open>Node 1:\<close> m \<rightarrow> r\<^sub>1 \<parallel>
-    \<comment> \<open>Node 2:\<close> m \<rightarrow> r\<^sub>2 \<parallel>
-    \<comment> \<open>Node 3:\<close> m \<rightarrow> r\<^sub>3"
-
-abbreviation cross_send_interfacing :: cross_send_interfacing where
-  "cross_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 m \<equiv>
-    \<comment> \<open>Node 0:\<close> s\<^sub>0 \<rightarrow> m \<parallel>
-    \<comment> \<open>Node 1:\<close> s\<^sub>1 \<rightarrow> m \<parallel>
-    \<comment> \<open>Node 2:\<close> s\<^sub>2 \<rightarrow> m \<parallel>
-    \<comment> \<open>Node 3:\<close> s\<^sub>3 \<rightarrow> m"
-
 abbreviation cross where
   "cross s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 \<equiv>
     \<nu> m. (
       \<currency>\<^sup>*m \<parallel>
-      cross_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 m \<parallel>
-      cross_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 m
+      cross_sending s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 m \<parallel>
+      cross_receiving r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 m
     )"
 
 lemma receive_send_sidetracking:
@@ -188,17 +85,17 @@ qed
 lemma core_relaying:
   shows "
     \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-    diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-    diamond_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    diamond_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    diamond_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
     diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
     receive_send_sidetrack ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3
     \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-    diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-    diamond_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    diamond_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    diamond_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
     diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
     receive_send_sidetrack ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
-    relaying_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0"
+    initial_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0"
     (is "?p \<approx>\<^sub>\<flat> ?q")
 proof -
   have "?p \<approx>\<^sub>\<flat>
@@ -276,8 +173,8 @@ proof -
     \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
     (\<currency>\<^sup>+l\<^sub>3\<^sub>0 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]. \<currency>\<^sup>?b \<parallel> l\<^sub>3\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]) \<parallel>
     (l\<^sub>3\<^sub>0 \<rightarrow> ib\<^sub>0 \<parallel> ib\<^sub>0 \<rightarrow> ob\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> ob\<^sub>0) \<parallel>
-    diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-    diamond_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    diamond_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    diamond_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
     diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
     receive_send_sidetrack ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0"
@@ -287,8 +184,8 @@ proof -
     \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
     (\<currency>\<^sup>+l\<^sub>3\<^sub>0 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]. l\<^sub>3\<^sub>0 \<rightarrow> b) \<parallel>
     (l\<^sub>3\<^sub>0 \<rightarrow> ib\<^sub>0 \<parallel> ib\<^sub>0 \<rightarrow> ob\<^sub>0) \<parallel>
-    diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-    diamond_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    diamond_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    diamond_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
     diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
     receive_send_sidetrack ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
     l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0"
@@ -297,47 +194,6 @@ proof -
     unfolding duploss_def and general_parallel.simps using natural_simps by equivalence
   finally show ?thesis .
 qed
-
-(* TODO: See topmost TODO. *)
-lemma core_transformation:
-  shows "relaying_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<approx>\<^sub>\<flat> transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0"
-  sorry
-
-(* TODO: See topmost TODO. *)
-lemma receive_buffering_collapse:
-  shows "
-    transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-    diamond_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
-    \<approx>\<^sub>\<flat>
-    transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-    cross_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>3\<^sub>0"
-    (is "?p \<approx>\<^sub>\<flat> ?q")
-  sorry
-
-(* TODO: See topmost TODO. *)
-lemma send_buffering_collapse:
-  shows "
-    \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-    transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-    diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
-    \<approx>\<^sub>\<flat>
-    \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-    transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-    cross_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>3\<^sub>0"
-    (is "?p \<approx>\<^sub>\<flat> ?q")
-  sorry
-
-(* TODO: See topmost TODO. *)
-lemma core_collapse:
-  shows "
-    \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-    \<nu> l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3. (
-      \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel>
-      transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
-    )
-    \<approx>\<^sub>\<sharp>
-    \<currency>\<^sup>*l\<^sub>3\<^sub>0"
-  sorry
 
 lemma node_buffering_removal:
   shows "
@@ -498,16 +354,16 @@ proof -
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
       diamond_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
-      diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-      diamond_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
+      diamond_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      diamond_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
     )
     \<approx>\<^sub>\<sharp>
     \<langle>0\<rangle> \<nu> ib\<^sub>0. \<langle>1\<rangle> \<nu> ib\<^sub>1. \<langle>2\<rangle> \<nu> ib\<^sub>2. \<langle>3\<rangle> \<nu> ib\<^sub>3. \<langle>4\<rangle> \<nu> ob\<^sub>0. \<langle>5\<rangle> \<nu> ob\<^sub>1. \<langle>6\<rangle> \<nu> ob\<^sub>2. \<langle>7\<rangle> \<nu> ob\<^sub>3.
     \<langle>8\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>9\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>10\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>11\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>12\<rangle> \<nu> l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
       diamond_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
-      diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-      diamond_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      diamond_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      diamond_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
       (
         \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel>
         diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3
@@ -519,8 +375,8 @@ proof -
     \<langle>8\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>9\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>10\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>11\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>12\<rangle> \<nu> l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
       diamond_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
-      diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-      diamond_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      diamond_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      diamond_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
       (
         \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel>
         diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
@@ -536,8 +392,8 @@ proof -
       diamond_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       (
         \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-        diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-        diamond_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+        diamond_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+        diamond_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
         diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
         receive_send_sidetrack ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3
       )
@@ -551,11 +407,11 @@ proof -
       diamond_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       (
         \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-        diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-        diamond_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+        diamond_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+        diamond_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
         diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
         receive_send_sidetrack ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
-        relaying_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
+        initial_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
       )
     )"
     using core_relaying by equivalence
@@ -565,11 +421,11 @@ proof -
     \<langle>8\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>9\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>10\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>11\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>12\<rangle> \<nu> l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
       diamond_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
-      diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-      diamond_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      diamond_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      diamond_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
       diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       receive_send_sidetrack ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
-      relaying_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
+      initial_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
     )"
     using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<sharp>
@@ -578,8 +434,8 @@ proof -
     \<langle>8\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>9\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>10\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>11\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>12\<rangle> \<nu> l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
       diamond_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
-      diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-      diamond_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      diamond_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      diamond_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
       diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       receive_send_sidetrack ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
@@ -591,12 +447,12 @@ proof -
     \<langle>8\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>9\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>10\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>11\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>12\<rangle> \<nu> l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
       diamond_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
-      diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      diamond_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
       diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       receive_send_sidetrack ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       (
         transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-        diamond_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
+        diamond_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
       )
     )"
     using natural_simps by equivalence
@@ -606,15 +462,15 @@ proof -
     \<langle>8\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>9\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>10\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>11\<rangle> \<nu> l\<^sub>2\<^sub>3. \<langle>12\<rangle> \<nu> l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
       diamond_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
-      diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      diamond_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
       diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       receive_send_sidetrack ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       (
         transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-        cross_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>3\<^sub>0
+        cross_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>3\<^sub>0
       )
     )"
-    using receive_buffering_collapse by equivalence
+    using receiving_collapse by equivalence
   also have "\<dots> \<approx>\<^sub>\<sharp>
     \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel>
     \<langle>0\<rangle> \<nu> ib\<^sub>0. \<langle>1\<rangle> \<nu> ib\<^sub>1. \<langle>2\<rangle> \<nu> ib\<^sub>2. \<langle>3\<rangle> \<nu> ib\<^sub>3. \<langle>4\<rangle> \<nu> ob\<^sub>0. \<langle>5\<rangle> \<nu> ob\<^sub>1. \<langle>6\<rangle> \<nu> ob\<^sub>2. \<langle>7\<rangle> \<nu> ob\<^sub>3.
@@ -623,11 +479,11 @@ proof -
       diamond_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       receive_send_sidetrack ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
-      cross_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      cross_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
       (
         \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
         transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-        diamond_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
+        diamond_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0
       )
     )"
     using natural_simps by equivalence
@@ -639,14 +495,14 @@ proof -
       diamond_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       receive_send_sidetrack ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
-      cross_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      cross_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
       (
         \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
         transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-        cross_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>3\<^sub>0
+        cross_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>3\<^sub>0
       )
     )"
-    using send_buffering_collapse by equivalence
+    using sending_collapse by equivalence
   also have "\<dots> \<approx>\<^sub>\<sharp>
     \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel>
     \<langle>0\<rangle> \<nu> ib\<^sub>0. \<langle>1\<rangle> \<nu> ib\<^sub>1. \<langle>2\<rangle> \<nu> ib\<^sub>2. \<langle>3\<rangle> \<nu> ib\<^sub>3. \<langle>4\<rangle> \<nu> ob\<^sub>0. \<langle>5\<rangle> \<nu> ob\<^sub>1. \<langle>6\<rangle> \<nu> ob\<^sub>2. \<langle>7\<rangle> \<nu> ob\<^sub>3.
@@ -654,8 +510,8 @@ proof -
       diamond_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       receive_send_sidetrack ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
-      cross_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-      cross_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      cross_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      cross_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
       (
         \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
         \<langle>8\<rangle> \<nu> l\<^sub>0\<^sub>1. \<langle>9\<rangle> \<nu> l\<^sub>0\<^sub>2. \<langle>10\<rangle> \<nu> l\<^sub>1\<^sub>3. \<langle>11\<rangle> \<nu> l\<^sub>2\<^sub>3. (
@@ -672,8 +528,8 @@ proof -
       diamond_send_interfacing s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       diamond_receive_interfacing r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
       receive_send_sidetrack ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 \<parallel>
-      cross_receive_buffering ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-      cross_send_buffering ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      cross_receiving ib\<^sub>0 ib\<^sub>1 ib\<^sub>2 ib\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+      cross_sending ob\<^sub>0 ob\<^sub>1 ob\<^sub>2 ob\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
       \<currency>\<^sup>*l\<^sub>3\<^sub>0
     )"
     unfolding tagged_new_channel_def using core_collapse by equivalence
