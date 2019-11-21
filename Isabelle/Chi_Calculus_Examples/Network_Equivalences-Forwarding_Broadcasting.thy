@@ -69,7 +69,7 @@ proof -
     \<comment> \<open>Node 1:\<close> (\<Prod>b\<leftarrow>[r\<^sub>1]. \<currency>\<^sup>?b \<parallel> rb\<^sub>1 \<Rightarrow> [sb\<^sub>1, r\<^sub>1]) \<parallel>
     \<comment> \<open>Node 2:\<close> (\<Prod>b\<leftarrow>[r\<^sub>2]. \<currency>\<^sup>?b \<parallel> rb\<^sub>2 \<Rightarrow> [sb\<^sub>2, r\<^sub>2]) \<parallel>
     \<comment> \<open>Node 3:\<close> (\<Prod>b\<leftarrow>[r\<^sub>3]. \<currency>\<^sup>?b \<parallel> rb\<^sub>3 \<Rightarrow> [sb\<^sub>3, r\<^sub>3])"
-    unfolding distributor_def and general_parallel.simps using natural_simps by equivalence
+    unfolding general_parallel.simps and distributor_def using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat>
     \<comment> \<open>Node 0:\<close> (\<Prod>b\<leftarrow>[r\<^sub>0]. \<currency>\<^sup>?b \<parallel> rb\<^sub>0 \<Rightarrow> [sb\<^sub>0, r\<^sub>0] \<parallel> rb\<^sub>0 \<rightarrow> sb\<^sub>0) \<parallel>
     \<comment> \<open>Node 1:\<close> (\<Prod>b\<leftarrow>[r\<^sub>1]. \<currency>\<^sup>?b \<parallel> rb\<^sub>1 \<Rightarrow> [sb\<^sub>1, r\<^sub>1] \<parallel> rb\<^sub>1 \<rightarrow> sb\<^sub>1) \<parallel>
@@ -77,7 +77,7 @@ proof -
     \<comment> \<open>Node 3:\<close> (\<Prod>b\<leftarrow>[r\<^sub>3]. \<currency>\<^sup>?b \<parallel> rb\<^sub>3 \<Rightarrow> [sb\<^sub>3, r\<^sub>3] \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3)"
     using sidetrack_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> ?q"
-    unfolding distributor_def and general_parallel.simps using natural_simps by equivalence
+    unfolding general_parallel.simps and distributor_def using natural_simps by equivalence
   finally show ?thesis .
 qed
 
