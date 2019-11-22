@@ -81,7 +81,6 @@ proof -
   finally show ?thesis .
 qed
 
-(* TODO: Perhaps this is a coarse-grained step, overhaul it. *)
 lemma core_addition:
   shows "
     \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
@@ -98,97 +97,81 @@ lemma core_addition:
 proof -
   have "?p \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-    (l\<^sub>3\<^sub>0 \<rightarrow> rb\<^sub>0 \<parallel> rb\<^sub>0 \<rightarrow> sb\<^sub>0) \<parallel>
-    (l\<^sub>0\<^sub>1 \<rightarrow> rb\<^sub>1 \<parallel> rb\<^sub>1 \<rightarrow> sb\<^sub>1) \<parallel>
-    (l\<^sub>0\<^sub>2 \<rightarrow> rb\<^sub>2 \<parallel> rb\<^sub>2 \<rightarrow> sb\<^sub>2) \<parallel>
-    (l\<^sub>1\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel> (l\<^sub>2\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel>
-    sb\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
-    sb\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
-    sb\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
-    sb\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]"
+    diamond_sending sb\<^sub>0 sb\<^sub>1 sb\<^sub>2 sb\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    \<comment> \<open>Link 0--1:\<close> (l\<^sub>0\<^sub>1 \<rightarrow> rb\<^sub>1 \<parallel> rb\<^sub>1 \<rightarrow> sb\<^sub>1) \<parallel>
+    \<comment> \<open>Link 0--2:\<close> (l\<^sub>0\<^sub>2 \<rightarrow> rb\<^sub>2 \<parallel> rb\<^sub>2 \<rightarrow> sb\<^sub>2) \<parallel>
+    \<comment> \<open>Link 1--3:\<close> (l\<^sub>1\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel>
+    \<comment> \<open>Link 2--3:\<close> (l\<^sub>2\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel>
+    \<comment> \<open>Link 3--0:\<close> (l\<^sub>3\<^sub>0 \<rightarrow> rb\<^sub>0 \<parallel> rb\<^sub>0 \<rightarrow> sb\<^sub>0)"
     using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-    \<comment> \<open>Node 0:\<close> (l\<^sub>3\<^sub>0 \<rightarrow> rb\<^sub>0 \<parallel> rb\<^sub>0 \<rightarrow> sb\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> sb\<^sub>0) \<parallel>
-    \<comment> \<open>Node 1:\<close> (l\<^sub>0\<^sub>1 \<rightarrow> rb\<^sub>1 \<parallel> rb\<^sub>1 \<rightarrow> sb\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> sb\<^sub>1) \<parallel>
-    \<comment> \<open>Node 2:\<close> (l\<^sub>0\<^sub>2 \<rightarrow> rb\<^sub>2 \<parallel> rb\<^sub>2 \<rightarrow> sb\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> sb\<^sub>2) \<parallel>
-    \<comment> \<open>Node 3:\<close> (l\<^sub>1\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel> (l\<^sub>2\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel>
-    sb\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
-    sb\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
-    sb\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
-    sb\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]"
+    diamond_sending sb\<^sub>0 sb\<^sub>1 sb\<^sub>2 sb\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    \<comment> \<open>Link 0--1:\<close> (l\<^sub>0\<^sub>1 \<rightarrow> rb\<^sub>1 \<parallel> rb\<^sub>1 \<rightarrow> sb\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> sb\<^sub>1) \<parallel>
+    \<comment> \<open>Link 0--2:\<close> (l\<^sub>0\<^sub>2 \<rightarrow> rb\<^sub>2 \<parallel> rb\<^sub>2 \<rightarrow> sb\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> sb\<^sub>2) \<parallel>
+    \<comment> \<open>Link 1--3:\<close> (l\<^sub>1\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel>
+    \<comment> \<open>Link 2--3:\<close> (l\<^sub>2\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel>
+    \<comment> \<open>Link 3--0:\<close> (l\<^sub>3\<^sub>0 \<rightarrow> rb\<^sub>0 \<parallel> rb\<^sub>0 \<rightarrow> sb\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> sb\<^sub>0)"
     using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-    (l\<^sub>0\<^sub>1 \<rightarrow> sb\<^sub>1 \<parallel> sb\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3]) \<parallel>
-    (l\<^sub>0\<^sub>2 \<rightarrow> sb\<^sub>2 \<parallel> sb\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3]) \<parallel>
-    (l\<^sub>1\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> sb\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]) \<parallel>
-    (l\<^sub>2\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> sb\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]) \<parallel>
-    (l\<^sub>3\<^sub>0 \<rightarrow> sb\<^sub>0 \<parallel> sb\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]) \<parallel>
-    l\<^sub>3\<^sub>0 \<rightarrow> rb\<^sub>0 \<parallel> rb\<^sub>0 \<rightarrow> sb\<^sub>0 \<parallel>
-    l\<^sub>0\<^sub>1 \<rightarrow> rb\<^sub>1 \<parallel> rb\<^sub>1 \<rightarrow> sb\<^sub>1 \<parallel>
-    l\<^sub>0\<^sub>2 \<rightarrow> rb\<^sub>2 \<parallel> rb\<^sub>2 \<rightarrow> sb\<^sub>2 \<parallel>
-    l\<^sub>1\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3"
+    diamond_receiving rb\<^sub>0 rb\<^sub>1 rb\<^sub>2 rb\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    buffer_sidetracks sb\<^sub>0 sb\<^sub>1 sb\<^sub>2 sb\<^sub>3 rb\<^sub>0 rb\<^sub>1 rb\<^sub>2 rb\<^sub>3 \<parallel>
+    \<comment> \<open>Link 0--1:\<close> (l\<^sub>0\<^sub>1 \<rightarrow> sb\<^sub>1 \<parallel> sb\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3]) \<parallel>
+    \<comment> \<open>Link 0--2:\<close> (l\<^sub>0\<^sub>2 \<rightarrow> sb\<^sub>2 \<parallel> sb\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3]) \<parallel>
+    \<comment> \<open>Link 1--3:\<close> (l\<^sub>1\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> sb\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]) \<parallel>
+    \<comment> \<open>Link 2--3:\<close> (l\<^sub>2\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> sb\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]) \<parallel>
+    \<comment> \<open>Link 3--0:\<close> (l\<^sub>3\<^sub>0 \<rightarrow> sb\<^sub>0 \<parallel> sb\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2])"
     using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-    (l\<^sub>0\<^sub>1 \<rightarrow> sb\<^sub>1 \<parallel> sb\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel> l\<^sub>0\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3]) \<parallel>
-    (l\<^sub>0\<^sub>2 \<rightarrow> sb\<^sub>2 \<parallel> sb\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel> l\<^sub>0\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3]) \<parallel>
-    (l\<^sub>1\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> sb\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>1\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]) \<parallel>
-    (l\<^sub>2\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> sb\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>2\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]) \<parallel>
-    (l\<^sub>3\<^sub>0 \<rightarrow> sb\<^sub>0 \<parallel> sb\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel> l\<^sub>3\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]) \<parallel>
-    l\<^sub>3\<^sub>0 \<rightarrow> rb\<^sub>0 \<parallel> rb\<^sub>0 \<rightarrow> sb\<^sub>0 \<parallel>
-    l\<^sub>0\<^sub>1 \<rightarrow> rb\<^sub>1 \<parallel> rb\<^sub>1 \<rightarrow> sb\<^sub>1 \<parallel>
-    l\<^sub>0\<^sub>2 \<rightarrow> rb\<^sub>2 \<parallel> rb\<^sub>2 \<rightarrow> sb\<^sub>2 \<parallel>
-    l\<^sub>1\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3"
+    diamond_receiving rb\<^sub>0 rb\<^sub>1 rb\<^sub>2 rb\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
+    buffer_sidetracks sb\<^sub>0 sb\<^sub>1 sb\<^sub>2 sb\<^sub>3 rb\<^sub>0 rb\<^sub>1 rb\<^sub>2 rb\<^sub>3 \<parallel>
+    \<comment> \<open>Link 0--1:\<close> (l\<^sub>0\<^sub>1 \<rightarrow> sb\<^sub>1 \<parallel> sb\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel> l\<^sub>0\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3]) \<parallel>
+    \<comment> \<open>Link 0--2:\<close> (l\<^sub>0\<^sub>2 \<rightarrow> sb\<^sub>2 \<parallel> sb\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel> l\<^sub>0\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3]) \<parallel>
+    \<comment> \<open>Link 1--3:\<close> (l\<^sub>1\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> sb\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>1\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]) \<parallel>
+    \<comment> \<open>Link 2--3:\<close> (l\<^sub>2\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> sb\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>2\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]) \<parallel>
+    \<comment> \<open>Link 3--0:\<close> (l\<^sub>3\<^sub>0 \<rightarrow> sb\<^sub>0 \<parallel> sb\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel> l\<^sub>3\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2])"
     using distributor_shortcut_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-    (l\<^sub>0\<^sub>1 \<rightarrow> rb\<^sub>1 \<parallel> rb\<^sub>1 \<rightarrow> sb\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> sb\<^sub>1) \<parallel>
-    (l\<^sub>0\<^sub>2 \<rightarrow> rb\<^sub>2 \<parallel> rb\<^sub>2 \<rightarrow> sb\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> sb\<^sub>2) \<parallel>
-    (l\<^sub>1\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel>
-    (l\<^sub>2\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel>
-    (l\<^sub>3\<^sub>0 \<rightarrow> rb\<^sub>0 \<parallel> rb\<^sub>0 \<rightarrow> sb\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> sb\<^sub>0) \<parallel>
     diamond_sending sb\<^sub>0 sb\<^sub>1 sb\<^sub>2 sb\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-    l\<^sub>0\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
-    l\<^sub>0\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
-    l\<^sub>1\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
-    l\<^sub>2\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
-    l\<^sub>3\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]"
+    l\<^sub>0\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel> l\<^sub>0\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel> l\<^sub>1\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>2\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>3\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
+    \<comment> \<open>Link 0--1:\<close> (l\<^sub>0\<^sub>1 \<rightarrow> rb\<^sub>1 \<parallel> rb\<^sub>1 \<rightarrow> sb\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> sb\<^sub>1) \<parallel>
+    \<comment> \<open>Link 0--2:\<close> (l\<^sub>0\<^sub>2 \<rightarrow> rb\<^sub>2 \<parallel> rb\<^sub>2 \<rightarrow> sb\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> sb\<^sub>2) \<parallel>
+    \<comment> \<open>Link 1--3:\<close> (l\<^sub>1\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel>
+    \<comment> \<open>Link 2--3:\<close> (l\<^sub>2\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel>
+    \<comment> \<open>Link 3--0:\<close> (l\<^sub>3\<^sub>0 \<rightarrow> rb\<^sub>0 \<parallel> rb\<^sub>0 \<rightarrow> sb\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> sb\<^sub>0)"
     using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
-    (l\<^sub>0\<^sub>1 \<rightarrow> rb\<^sub>1 \<parallel> rb\<^sub>1 \<rightarrow> sb\<^sub>1) \<parallel>
-    (l\<^sub>0\<^sub>2 \<rightarrow> rb\<^sub>2 \<parallel> rb\<^sub>2 \<rightarrow> sb\<^sub>2) \<parallel>
-    (l\<^sub>1\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel>
-    (l\<^sub>2\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel>
-    (l\<^sub>3\<^sub>0 \<rightarrow> rb\<^sub>0 \<parallel> rb\<^sub>0 \<rightarrow> sb\<^sub>0) \<parallel>
     diamond_sending sb\<^sub>0 sb\<^sub>1 sb\<^sub>2 sb\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-    l\<^sub>0\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
-    l\<^sub>0\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
-    l\<^sub>1\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
-    l\<^sub>2\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel>
-    l\<^sub>3\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]"
+    l\<^sub>0\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel> l\<^sub>0\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel> l\<^sub>1\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>2\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0] \<parallel> l\<^sub>3\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
+    \<comment> \<open>Link 0--1:\<close> (l\<^sub>0\<^sub>1 \<rightarrow> rb\<^sub>1 \<parallel> rb\<^sub>1 \<rightarrow> sb\<^sub>1) \<parallel>
+    \<comment> \<open>Link 0--2:\<close> (l\<^sub>0\<^sub>2 \<rightarrow> rb\<^sub>2 \<parallel> rb\<^sub>2 \<rightarrow> sb\<^sub>2) \<parallel>
+    \<comment> \<open>Link 1--3:\<close> (l\<^sub>1\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel>
+    \<comment> \<open>Link 2--3:\<close> (l\<^sub>2\<^sub>3 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3) \<parallel>
+    \<comment> \<open>Link 3--0:\<close> (l\<^sub>3\<^sub>0 \<rightarrow> rb\<^sub>0 \<parallel> rb\<^sub>0 \<rightarrow> sb\<^sub>0)"
     using unidirectional_bridge_shortcut_redundancy by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat>
-    (\<currency>\<^sup>+l\<^sub>0\<^sub>1 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>1\<^sub>3]. \<currency>\<^sup>?b \<parallel> l\<^sub>0\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3]) \<parallel>
-    (\<currency>\<^sup>+l\<^sub>0\<^sub>2 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>2\<^sub>3]. \<currency>\<^sup>?b \<parallel> l\<^sub>0\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3]) \<parallel>
-    (\<currency>\<^sup>+l\<^sub>1\<^sub>3 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>3\<^sub>0]. \<currency>\<^sup>?b \<parallel> l\<^sub>1\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]) \<parallel>
-    (\<currency>\<^sup>+l\<^sub>2\<^sub>3 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>3\<^sub>0]. \<currency>\<^sup>?b \<parallel> l\<^sub>2\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]) \<parallel>
-    (\<currency>\<^sup>+l\<^sub>3\<^sub>0 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]. \<currency>\<^sup>?b \<parallel> l\<^sub>3\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]) \<parallel>
     diamond_sending sb\<^sub>0 sb\<^sub>1 sb\<^sub>2 sb\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
     diamond_receiving rb\<^sub>0 rb\<^sub>1 rb\<^sub>2 rb\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-    buffer_sidetracks sb\<^sub>0 sb\<^sub>1 sb\<^sub>2 sb\<^sub>3 rb\<^sub>0 rb\<^sub>1 rb\<^sub>2 rb\<^sub>3"
+    buffer_sidetracks sb\<^sub>0 sb\<^sub>1 sb\<^sub>2 sb\<^sub>3 rb\<^sub>0 rb\<^sub>1 rb\<^sub>2 rb\<^sub>3 \<parallel>
+    \<comment> \<open>Link 0--1:\<close> (\<currency>\<^sup>+l\<^sub>0\<^sub>1 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>1\<^sub>3]. \<currency>\<^sup>?b \<parallel> l\<^sub>0\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3]) \<parallel>
+    \<comment> \<open>Link 0--2:\<close> (\<currency>\<^sup>+l\<^sub>0\<^sub>2 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>2\<^sub>3]. \<currency>\<^sup>?b \<parallel> l\<^sub>0\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3]) \<parallel>
+    \<comment> \<open>Link 1--3:\<close> (\<currency>\<^sup>+l\<^sub>1\<^sub>3 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>3\<^sub>0]. \<currency>\<^sup>?b \<parallel> l\<^sub>1\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]) \<parallel>
+    \<comment> \<open>Link 2--3:\<close> (\<currency>\<^sup>+l\<^sub>2\<^sub>3 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>3\<^sub>0]. \<currency>\<^sup>?b \<parallel> l\<^sub>2\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]) \<parallel>
+    \<comment> \<open>Link 3--0:\<close> (\<currency>\<^sup>+l\<^sub>3\<^sub>0 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]. \<currency>\<^sup>?b \<parallel> l\<^sub>3\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2])"
     unfolding duploss_def and general_parallel.simps using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat>
-    (\<currency>\<^sup>+l\<^sub>0\<^sub>1 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>1\<^sub>3]. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> [l\<^sub>1\<^sub>3]. l\<^sub>0\<^sub>1 \<rightarrow> b) \<parallel>
-    (\<currency>\<^sup>+l\<^sub>0\<^sub>2 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>2\<^sub>3]. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> [l\<^sub>2\<^sub>3]. l\<^sub>0\<^sub>2 \<rightarrow> b) \<parallel>
-    (\<currency>\<^sup>+l\<^sub>1\<^sub>3 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>3\<^sub>0]. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> [l\<^sub>3\<^sub>0]. l\<^sub>1\<^sub>3 \<rightarrow> b) \<parallel>
-    (\<currency>\<^sup>+l\<^sub>2\<^sub>3 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>3\<^sub>0]. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> [l\<^sub>3\<^sub>0]. l\<^sub>2\<^sub>3 \<rightarrow> b) \<parallel>
-    (\<currency>\<^sup>+l\<^sub>3\<^sub>0 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]. l\<^sub>3\<^sub>0 \<rightarrow> b) \<parallel>
     diamond_sending sb\<^sub>0 sb\<^sub>1 sb\<^sub>2 sb\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
     diamond_receiving rb\<^sub>0 rb\<^sub>1 rb\<^sub>2 rb\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<parallel>
-    buffer_sidetracks sb\<^sub>0 sb\<^sub>1 sb\<^sub>2 sb\<^sub>3 rb\<^sub>0 rb\<^sub>1 rb\<^sub>2 rb\<^sub>3"
+    buffer_sidetracks sb\<^sub>0 sb\<^sub>1 sb\<^sub>2 sb\<^sub>3 rb\<^sub>0 rb\<^sub>1 rb\<^sub>2 rb\<^sub>3 \<parallel>
+    \<comment> \<open>Link 0--1:\<close> (\<currency>\<^sup>+l\<^sub>0\<^sub>1 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>1\<^sub>3]. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> [l\<^sub>1\<^sub>3]. l\<^sub>0\<^sub>1 \<rightarrow> b) \<parallel>
+    \<comment> \<open>Link 0--2:\<close> (\<currency>\<^sup>+l\<^sub>0\<^sub>2 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>2\<^sub>3]. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> [l\<^sub>2\<^sub>3]. l\<^sub>0\<^sub>2 \<rightarrow> b) \<parallel>
+    \<comment> \<open>Link 1--3:\<close> (\<currency>\<^sup>+l\<^sub>1\<^sub>3 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>3\<^sub>0]. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> [l\<^sub>3\<^sub>0]. l\<^sub>1\<^sub>3 \<rightarrow> b) \<parallel>
+    \<comment> \<open>Link 2--3:\<close> (\<currency>\<^sup>+l\<^sub>2\<^sub>3 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>3\<^sub>0]. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> [l\<^sub>3\<^sub>0]. l\<^sub>2\<^sub>3 \<rightarrow> b) \<parallel>
+    \<comment> \<open>Link 3--0:\<close> (\<currency>\<^sup>+l\<^sub>3\<^sub>0 \<parallel> \<Prod>b \<leftarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]. \<currency>\<^sup>?b \<parallel> \<Prod>b \<leftarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2]. l\<^sub>3\<^sub>0 \<rightarrow> b)"
     using distributor_split by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> ?q"
     unfolding duploss_def and general_parallel.simps using natural_simps by equivalence
