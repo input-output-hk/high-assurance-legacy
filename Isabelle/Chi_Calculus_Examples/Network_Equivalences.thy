@@ -140,9 +140,9 @@ proof -
     \<comment> \<open>Node 2:\<close> (\<Prod>x\<leftarrow>[(l\<^sub>3\<^sub>0, l\<^sub>2\<^sub>3)]. fst x \<leftrightarrow> snd x \<parallel> s\<^sub>2 \<Rightarrow> map fst [(l\<^sub>3\<^sub>0, l\<^sub>2\<^sub>3)]) \<parallel>
     \<comment> \<open>Node 3:\<close> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]"
     by (intro
-      basic_weak_parallel_preservation
-      basic.weak.bisimilarity_reflexivity_rule
       distributor_target_switch [THEN basic.weak.bisimilarity_symmetry_rule]
+      basic.weak.bisimilarity_reflexivity_rule
+      basic_weak_parallel_preservation
     )
   also have "\<dots> \<approx>\<^sub>\<flat>
     \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
