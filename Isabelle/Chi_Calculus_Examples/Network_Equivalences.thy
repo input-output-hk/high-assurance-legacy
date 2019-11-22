@@ -75,41 +75,41 @@ abbreviation cross_receiving :: cross_receive_medium_interaction where
     \<comment> \<open>Node 2:\<close> m \<rightarrow> r\<^sub>2 \<parallel>
     \<comment> \<open>Node 3:\<close> m \<rightarrow> r\<^sub>3"
 
+lemma focussing:
+  shows "a \<rightarrow> b \<parallel> b \<rightarrow> c \<parallel> c \<rightarrow> a \<approx>\<^sub>\<flat> a \<leftrightarrow> b \<parallel> a \<leftrightarrow> c" (is "?p \<approx>\<^sub>\<flat> ?q")
+proof-
+  have "?p \<approx>\<^sub>\<flat>
+    (a \<rightarrow> b \<parallel> b \<rightarrow> c) \<parallel>
+    (b \<rightarrow> c \<parallel> c \<rightarrow> a)"
+    using natural_simps by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat>
+    (a \<rightarrow> b \<parallel> b \<rightarrow> c \<parallel> a \<rightarrow> c) \<parallel>
+    (b \<rightarrow> c \<parallel> c \<rightarrow> a \<parallel> b \<rightarrow> a)"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat>
+    a \<rightarrow> b \<parallel> c \<rightarrow> a \<parallel>
+    (b \<rightarrow> a \<parallel> a \<rightarrow> c \<parallel> b \<rightarrow> c)"
+    using natural_simps by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat>
+    a \<rightarrow> b \<parallel> c \<rightarrow> a \<parallel>
+    (b \<rightarrow> a \<parallel> a \<rightarrow> c)"
+    using unidirectional_bridge_shortcut_redundancy by equivalence
+  also have "\<dots> \<approx>\<^sub>\<flat> ?q"
+    unfolding bidirectional_bridge_def using natural_simps by equivalence
+  finally show ?thesis .
+qed
+
 lemma core_transformation:
   shows "initial_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<approx>\<^sub>\<flat> transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0"
 proof -
   have "initial_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<approx>\<^sub>\<flat>
-    \<comment> \<open>Left triangle:\<close>
-    (l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3) \<parallel>
-    (l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0) \<parallel>
-    \<comment> \<open>Right triangle:\<close>
-    (l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3) \<parallel>
-    (l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0)"
+    \<comment> \<open>Left triangle:\<close> (l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0) \<parallel>
+    \<comment> \<open>Right triangle:\<close> (l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0)"
     using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat>
-    \<comment> \<open>Left triangle:\<close>
-    (l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3) \<parallel>
-    (l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0) \<parallel>
-    \<comment> \<open>Right triangle:\<close>
-    (l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3) \<parallel>
-    (l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0)"
-    using unidirectional_bridge_shortcut_redundancy by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat>
-    \<comment> \<open>Left triangle:\<close>
-    l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
-    (l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3) \<parallel>
-    \<comment> \<open>Right triangle:\<close>
-    l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
-    (l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3)"
-    using natural_simps by equivalence
-  also have "\<dots> \<approx>\<^sub>\<flat>
-    \<comment> \<open>Left triangle:\<close>
-    l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>1\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
-    (l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>1\<^sub>3) \<parallel>
-    \<comment> \<open>Right triangle:\<close>
-    l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
-    (l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>2\<^sub>3)"
-    using unidirectional_bridge_shortcut_redundancy by equivalence
+    \<comment> \<open>Left triangle:\<close> (l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3) \<parallel>
+    \<comment> \<open>Right triangle:\<close> (l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3)"
+    using focussing by equivalence
   also have "\<dots> \<approx>\<^sub>\<flat> transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0"
     unfolding bidirectional_bridge_def using natural_simps by equivalence
   finally show ?thesis .
