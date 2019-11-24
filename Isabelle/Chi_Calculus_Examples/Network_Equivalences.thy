@@ -2,43 +2,14 @@ theory Network_Equivalences
   imports Chi_Calculus.Communication
 begin
 
-type_synonym four_node_network = "
-  \<comment> \<open>Send interface:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  \<comment> \<open>Receive interface:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  process"
-
-type_synonym diamond_send_link_interaction = "
-  \<comment> \<open>Send interface or buffers:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  \<comment> \<open>Links:\<close> [chan, chan, chan, chan, chan] \<Rightarrow>
-  process"
-
-type_synonym diamond_receive_link_interaction = "
-  \<comment> \<open>Receive interface or buffers:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  \<comment> \<open>Links:\<close> [chan, chan, chan, chan, chan] \<Rightarrow>
-  process"
-
-type_synonym diamond_core = "
-  \<comment> \<open>Links:\<close> [chan, chan, chan, chan, chan] \<Rightarrow>
-  process"
-
-type_synonym cross_send_medium_interaction = "
-  \<comment> \<open>Send interface or buffers:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  \<comment> \<open>Broadcast medium:\<close> chan \<Rightarrow>
-  process"
-
-type_synonym cross_receive_medium_interaction = "
-  \<comment> \<open>Receive interface or buffers:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  \<comment> \<open>Broadcast medium:\<close> chan \<Rightarrow>
-  process"
-
-abbreviation diamond_sending :: diamond_send_link_interaction where
+abbreviation diamond_sending where
   "diamond_sending s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<equiv>
     \<comment> \<open>Node 0:\<close> s\<^sub>0 \<Rightarrow> [l\<^sub>0\<^sub>1, l\<^sub>0\<^sub>2] \<parallel>
     \<comment> \<open>Node 1:\<close> s\<^sub>1 \<Rightarrow> [l\<^sub>1\<^sub>3] \<parallel>
     \<comment> \<open>Node 2:\<close> s\<^sub>2 \<Rightarrow> [l\<^sub>2\<^sub>3] \<parallel>
     \<comment> \<open>Node 3:\<close> s\<^sub>3 \<Rightarrow> [l\<^sub>3\<^sub>0]"
 
-abbreviation diamond_receiving :: diamond_receive_link_interaction where
+abbreviation diamond_receiving where
   "diamond_receiving r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<equiv>
     \<comment> \<open>Link 0--1:\<close> l\<^sub>0\<^sub>1 \<rightarrow> r\<^sub>1 \<parallel>
     \<comment> \<open>Link 0--2:\<close> l\<^sub>0\<^sub>2 \<rightarrow> r\<^sub>2 \<parallel>
@@ -46,7 +17,7 @@ abbreviation diamond_receiving :: diamond_receive_link_interaction where
     \<comment> \<open>Link 2--3:\<close> l\<^sub>2\<^sub>3 \<rightarrow> r\<^sub>3 \<parallel>
     \<comment> \<open>Link 3--0:\<close> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0"
 
-abbreviation initial_core :: diamond_core where
+abbreviation initial_core where
   "initial_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<equiv>
     \<comment> \<open>From link 0--1:\<close> l\<^sub>0\<^sub>1 \<rightarrow> l\<^sub>1\<^sub>3 \<parallel>
     \<comment> \<open>From link 0--2:\<close> l\<^sub>0\<^sub>2 \<rightarrow> l\<^sub>2\<^sub>3 \<parallel>
@@ -54,21 +25,21 @@ abbreviation initial_core :: diamond_core where
     \<comment> \<open>From link 2--3:\<close> l\<^sub>2\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel>
     \<comment> \<open>From link 3--0:\<close> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>1 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> l\<^sub>0\<^sub>2"
 
-abbreviation transformed_core :: diamond_core where
+abbreviation transformed_core where
   "transformed_core l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0 \<equiv>
     \<comment> \<open>Link 0--1:\<close> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>1 \<parallel>
     \<comment> \<open>Link 0--2:\<close> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>0\<^sub>2 \<parallel>
     \<comment> \<open>Link 1--3:\<close> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>1\<^sub>3 \<parallel>
     \<comment> \<open>Link 2--3:\<close> l\<^sub>3\<^sub>0 \<leftrightarrow> l\<^sub>2\<^sub>3"
 
-abbreviation cross_sending :: cross_send_medium_interaction where
+abbreviation cross_sending where
   "cross_sending s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 m \<equiv>
     \<comment> \<open>Node 0:\<close> s\<^sub>0 \<rightarrow> m \<parallel>
     \<comment> \<open>Node 1:\<close> s\<^sub>1 \<rightarrow> m \<parallel>
     \<comment> \<open>Node 2:\<close> s\<^sub>2 \<rightarrow> m \<parallel>
     \<comment> \<open>Node 3:\<close> s\<^sub>3 \<rightarrow> m"
 
-abbreviation cross_receiving :: cross_receive_medium_interaction where
+abbreviation cross_receiving where
   "cross_receiving r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 m \<equiv>
     \<comment> \<open>Node 0:\<close> m \<rightarrow> r\<^sub>0 \<parallel>
     \<comment> \<open>Node 1:\<close> m \<rightarrow> r\<^sub>1 \<parallel>

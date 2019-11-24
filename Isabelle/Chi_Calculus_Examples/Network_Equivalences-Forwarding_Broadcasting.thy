@@ -4,32 +4,21 @@ theory "Network_Equivalences-Forwarding_Broadcasting"
   imports Network_Equivalences
 begin
 
-type_synonym diamond_send_transfer = "
-  \<comment> \<open>Send interface:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  \<comment> \<open>Send buffers:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  process"
-
-type_synonym diamond_receive_transfer_and_forwarding = "
-  \<comment> \<open>Receive interface:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  \<comment> \<open>Send buffers:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  \<comment> \<open>Receive buffers:\<close> [chan, chan, chan, chan] \<Rightarrow>
-  process"
-
-abbreviation diamond_send_transfer :: diamond_send_transfer where
+abbreviation diamond_send_transfer where
   "diamond_send_transfer s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 sb\<^sub>0 sb\<^sub>1 sb\<^sub>2 sb\<^sub>3 \<equiv>
     \<comment> \<open>Node 0:\<close> s\<^sub>0 \<rightarrow> sb\<^sub>0 \<parallel>
     \<comment> \<open>Node 1:\<close> s\<^sub>1 \<rightarrow> sb\<^sub>1 \<parallel>
     \<comment> \<open>Node 2:\<close> s\<^sub>2 \<rightarrow> sb\<^sub>2 \<parallel>
     \<comment> \<open>Node 3:\<close> s\<^sub>3 \<rightarrow> sb\<^sub>3"
 
-abbreviation diamond_receive_transfer_and_forwarding :: diamond_receive_transfer_and_forwarding where
+abbreviation diamond_receive_transfer_and_forwarding where
   "diamond_receive_transfer_and_forwarding r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 sb\<^sub>0 sb\<^sub>1 sb\<^sub>2 sb\<^sub>3 rb\<^sub>0 rb\<^sub>1 rb\<^sub>2 rb\<^sub>3 \<equiv>
     \<comment> \<open>Node 0:\<close> rb\<^sub>0 \<Rightarrow> [r\<^sub>0, sb\<^sub>0] \<parallel>
     \<comment> \<open>Node 1:\<close> rb\<^sub>1 \<Rightarrow> [r\<^sub>1, sb\<^sub>1] \<parallel>
     \<comment> \<open>Node 2:\<close> rb\<^sub>2 \<Rightarrow> [r\<^sub>2, sb\<^sub>2] \<parallel>
     \<comment> \<open>Node 3:\<close> rb\<^sub>3 \<Rightarrow> [r\<^sub>3, sb\<^sub>3]"
 
-abbreviation diamond :: four_node_network where
+abbreviation diamond where
   "diamond s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3 \<equiv>
     \<nu> sb\<^sub>0 sb\<^sub>1 sb\<^sub>2 sb\<^sub>3 rb\<^sub>0 rb\<^sub>1 rb\<^sub>2 rb\<^sub>3 l\<^sub>0\<^sub>1 l\<^sub>0\<^sub>2 l\<^sub>1\<^sub>3 l\<^sub>2\<^sub>3 l\<^sub>3\<^sub>0. (
       \<currency>\<^sup>*l\<^sub>0\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>0\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>1\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>2\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel>
