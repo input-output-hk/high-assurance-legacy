@@ -180,12 +180,12 @@ qed
 
 lemma single_node_buffering_removal:
   shows "
-    \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> \<nu> sb rb. (s \<rightarrow> sb \<parallel> sb \<rightarrow> m \<parallel> m \<rightarrow> rb \<parallel> rb \<Rightarrow> [r, sb] \<parallel> rb \<rightarrow> sb)
+    \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> \<nu> sb rb. (s \<rightarrow> sb \<parallel> rb \<Rightarrow> [r, sb] \<parallel> sb \<rightarrow> m \<parallel> m \<rightarrow> rb \<parallel> rb \<rightarrow> sb)
     \<approx>\<^sub>\<sharp>
     \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> s \<rightarrow> m \<parallel> m \<rightarrow> r"
 proof -
   have "
-    \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> \<langle>0\<rangle> \<nu> sb. \<langle>1\<rangle> \<nu> rb. (s \<rightarrow> sb \<parallel> sb \<rightarrow> m \<parallel> m \<rightarrow> rb \<parallel> rb \<Rightarrow> [r, sb] \<parallel> rb \<rightarrow> sb)
+    \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> \<langle>0\<rangle> \<nu> sb. \<langle>1\<rangle> \<nu> rb. (s \<rightarrow> sb \<parallel> rb \<Rightarrow> [r, sb] \<parallel> sb \<rightarrow> m \<parallel> m \<rightarrow> rb \<parallel> rb \<rightarrow> sb)
     \<approx>\<^sub>\<sharp>
     \<currency>\<^sup>?r \<parallel> \<currency>\<^sup>*m \<parallel> \<langle>0\<rangle> \<nu> sb. \<langle>1\<rangle> \<nu> rb. (s \<rightarrow> sb \<parallel> rb \<Rightarrow> [r, sb] \<parallel> (m \<rightarrow> rb \<parallel> rb \<rightarrow> sb \<parallel> sb \<rightarrow> m))"
     using natural_simps by equivalence
@@ -207,10 +207,10 @@ proof -
       basic_weak_bisimilarity_in_proper_weak_bisimilarity [THEN predicate2D]
     )
   also have "\<dots> \<approx>\<^sub>\<sharp>
-    \<langle>0\<rangle> \<nu> sb. \<langle>1\<rangle> \<nu> rb. (s \<rightarrow> sb \<parallel> m \<leftrightarrow> rb \<parallel> m \<leftrightarrow> sb \<parallel> (\<currency>\<^sup>+rb \<parallel> \<Prod>a\<leftarrow>[r, sb]. \<currency>\<^sup>?a \<parallel> rb \<Rightarrow> [r, sb]))"
+    \<langle>0\<rangle> \<nu> sb. \<langle>1\<rangle> \<nu> rb. (s \<rightarrow> sb \<parallel> m \<leftrightarrow> sb \<parallel> m \<leftrightarrow> rb \<parallel> (\<currency>\<^sup>+rb \<parallel> \<Prod>a\<leftarrow>[r, sb]. \<currency>\<^sup>?a \<parallel> rb \<Rightarrow> [r, sb]))"
     unfolding general_parallel.simps using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<sharp>
-    \<langle>0\<rangle> \<nu> sb. \<langle>1\<rangle> \<nu> rb. (s \<rightarrow> sb \<parallel> m \<leftrightarrow> rb \<parallel> m \<leftrightarrow> sb \<parallel> (\<currency>\<^sup>+rb \<parallel> \<Prod>a\<leftarrow>[r, sb]. \<currency>\<^sup>?a \<parallel> \<Prod>a\<leftarrow>[r, sb]. rb \<rightarrow> a))"
+    \<langle>0\<rangle> \<nu> sb. \<langle>1\<rangle> \<nu> rb. (s \<rightarrow> sb \<parallel> m \<leftrightarrow> sb \<parallel> m \<leftrightarrow> rb \<parallel> (\<currency>\<^sup>+rb \<parallel> \<Prod>a\<leftarrow>[r, sb]. \<currency>\<^sup>?a \<parallel> \<Prod>a\<leftarrow>[r, sb]. rb \<rightarrow> a))"
     using distributor_split by equivalence
   also have "\<dots> \<approx>\<^sub>\<sharp>
     \<currency>\<^sup>?r \<parallel> \<langle>0\<rangle> \<nu> sb. \<langle>1\<rangle> \<nu> rb. (s \<rightarrow> sb \<parallel> rb \<rightarrow> r \<parallel> rb \<rightarrow> sb \<parallel> (sb \<leftrightarrow> m \<parallel> \<currency>\<^sup>?sb) \<parallel> (rb \<leftrightarrow> m \<parallel> \<currency>\<^sup>+rb))"
@@ -468,27 +468,35 @@ proof -
     )"
     unfolding tagged_new_channel_def using core_collapse by equivalence
   also have "\<dots> \<approx>\<^sub>\<sharp>
-    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel>
-    \<langle>12\<rangle> \<nu> m. (
-      \<currency>\<^sup>*m \<parallel>
-      (\<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>*m \<parallel> \<langle>0\<rangle> \<nu> sb\<^sub>0. \<langle>4\<rangle> \<nu> rb\<^sub>0. (
-        s\<^sub>0 \<rightarrow> sb\<^sub>0 \<parallel> sb\<^sub>0 \<rightarrow> m \<parallel> m \<rightarrow> rb\<^sub>0 \<parallel> rb\<^sub>0 \<Rightarrow> [r\<^sub>0, sb\<^sub>0] \<parallel> rb\<^sub>0 \<rightarrow> sb\<^sub>0)) \<parallel>
-      (\<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>*m \<parallel> \<langle>1\<rangle> \<nu> sb\<^sub>1. \<langle>5\<rangle> \<nu> rb\<^sub>1. (
-        s\<^sub>1 \<rightarrow> sb\<^sub>1 \<parallel> sb\<^sub>1 \<rightarrow> m \<parallel> m \<rightarrow> rb\<^sub>1 \<parallel> rb\<^sub>1 \<Rightarrow> [r\<^sub>1, sb\<^sub>1] \<parallel> rb\<^sub>1 \<rightarrow> sb\<^sub>1)) \<parallel>
-      (\<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>*m \<parallel> \<langle>2\<rangle> \<nu> sb\<^sub>2. \<langle>6\<rangle> \<nu> rb\<^sub>2. (
-        s\<^sub>2 \<rightarrow> sb\<^sub>2 \<parallel> sb\<^sub>2 \<rightarrow> m \<parallel> m \<rightarrow> rb\<^sub>2 \<parallel> rb\<^sub>2 \<Rightarrow> [r\<^sub>2, sb\<^sub>2] \<parallel> rb\<^sub>2 \<rightarrow> sb\<^sub>2)) \<parallel>
-      (\<currency>\<^sup>?r\<^sub>3 \<parallel> \<currency>\<^sup>*m \<parallel> \<langle>3\<rangle> \<nu> sb\<^sub>3. \<langle>7\<rangle> \<nu> rb\<^sub>3. (
-        s\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> sb\<^sub>3 \<rightarrow> m \<parallel> m \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<Rightarrow> [r\<^sub>3, sb\<^sub>3] \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3))
+    \<langle>12\<rangle> \<nu> l\<^sub>3\<^sub>0. (
+      (
+        \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> \<langle>0\<rangle> \<nu> sb\<^sub>0. \<langle>4\<rangle> \<nu> rb\<^sub>0. (
+          s\<^sub>0 \<rightarrow> sb\<^sub>0 \<parallel> rb\<^sub>0 \<Rightarrow> [r\<^sub>0, sb\<^sub>0] \<parallel> sb\<^sub>0 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> rb\<^sub>0 \<parallel> rb\<^sub>0 \<rightarrow> sb\<^sub>0
+        )
+      ) \<parallel>
+      (
+        \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> \<langle>1\<rangle> \<nu> sb\<^sub>1. \<langle>5\<rangle> \<nu> rb\<^sub>1. (
+          s\<^sub>1 \<rightarrow> sb\<^sub>1 \<parallel> rb\<^sub>1 \<Rightarrow> [r\<^sub>1, sb\<^sub>1] \<parallel> sb\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> rb\<^sub>1 \<parallel> rb\<^sub>1 \<rightarrow> sb\<^sub>1
+        )
+      ) \<parallel>
+      (
+        \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> \<langle>2\<rangle> \<nu> sb\<^sub>2. \<langle>6\<rangle> \<nu> rb\<^sub>2. (
+          s\<^sub>2 \<rightarrow> sb\<^sub>2 \<parallel> rb\<^sub>2 \<Rightarrow> [r\<^sub>2, sb\<^sub>2] \<parallel> sb\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> rb\<^sub>2 \<parallel> rb\<^sub>2 \<rightarrow> sb\<^sub>2
+        )
+      ) \<parallel>
+      (
+        \<currency>\<^sup>?r\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> \<langle>3\<rangle> \<nu> sb\<^sub>3. \<langle>7\<rangle> \<nu> rb\<^sub>3. (
+          s\<^sub>3 \<rightarrow> sb\<^sub>3 \<parallel> rb\<^sub>3 \<Rightarrow> [r\<^sub>3, sb\<^sub>3] \<parallel> sb\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> rb\<^sub>3 \<parallel> rb\<^sub>3 \<rightarrow> sb\<^sub>3
+        )
+      )
     )"
     using natural_simps by equivalence
   also have "\<dots> \<approx>\<^sub>\<sharp>
-    \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel>
-    \<langle>12\<rangle> \<nu> m. (
-      \<currency>\<^sup>*m \<parallel>
-      (\<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>0 \<rightarrow> m \<parallel> m \<rightarrow> r\<^sub>0) \<parallel>
-      (\<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>1 \<rightarrow> m \<parallel> m \<rightarrow> r\<^sub>1) \<parallel>
-      (\<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>2 \<rightarrow> m \<parallel> m \<rightarrow> r\<^sub>2) \<parallel>
-      (\<currency>\<^sup>?r\<^sub>3 \<parallel> \<currency>\<^sup>*m \<parallel> s\<^sub>3 \<rightarrow> m \<parallel> m \<rightarrow> r\<^sub>3)
+    \<langle>12\<rangle> \<nu> l\<^sub>3\<^sub>0. (
+      (\<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> s\<^sub>0 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>0) \<parallel>
+      (\<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> s\<^sub>1 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>1) \<parallel>
+      (\<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> s\<^sub>2 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>2) \<parallel>
+      (\<currency>\<^sup>?r\<^sub>3 \<parallel> \<currency>\<^sup>*l\<^sub>3\<^sub>0 \<parallel> s\<^sub>3 \<rightarrow> l\<^sub>3\<^sub>0 \<parallel> l\<^sub>3\<^sub>0 \<rightarrow> r\<^sub>3)
     )"
     unfolding tagged_new_channel_def using single_node_buffering_removal by equivalence
   also have "\<dots> \<approx>\<^sub>\<sharp> \<currency>\<^sup>?r\<^sub>0 \<parallel> \<currency>\<^sup>?r\<^sub>1 \<parallel> \<currency>\<^sup>?r\<^sub>2 \<parallel> \<currency>\<^sup>?r\<^sub>3 \<parallel> cross s\<^sub>0 s\<^sub>1 s\<^sub>2 s\<^sub>3 r\<^sub>0 r\<^sub>1 r\<^sub>2 r\<^sub>3"
