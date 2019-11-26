@@ -10,7 +10,7 @@ text \<open>
 
 locale transition_system =
   residual lift for lift :: "(['process, 'process] \<Rightarrow> bool) \<Rightarrow> (['residual, 'residual] \<Rightarrow> bool)" +
-  fixes transition :: "['process, 'residual] \<Rightarrow> bool" (infix "\<rightarrow>" 50)
+  fixes transition :: "['process, 'residual] \<Rightarrow> bool" (infix \<open>\<rightarrow>\<close> 50)
 begin
 
 subsection \<open>Relationship to Simulation Systems\<close>
@@ -95,8 +95,8 @@ text \<open>
   as \<open>simulation_system\<close>.
 \<close>
 
-notation pre_bisimilarity (infix "\<lesssim>" 50)
-notation bisimilarity (infix "\<sim>" 50)
+notation pre_bisimilarity (infix \<open>\<lesssim>\<close> 50)
+notation bisimilarity (infix \<open>\<sim>\<close> 50)
 
 subsubsection \<open>Reflexivity and Transitivity\<close>
 

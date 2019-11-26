@@ -15,10 +15,10 @@ datatype io_action =
   BasicIn \<open>chan\<close> \<open>val\<close>
 datatype basic_action =
   IO \<open>io_action\<close> |
-  BasicInternal ("\<tau>")
-abbreviation BasicOutAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleleft>" 100) where
+  BasicInternal (\<open>\<tau>\<close>)
+abbreviation BasicOutAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix \<open>\<triangleleft>\<close> 100) where
   "a \<triangleleft> x \<equiv> IO (BasicOut a x)"
-abbreviation BasicInAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix "\<triangleright>" 100) where
+abbreviation BasicInAction :: "chan \<Rightarrow> val \<Rightarrow> basic_action" (infix \<open>\<triangleright>\<close> 100) where
   "a \<triangleright> x \<equiv> IO (BasicIn a x)"
 
 subsection \<open>Residuals\<close>
@@ -30,11 +30,11 @@ text \<open>
 \<close>
 
 datatype 'p basic_residual =
-  Acting \<open>basic_action\<close> \<open>'p\<close> ("\<lbrace>_\<rbrace> _" [0, 51] 51) |
+  Acting \<open>basic_action\<close> \<open>'p\<close> (\<open>\<lbrace>_\<rbrace> _\<close> [0, 51] 51) |
   Opening \<open>chan \<Rightarrow> 'p\<close>
 syntax
   "_Opening" :: "pttrn \<Rightarrow> process \<Rightarrow> 'p basic_residual"
-  ("\<lbrace>\<nu> _\<rbrace> _" [0, 51] 51)
+  (\<open>\<lbrace>\<nu> _\<rbrace> _\<close> [0, 51] 51)
 translations
   "\<lbrace>\<nu> a\<rbrace> p" \<rightleftharpoons> "CONST Opening (\<lambda>a. p)"
 print_translation \<open>
@@ -84,7 +84,7 @@ text \<open>
 
 inductive
   communication :: "io_action \<Rightarrow> io_action \<Rightarrow> bool"
-  (infix "\<bowtie>" 50)
+  (infix \<open>\<bowtie>\<close> 50)
 where
   ltr:
     "BasicOut a x \<bowtie> BasicIn a x" |
@@ -109,7 +109,7 @@ text \<open>
 
 inductive
   basic_transition :: "process \<Rightarrow> process basic_residual \<Rightarrow> bool"
-  (infix "\<rightarrow>\<^sub>\<flat>" 50)
+  (infix \<open>\<rightarrow>\<^sub>\<flat>\<close> 50)
 where
   sending:
     "a \<triangleleft> x \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> \<zero>" |
@@ -147,8 +147,8 @@ text \<open>
   We introduce concise notation for some of the derived predicates of the transition system.
 \<close>
 
-notation basic.pre_bisimilarity (infix "\<lesssim>\<^sub>\<flat>" 50)
-notation basic.bisimilarity (infix "\<sim>\<^sub>\<flat>" 50)
+notation basic.pre_bisimilarity (infix \<open>\<lesssim>\<^sub>\<flat>\<close> 50)
+notation basic.bisimilarity (infix \<open>\<sim>\<^sub>\<flat>\<close> 50)
 
 subsection \<open>Fundamental Properties of the Transition System\<close>
 
