@@ -1,8 +1,8 @@
 Requirements
 ============
 
-You need Isabelle2018 to use the Isabelle developments in this
-directory. You can obtain Isabelle2018 from the [Isabelle
+You need Isabelle2019 to use the Isabelle developments in this
+directory. You can obtain Isabelle2019 from the [Isabelle
 website][isabelle].
 
 [isabelle]:
