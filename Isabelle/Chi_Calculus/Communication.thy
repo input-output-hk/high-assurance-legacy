@@ -10,7 +10,7 @@ corec multi_receive :: "[chan, val \<Rightarrow> process] \<Rightarrow> process"
   "multi_receive a P = a \<triangleright> x. (P x \<parallel> multi_receive a P)"
 syntax
   "_multi_receive" :: "[chan, pttrn, process] \<Rightarrow> process"
-  ("(3_ \<triangleright>\<^sup>\<infinity> _./ _)" [101, 0, 100] 100)
+  (\<open>(3_ \<triangleright>\<^sup>\<infinity> _./ _)\<close> [101, 0, 100] 100)
 translations
   "a \<triangleright>\<^sup>\<infinity> x. p" \<rightleftharpoons> "CONST multi_receive a (\<lambda>x. p)"
 print_translation \<open>
@@ -137,7 +137,7 @@ qed
 
 subsection \<open>Distributors\<close>
 
-definition distributor :: "[chan, chan list] \<Rightarrow> process" (infix "\<Rightarrow>" 100) where
+definition distributor :: "[chan, chan list] \<Rightarrow> process" (infix \<open>\<Rightarrow>\<close> 100) where
   "a \<Rightarrow> bs = a \<triangleright>\<^sup>\<infinity> x. \<Prod>b\<leftarrow>bs. b \<triangleleft> x"
 
 context begin
@@ -176,7 +176,7 @@ lemma inner_distributor_redundancy:
 
 subsection \<open>Loss Servers\<close>
 
-definition loss :: "chan \<Rightarrow> process" ("\<currency>\<^sup>?_" [1000] 1000) where
+definition loss :: "chan \<Rightarrow> process" (\<open>\<currency>\<^sup>?_\<close> [1000] 1000) where
   "\<currency>\<^sup>?a = a \<Rightarrow> []"
 
 context begin
@@ -215,7 +215,7 @@ lemma inner_loss_redundancy:
 
 subsection \<open>Duplication Servers\<close>
 
-definition duplication :: "chan \<Rightarrow> process" ("\<currency>\<^sup>+_" [1000] 1000) where
+definition duplication :: "chan \<Rightarrow> process" (\<open>\<currency>\<^sup>+_\<close> [1000] 1000) where
   "\<currency>\<^sup>+a = a \<Rightarrow> [a, a]"
 
 context begin
@@ -259,7 +259,7 @@ lemma multi_receive_split:
 
 subsection \<open>Duploss Servers\<close>
 
-definition duploss :: "chan \<Rightarrow> process" ("\<currency>\<^sup>*_" [1000] 1000) where
+definition duploss :: "chan \<Rightarrow> process" (\<open>\<currency>\<^sup>*_\<close> [1000] 1000) where
   "\<currency>\<^sup>*a = \<currency>\<^sup>?a \<parallel> \<currency>\<^sup>+a"
 
 context begin
@@ -314,7 +314,7 @@ lemma send_idempotency_under_duploss:
 
 subsection \<open>Unidirectional Bridges\<close>
 
-definition unidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "\<rightarrow>" 100) where
+definition unidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix \<open>\<rightarrow>\<close> 100) where
   "a \<rightarrow> b = a \<Rightarrow> [b]"
 
 context begin
@@ -377,7 +377,7 @@ lemma distributor_split:
 
 subsection \<open>Bidirectional Bridges\<close>
 
-definition bidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix "\<leftrightarrow>" 100) where
+definition bidirectional_bridge :: "[chan, chan] \<Rightarrow> process" (infix \<open>\<leftrightarrow>\<close> 100) where
   "a \<leftrightarrow> b = a \<rightarrow> b \<parallel> b \<rightarrow> a"
 
 context begin

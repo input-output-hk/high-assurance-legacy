@@ -36,9 +36,9 @@ qed
 interpretation basic: weak_transition_system basic_silent basic.absorb basic_transition
   by intro_locales
 
-notation basic.weak_transition (infix "\<Rightarrow>\<^sub>\<flat>" 50)
-notation basic.weak.pre_bisimilarity (infix "\<lessapprox>\<^sub>\<flat>" 50)
-notation basic.weak.bisimilarity (infix "\<approx>\<^sub>\<flat>" 50)
+notation basic.weak_transition (infix \<open>\<Rightarrow>\<^sub>\<flat>\<close> 50)
+notation basic.weak.pre_bisimilarity (infix \<open>\<lessapprox>\<^sub>\<flat>\<close> 50)
+notation basic.weak.bisimilarity (infix \<open>\<approx>\<^sub>\<flat>\<close> 50)
 
 (* NOTE:
   This will become obsolete once there is only one locale interpretation for the strong transition

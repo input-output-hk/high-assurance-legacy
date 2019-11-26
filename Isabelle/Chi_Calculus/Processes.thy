@@ -12,11 +12,11 @@ text \<open>
 (* FIXME: Discuss the differences to the Haskell version. *)
 
 codatatype process =
-  Stop ("\<zero>") |
-  Send \<open>chan\<close> \<open>val\<close> (infix "\<triangleleft>" 100) |
+  Stop (\<open>\<zero>\<close>) |
+  Send \<open>chan\<close> \<open>val\<close> (infix \<open>\<triangleleft>\<close> 100) |
   Receive \<open>chan\<close> \<open>val \<Rightarrow> process\<close> |
-  Parallel \<open>process\<close> \<open>process\<close> (infixr "\<parallel>" 65) |
-  NewChannel \<open>chan \<Rightarrow> process\<close> (binder "\<nu> " 100)
+  Parallel \<open>process\<close> \<open>process\<close> (infixr \<open>\<parallel>\<close> 65) |
+  NewChannel \<open>chan \<Rightarrow> process\<close> (binder \<open>\<nu> \<close> 100)
 
 text \<open>
   The notation for \<^const>\<open>Receive\<close> cannot be declared with @{theory_text \<open>binder\<close>}, for the
@@ -32,7 +32,7 @@ text \<open>
 
 syntax
   "_Receive" :: "chan \<Rightarrow> pttrn \<Rightarrow> process \<Rightarrow> process"
-  ("(3_ \<triangleright> _./ _)" [101, 0, 100] 100)
+  (\<open>(3_ \<triangleright> _./ _)\<close> [101, 0, 100] 100)
 translations
   "a \<triangleright> x. p" \<rightleftharpoons> "CONST Receive a (\<lambda>x. p)"
 print_translation \<open>
@@ -43,7 +43,7 @@ text \<open>
   We define guarding of processes at the host-language level.
 \<close>
 
-abbreviation guard :: "[bool, process] \<Rightarrow> process" (infixr "?" 100) where
+abbreviation guard :: "[bool, process] \<Rightarrow> process" (infixr \<open>?\<close> 100) where
   "x ? p \<equiv> if x then p else \<zero>"
 
 text \<open>
@@ -60,9 +60,9 @@ text \<open>
 \<close>
 
 no_syntax
-  "_prod_list" :: "pttrn => 'a list => 'b => 'b" ("(3\<Prod>_\<leftarrow>_. _)" [0, 51, 10] 10)
+  "_prod_list" :: "pttrn => 'a list => 'b => 'b" (\<open>(3\<Prod>_\<leftarrow>_. _)\<close> [0, 51, 10] 10)
 syntax
-  "_general_parallel" :: "pttrn => 'a list => process => process" ("(3\<Prod>_\<leftarrow>_. _)" [0, 0, 100] 100)
+  "_general_parallel" :: "pttrn => 'a list => process => process" (\<open>(3\<Prod>_\<leftarrow>_. _)\<close> [0, 0, 100] 100)
 translations
   "\<Prod>x\<leftarrow>xs. p" \<rightleftharpoons> "CONST general_parallel (\<lambda>x. p) xs"
 print_translation \<open>

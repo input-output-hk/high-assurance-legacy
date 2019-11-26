@@ -11,8 +11,8 @@ text \<open>
 \<close>
 
 datatype proper_action =
-  ProperIn \<open>chan\<close> \<open>val\<close> (infix "\<triangleright>" 100) |
-  ProperInternal ("\<tau>")
+  ProperIn \<open>chan\<close> \<open>val\<close> (infix \<open>\<triangleright>\<close> 100) |
+  ProperInternal (\<open>\<tau>\<close>)
 
 text \<open>
   Each action in the proper transition system corresponds to an action in the basic transition
@@ -31,8 +31,8 @@ text \<open>
 \<close>
 
 datatype 'p output_rest =
-  WithoutOpening \<open>val\<close> \<open>'p\<close> ("_\<rparr> _" [52, 51] 51) |
-  WithOpening \<open>chan \<Rightarrow> 'p output_rest\<close> (binder "\<nu> " 51)
+  WithoutOpening \<open>val\<close> \<open>'p\<close> (\<open>_\<rparr> _\<close> [52, 51] 51) |
+  WithOpening \<open>chan \<Rightarrow> 'p output_rest\<close> (binder \<open>\<nu> \<close> 51)
 
 text \<open>
   Note that the definition of \<open>output_rest\<close> is actually more permissive than the verbal definition
@@ -84,8 +84,8 @@ text \<open>
 \<close>
 
 datatype 'p proper_residual =
-  Simple \<open>proper_action\<close> \<open>'p\<close> ("\<lparr>_\<rparr> _" [0, 51] 51) |
-  Output \<open>chan\<close> \<open>'p output_rest\<close> ("\<lparr>_ \<triangleleft> _" [0, 51] 51)
+  Simple \<open>proper_action\<close> \<open>'p\<close> (\<open>\<lparr>_\<rparr> _\<close> [0, 51] 51) |
+  Output \<open>chan\<close> \<open>'p output_rest\<close> (\<open>\<lparr>_ \<triangleleft> _\<close> [0, 51] 51)
 
 text \<open>
   We introduce the alias \<open>proper_lift\<close> for the automatically generated relator
@@ -127,7 +127,7 @@ text \<open>
 
 inductive
   proper_transition :: "process \<Rightarrow> process proper_residual \<Rightarrow> bool"
-  (infix "\<rightarrow>\<^sub>\<sharp>" 50)
+  (infix \<open>\<rightarrow>\<^sub>\<sharp>\<close> 50)
 where
   simple:
     "p \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> q \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q" |
@@ -147,8 +147,8 @@ text \<open>
   We introduce concise notation for some of the derived predicates of the transition system.
 \<close>
 
-notation proper.pre_bisimilarity (infix "\<lesssim>\<^sub>\<sharp>" 50)
-notation proper.bisimilarity (infix "\<sim>\<^sub>\<sharp>" 50)
+notation proper.pre_bisimilarity (infix \<open>\<lesssim>\<^sub>\<sharp>\<close> 50)
+notation proper.bisimilarity (infix \<open>\<sim>\<^sub>\<sharp>\<close> 50)
 
 subsection \<open>Fundamental Properties of the Transition System\<close>
 

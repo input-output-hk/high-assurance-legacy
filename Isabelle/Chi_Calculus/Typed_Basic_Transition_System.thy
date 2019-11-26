@@ -11,11 +11,11 @@ abbreviation
 where
   "typed_basic_in \<aa> \<xx> \<equiv> BasicIn (untyped_channel \<aa>) (untyped_value \<xx>)"
 abbreviation
-  typed_basic_out_action :: "['a channel, 'a::countable] \<Rightarrow> basic_action" (infix "\<triangleleft>\<degree>" 100)
+  typed_basic_out_action :: "['a channel, 'a::countable] \<Rightarrow> basic_action" (infix \<open>\<triangleleft>\<degree>\<close> 100)
 where
   "\<aa> \<triangleleft>\<degree> \<xx> :: basic_action \<equiv> untyped_channel \<aa> \<triangleleft> untyped_value \<xx>"
 abbreviation
-  typed_basic_in_action :: "['a channel, 'a::countable] \<Rightarrow> basic_action" (infix "\<triangleright>\<degree>" 100)
+  typed_basic_in_action :: "['a channel, 'a::countable] \<Rightarrow> basic_action" (infix \<open>\<triangleright>\<degree>\<close> 100)
 where
   "\<aa> \<triangleright>\<degree> \<xx> \<equiv> untyped_channel \<aa> \<triangleright> untyped_value \<xx>"
 
@@ -23,7 +23,7 @@ abbreviation typed_opening :: "('a channel \<Rightarrow> 'p) \<Rightarrow> 'p ba
   "typed_opening \<PP> \<equiv> \<lbrace>\<nu> a\<rbrace> \<PP> (typed_channel a)"
 syntax
   "_typed_opening" :: "pttrn \<Rightarrow> process \<Rightarrow> 'p basic_residual"
-  ("\<lbrace>\<nu>\<degree>_\<rbrace> _" [0, 51] 51)
+  (\<open>\<lbrace>\<nu>\<degree>_\<rbrace> _\<close> [0, 51] 51)
 translations
   "\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<pp>" \<rightleftharpoons> "CONST typed_opening (\<lambda>\<aa>. \<pp>)"
 print_translation \<open>

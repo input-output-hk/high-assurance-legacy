@@ -1085,7 +1085,7 @@ definition tagged_new_channel :: "[nat, chan \<Rightarrow> process] \<Rightarrow
 
 syntax
   "_tagged_new_channel" :: "[bool list, pttrn, process] \<Rightarrow> process"
-  ("(3\<langle>_\<rangle> \<nu> _./ _)" [0, 0, 100] 100)
+  (\<open>(3\<langle>_\<rangle> \<nu> _./ _)\<close> [0, 0, 100] 100)
 translations
   "\<langle>t\<rangle> \<nu> a. p" \<rightleftharpoons> "CONST tagged_new_channel t (\<lambda>a. p)"
 print_translation \<open>

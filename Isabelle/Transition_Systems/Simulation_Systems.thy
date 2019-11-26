@@ -10,8 +10,8 @@ text \<open>
 
 locale simulation_system =
   residual lift for lift :: "(['process, 'process] \<Rightarrow> bool) \<Rightarrow> (['residual, 'residual] \<Rightarrow> bool)" +
-  fixes original_transition :: "['process, 'residual] \<Rightarrow> bool" (infix "\<rightharpoonup>" 50)
-  fixes simulating_transition :: "['process, 'residual] \<Rightarrow> bool" (infix "\<rightharpoondown>" 50)
+  fixes original_transition :: "['process, 'residual] \<Rightarrow> bool" (infix \<open>\<rightharpoonup>\<close> 50)
+  fixes simulating_transition :: "['process, 'residual] \<Rightarrow> bool" (infix \<open>\<rightharpoondown>\<close> 50)
 begin
 
 subsection \<open>Transfer\<close>
@@ -120,11 +120,11 @@ text \<open>
 \<close>
 
 coinductive
-  pre_bisimilarity :: "['process, 'process] \<Rightarrow> bool" (infix "\<lesssim>" 50)
+  pre_bisimilarity :: "['process, 'process] \<Rightarrow> bool" (infix \<open>\<lesssim>\<close> 50)
 where
   pre_bisimilarity: "transfer (\<lambda>p q. p \<lesssim> q \<and> q \<lesssim> p) p q \<Longrightarrow> p \<lesssim> q"
 
-definition bisimilarity :: "['process, 'process] \<Rightarrow> bool" (infix "\<sim>" 50) where
+definition bisimilarity :: "['process, 'process] \<Rightarrow> bool" (infix \<open>\<sim>\<close> 50) where
   "p \<sim> q \<equiv> p \<lesssim> q \<and> q \<lesssim> p"
 
 subsubsection \<open>Symmetry\<close>

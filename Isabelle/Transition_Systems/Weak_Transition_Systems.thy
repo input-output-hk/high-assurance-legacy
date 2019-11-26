@@ -6,16 +6,16 @@ begin
 
 locale weak_transition_system =
   weak_residual silent absorb for silent :: "['process, 'residual] \<Rightarrow> bool" and absorb +
-  fixes strong_transition :: "['process, 'residual] \<Rightarrow> bool" (infix "\<rightarrow>" 50)
+  fixes strong_transition :: "['process, 'residual] \<Rightarrow> bool" (infix \<open>\<rightarrow>\<close> 50)
 begin
 
 sublocale strong: transition_system lift strong_transition
   by intro_locales
 
-notation strong.pre_bisimilarity (infix "\<lesssim>" 50)
-notation strong.bisimilarity (infix "\<sim>" 50)
+notation strong.pre_bisimilarity (infix \<open>\<lesssim>\<close> 50)
+notation strong.bisimilarity (infix \<open>\<sim>\<close> 50)
 
-inductive weak_transition :: "['process, 'residual] \<Rightarrow> bool" (infix "\<Rightarrow>" 50) where
+inductive weak_transition :: "['process, 'residual] \<Rightarrow> bool" (infix \<open>\<Rightarrow>\<close> 50) where
   strong_transition:
     "p \<rightarrow> c \<Longrightarrow> p \<Rightarrow> c" |
   silent_transition:
@@ -26,8 +26,8 @@ inductive weak_transition :: "['process, 'residual] \<Rightarrow> bool" (infix "
 sublocale weak: transition_system lift weak_transition
   by intro_locales
 
-notation weak.pre_bisimilarity (infix "\<lessapprox>" 50)
-notation weak.bisimilarity (infix "\<approx>" 50)
+notation weak.pre_bisimilarity (infix \<open>\<lessapprox>\<close> 50)
+notation weak.bisimilarity (infix \<open>\<approx>\<close> 50)
 
 sublocale mixed: simulation_system lift strong_transition weak_transition
   by intro_locales

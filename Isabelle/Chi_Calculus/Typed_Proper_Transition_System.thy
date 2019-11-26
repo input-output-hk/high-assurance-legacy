@@ -3,12 +3,12 @@ theory Typed_Proper_Transition_System
 begin
 
 abbreviation
-  typed_proper_in :: "['a channel, 'a::countable] \<Rightarrow> proper_action" (infix "\<triangleright>\<degree>" 100)
+  typed_proper_in :: "['a channel, 'a::countable] \<Rightarrow> proper_action" (infix \<open>\<triangleright>\<degree>\<close> 100)
 where
   "\<aa> \<triangleright>\<degree> \<xx> \<equiv> ProperIn (untyped_channel \<aa>) (untyped_value \<xx>)"
 
 datatype ('a, 'p) typed_output_rest =
-  TypedWithoutOpening \<open>'a\<close> \<open>'p\<close> ("_\<rparr> _" [52, 51] 51) |
+  TypedWithoutOpening \<open>'a\<close> \<open>'p\<close> (\<open>_\<rparr> _\<close> [52, 51] 51) |
   TypedWithOpening \<open>chan \<Rightarrow> ('a, 'p) typed_output_rest\<close>
 
 (*
@@ -28,7 +28,7 @@ where
 
 abbreviation
   typed_output :: "['a channel, ('a::countable, 'p) typed_output_rest] \<Rightarrow> 'p proper_residual"
-  ("\<lparr>_ \<triangleleft>\<degree> _" [0, 51] 51)
+  (\<open>\<lparr>_ \<triangleleft>\<degree> _\<close> [0, 51] 51)
 where
   "\<lparr>\<aa> \<triangleleft>\<degree> \<kk> \<equiv> \<lparr>untyped_channel \<aa> \<triangleleft> untyped_output_rest \<kk>"
 
