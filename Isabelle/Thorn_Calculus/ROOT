@@ -1,0 +1,19 @@
+chapter Ouroboros
+
+(* FIXME:
+  Check whether we should derive from "Transition_Systems" and drop the "Transition_Systems" session
+  import below. Would that be AFP-compatible?
+*)
+session Thorn_Calculus (ouroboros) = HOL +
+  description \<open>Formalization of the thorn calculus.\<close>
+  sessions
+    "HOL-Library"
+    "Transition_Systems-New"
+  theories
+    "Thorn_Calculus-Foundations"
+    "Thorn_Calculus-Processes"
+    "Thorn_Calculus-Actions"
+    "Thorn_Calculus-Semantics-Synchronous"
+    "Thorn_Calculus-Semantics-Asynchronous"
+document_files
+    "root.tex"
