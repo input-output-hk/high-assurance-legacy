@@ -2,6 +2,7 @@ section \<open>Synchronous Semantics\<close>
 
 theory "Thorn_Calculus-Semantics-Synchronous"
 imports
+  "Relation_Methods.Equivalence"
   "Transition_Systems-New.Transition_Systems-Weak_Mutation_Systems"
   "Thorn_Calculus-Actions"
   "Thorn_Calculus-Processes"
@@ -1437,6 +1438,65 @@ next
   then show "I\<inverse>\<inverse> \<le> (\<Rightarrow>\<^sub>s\<lparr>\<alpha>\<rparr>) OO I'\<inverse>\<inverse>"
     by fastforce
 qed
+
+(* FIXME: Decide whether we really need this. *)
+lemma receive_preserves_synchronous_bisimilarity:
+  assumes "\<And>n X. (\<lambda>e. (\<P> (X e) \<guillemotleft> suffix n) e) \<sim>\<^sub>s (\<lambda>e. (\<Q> (X e) \<guillemotleft> suffix n) e)"
+  shows "A \<triangleright> x. \<P> x \<sim>\<^sub>s A \<triangleright> x. \<Q> x"
+using assms
+proof (coinduction arbitrary: \<P> \<Q> rule: synchronous.symmetric_up_to_rule [where \<F> = "[\<sim>\<^sub>s]"])
+  case symmetry
+  then show ?case
+    by (simp add: synchronous.bisimilarity_symmetry_rule)
+next
+  case simulation
+  from simulation(2,1) show ?case
+    by cases (auto intro: synchronous_transition.receiving)
+qed respectful
+
+quotient_type synchronous_behavior = "process family" / "(\<sim>\<^sub>s)"
+  using synchronous.bisimilarity_is_equivalence .
+
+declare synchronous_behavior.abs_eq_iff [equivalence_transfer]
+
+context begin
+
+private lift_definition
+  synchronous_behavior_stop :: synchronous_behavior
+  is stop .
+
+private lift_definition
+  synchronous_behavior_send :: "chan family \<Rightarrow> val family \<Rightarrow> synchronous_behavior"
+  is send .
+
+private lift_definition
+  synchronous_behavior_receive :: "
+    chan family \<Rightarrow>
+    (val \<Rightarrow> process family) \<Rightarrow>
+    synchronous_behavior"
+  is receive .
+
+private lift_definition parallel' :: "[synchronous_behavior, synchronous_behavior] \<Rightarrow> synchronous_behavior"
+  is Parallel
+  using synchronous_parallel_preservation .
+
+private lift_definition new_channel' :: "(chan \<Rightarrow> synchronous_behavior) \<Rightarrow> synchronous_behavior"
+  is NewChannel
+  using synchronous_new_channel_preservation .
+
+private lift_definition general_parallel' :: "['a \<Rightarrow> synchronous_behavior, 'a list] \<Rightarrow> synchronous_behavior"
+  is general_parallel
+  using synchronous.general_parallel_preservation .
+
+lemmas [equivalence_transfer] =
+  stop'.abs_eq
+  send'.abs_eq
+  receive'.abs_eq
+  parallel'.abs_eq
+  new_channel'.abs_eq
+  general_parallel'.abs_eq
+
+end
 
 text \<open>
   Some more pre-simplification rules for making reasoning with more concrete processes easier. Note

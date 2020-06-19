@@ -6,6 +6,26 @@ imports
   "HOL-Library.Stream"
 begin
 
+(* FIXME: Document the following at an appropriate place:
+
+    \<^item> We use families for channels, because we need transitions to be homogeneous in channels. On
+      the other hand, transitions must be able to be inhomogeneous in values in order to allow for
+      computation, and thus we do not use families for values.
+
+    \<^item> Environments are the HOAS-equivalent of assignments of channels to names. Families are then
+      the HOAS analog of processes with free channel names.
+
+    \<^item> The name introduced by a \<open>\<nu>\<close>-binder corresponds to the first element of an environment. All
+      previous elements are shifted forward by one index. Thus the indexes of the elements of an
+      environment correspond to the de~Bruijn indexes of the names.
+
+    \<^item> We define environments as infinite lists, because we cannot track the lengths of finite
+      channel lists using the type system, as Isabelle/HOL does not support dependent types nor
+      heterogeneous inductive predicates (which would require higher-rank polymorphism). In
+      practice we always deal with families that only depend on a finite prefix of the environment,
+      but all the meta-theory works out without imposing such a restriction.
+*)
+
 subsection \<open>Channels and Values\<close>
 
 typedecl chan
