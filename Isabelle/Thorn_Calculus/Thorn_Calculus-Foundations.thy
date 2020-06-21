@@ -26,15 +26,13 @@ begin
       but all the meta-theory works out without imposing such a restriction.
 *)
 
-subsection \<open>Channels and Values\<close>
+subsection \<open>Channels\<close>
 
 typedecl chan
 
 axiomatization where
   more_than_one_chan:
     "\<exists>a b :: chan. a \<noteq> b"
-
-typedecl val
 
 subsection \<open>Environments\<close>
 
@@ -546,5 +544,32 @@ proof -
   then show "A \<guillemotleft> tail \<noteq> shd"
     by simp
 qed
+
+subsection \<open>Values\<close>
+
+typedecl val
+
+axiomatization same_shape :: "val \<Rightarrow> val \<Rightarrow> bool" (infix \<open>\<cong>\<close> 50) where
+  same_shape_is_equivalence:
+    "equivp (\<cong>)"
+(* FIXME:
+  Perhaps \<^emph>\<open>define\<close> \<open>same_shape\<close> based on the ZF embedding. Then probably the relationship between
+  typed values and \<open>same_shape\<close> can be defined too.
+*)
+
+text \<open>
+  Note that for any functor (not just for containers), the notion of shape can be defined as a
+  value of the functor type with the element type set to \<^type>\<open>unit\<close>. Since we might want to think
+  of \<^type>\<open>val\<close> as a functor on \<^type>\<open>chan\<close>, the existence of \<^term>\<open>(\<cong>)\<close> makes sense.
+\<close>
+
+definition uniform :: "val family \<Rightarrow> bool" where
+  [simp]: "uniform X \<longleftrightarrow> (\<forall>e d. X e \<cong> X d)"
+
+lemma non_adapted_is_uniform:
+  assumes "uniform (X \<guillemotleft> \<E>)"
+  shows "uniform X"
+  using assms
+  by transfer (simp add: surj_def, metis)
 
 end

@@ -43,7 +43,8 @@ where
   "P \<rightarrow>\<^sub>s\<lparr>\<alpha>\<rparr> Q \<equiv> (\<rightarrow>\<^sub>s\<lparr>\<alpha>\<rparr>) P Q" |
   \<comment> \<open>Execution of actions:\<close>
   sending:
-    "A \<triangleleft> X \<rightarrow>\<^sub>s\<lparr>A \<triangleleft> \<star>\<^bsup>0\<^esup> X\<rparr> \<zero>" |
+    "A \<triangleleft> X \<rightarrow>\<^sub>s\<lparr>A \<triangleleft> \<star>\<^bsup>0\<^esup> X\<rparr> \<zero>"
+    if "uniform X" |
   opening:
     "\<nu> a. \<P> a \<rightarrow>\<^sub>s\<lparr>A \<triangleleft> \<star>\<^bsup>Suc n\<^esup> X\<rparr> Q"
     if
@@ -53,7 +54,8 @@ where
     and
       "\<nabla> \<P> \<rightarrow>\<^sub>s\<lparr>A \<guillemotleft> tail \<triangleleft> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move n i\<rparr> Q \<guillemotleft> move n i" |
   receiving:
-    "A \<triangleright> x. \<P> x \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> (\<lambda>e. (\<P> (X e) \<guillemotleft> suffix n) e)" |
+    "A \<triangleright> x. \<P> x \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> (\<lambda>e. (\<P> (X e) \<guillemotleft> suffix n) e)"
+    if "uniform X" |
   communication:
     "P \<parallel> Q \<rightarrow>\<^sub>s\<lparr>\<tau>\<rparr> \<star>\<^bsup>n\<^esup> (P' \<parallel> Q')"
     if "\<eta> \<noteq> \<mu>" and "P \<rightarrow>\<^sub>s\<lparr>IO \<eta> A n X\<rparr> P'" and "Q \<rightarrow>\<^sub>s\<lparr>IO \<mu> A n X\<rparr> Q'" |
