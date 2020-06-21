@@ -77,8 +77,21 @@ where
     "\<nu> a. \<P> a \<rightarrow>\<^sub>s\<lparr>\<tau>\<rparr> \<nu> a. \<Q> a"
     if "\<nabla> \<P> \<rightarrow>\<^sub>s\<lparr>\<tau>\<rparr> \<nabla> \<Q>"
 
+text \<open>
+  The following lemma is not used states an important property of the transition system.
+\<close>
+(* FIXME:
+  Check whether we have not started using this lemma meanwhile.
+*)
+
+lemma io_transitions_are_uniform:
+  assumes "S \<rightarrow>\<^sub>s\<lparr>IO \<eta> A n X\<rparr> T"
+  shows "uniform X"
+  using assms
+  by (induction "IO \<eta> A n X" S T arbitrary: A n X) (blast intro: non_adapted_is_uniform)+
+
 lemma adapted_io_transition:
-  assumes \<open>S \<rightarrow>\<^sub>s\<lparr>IO \<eta> A n X\<rparr> T\<close>
+  assumes "S \<rightarrow>\<^sub>s\<lparr>IO \<eta> A n X\<rparr> T"
   shows "S \<guillemotleft> \<E> \<rightarrow>\<^sub>s\<lparr>IO \<eta> (A \<guillemotleft> \<E>) n (X \<guillemotleft> on_suffix n \<E>)\<rparr> T \<guillemotleft> on_suffix n \<E>"
 using assms proof (induction "IO \<eta> A n X" S T arbitrary: \<eta> A n X \<E>)
   case sending
@@ -200,7 +213,7 @@ next
 qed
 
 lemma adapted_communication_transition:
-  assumes \<open>S \<rightarrow>\<^sub>s\<lparr>\<tau>\<rparr> T\<close>
+  assumes "S \<rightarrow>\<^sub>s\<lparr>\<tau>\<rparr> T"
   shows "S \<guillemotleft> \<E> \<rightarrow>\<^sub>s\<lparr>\<tau>\<rparr> T \<guillemotleft> \<E>"
 using assms proof (induction \<tau> S T arbitrary: \<E>)
   case (communication \<eta> \<mu> P A n X P' Q Q' \<E>)
