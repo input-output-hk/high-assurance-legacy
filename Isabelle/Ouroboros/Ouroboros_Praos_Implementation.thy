@@ -499,11 +499,12 @@ text \<open>
 abbreviation verify_tx :: "transaction \<Rightarrow> genesis \<Rightarrow> bool" where
   "verify_tx tx G \<equiv>
     let
-      ((U\<^sub>i, U\<^sub>j, s), \<sigma>) = tx;
+      (txbody, \<sigma>) = tx;
+      (U\<^sub>i, U\<^sub>j, s) = txbody;
       (vks, \<S>\<^sub>0, _) = G;
       (_, _, vk\<^sub>i) = the (vks U\<^sub>i) \<comment> \<open>\<open>U\<^sub>i\<close>'s DSIG verification key\<close>
     in
-      \<exists>s\<^sub>i s\<^sub>j. \<S>\<^sub>0 U\<^sub>i = Some s\<^sub>i \<and> \<S>\<^sub>0 U\<^sub>j = Some s\<^sub>j \<and> s\<^sub>i \<ge> s \<and> verify vk\<^sub>i tx \<sigma>"
+      \<exists>s\<^sub>i s\<^sub>j. \<S>\<^sub>0 U\<^sub>i = Some s\<^sub>i \<and> \<S>\<^sub>0 U\<^sub>j = Some s\<^sub>j \<and> s\<^sub>i \<ge> s \<and> verify vk\<^sub>i txbody \<sigma>"
 
 text \<open>
   and thus we can trivially verify whether a list of transactions is valid w.r.t. a genesis block:
