@@ -1,5 +1,5 @@
 all:
-	cabal new-build all
+	cabal v2-build all
 
 clean:
-	rm -rf dist-newstyle .ghc.environment.*
+	rm -rf dist-newstyle
