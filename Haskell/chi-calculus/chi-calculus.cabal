@@ -16,7 +16,7 @@ description:   The χ-calculus is a process calculus that is used in the
                This package defines the language of the χ-calculus and some
                basic interpretations.
 category:      Concurrency
-tested-with:   GHC == 8.6.2
+tested-with:   GHC == 8.10.2
 
 source-repository head
 
