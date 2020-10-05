@@ -5,6 +5,7 @@ theory Ouroboros_Praos_Implementation
     Chi_Calculus.Typed_Basic_Transition_System
     Finite_Map_Extras
     "HOL-Library.BNF_Corec"
+    "HOL-Library.Sublist"
     Complex_Main
 begin
 
@@ -370,6 +371,13 @@ text \<open>
 type_synonym blockchain = "block list"
 
 text \<open>
+  We let \<open>\<C>\<^sub>1 \<preceq> \<C>\<^sub>2\<close> indicate that the blockchain \<open>\<C>\<^sub>1\<close> is a prefix of the blockchain \<open>\<C>\<^sub>2\<close>:
+\<close>
+
+abbreviation is_prefix_of :: "blockchain \<Rightarrow> blockchain \<Rightarrow> bool" (infix \<open>\<preceq>\<close> 50) where
+  "\<C>\<^sub>1 \<preceq> \<C>\<^sub>2 \<equiv> prefix \<C>\<^sub>1 \<C>\<^sub>2"
+
+text \<open>
   We define a function to prune the last \<open>m\<close> blocks in a blockchain \<open>\<C>\<close>, denoted by \<open>\<C>\<^bsup>\<lceil>m\<^esup>\<close> in the
   paper:
 \<close>
@@ -383,13 +391,6 @@ text \<open>
 
 abbreviation prune_after :: "slot \<Rightarrow> blockchain \<Rightarrow> blockchain" where
   "prune_after sl \<C> \<equiv> takeWhile (\<lambda>B. bl_slot B \<le> sl) \<C>"
-
-text \<open>
-  We let \<open>\<C>\<^sub>1 \<preceq> \<C>\<^sub>2\<close> indicate that the blockchain \<open>\<C>\<^sub>1\<close> is a prefix of the blockchain \<open>\<C>\<^sub>2\<close>:
-\<close>
-
-abbreviation is_prefix_of :: "blockchain \<Rightarrow> blockchain \<Rightarrow> bool" (infixl \<open>\<preceq>\<close> 50) where
-  "\<C>\<^sub>1 \<preceq> \<C>\<^sub>2 \<equiv> \<exists>m. \<C>\<^sub>2 \<lceil>m = \<C>\<^sub>1"
 
 text \<open>
   And we can apply a blockchain \<open>\<C>\<close> to a stake distribution \<open>\<S>\<close> by sequentially applying all blocks
