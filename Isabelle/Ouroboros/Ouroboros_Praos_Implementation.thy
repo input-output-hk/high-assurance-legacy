@@ -3,6 +3,7 @@ section \<open> Implementation of the Ouroboros Praos protocol \<close>
 theory Ouroboros_Praos_Implementation
   imports
     Chi_Calculus.Typed_Basic_Transition_System
+    Finite_Map_Extras
     "HOL-Library.BNF_Corec"
     Complex_Main
 begin
@@ -262,7 +263,7 @@ type_synonym stakeholder_id = nat
 
 type_synonym stake = nat
 
-type_synonym stake_distr = "stakeholder_id \<rightharpoonup> stake"
+type_synonym stake_distr = "(stakeholder_id, stake) fmap"
 
 paragraph \<open> Genesis block. \<close>
 
@@ -310,7 +311,11 @@ text \<open>
 \<close>
 
 fun apply_transaction :: "transaction \<Rightarrow> stake_distr \<Rightarrow> stake_distr" where
-  "apply_transaction ((U\<^sub>i, U\<^sub>j, s), _) \<S> = \<S>(U\<^sub>i \<mapsto> the (\<S> U\<^sub>i) - s, U\<^sub>j \<mapsto> the (\<S> U\<^sub>j) + s)"
+  "apply_transaction ((U\<^sub>i, U\<^sub>j, s), _) \<S> = (
+    let
+      \<S>' = \<S>(U\<^sub>i $$:= \<S> $$! U\<^sub>i - s)
+    in
+      \<S>'(U\<^sub>j $$:= \<S>' $$! U\<^sub>j + s))"
 
 paragraph \<open> Block. \<close>
 
@@ -405,7 +410,7 @@ text \<open>
 \<close>
 
 abbreviation absolute_stake :: "stake_distr \<Rightarrow> stake" (\<open>s\<^sup>+'(_')\<close>) where
-  "s\<^sup>+(\<S>) \<equiv> \<Sum>U\<^sub>j \<in> dom \<S>. the (\<S> U\<^sub>j)"
+  "s\<^sup>+(\<S>) \<equiv> \<Sum>U\<^sub>j \<in> fmdom' \<S>. \<S> $$! U\<^sub>j"
 
 text \<open>
   and the relative stake controlled by @{emph \<open>a single\<close>} stakeholder \<open>U\<^sub>i\<close>, taken as
@@ -420,7 +425,7 @@ abbreviation
 where
   "\<alpha>\<^sup>+(U\<^sub>i, \<S>) \<equiv>
     let
-      s\<^sub>i = the (\<S> U\<^sub>i);
+      s\<^sub>i = \<S> $$! U\<^sub>i;
       s\<^sub>\<P> = s\<^sup>+(\<S>)
     in
       s\<^sub>i / s\<^sub>\<P>"
@@ -517,7 +522,7 @@ abbreviation verify_tx :: "transaction \<Rightarrow> genesis \<Rightarrow> bool"
       (vks, \<S>\<^sub>0, _) = G;
       (_, _, vk\<^sub>i) = the (vks U\<^sub>i) \<comment> \<open>\<open>U\<^sub>i\<close>'s DSIG verification key\<close>
     in
-      \<exists>s\<^sub>i s\<^sub>j. \<S>\<^sub>0 U\<^sub>i = Some s\<^sub>i \<and> \<S>\<^sub>0 U\<^sub>j = Some s\<^sub>j \<and> s\<^sub>i \<ge> s \<and> verify vk\<^sub>i txbody \<sigma>"
+      \<exists>s\<^sub>i s\<^sub>j. \<S>\<^sub>0 $$ U\<^sub>i = Some s\<^sub>i \<and> \<S>\<^sub>0 $$ U\<^sub>j = Some s\<^sub>j \<and> s\<^sub>i \<ge> s \<and> verify vk\<^sub>i txbody \<sigma>"
 
 text \<open>
   and thus we can trivially verify whether a list of transactions is valid w.r.t. a genesis block:
