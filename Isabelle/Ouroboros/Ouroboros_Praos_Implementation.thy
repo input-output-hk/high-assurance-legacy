@@ -212,7 +212,7 @@ text \<open>
   capability of allowing the signing key to ``evolve'' in such a way that the adversary
   cannot forge past signatures, and is used to sign blocks. Therefore, we model these two
   functionalities as a single, ordinary digital signature scheme. With this scheme, we can sign a
-  value using a secret key:
+  value using a secret key and verify that a value is properly signed using a verification key:
 \<close>
 
 typedecl signature
@@ -224,13 +224,12 @@ axiomatization
 instance signature :: finite
   by (rule signature_finite)
 
-consts sign :: "secret_key \<Rightarrow> 'a \<Rightarrow> signature"
-
-text \<open>
-  and verify that a value is properly signed using a verification key:
-\<close>
-
-consts verify :: "verification_key \<Rightarrow> 'a \<Rightarrow> signature \<Rightarrow> bool"
+axiomatization
+  sign :: "secret_key \<Rightarrow> 'a \<Rightarrow> signature"
+and
+  verify :: "verification_key \<Rightarrow> 'a \<Rightarrow> signature \<Rightarrow> bool"
+where
+  sig_ver_cancellation: "verify vk x (sign sk x)" if "vk = verification_key_of sk"
 
 paragraph \<open> Functionality \<open>\<F>\<close>$^{\tau,r}_{RLB}$. \<close>
 
