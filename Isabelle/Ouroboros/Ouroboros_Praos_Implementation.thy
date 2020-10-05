@@ -134,7 +134,10 @@ text \<open>
     stakeholder is elected as a slot leader, that is, the probability that a slot is not empty:
 \<close>
 
-consts f :: real
+axiomatization
+  f :: real
+where
+  f_non_zero_probability: "0 < f \<and> f \<le> 1"
 
 text \<open>
   \<^item> Two special, but arbitrary, values that we use when calling the VRF in slot leader selection
