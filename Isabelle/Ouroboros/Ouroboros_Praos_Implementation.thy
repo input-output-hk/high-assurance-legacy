@@ -238,7 +238,8 @@ text \<open>
   provides a fresh nonce for each epoch to (re)seed the election process. Also, this beacon is
   resettable and leaky in order to strengthen the adversary, which we evidently ignore. Finally,
   the beacon (via \<open>\<F>\<close>$_{\mathsf{INIT}}$) provides the stakeholders with the genesis block; instead
-  our implementation passes the genesis block as a parameter to each stakeholder.
+  our implementation passes the genesis block as a parameter to each stakeholder. Therefore, we
+  only provide a function to produce a fresh nonce:
 \<close>
 
 typedecl nonce
