@@ -83,10 +83,10 @@ text \<open>
 typedecl hash \<comment> \<open> Hash values (i.e. $\{0,1\}^w$ in the paper) \<close>
 
 axiomatization
-  where
-    hash_finite: "OFCLASS(hash, finite_class)"
-  and
-    hash_equal: "OFCLASS(hash, equal_class)"
+where
+  hash_finite: "OFCLASS(hash, finite_class)"
+and
+  hash_equal: "OFCLASS(hash, equal_class)"
 
 instance hash :: finite
   by (rule hash_finite)
@@ -94,7 +94,10 @@ instance hash :: finite
 instance hash :: equal
   by (rule hash_equal)
 
-consts \<H> :: "'a \<Rightarrow> hash" \<comment> \<open> A collision-resistant hash function \<close>
+axiomatization
+  \<H> :: "'a \<Rightarrow> hash" \<comment> \<open> A collision-resistant hash function \<close>
+where
+  hash_inj: "inj \<H>"
 
 text \<open>
   with no way of recovering @{typ 'a} from @{type hash}.
