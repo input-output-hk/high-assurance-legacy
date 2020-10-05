@@ -33,6 +33,13 @@ typedecl secret_key
 
 typedecl verification_key
 
+
+text \<open>
+  such that it is possible to derive the verification key from the secret key:
+\<close>
+
+consts verification_key_of :: "secret_key \<Rightarrow> verification_key"
+
 subsubsection \<open> The Semi-Synchronous model \<close>
 
 text \<open>
@@ -160,7 +167,8 @@ paragraph \<open> Functionality \<open>\<F>\<close>$_{\mathsf{VRF}}$. \<close>
 
 text \<open>
   We model the evaluation of a VRF as a function that, given an input value and a secret key,
-  produces a random value and a proof:
+  produces a random value and a proof. Also, we can verify that a particular random value was
+  produced correctly:
 \<close>
 
 typedecl vrf_output
@@ -168,10 +176,10 @@ typedecl vrf_output
 typedecl vrf_proof
 
 axiomatization
-  where
-    vrf_output_finite: "OFCLASS(vrf_output, finite_class)"
-  and
-    vrf_proof_finite: "OFCLASS(vrf_proof, finite_class)"
+where
+  vrf_output_finite: "OFCLASS(vrf_output, finite_class)"
+and
+  vrf_proof_finite: "OFCLASS(vrf_proof, finite_class)"
 
 instance vrf_output :: finite
   by (rule vrf_output_finite)
@@ -183,13 +191,12 @@ type_synonym vrf_value = "vrf_output \<times> vrf_proof"
 
 consts vrf_output_size :: nat (\<open>l\<^sub>V\<^sub>R\<^sub>F\<close>)
 
-consts evaluate_vrf :: "secret_key \<Rightarrow> 'a \<Rightarrow> vrf_value"
-
-text \<open>
-  Also, we can verify that a particular random value was produced correctly:
-\<close>
-
-consts verify_vrf :: "verification_key \<Rightarrow> 'a \<Rightarrow> vrf_value \<Rightarrow> bool"
+axiomatization
+  evaluate_vrf :: "secret_key \<Rightarrow> 'a \<Rightarrow> vrf_value"
+and
+  verify_vrf :: "verification_key \<Rightarrow> 'a \<Rightarrow> vrf_value \<Rightarrow> bool"
+where
+  vrf_eval_ver_cancellation: "verify_vrf vk x (evaluate_vrf sk x)" if "vk = verification_key_of sk"
 
 text \<open>
   Finally, we can cast a VRF output into a real number:
