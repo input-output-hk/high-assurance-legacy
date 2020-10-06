@@ -394,11 +394,68 @@ text \<open>
 abbreviation apply_block :: "block \<Rightarrow> stake_distr \<Rightarrow> stake_distr" where
   "apply_block B \<S> \<equiv> fold apply_transaction (bl_txs B) \<S>"
 
+text \<open>
+  Applying a block including only a transaction and its corresponding refund transaction does not
+  affect the stake distribution:
+\<close>
+
+lemma transaction_refund_invariancy:
+  assumes "bl_txs B = [((U\<^sub>i, U\<^sub>j, s), \<sigma>\<^sub>1), ((U\<^sub>j, U\<^sub>i, s), \<sigma>\<^sub>2)]"
+  and "{U\<^sub>i, U\<^sub>j} \<subseteq> fmdom' \<S>"
+  and "\<S> $$! U\<^sub>i \<ge> s"
+  shows "apply_block B \<S> = \<S>"
+proof -
+  let ?\<S>\<^sub>1 = "\<S>(U\<^sub>i $$:= \<S> $$! U\<^sub>i - s)"
+  let ?\<S>\<^sub>2 = "?\<S>\<^sub>1(U\<^sub>j $$:= ?\<S>\<^sub>1 $$! U\<^sub>j + s)"
+  let ?\<S>\<^sub>3 = "?\<S>\<^sub>2(U\<^sub>j $$:= ?\<S>\<^sub>2 $$! U\<^sub>j - s)"
+  let ?\<S>\<^sub>4 = "?\<S>\<^sub>3(U\<^sub>i $$:= ?\<S>\<^sub>3 $$! U\<^sub>i + s)"
+  from assms(1) have "apply_block B \<S> =
+    fold apply_transaction [((U\<^sub>j, U\<^sub>i, s), \<sigma>\<^sub>2)] (apply_transaction ((U\<^sub>i, U\<^sub>j, s), \<sigma>\<^sub>1) \<S>)"
+    by simp
+  also have "\<dots> = fold apply_transaction [((U\<^sub>j, U\<^sub>i, s), \<sigma>\<^sub>2)] ?\<S>\<^sub>2"
+    by simp
+  also have "\<dots> = ?\<S>\<^sub>4"
+    by simp
+  also have "\<dots> = \<S>"
+  proof (rule fsubset_antisym)
+    show "?\<S>\<^sub>4 \<subseteq>\<^sub>f \<S>"
+    unfolding fmsubset.rep_eq proof (unfold map_le_def, intro ballI)
+      fix U
+      assume "U \<in> dom (($$) ?\<S>\<^sub>4)"
+      consider (a) "U = U\<^sub>i" | (b) "U = U\<^sub>j" | (c) "U \<noteq> U\<^sub>i" and "U \<noteq> U\<^sub>j"
+        by auto
+      then show "?\<S>\<^sub>4 $$ U = \<S> $$ U"
+      proof cases
+        case a
+        then have "?\<S>\<^sub>4 $$ U = Some (\<S> $$! U - s + s)"
+          by simp
+        also from a and assms(2,3) have "\<dots> = \<S> $$ U"
+          by (simp add: fmlookup_dom'_iff)
+        finally show ?thesis .
+      next
+        case b
+        with assms(3) have "?\<S>\<^sub>4 $$ U = Some (\<S> $$! U + s - s)"
+          by auto
+        also from b and assms(2) have "\<dots> = \<S> $$ U"
+          by (simp add: fmlookup_dom'_iff)
+        finally show ?thesis .
+      next
+        case c
+        then show ?thesis
+          by simp
+      qed
+    qed
+    show "\<S> \<subseteq>\<^sub>f ?\<S>\<^sub>4"
+      using \<open>?\<S>\<^sub>4 \<subseteq>\<^sub>f \<S>\<close> unfolding fmsubset.rep_eq and map_le_def by auto
+  qed
+  finally show ?thesis .
+qed
+
 paragraph \<open> Blockchain. \<close>
 
 text \<open>
   A blockchain is simply a sequence of blocks. We do not record the genesis block explicitly as
-  part of the blockchain: 
+  part of the blockchain:
 \<close>
 
 type_synonym blockchain = "block list"
