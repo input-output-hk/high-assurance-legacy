@@ -318,6 +318,39 @@ fun apply_transaction :: "transaction \<Rightarrow> stake_distr \<Rightarrow> st
     in
       \<S>'(U\<^sub>j $$:= \<S>' $$! U\<^sub>j + s))"
 
+text \<open>
+  Applying a transaction with the same stakeholder as sender and receiver does not change the
+  stake distribution:
+\<close>
+
+lemma self_transfer_invariancy:
+  assumes "U\<^sub>i |\<in>| fmdom \<S>"
+  and "\<S> $$! U\<^sub>i \<ge> s"
+  shows "apply_transaction ((U\<^sub>i, U\<^sub>i, s), \<sigma>) \<S> = \<S>"
+proof (rule fsubset_antisym)
+  let ?\<S>' = "apply_transaction ((U\<^sub>i, U\<^sub>i, s), \<sigma>) \<S>"
+  show "?\<S>' \<subseteq>\<^sub>f \<S>"
+  unfolding fmsubset.rep_eq proof (unfold map_le_def, intro ballI)
+    fix U
+    assume "U \<in> dom (($$) ?\<S>')"
+    then show "?\<S>' $$ U = \<S> $$ U"
+    proof (cases "U = U\<^sub>i")
+      case True
+      then have "?\<S>' $$ U = Some (\<S> $$! U - s + s)"
+        by simp
+      also from True and assms have "\<dots> = \<S> $$ U"
+        by auto
+      finally show ?thesis .
+    next
+      case False
+      then show ?thesis
+        by simp
+    qed
+  qed
+  then show "\<S> \<subseteq>\<^sub>f apply_transaction ((U\<^sub>i, U\<^sub>i, s), \<sigma>) \<S>"
+    unfolding fmsubset.rep_eq and map_le_def by simp
+qed
+
 paragraph \<open> Block. \<close>
 
 text \<open>
