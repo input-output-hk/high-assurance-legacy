@@ -8,8 +8,7 @@ method equivalence = (
   \<comment> \<open>Add the declared extra premises to the list of goal premises:\<close>
   insert equivalence,
   \<comment> \<open>Turn the chained facts into goal premises:\<close>
-  insert TrueI,
-  erule_tac TrueE,
+  -,
   \<comment> \<open>Uncurry all conditional premises:\<close>
   ((match premises in prem [thin]: "_ \<Longrightarrow> _ \<Longrightarrow> _" (cut) \<Rightarrow> \<open>insert prem [uncurry]\<close>)+)?,
   \<comment> \<open>Relax the equivalence premises:\<close>
