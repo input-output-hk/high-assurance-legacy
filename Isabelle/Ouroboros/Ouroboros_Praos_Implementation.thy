@@ -497,7 +497,26 @@ abbreviation prune_chain :: "blockchain \<Rightarrow> nat \<Rightarrow> blockcha
   "\<C> \<lceil>m \<equiv> take (length \<C> - m) \<C>"
 
 text \<open>
-  and a function to prune the blocks in a blockchain which have slots greater than a given slot:
+  The \<open>\<C>\<^bsup>\<lceil>m\<^esup>\<close> operator satisfies some simple laws:
+\<close>
+
+lemma zero_blocks_chain_prunning_identity:
+  shows "\<C> \<lceil>0 = \<C>"
+  by simp
+
+lemma long_chain_prunning_emptiness:
+  assumes "m \<ge> length \<C>"
+  shows "\<C> \<lceil>m = []"
+  using assms
+  by simp
+
+lemma append_prune_chain_drop_identity:
+  shows "\<C> \<lceil>m @ drop (length \<C> - m) \<C> = \<C>"
+  by simp
+
+text \<open>
+  Also, we define a function to prune the blocks in a blockchain which have slots greater than a
+  given slot:
 \<close>
 
 abbreviation prune_after :: "slot \<Rightarrow> blockchain \<Rightarrow> blockchain" where
