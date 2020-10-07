@@ -468,6 +468,27 @@ abbreviation is_prefix_of :: "blockchain \<Rightarrow> blockchain \<Rightarrow> 
   "\<C>\<^sub>1 \<preceq> \<C>\<^sub>2 \<equiv> prefix \<C>\<^sub>1 \<C>\<^sub>2"
 
 text \<open>
+  A prefix of a blockchain keeps all properties on its elements that hold for the original blockchain:
+\<close>
+
+lemma prefix_invariancy:
+  assumes "\<forall>i \<in> {0..<length \<C>\<^sub>2}. P (\<C>\<^sub>2 ! i)"
+  and "\<C>\<^sub>1 \<preceq> \<C>\<^sub>2"
+  shows "\<forall>i \<in> {0..<length \<C>\<^sub>1}. P (\<C>\<^sub>1 ! i)"
+  using assms
+proof (intro ballI)
+  fix i
+  assume "i \<in> {0..<length \<C>\<^sub>1}"
+  then have *: "i < length \<C>\<^sub>1"
+    by simp
+  moreover from assms(2) obtain \<C>\<^sub>3 where **: "\<C>\<^sub>2 = \<C>\<^sub>1 @ \<C>\<^sub>3" ..
+  ultimately have "P (\<C>\<^sub>2 ! i)"
+    using assms(1) by simp
+  with * and ** show "P (\<C>\<^sub>1 ! i)"
+    by (simp add: nth_append)
+qed
+
+text \<open>
   We define a function to prune the last \<open>m\<close> blocks in a blockchain \<open>\<C>\<close>, denoted by \<open>\<C>\<^bsup>\<lceil>m\<^esup>\<close> in the
   paper:
 \<close>
