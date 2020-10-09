@@ -17,20 +17,23 @@ method equivalence = (
       match premises in
         inclusion [thin]: "R \<le> S" (cut) for R :: "['a, 'a] \<Rightarrow> bool" and S \<Rightarrow> \<open>
           \<comment> \<open>If the conclusion uses~\<^term>\<open>S\<close>, relax all equivalence premises that use~\<^term>\<open>R\<close>:\<close>
-          match conclusion in
-            "S _ _" (cut) \<Rightarrow> \<open>
-              match premises in
-                equivalences [thin]: "R _ _" (cut, multi) \<Rightarrow> \<open>
-                  insert equivalences [THEN predicate2D [OF inclusion]]
-                \<close> \<bar>
-                _ (cut) \<Rightarrow> \<open>succeed\<close>,
-              match premises in
-                conditional_equivalences [thin]: "_ \<Longrightarrow> R _ _" (cut, multi) \<Rightarrow> \<open>
-                  insert conditional_equivalences [THEN predicate2D [OF inclusion]]
-                \<close> \<bar>
-                _ (cut) \<Rightarrow> \<open>succeed\<close>
-            \<close> \<bar>
-            _ (cut) \<Rightarrow> \<open>succeed\<close>
+          (
+            match conclusion in
+              "S _ _" (cut) \<Rightarrow> \<open>
+                (
+                  match premises in
+                    equivalences [thin]: "R _ _" (cut, multi) \<Rightarrow> \<open>
+                      insert equivalences [THEN predicate2D [OF inclusion]]
+                    \<close>
+                )?,
+                (
+                  match premises in
+                    conditional_equivalences [thin]: "_ \<Longrightarrow> R _ _" (cut, multi) \<Rightarrow> \<open>
+                      insert conditional_equivalences [THEN predicate2D [OF inclusion]]
+                    \<close>
+                )?
+              \<close>
+          )?
         \<close>
     )+
   )?,
