@@ -38,10 +38,6 @@ method equivalence = (
   ((match premises in prem [thin]: "_ &&& _ \<Longrightarrow> _" (cut) \<Rightarrow> \<open>insert prem [curry]\<close>)+)?,
   \<comment> \<open>Turn the equivalence premises into quotient type equalities with process operations lifted:\<close>
   (match premises in prems [thin]: _ (cut, multi) \<Rightarrow> \<open>insert prems [transferred]\<close>)?,
-  (* NOTE:
-    This only works if there is at least one premise, which could come from the premises of the
-    original goal, the chained facts, or the \<^theory_text>\<open>equivalence\<close> fact list.
-  *)
   \<comment> \<open>Try to solve the constructed goal:\<close>
   (
     \<comment> \<open>Turn the conclusion into a quotient type equality with process operations lifted:\<close>
