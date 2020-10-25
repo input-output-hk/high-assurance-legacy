@@ -35,11 +35,11 @@ method equivalence = (
   )?,
   \<comment> \<open>Curry all conditional premises:\<close>
   ((match premises in prem [thin]: "_ &&& _ \<Longrightarrow> _" (cut) \<Rightarrow> \<open>insert prem [curry]\<close>)+)?,
-  \<comment> \<open>Turn the equivalence premises into quotient type equalities with process operations lifted:\<close>
+  \<comment> \<open>Turn the equivalence premises into quotient type equalities:\<close>
   (match premises in prems [thin]: _ (cut, multi) \<Rightarrow> \<open>insert prems [transferred]\<close>)?,
   \<comment> \<open>Try to solve the constructed goal:\<close>
   (
-    \<comment> \<open>Turn the conclusion into a quotient type equality with process operations lifted:\<close>
+    \<comment> \<open>Turn the conclusion into a quotient type equality:\<close>
     simp (no_asm) only: equivalence_transfer [symmetric] id_def comp_def;
       \<comment> \<open>
         We need \<^theory_text>\<open>comp_def\<close> and perhaps \<^theory_text>\<open>id_def\<close>, because @{command lift_definition} creates facts
