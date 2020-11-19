@@ -20,15 +20,15 @@ falls into the following parts:
 The Þ-calculus
 ==============
 
-Currently the `main` branch contains an old framework for labeled
+Currently the `master` branch contains an old framework for labeled
 transition systems and our old process calculus, the ♮-calculus. The new
 labeled transition framework and the Þ-calculus are being developed in
 the branch [`thorn-calculus-preliminary`][thorn-calculus-preliminary].
-Their code will soon be integrated into `main` step by step.
+Their code will soon be integrated into `master` step by step.
 
-[main]:
-    https://github.com/input-output-hk/ouroboros-high-assurance/tree/main
-    "Main branch"
+[master]:
+    https://github.com/input-output-hk/ouroboros-high-assurance/tree/master
+    "Master branch"
 [thorn-calculus-preliminary]:
     https://github.com/input-output-hk/ouroboros-high-assurance/tree/thorn-calculus-preliminary
     "Preliminary branch for the Þ-calculus and the new LTS framework"
