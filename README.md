@@ -5,8 +5,8 @@ The goal of this project is to develop implementations of blockchain
 consensus protocols from the Ouroboros family in a process calculus and
 verify that they have various key properties.
 
-The main part of the code in this repository is written in Isabelle/HOL
-and mainly falls into the following parts:
+The bulk of the code in this repository is written in Isabelle/HOL and
+falls into the following parts:
 
   * A framework for labeled transition systems
 
