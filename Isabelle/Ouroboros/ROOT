@@ -4,6 +4,7 @@ session Ouroboros (ouroboros) = Chi_Calculus +
   description \<open>Formalization of the Ouroboros protocol.\<close>
   theories
     Ouroboros_Praos_Implementation
+    Finite_Map_Extras
   document_files
     "root.tex"
     "root.bib"
