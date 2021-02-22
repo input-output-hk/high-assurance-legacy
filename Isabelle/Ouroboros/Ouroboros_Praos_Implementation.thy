@@ -52,17 +52,17 @@ subsection \<open> Cryptographic hash functions \<close>
 text \<open>
   The paper uses the random oracle model (ROM). In the ROM a hash function is modeled as a random
   oracle, which is basically a magical black box that implements a truly random function. As the ROM
-  is used just for the purposes of the security proof, we model cryptographic hash functions
-  instead. To do so, we define a locale which is parametric in the type \<open>'a\<close> of values to be hashed
-  and in the type \<open>'hash\<close> of hash values. Now, theoretically, cryptographic hash functions have
-  certain properties, e.g. they are one-way functions (meaning that they are difficult to invert by
-  an efficient adversary), they are collision-resistant (meaning that it's difficult for an
-  efficient adversary to find a collision), etc. But, the terms `difficult' and `efficient' are
-  probabilistic in nature, so we cannot enforce these properties in the code:
+  is used just for the purposes of the security proof, we model a collision-free cryptographic hash
+  functions instead. To do so, we define a locale which is parametric in the type \<open>'a\<close> of values to
+  be hashed and in the type \<open>'hash\<close> of hash values. Now, theoretically, cryptographic hash functions
+  have certain properties, e.g. they are one-way functions, meaning that they are difficult to
+  invert by an efficient adversary. But, the terms `difficult' and `efficient' are probabilistic in
+  nature, so we cannot enforce these properties in the code:
 \<close>
 
 locale hashable =
   fixes \<H> :: "'a \<Rightarrow> 'hash"
+  assumes collision_resistance: "inj \<H>"
 
 subsection \<open> Verifiable random functions (VRFs) \<close>
 
@@ -300,7 +300,8 @@ where
 subsection \<open> Genesis block \<close>
 
 text \<open>
-  As defined in the paper, we have a genesis block associated to a chain:
+  As defined in the paper, we have a genesis block associated to a chain. We assume that the same
+  genesis block is used by all chains and stakeholders:
 \<close>
 
 type_synonym 'vkey stakeholder_keys = "
@@ -517,7 +518,7 @@ text \<open>
   leader:
 \<close>
 
-notation powr (\<open>_\<^bsup>_\<^esup>\<close> [80] 80)
+notation powr (\<open>_\<^bsup>_\<^esup>\<close> [81,81] 80)
 
 private definition
   slot_leader_probability :: "relative_stake \<Rightarrow> real" (\<open>\<phi>'(_')\<close>)
@@ -541,7 +542,7 @@ where
   "\<S>\<^bsub>j\<^esub>(\<S>\<^sub>0, _) = \<S>\<^sub>0" if "j = first_epoch"
 | "\<S>\<^bsub>j\<^esub>(\<S>\<^sub>0, \<C>) = (
     let
-      sl\<^sub>e\<^sub>n\<^sub>d = (j - (first_epoch + 1)) * R;
+      sl\<^sub>e\<^sub>n\<^sub>d = (j - (Suc first_epoch)) * R;
       \<C>' = prune_after sl\<^sub>e\<^sub>n\<^sub>d \<C>
     in
       apply_chain \<C>' \<S>\<^sub>0)" if "j > first_epoch"
@@ -554,8 +555,6 @@ text \<open>
   slot leader for a particular slot in an epoch \<open>j\<close> if its VRF output is smaller than a @{emph
   \<open>threshold value\<close>}, denoted by \<open>T\<^bsub>U\<^esub>\<^bsup>j\<^esup>(\<S>\<^sub>0, \<C>)\<close> and defined as follows:
 \<close>
-
-notation power ("_\<^bsup>_\<^esup>" [60] 60)
 
 private definition
   slot_leader_threshold :: "
@@ -613,22 +612,44 @@ text \<open>
 locale chain_selection =
   protocol_parameters +
   hashable \<H>\<^sub>B
-  for \<H>\<^sub>B :: "('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) block \<Rightarrow> 'hash"
+  for \<H>\<^sub>B :: "('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) block \<Rightarrow> 'block_hash"
 begin
 
 context
 begin
 
 text \<open>
-  We can check whether a chain \<open>\<C>\<close> forks from another chain \<open>\<C>'\<close> at most \<open>n\<close> blocks:
+  Since the genesis block is not a proper block in a chain, we have to take care of it separately.
+  So, we need to check whether two chains are `disjoint', i.e., that the only intersection point
+  between them is the genesis block. This amounts to checking whether their first blocks are
+  different, since, by construction, if they differ in the first block then they must necessarily
+  diverge:
 \<close>
 
-(*
-  NOTE: This definition is more general than needed, since it assumes that there may be more than
-  one intersection point, that's why it considers the least one. However, in reality, two chains
-  can have at most one intersection point by the definition of chain. (i.e. hashes to previous
-  blocks)
-*)
+private definition
+  disjoint_chains :: "
+    ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) chain \<Rightarrow>
+    ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) chain \<Rightarrow>
+    bool"
+where
+  "disjoint_chains \<C> \<C>' \<longleftrightarrow> \<H>\<^sub>B (hd \<C>) \<noteq> \<H>\<^sub>B (hd \<C>')" if "\<C> \<noteq> []" and "\<C>' \<noteq> []"
+
+text \<open>
+  Also, we can extract the hashed, longest common prefix of two chains:
+\<close>
+
+private definition
+  hashed_lcp :: "
+    ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) chain \<Rightarrow>
+    ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) chain \<Rightarrow>
+    'block_hash list"
+where
+  "hashed_lcp \<C> \<C>' = Longest_common_prefix {map \<H>\<^sub>B \<C>, map \<H>\<^sub>B \<C>'}"
+
+text \<open>
+  Now, we can check whether a chain \<open>\<C>\<close> forks from another chain \<open>\<C>'\<close> at most \<open>n\<close> blocks, i.e. that
+  we should roll back at most the most recent \<open>n\<close> blocks in \<open>\<C>\<close> in order to switch to \<open>\<C>'\<close>:
+\<close>
 
 private definition
   forks_at_most :: "
@@ -638,10 +659,12 @@ private definition
     bool"
 where
   "forks_at_most n \<C> \<C>' \<longleftrightarrow> (
-    let
-      intersects = \<lambda>i \<C> \<C>'. i \<in> {0..< min (length \<C>) (length \<C>')} \<and> \<H>\<^sub>B(\<C> ! i) \<noteq> \<H>\<^sub>B(\<C>' ! i)
-    in
-      (\<exists>i. intersects i \<C> \<C>') \<longrightarrow> length (drop (LEAST i. intersects i \<C> \<C>') \<C>') \<le> n)"
+    if
+      disjoint_chains \<C> \<C>'
+    then
+      length \<C> \<le> n
+    else
+      length (drop (length (hashed_lcp \<C> \<C>')) \<C>) \<le> n)"
 
 text \<open>
   Also, we can compute the list of the longest chains in a given list of chains \<open>\<CC>\<close>:
