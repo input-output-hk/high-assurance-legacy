@@ -4,6 +4,22 @@ theory Chain_Selection_Property
   imports Main
 begin
 
+subsection \<open> Introduction \<close>
+
+text \<open>
+  In this work we formally verify an implementation of the Ouroboros chain selection rule. It is
+  important to note that this work does not take into account the condition that a candidate chain
+  must not fork more than \<open>k\<close> blocks from the current local chain. The reason for this omission is
+  that, should we include that extra condition, the verification would not be possible. To see this,
+  consider the following counterexample: Assume that \<open>k = 2\<close>, the local chain \<open>\<C>\<close> is \<open>\<G>-A-B-C\<close>, and
+  the candidate chains \<open>\<C>\<^sub>1\<close> and \<open>\<C>\<^sub>2\<close> are \<open>\<G>-A-B-D-E-F\<close> and \<open>\<G>-A-B-G-H-I-J\<close>, respectively, and
+  received in that order. Let $\mathsf{maxvalid}_p$ denote the pairwise comparison version of the
+  usual $\mathsf{maxvalid}$ function as defined in the Ouroboros paper. Thus, we have that
+  $\mathsf{maxvalid}$\<open>(\<C>, [\<C>\<^sub>1, \<C>\<^sub>2]) = \<C>\<^sub>2\<close> (since \<open>\<C>\<^sub>1\<close> and \<open>\<C>\<^sub>2\<close> are valid forks of \<open>\<C>\<close> and \<open>\<C>\<^sub>2\<close> is the
+  longest one), but $\mathsf{maxvalid}_p$\<open>(\<C>, \<C>\<^sub>1) = \<C>\<^sub>1\<close> (since \<open>\<C>\<^sub>1\<close> is a valid fork of \<open>\<C>\<close> plus it is
+  longer) and $\mathsf{maxvalid}_p$\<open>(\<C>\<^sub>1, \<C>\<^sub>2) = \<C>\<^sub>1\<close> (since \<open>\<C>\<^sub>2\<close> forks from \<open>\<C>\<^sub>1\<close> by 3 blocks).
+\<close>
+
 subsection \<open> Preliminaries \<close>
 
 text \<open>
