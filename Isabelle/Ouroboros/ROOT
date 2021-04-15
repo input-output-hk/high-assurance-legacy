@@ -1,0 +1,17 @@
+chapter Ouroboros
+
+session Ouroboros (ouroboros) = HOL +
+  description
+    \<open>Implementations of protocols from the Ouroboros family.\<close>
+  sessions
+    "HOL-Library"
+  directories
+    "Genesis/Chain_Selection_Density_Equivalence"
+  theories
+    "Genesis/Chain_Selection_Density_Equivalence/Timing"
+    "Genesis/Chain_Selection_Density_Equivalence/Protocol_Parameters"
+    "Genesis/Chain_Selection_Density_Equivalence/Blocks"
+    "Genesis/Chain_Selection_Density_Equivalence/Chains"
+    "Genesis/Chain_Selection_Density_Equivalence/Proof"
+  document_files
+    "root.tex"
