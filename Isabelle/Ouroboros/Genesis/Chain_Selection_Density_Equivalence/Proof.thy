@@ -157,7 +157,10 @@ text \<open>
 theorem chain_growth_from_common_prefix:
   assumes "s \<ge> default_window_size"
     and "\<C> \<noteq> []"
-  shows "bslot (tip \<C>) \<le> sl \<and> sl\<^sub>1 + s \<le> sl\<^sub>2 \<and> sl\<^sub>2 \<le> sl \<longrightarrow> |\<C>[sl\<^sub>1 ; sl\<^sub>2]| \<ge> k"
+    and "bslot (tip \<C>) \<le> sl"
+    and "sl\<^sub>1 + s \<le> sl\<^sub>2"
+    and "sl\<^sub>2 \<le> sl"
+  shows "|\<C>[sl\<^sub>1 ; sl\<^sub>2]| \<ge> k"
   sorry
 
 lemma chain_tip_slot_boundedness:
