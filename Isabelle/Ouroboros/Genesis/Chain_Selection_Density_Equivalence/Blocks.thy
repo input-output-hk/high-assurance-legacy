@@ -2,7 +2,7 @@ theory Blocks
 imports Timing
 begin
 
-type_synonym block_body = string
+typedecl block_body
 
 type_synonym block = "slot \<times> block_body"
 

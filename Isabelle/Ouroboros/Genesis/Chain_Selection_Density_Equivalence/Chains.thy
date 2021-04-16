@@ -48,7 +48,7 @@ notation prefix (infix \<open>\<preceq>\<close> 50)
 datatype slot_interval = ClosedInterval slot slot | RightOpenInterval slot
 
 fun subchain_including :: "chain \<Rightarrow> slot_interval \<Rightarrow> chain" where
-  "subchain_including \<C> (ClosedInterval sl sl') = filter (\<lambda>B. bslot B \<in> {sl..sl'}) \<C>"
+  "subchain_including \<C> (ClosedInterval sl\<^sub>1 sl\<^sub>2) = filter (\<lambda>B. bslot B \<in> {sl\<^sub>1..sl\<^sub>2}) \<C>"
 | "subchain_including \<C> (RightOpenInterval sl) = filter (\<lambda>B. bslot B \<ge> sl) \<C>"
 
 syntax
@@ -56,7 +56,7 @@ syntax
   "_SUBCHAIN_INCLUDING_RIGHT_OPEN_INTERVAL" :: "chain \<Rightarrow> slot \<Rightarrow> slot \<Rightarrow> chain" ("_[_;] " [70, 0] 70)
 
 translations
-  "\<C>[sl\<^sub>i;sl\<^sub>j]" \<rightleftharpoons> "CONST subchain_including \<C> (CONST ClosedInterval sl\<^sub>i sl\<^sub>j)"
+  "\<C>[sl\<^sub>1;sl\<^sub>2]" \<rightleftharpoons> "CONST subchain_including \<C> (CONST ClosedInterval sl\<^sub>1 sl\<^sub>2)"
   "\<C>[sl;]" \<rightleftharpoons> "CONST subchain_including \<C> (CONST RightOpenInterval sl)"
 
 lemma left_maximal_subchain_identity:
@@ -142,7 +142,7 @@ qed
 
 lemma chain_partition_by_slot:
   assumes "is_valid_chain \<C>"
-  shows "(\<C>[genesis_slot ; sl]) @ (\<C>[Suc sl ;]) = \<C>"
+  shows "\<C>[genesis_slot ; sl] @ \<C>[Suc sl ;] = \<C>"
   using assms and chain_partition_by_interval by fastforce
 
 lemma adjacent_slots_subchain_suffix:
@@ -168,7 +168,7 @@ lemma chain_tail_prefix_emptiness:
 proof -
   from assms have "bslot B < bslot B'" if "B' \<in> set \<C>" for B'
     using that by simp
-  then have "filter (\<lambda>B'. bslot B' \<in> {0..bslot B}) \<C> = []"
+  then have "filter (\<lambda>B'. bslot B' \<in> {genesis_slot..bslot B}) \<C> = []"
     by (fastforce intro: filter_False)
   then show ?thesis
     by simp

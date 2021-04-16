@@ -184,7 +184,7 @@ next
   then show ?case
   proof -
     { assume "\<C> \<noteq> []"
-      with Cons.IH and Cons.prems(1) and \<open>\<C>[Suc sl ;] = []\<close> have "bslot (last \<C>) \<le> sl"
+      with Cons.IH and Cons.prems(1) and \<open>\<C>[Suc sl ;] = []\<close> have "bslot (tip \<C>) \<le> sl"
         using chain_tail_validity by blast
       with \<open>\<C> \<noteq> []\<close> have ?thesis
         by simp }
@@ -207,7 +207,7 @@ proof (rule ccontr)
     from assms(1,4) have "\<C>[sl ; sl + s] @ \<C>[Suc (sl + s) ;] = \<C>[sl ;]"
       using chain_partition_by_interval by simp
     with assms(3) have "|\<C>[sl ; sl + s] @ \<C>[Suc (sl + s) ;]| \<le> k"
-      by metis
+      by simp
     with True have "|\<C>[sl ; sl + s]| < k"
       by (fastforce dest: le_Suc_ex)
     moreover from assms(2,4) have "\<not> |\<C>[sl ; sl + s]| < k"
