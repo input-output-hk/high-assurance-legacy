@@ -200,7 +200,7 @@ lemma chain_tip_within_window:
     and "s \<ge> default_window_size"
   shows "bslot (tip \<C>) \<le> sl + s"
 proof (rule ccontr)
-  assume *: "\<not> bslot (tip \<C>) \<le> sl + s"
+  assume "\<not> bslot (tip \<C>) \<le> sl + s"
   show False
   proof (cases "\<C>[Suc sl + s ;] \<noteq> []")
     case True
@@ -218,7 +218,7 @@ proof (rule ccontr)
     case False
     with assms(1,2) have "bslot (tip \<C>) \<le> sl + s"
       using chain_tip_slot_boundedness by simp
-    with * show ?thesis
+    with \<open>\<not> bslot (tip \<C>) \<le> sl + s\<close> show ?thesis
       by contradiction
   qed
 qed
