@@ -5,6 +5,7 @@ imports
   "Relation_Methods.Equivalence"
   "Transition_Systems-New.Transition_Systems-Foundations" \<comment> \<open>for the \<^const>\<open>compower\<close> notation\<close>
   "Thorn_Calculus-Foundations"
+  "HOL-Library.BNF_Corec"
 begin
 
 ML_file \<open>binder_preservation.ML\<close>
@@ -57,6 +58,16 @@ translations
 print_translation \<open>
   [preserve_binder_abs_receive_tr' @{const_syntax receive} @{syntax_const "_receive"}]
 \<close>
+
+friend_of_corec receive :: "chan family \<Rightarrow> (val \<Rightarrow> process family) \<Rightarrow> process family" where
+  "receive A \<P> e = Receive (A e) (\<lambda>x. \<P> x e)"
+  by (simp only: receive_def, transfer_prover)
+friend_of_corec parallel :: "process family \<Rightarrow> process family \<Rightarrow> process family" where
+  "parallel P Q e = Parallel (P e) (Q e)"
+  by (simp only: parallel_def, transfer_prover)
+friend_of_corec new_channel :: "(chan \<Rightarrow> process family) \<Rightarrow> process family" where
+  "new_channel \<P> e = NewChannel (\<lambda>a. \<P> a e)"
+  by (simp only: new_channel_def, transfer_prover)
 
 (* FIXME: Mention that \<open>\<circ>\<close> binds stronger than all the above operators and binders. *)
 
