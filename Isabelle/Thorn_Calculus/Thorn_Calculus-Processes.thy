@@ -405,6 +405,11 @@ text \<open>
       time (which could be prevented with \<^theory_text>\<open>use in\<close>, of course).
 \<close>
 
+(*FIXME:
+  The implementation of \<^theory_text>\<open>de_bruijn\<close>, in particular the use and handling of \<open>remove\<close> adaptations, is
+  very ad-hoc and brittle and thus should be reworked.
+*)
+
 method de_bruijn = (
   (
     simp only:
