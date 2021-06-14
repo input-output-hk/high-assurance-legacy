@@ -62,9 +62,11 @@ print_translation \<open>
 friend_of_corec receive :: "chan family \<Rightarrow> (val \<Rightarrow> process family) \<Rightarrow> process family" where
   "receive A \<P> e = Receive (A e) (\<lambda>x. \<P> x e)"
   by (simp only: receive_def, transfer_prover)
+
 friend_of_corec parallel :: "process family \<Rightarrow> process family \<Rightarrow> process family" where
   "parallel P Q e = Parallel (P e) (Q e)"
   by (simp only: parallel_def, transfer_prover)
+
 friend_of_corec new_channel :: "(chan \<Rightarrow> process family) \<Rightarrow> process family" where
   "new_channel \<P> e = NewChannel (\<lambda>a. \<P> a e)"
   by (simp only: new_channel_def, transfer_prover)
