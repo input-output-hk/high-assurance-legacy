@@ -1202,6 +1202,8 @@ qed (respectful, blast)
 
 end
 
+declare parallel_commutativity [thorn_simps]
+
 (*FIXME: Maybe reprove commutativity of parallel composition. *)
 
 lemma parallel_associativity [thorn_simps]:
@@ -1213,11 +1215,11 @@ proof -
     using parallel_left_commutativity .
   also have "\<dots> \<sim>\<^sub>s P \<parallel> (Q \<parallel> R)"
     using parallel_commutativity
-    by process_family_equivalence
+    by equivalence
   finally show ?thesis .
 qed
 
-lemma parallel_left_identity:
+lemma parallel_left_identity [thorn_simps]:
   shows "\<zero> \<parallel> P \<sim>\<^sub>s P"
 proof (coinduction arbitrary: P rule: synchronous.up_to_rule [where \<F> = id])
   case (forward_simulation \<alpha> S P)
@@ -1266,12 +1268,12 @@ next
     by (intro exI conjI, use in assumption) simp
 qed respectful
 
-lemma parallel_right_identity:
+lemma parallel_right_identity [thorn_simps]:
   shows "P \<parallel> \<zero> \<sim>\<^sub>s P"
 proof -
   have "P \<parallel> \<zero> \<sim>\<^sub>s \<zero> \<parallel> P"
     using parallel_commutativity
-    by process_family_equivalence
+    by equivalence
   also have "\<dots> \<sim>\<^sub>s P"
     using parallel_left_identity .
   finally show ?thesis .
@@ -1303,7 +1305,7 @@ next
     by cases
 qed respectful
 
-lemma scope_redundancy:
+lemma scope_redundancy [thorn_simps]:
   shows "\<nu> _. P \<sim>\<^sub>s P"
 proof -
   have "\<nu> _. P \<sim>\<^sub>s \<nu> _. (\<zero> \<parallel> P)"

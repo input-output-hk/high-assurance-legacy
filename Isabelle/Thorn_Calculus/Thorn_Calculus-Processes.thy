@@ -62,9 +62,11 @@ print_translation \<open>
 friend_of_corec receive :: "chan family \<Rightarrow> (val \<Rightarrow> process family) \<Rightarrow> process family" where
   "receive A \<P> e = Receive (A e) (\<lambda>x. \<P> x e)"
   by (simp only: receive_def, transfer_prover)
+
 friend_of_corec parallel :: "process family \<Rightarrow> process family \<Rightarrow> process family" where
   "parallel P Q e = Parallel (P e) (Q e)"
   by (simp only: parallel_def, transfer_prover)
+
 friend_of_corec new_channel :: "(chan \<Rightarrow> process family) \<Rightarrow> process family" where
   "new_channel \<P> e = NewChannel (\<lambda>a. \<P> a e)"
   by (simp only: new_channel_def, transfer_prover)
@@ -323,7 +325,13 @@ text \<open>
 \<close>
 
 definition guard :: "bool \<Rightarrow> process family \<Rightarrow> process family" (infixr \<open>?\<close> 52) where
-  [simp]: "x ? P = (if x then P else \<zero>)"
+  [simp]: "v ? P = (if v then P else \<zero>)"
+
+(*FIXME: Add \<^theory_text>\<open>friend_of_corec\<close> declaration for \<open>guard\<close>. *)
+
+lemma adapted_after_guard:
+  shows "(v ? P) \<guillemotleft> \<E> = v ? P \<guillemotleft> \<E>"
+  by transfer (simp add: comp_def)
 
 text \<open>
   We define parallel composition over a list of processes families.
@@ -352,9 +360,19 @@ print_translation \<open>
   ]
 \<close>
 
+(*FIXME: Add \<^theory_text>\<open>friend_of_corec\<close> declaration for \<open>general_parallel\<close>. *)
+
+lemma adapted_after_general_parallel:
+  shows "(\<Prod>v \<leftarrow> vs. \<P> v) \<guillemotleft> \<E> = \<Prod>v \<leftarrow> vs. \<P> v \<guillemotleft> \<E>"
+  by
+    (induction vs)
+    (simp_all only: general_parallel.simps adapted_after_stop adapted_after_parallel)
+
 lemma general_parallel_conversion_deferral:
   shows "\<Prod>w \<leftarrow> map f vs. \<P> w = \<Prod>v \<leftarrow> vs. \<P> (f v)"
   by (induction vs) simp_all
+
+(*FIXME: Consider permitting tags of arbitrary types that have a total order. *)
 
 definition tagged_new_channel :: "nat \<Rightarrow> (chan \<Rightarrow> process family) \<Rightarrow> process family" where
   [simp]: "tagged_new_channel _ \<P> = \<nu> a. \<P> a"
@@ -386,6 +404,11 @@ text \<open>
     \<^item> The @{method unfold} invocation, when successful, would insert the chained facts a second
       time (which could be prevented with \<^theory_text>\<open>use in\<close>, of course).
 \<close>
+
+(*FIXME:
+  The implementation of \<^theory_text>\<open>de_bruijn\<close>, in particular the use and handling of \<open>remove\<close> adaptations, is
+  very ad-hoc and brittle and thus should be reworked.
+*)
 
 method de_bruijn = (
   (
@@ -494,5 +517,7 @@ method process_family_equivalence = (
     equivalence
   \<close>
 )
+
+(*FIXME: Currently, \<^theory_text>\<open>process_family_equivalence\<close> does not work with tags. *)
 
 end

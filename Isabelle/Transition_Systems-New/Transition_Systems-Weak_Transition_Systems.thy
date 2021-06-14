@@ -8,7 +8,7 @@ begin
 locale weak_transition_system =
   transition_system \<open>transition\<close>
   for transition :: "'a \<Rightarrow> 'p relation" (\<open>'(\<rightarrow>\<lparr>_\<rparr>')\<close>) +
-  fixes silent :: 'a ("\<tau>")
+  fixes silent :: 'a (\<open>\<tau>\<close>)
 begin
 
 subsection \<open>Weak Transitions\<close>

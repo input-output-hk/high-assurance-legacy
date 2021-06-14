@@ -1608,9 +1608,11 @@ next
     by fastforce
 qed
 
-text \<open>
-  The following lemma is stated just for educational purposes.
-\<close>
+(*FIXME:
+  Use a locale to prove the (quasi-)compatibility lemmas only once for \<^theory_text>\<open>synchronous\<close> and
+  \<^theory_text>\<open>synchronous.weak\<close> and then also for \<^theory_text>\<open>synchronous.mixed\<close>. Do only the setup for the solvers
+  explicitly for both \<^theory_text>\<open>synchronous\<close> and \<^theory_text>\<open>synchronous.weak\<close>.
+*)
 
 lemma receive_is_quasi_compatible_with_synchronous_bisimilarity:
   assumes "\<And>n X. (\<lambda>e. (\<P> (X e) \<guillemotleft> suffix n) e) \<sim>\<^sub>s (\<lambda>e. (\<Q> (X e) \<guillemotleft> suffix n) e)"
@@ -1689,13 +1691,22 @@ lemma parallel_is_right_compatible_with_synchronous_bisimilarity:
     assms
   by simp
 
+lemma parallel_is_left_compatible_with_synchronous_bisimilarity:
+  assumes "P\<^sub>1 \<sim>\<^sub>s P\<^sub>2"
+  shows "P\<^sub>1 \<parallel> Q \<sim>\<^sub>s P\<^sub>2 \<parallel> Q"
+  using
+    parallel_is_right_compatible_with_synchronous_bisimilarity and parallel_commutativity
+  and
+    assms
+  by (meson synchronous.bisimilarity_transitivity_rule)
+
 lemma parallel_is_compatible_with_synchronous_bisimilarity:
   assumes "P\<^sub>1 \<sim>\<^sub>s P\<^sub>2" and "Q\<^sub>1 \<sim>\<^sub>s Q\<^sub>2"
   shows "P\<^sub>1 \<parallel> Q\<^sub>1 \<sim>\<^sub>s P\<^sub>2 \<parallel> Q\<^sub>2"
   using
     parallel_is_right_compatible_with_synchronous_bisimilarity
   and
-    parallel_commutativity
+    parallel_is_left_compatible_with_synchronous_bisimilarity
   and
     assms
   by (meson synchronous.bisimilarity_transitivity_rule)
@@ -1809,9 +1820,7 @@ text \<open>
 \<close>
 
 (*FIXME:
-  Make the following changes below:
-
-    \<^item> Remove the remarks about educational purposes.
+  Make the following changes above and below:
 
     \<^item> Add compatibility lemmas for \<open>\<guillemotleft> remove _\<close> and \<open>\<guillemotleft> move\<close>
 
@@ -1819,10 +1828,6 @@ text \<open>
       lemmas for \<open>\<guillemotleft> remove _\<close> and unfolding with \<open>wrapped_remove_adapted\<close> directly in the
       \<^theory_text>\<open>lift_definition\<close> proofs
 *)
-
-text \<open>
-  The following lemma is stated just for educational purposes.
-\<close>
 
 lemma receive_is_quasi_compatible_with_synchronous_weak_bisimilarity:
   assumes "\<And>n X. (\<lambda>e. (\<P> (X e) \<guillemotleft> suffix n) e) \<approx>\<^sub>s (\<lambda>e. (\<Q> (X e) \<guillemotleft> suffix n) e)"
@@ -1848,13 +1853,26 @@ lemma parallel_is_right_compatible_with_synchronous_weak_bisimilarity:
   unfolding synchronous.weak_bisimilarity_is_mixed_bisimilarity
   by simp
 
+lemma parallel_is_left_compatible_with_synchronous_weak_bisimilarity:
+  assumes "P\<^sub>1 \<approx>\<^sub>s P\<^sub>2"
+  shows "P\<^sub>1 \<parallel> Q \<approx>\<^sub>s P\<^sub>2 \<parallel> Q"
+  using
+    parallel_is_right_compatible_with_synchronous_weak_bisimilarity and parallel_commutativity
+  and
+    assms
+  by
+    (meson
+      synchronous.bisimilarity_in_weak_bisimilarity [THEN predicate2D]
+      synchronous.weak.bisimilarity_transitivity_rule
+    )
+
 lemma parallel_is_compatible_with_synchronous_weak_bisimilarity:
   assumes "P\<^sub>1 \<approx>\<^sub>s P\<^sub>2" and "Q\<^sub>1 \<approx>\<^sub>s Q\<^sub>2"
   shows "P\<^sub>1 \<parallel> Q\<^sub>1 \<approx>\<^sub>s P\<^sub>2 \<parallel> Q\<^sub>2"
   using
     parallel_is_right_compatible_with_synchronous_weak_bisimilarity
   and
-    parallel_commutativity [THEN synchronous.bisimilarity_in_weak_bisimilarity [THEN predicate2D]]
+    parallel_is_left_compatible_with_synchronous_weak_bisimilarity
   and
     assms
   by (meson synchronous.weak.bisimilarity_transitivity_rule)
