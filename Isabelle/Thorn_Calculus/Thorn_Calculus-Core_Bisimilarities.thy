@@ -1215,7 +1215,7 @@ proof -
     using parallel_left_commutativity .
   also have "\<dots> \<sim>\<^sub>s P \<parallel> (Q \<parallel> R)"
     using parallel_commutativity
-    by process_family_equivalence
+    by equivalence
   finally show ?thesis .
 qed
 
@@ -1273,7 +1273,7 @@ lemma parallel_right_identity [thorn_simps]:
 proof -
   have "P \<parallel> \<zero> \<sim>\<^sub>s \<zero> \<parallel> P"
     using parallel_commutativity
-    by process_family_equivalence
+    by equivalence
   also have "\<dots> \<sim>\<^sub>s P"
     using parallel_left_identity .
   finally show ?thesis .
