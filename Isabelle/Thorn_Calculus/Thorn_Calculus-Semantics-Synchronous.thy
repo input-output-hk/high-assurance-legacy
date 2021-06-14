@@ -1691,13 +1691,22 @@ lemma parallel_is_right_compatible_with_synchronous_bisimilarity:
     assms
   by simp
 
+lemma parallel_is_left_compatible_with_synchronous_bisimilarity:
+  assumes "P\<^sub>1 \<sim>\<^sub>s P\<^sub>2"
+  shows "P\<^sub>1 \<parallel> Q \<sim>\<^sub>s P\<^sub>2 \<parallel> Q"
+  using
+    parallel_is_right_compatible_with_synchronous_bisimilarity and parallel_commutativity
+  and
+    assms
+  by (meson synchronous.bisimilarity_transitivity_rule)
+
 lemma parallel_is_compatible_with_synchronous_bisimilarity:
   assumes "P\<^sub>1 \<sim>\<^sub>s P\<^sub>2" and "Q\<^sub>1 \<sim>\<^sub>s Q\<^sub>2"
   shows "P\<^sub>1 \<parallel> Q\<^sub>1 \<sim>\<^sub>s P\<^sub>2 \<parallel> Q\<^sub>2"
   using
     parallel_is_right_compatible_with_synchronous_bisimilarity
   and
-    parallel_commutativity
+    parallel_is_left_compatible_with_synchronous_bisimilarity
   and
     assms
   by (meson synchronous.bisimilarity_transitivity_rule)
@@ -1844,13 +1853,26 @@ lemma parallel_is_right_compatible_with_synchronous_weak_bisimilarity:
   unfolding synchronous.weak_bisimilarity_is_mixed_bisimilarity
   by simp
 
+lemma parallel_is_left_compatible_with_synchronous_weak_bisimilarity:
+  assumes "P\<^sub>1 \<approx>\<^sub>s P\<^sub>2"
+  shows "P\<^sub>1 \<parallel> Q \<approx>\<^sub>s P\<^sub>2 \<parallel> Q"
+  using
+    parallel_is_right_compatible_with_synchronous_weak_bisimilarity and parallel_commutativity
+  and
+    assms
+  by
+    (meson
+      synchronous.bisimilarity_in_weak_bisimilarity [THEN predicate2D]
+      synchronous.weak.bisimilarity_transitivity_rule
+    )
+
 lemma parallel_is_compatible_with_synchronous_weak_bisimilarity:
   assumes "P\<^sub>1 \<approx>\<^sub>s P\<^sub>2" and "Q\<^sub>1 \<approx>\<^sub>s Q\<^sub>2"
   shows "P\<^sub>1 \<parallel> Q\<^sub>1 \<approx>\<^sub>s P\<^sub>2 \<parallel> Q\<^sub>2"
   using
     parallel_is_right_compatible_with_synchronous_weak_bisimilarity
   and
-    parallel_commutativity [THEN synchronous.bisimilarity_in_weak_bisimilarity [THEN predicate2D]]
+    parallel_is_left_compatible_with_synchronous_weak_bisimilarity
   and
     assms
   by (meson synchronous.weak.bisimilarity_transitivity_rule)
