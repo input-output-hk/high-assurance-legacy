@@ -329,6 +329,10 @@ definition guard :: "bool \<Rightarrow> process family \<Rightarrow> process fam
 
 (*FIXME: Add \<^theory_text>\<open>friend_of_corec\<close> declaration for \<open>guard\<close>. *)
 
+lemma adapted_after_guard:
+  shows "(v ? P) \<guillemotleft> \<E> = v ? P \<guillemotleft> \<E>"
+  by transfer (simp add: comp_def)
+
 text \<open>
   We define parallel composition over a list of processes families.
 \<close>
@@ -357,6 +361,12 @@ print_translation \<open>
 \<close>
 
 (*FIXME: Add \<^theory_text>\<open>friend_of_corec\<close> declaration for \<open>general_parallel\<close>. *)
+
+lemma adapted_after_general_parallel:
+  shows "(\<Prod>v \<leftarrow> vs. \<P> v) \<guillemotleft> \<E> = \<Prod>v \<leftarrow> vs. \<P> v \<guillemotleft> \<E>"
+  by
+    (induction vs)
+    (simp_all only: general_parallel.simps adapted_after_stop adapted_after_parallel)
 
 lemma general_parallel_conversion_deferral:
   shows "\<Prod>w \<leftarrow> map f vs. \<P> w = \<Prod>v \<leftarrow> vs. \<P> (f v)"
