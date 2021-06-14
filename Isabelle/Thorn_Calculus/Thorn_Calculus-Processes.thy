@@ -325,7 +325,7 @@ text \<open>
 \<close>
 
 definition guard :: "bool \<Rightarrow> process family \<Rightarrow> process family" (infixr \<open>?\<close> 52) where
-  [simp]: "x ? P = (if x then P else \<zero>)"
+  [simp]: "v ? P = (if v then P else \<zero>)"
 
 text \<open>
   We define parallel composition over a list of processes families.
