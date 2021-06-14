@@ -327,6 +327,8 @@ text \<open>
 definition guard :: "bool \<Rightarrow> process family \<Rightarrow> process family" (infixr \<open>?\<close> 52) where
   [simp]: "v ? P = (if v then P else \<zero>)"
 
+(*FIXME: Add \<^theory_text>\<open>friend_of_corec\<close> declaration for \<open>guard\<close>. *)
+
 text \<open>
   We define parallel composition over a list of processes families.
 \<close>
@@ -353,6 +355,8 @@ print_translation \<open>
       @{syntax_const "_general_parallel"}
   ]
 \<close>
+
+(*FIXME: Add \<^theory_text>\<open>friend_of_corec\<close> declaration for \<open>general_parallel\<close>. *)
 
 lemma general_parallel_conversion_deferral:
   shows "\<Prod>w \<leftarrow> map f vs. \<P> w = \<Prod>v \<leftarrow> vs. \<P> (f v)"
