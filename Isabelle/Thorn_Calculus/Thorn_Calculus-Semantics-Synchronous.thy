@@ -1609,7 +1609,7 @@ next
 qed
 
 (*FIXME:
-  Use a locale to proof the (quasi-)compatibility lemmas only once for \<^theory_text>\<open>synchronous\<close> and
+  Use a locale to prove the (quasi-)compatibility lemmas only once for \<^theory_text>\<open>synchronous\<close> and
   \<^theory_text>\<open>synchronous.weak\<close> and then also for \<^theory_text>\<open>synchronous.mixed\<close>. Do only the setup for the solvers
   explicitly for both \<^theory_text>\<open>synchronous\<close> and \<^theory_text>\<open>synchronous.weak\<close>.
 *)
