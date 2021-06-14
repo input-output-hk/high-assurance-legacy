@@ -372,6 +372,8 @@ lemma general_parallel_conversion_deferral:
   shows "\<Prod>w \<leftarrow> map f vs. \<P> w = \<Prod>v \<leftarrow> vs. \<P> (f v)"
   by (induction vs) simp_all
 
+(*FIXME: Consider permitting tags of arbitrary types that have a total order. *)
+
 definition tagged_new_channel :: "nat \<Rightarrow> (chan \<Rightarrow> process family) \<Rightarrow> process family" where
   [simp]: "tagged_new_channel _ \<P> = \<nu> a. \<P> a"
 
@@ -510,5 +512,7 @@ method process_family_equivalence = (
     equivalence
   \<close>
 )
+
+(*FIXME: Currently, \<^theory_text>\<open>process_family_equivalence\<close> does not work with tags. *)
 
 end
