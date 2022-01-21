@@ -26,7 +26,7 @@ primrec basic_action_of :: "proper_action \<Rightarrow> basic_action" where
 subsection \<open>Output Rests\<close>
 
 text \<open>
-  An output rest bundles the scope openings, the output value, and the target process of an output
+  An output rest bundles the scope extrudings, the output value, and the target process of an output
   transition. Its syntax is part of the syntax of output transitions.
 \<close>
 
@@ -36,7 +36,7 @@ datatype 'p output_rest =
 
 text \<open>
   Note that the definition of \<open>output_rest\<close> is actually more permissive than the verbal definition
-  of output rests above: the number of scope openings of a particular \<open>output_rest\<close> value is not
+  of output rests above: the number of scope extrudings of a particular \<open>output_rest\<close> value is not
   necessarily fixed, since the structure of a follow-up output rest in a \<open>WithOpening\<close> value can
   depend on the given channel. This is just to keep the definition simple. It does not cause any
   problems in our later proofs.
@@ -55,8 +55,8 @@ where
   "output_rest_lift \<equiv> rel_output_rest"
 
 lemmas output_rest_lift_intros = output_rest.rel_intros
-lemmas without_opening_lift = output_rest_lift_intros(1)
-lemmas with_opening_lift = output_rest_lift_intros(2)
+lemmas without_extruding_lift = output_rest_lift_intros(1)
+lemmas with_extruding_lift = output_rest_lift_intros(2)
 lemmas output_rest_lift_cases = output_rest.rel_cases
 
 text \<open>
@@ -131,9 +131,9 @@ inductive
 where
   simple:
     "p \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> q \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>\<delta>\<rparr> q" |
-  output_without_opening:
+  output_without_extruding:
     "p \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> q \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> x\<rparr> q" |
-  output_with_opening:
+  output_with_extruding:
     "\<lbrakk> p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b; \<And>b. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> K b \<rbrakk> \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> \<nu> b. K b"
 
 text \<open>
@@ -180,7 +180,7 @@ proof proper.is_simulation_standard
     then show ?case
       by (blast intro: proper_transition.simple simple_lift)
   next
-    case (output_without_opening p a x p' q)
+    case (output_without_extruding p a x p' q)
     from \<open>p \<sim>\<^sub>\<flat> q\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> p'\<close>
     obtain q' where "q \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleleft> x\<rbrace> q'" and "p' \<sim>\<^sub>\<flat> q'"
       using
@@ -191,9 +191,9 @@ proof proper.is_simulation_standard
         basic_residual.distinct(2)
       by smt
     then show ?case
-      by (blast intro: proper_transition.output_without_opening without_opening_lift output_lift)
+      by (blast intro: proper_transition.output_without_extruding without_extruding_lift output_lift)
   next
-    case (output_with_opening p P a K q)
+    case (output_with_extruding p P a K q)
     obtain Q where "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a" and "\<And>a. P a \<sim>\<^sub>\<flat> Q a"
     proof -
       from \<open>p \<sim>\<^sub>\<flat> q\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a\<close>
@@ -220,7 +220,7 @@ proof proper.is_simulation_standard
     *)
     obtain L where "\<And>b. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> L b" and "\<And>b. output_rest_lift (\<sim>\<^sub>\<flat>) (K b) (L b)"
     proof -
-      from output_with_opening.IH and \<open>\<And>b. P b \<sim>\<^sub>\<flat> Q b\<close>
+      from output_with_extruding.IH and \<open>\<And>b. P b \<sim>\<^sub>\<flat> Q b\<close>
       have "\<forall>b. \<exists>l. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> l \<and> output_rest_lift (\<sim>\<^sub>\<flat>) (K b) l"
         using
           proper_lift_cases and
@@ -232,9 +232,9 @@ proof proper.is_simulation_standard
       with that show ?thesis by blast
     qed
     from \<open>q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b\<close> and \<open>\<And>b. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> L b\<close> have "q \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> \<nu> b. L b"
-      by (fact proper_transition.output_with_opening)
+      by (fact proper_transition.output_with_extruding)
     with \<open>\<And>a. output_rest_lift (\<sim>\<^sub>\<flat>) (K a) (L a)\<close> show ?case
-      using with_opening_lift and rel_funI and output_lift
+      using with_extruding_lift and rel_funI and output_lift
       by smt
   qed
 qed
