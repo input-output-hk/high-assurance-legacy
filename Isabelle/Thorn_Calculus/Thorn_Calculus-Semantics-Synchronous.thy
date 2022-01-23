@@ -1607,8 +1607,8 @@ proof
 next
   fix \<alpha> and I and I'
   assume "I \<longrightarrow>\<^sub>s\<lparr>\<alpha> \<bar> Some \<tau>\<rparr> I'"
-  then have "\<alpha> = \<tau>" and "I = I'" if "I T S" for S and T
-    using that by (induction I \<alpha> "Some \<tau>" I' arbitrary: S T) auto
+  then have "\<alpha> = \<tau>" and "I = I'"
+    by (induction I \<alpha> "Some \<tau>" I') auto
   then show "I\<inverse>\<inverse> \<le> (\<Rightarrow>\<^sub>s\<lparr>\<alpha>\<rparr>) OO I'\<inverse>\<inverse>"
     by fastforce
 qed
