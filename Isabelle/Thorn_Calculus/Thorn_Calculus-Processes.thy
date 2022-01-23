@@ -137,7 +137,7 @@ definition create_channel :: "process family \<Rightarrow> process family" (\<op
   [simp]: "\<star> = new_channel \<circ> \<Delta>"
 
 lemma new_channel_as_create_channel:
-  "new_channel = \<star> \<circ> \<nabla>"
+  shows "new_channel = \<star> \<circ> \<nabla>"
   by auto
 
 text \<open>
