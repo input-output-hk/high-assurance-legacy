@@ -12,5 +12,5 @@ session "Transition_Systems-New" (ouroboros) = HOL +
     "Transition_Systems-Weak_Transition_Systems"
     "Transition_Systems-Mutation_Systems"
     "Transition_Systems-Weak_Mutation_Systems"
-document_files
+  document_files
     "root.tex"

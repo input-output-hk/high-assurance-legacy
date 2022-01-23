@@ -17,5 +17,5 @@ session Thorn_Calculus (ouroboros) = HOL +
     "Thorn_Calculus-Semantics-Synchronous"
     "Thorn_Calculus-Semantics-Asynchronous"
     "Thorn_Calculus-Communication"
-document_files
+  document_files
     "root.tex"

@@ -143,9 +143,10 @@ lemmas [induct_simp] =
 lemma adapted_io_transition:
   assumes "S \<rightarrow>\<^sub>s\<lparr>IO \<eta> A n X\<rparr> T"
   shows "S \<guillemotleft> \<E> \<rightarrow>\<^sub>s\<lparr>IO \<eta> (A \<guillemotleft> \<E>) n (X \<guillemotleft> on_suffix n \<E>)\<rparr> T \<guillemotleft> on_suffix n \<E>"
-using assms proof (induction "IO \<eta> A n X" S T arbitrary: \<eta> A n X \<E>)
+using assms proof (induction "IO \<eta> A n X" S T arbitrary: A n X \<E>)
   case sending
   show ?case
+    unfolding \<open>Sending = \<eta>\<close> [symmetric]
     by
       (simp only:
         adapted_after_send
@@ -162,7 +163,9 @@ next
   from scope_opening(4) have "
     \<nabla> \<P> \<guillemotleft> on_tail \<E>
     \<rightarrow>\<^sub>s\<lparr>A \<guillemotleft> tail \<guillemotleft> on_tail \<E> \<triangleleft> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move n i \<guillemotleft> on_suffix n (on_tail \<E>)\<rparr>
-    Q \<guillemotleft> move n i \<guillemotleft> on_suffix n (on_tail \<E>)" .
+    Q \<guillemotleft> move n i \<guillemotleft> on_suffix n (on_tail \<E>)"
+    unfolding \<open>Sending = \<eta>\<close> [symmetric]
+    by (simp only:)
   moreover
   have "\<nabla> \<P> \<guillemotleft> on_tail \<E> = \<nabla> (\<lambda>a. (\<P> a \<guillemotleft> \<E>))"
     unfolding on_tail_def
@@ -187,6 +190,7 @@ next
     "Q \<guillemotleft> move n i \<guillemotleft> on_suffix n (on_tail \<E>) = Q \<guillemotleft> on_suffix (Suc n) \<E> \<guillemotleft> move n i"
     by (simp_all only: composition_adapted [symmetric])
   ultimately show ?case
+    unfolding \<open>Sending = \<eta>\<close> [symmetric]
     using \<open>i \<le> n\<close>
     by (simp only: adapted_after_new_channel synchronous_transition.scope_opening)
 next
@@ -206,9 +210,10 @@ next
     finally show ?thesis .
   qed
   ultimately show ?case
+    unfolding \<open>Receiving = \<eta>\<close> [symmetric]
     by (simp only: adapted_after_receive)
 next
-  case (parallel_left_io P \<eta> A n X P' Q \<E>)
+  case (parallel_left_io P A n X P' Q \<E>)
   from parallel_left_io(2) have "P \<guillemotleft> \<E> \<rightarrow>\<^sub>s\<lparr>IO \<eta> (A \<guillemotleft> \<E>) n (X \<guillemotleft> on_suffix n \<E>)\<rparr> P' \<guillemotleft> on_suffix n \<E>" .
   then have "
     P \<guillemotleft> \<E> \<parallel> Q \<guillemotleft> \<E>
@@ -220,7 +225,7 @@ next
   ultimately show ?case
     by (simp only: adapted_after_parallel)
 next
-  case (parallel_right_io Q \<eta> A n X Q' P \<E>)
+  case (parallel_right_io Q A n X Q' P \<E>)
   from parallel_right_io(2) have "Q \<guillemotleft> \<E> \<rightarrow>\<^sub>s\<lparr>IO \<eta> (A \<guillemotleft> \<E>) n (X \<guillemotleft> on_suffix n \<E>)\<rparr> Q' \<guillemotleft> on_suffix n \<E>" .
   then have "
     P \<guillemotleft> \<E> \<parallel> Q \<guillemotleft> \<E>
@@ -232,7 +237,7 @@ next
   ultimately show ?case
     by (simp only: adapted_after_parallel)
 next
-  case (new_channel_io \<P> \<eta> A n X \<Q> \<E>)
+  case (new_channel_io \<P> A n X \<Q> \<E>)
   from new_channel_io(2) have "
     \<nabla> \<P> \<guillemotleft> on_tail \<E>
     \<rightarrow>\<^sub>s\<lparr>IO \<eta> (A \<guillemotleft> tail \<guillemotleft> on_tail \<E>) n (X \<guillemotleft> remove n \<guillemotleft> on_suffix n (on_tail \<E>))\<rparr>
@@ -960,9 +965,9 @@ end
 context begin
 
 private lemma receiving_transition_with_move_adapted_target_part_backward_rule:
-  assumes "i < n" and "j < n" and "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
-  shows "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j"
-using \<open>P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T\<close> proof (induction "A \<triangleright> \<star>\<^bsup>n\<^esup> X" P T arbitrary: A X)
+  assumes "i < n" and "j < n" and "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
+  shows "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j"
+using \<open>S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T\<close> proof (induction "A \<triangleright> \<star>\<^bsup>n\<^esup> X" S T arbitrary: A X)
   case (receiving A \<P> X)
   have
     "A \<triangleright> x. \<P> x \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> (\<lambda>e. (\<P> ((X \<guillemotleft> move i j) e) \<guillemotleft> suffix n) e)"
@@ -1009,17 +1014,17 @@ qed
 
 lemma receiving_transition_with_move_adapted_target_part:
   assumes "i < n" and "j < n"
-  shows "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j \<longleftrightarrow> P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
+  shows "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j \<longleftrightarrow> S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
 proof
-  assume "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j"
-  then have "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j \<guillemotleft> move j i\<rparr> T \<guillemotleft> move i j \<guillemotleft> move j i"
+  assume "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j"
+  then have "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j \<guillemotleft> move j i\<rparr> T \<guillemotleft> move i j \<guillemotleft> move j i"
     using assms
     by (blast intro: receiving_transition_with_move_adapted_target_part_backward_rule)
-  then show "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
+  then show "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
     by (simp only: composition_adapted [symmetric] back_and_forth_moves identity_adapted)
 next
-  assume "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
-  then show "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j"
+  assume "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
+  then show "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j"
     using assms
     by (intro receiving_transition_with_move_adapted_target_part_backward_rule)
 qed
@@ -1195,7 +1200,7 @@ proof (unfold_locales, fold synchronous_shortcut_transition_def)
   fix \<alpha> and \<omega> and I and I'
   assume "I \<longrightarrow>\<^sub>s\<lparr>\<alpha> \<bar> \<omega>\<rparr> I'"
   then show "I \<in> \<U> \<and> I' \<in> \<U>"
-  using move_is_injective and on_suffix_is_injective
+    using move_is_injective and on_suffix_is_injective
     by
       induction
       (blast intro: universe.intros suffix_adapted_mutation_in_universe power_in_universe)+
@@ -1602,8 +1607,8 @@ proof
 next
   fix \<alpha> and I and I'
   assume "I \<longrightarrow>\<^sub>s\<lparr>\<alpha> \<bar> Some \<tau>\<rparr> I'"
-  then have "\<alpha> = \<tau>" and "I = I'" if "I T S" for S and T
-    using that by (induction I \<alpha> "Some \<tau>" I' arbitrary: S T) auto
+  then have "\<alpha> = \<tau>" and "I = I'"
+    by (induction I \<alpha> "Some \<tau>" I') auto
   then show "I\<inverse>\<inverse> \<le> (\<Rightarrow>\<^sub>s\<lparr>\<alpha>\<rparr>) OO I'\<inverse>\<inverse>"
     by fastforce
 qed
