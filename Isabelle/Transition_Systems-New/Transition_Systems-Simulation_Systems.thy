@@ -3,9 +3,10 @@ section \<open>Simulation Systems\<close>
 theory "Transition_Systems-Simulation_Systems"
 imports
   "Transition_Systems-Foundations"
-  "HOL-Library.Lattice_Syntax"
   "HOL-Eisbach.Eisbach"
 begin
+
+unbundle lattice_syntax
 
 locale simulation_system =
   fixes original_transition :: "'a \<Rightarrow> 'p relation" (\<open>'(\<rightharpoonup>\<lparr>_\<rparr>')\<close>)
