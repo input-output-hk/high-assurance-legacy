@@ -1333,7 +1333,7 @@ end
   \<^item> Make \<^theory_text>\<open>communication_with_rightmost_adjustment\<close> conform with \<^theory_text>\<open>parallel_left_scope_extension\<close>.
 
   \<^item> Prove a right variant and use it in the proof of \<^theory_text>\<open>parallel_left_commutativity\<close> (swap the use
-    an non-use of \<^theory_text>\<open>THEN synchronous.bisimilarity_symmetry_rule\<close>.
+    and non-use of \<^theory_text>\<open>THEN synchronous.bisimilarity_symmetry_rule\<close>.
 *)
 
 (* FIXME:
