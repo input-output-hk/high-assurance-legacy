@@ -1325,18 +1325,6 @@ qed
 
 end
 
-lemma example:
-  assumes "\<And>\<P> \<Q> \<R> \<S>. \<nu> a b c. (\<P> a \<parallel> \<Q> b \<parallel> \<R> b a \<parallel> \<S> c a) \<sim>\<^sub>s \<zero>"
-  shows "\<nu> a b c. (\<box> a \<triangleleft> undefined \<parallel> \<Q> b \<parallel> \<R> b a \<parallel> \<S> c a) \<parallel> T \<sim>\<^sub>s \<zero> \<parallel> T"
-  using assms
-  by process_family_equivalence
-
-lemma trivial_example:
-  assumes "\<And>\<P> \<Q> \<R> \<S>. \<nu> a b c. (\<P> a \<parallel> \<Q> b \<parallel> \<R> b a \<parallel> \<S> c a) \<sim>\<^sub>s \<zero>"
-  shows "\<zero> \<parallel> T \<sim>\<^sub>s \<zero> \<parallel> T"
-  using assms
-  by process_family_equivalence
-
 (*FIXME:
   \<^item> Change the variable names in the statement of \<^theory_text>\<open>communication_with_rightmost_adjustment\<close>.
 
@@ -1346,11 +1334,6 @@ lemma trivial_example:
 
   \<^item> Prove a right variant and use it in the proof of \<^theory_text>\<open>parallel_left_commutativity\<close> (swap the use
     an non-use of \<^theory_text>\<open>THEN synchronous.bisimilarity_symmetry_rule\<close>.
-*)
-
-(* FIXME:
-  Put the step-by-step rewriting of \<open>\<nu> a b c. (\<P> a \<parallel> \<Q> b \<parallel> \<R> b a \<parallel> \<S> c a)\<close> (which is not a
-  proposition) as an example into the documentation.
 *)
 
 (* FIXME:
