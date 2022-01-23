@@ -1195,7 +1195,7 @@ proof (unfold_locales, fold synchronous_shortcut_transition_def)
   fix \<alpha> and \<omega> and I and I'
   assume "I \<longrightarrow>\<^sub>s\<lparr>\<alpha> \<bar> \<omega>\<rparr> I'"
   then show "I \<in> \<U> \<and> I' \<in> \<U>"
-  using move_is_injective and on_suffix_is_injective
+    using move_is_injective and on_suffix_is_injective
     by
       induction
       (blast intro: universe.intros suffix_adapted_mutation_in_universe power_in_universe)+
