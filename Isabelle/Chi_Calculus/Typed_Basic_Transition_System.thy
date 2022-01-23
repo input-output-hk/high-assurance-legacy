@@ -49,7 +49,7 @@ lemma typed_receiving: "\<aa> \<triangleright>\<degree> \<xx>. \<PP> \<xx> \<rig
   using receiving and typed_untyped_value
   by metis
 lemma typed_opening: "\<nu>\<degree>\<aa>. \<PP> \<aa> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<PP> \<aa>"
-  by (fact opening)
+  by (fact scope_opening)
 lemma typed_opening_left: "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<PP> \<aa> \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<PP> \<aa> \<parallel> q"
   by (fact opening_left)
 lemma typed_opening_right: "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> \<QQ> \<aa> \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<aa>\<rbrace> p \<parallel> \<QQ> \<aa>"

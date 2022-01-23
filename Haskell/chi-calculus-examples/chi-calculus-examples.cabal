@@ -15,7 +15,7 @@ description:   The χ-calculus is a process calculus that is used in the
                high-assurance implementation of the Ouroboros Genesis protocol.
                This package contains examples of χ-calculus programs.
 category:      Concurrency
-tested-with:   GHC == 8.6.2
+tested-with:   GHC == 8.10.2
 
 source-repository head
 
