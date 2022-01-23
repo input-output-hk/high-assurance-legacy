@@ -143,9 +143,10 @@ lemmas [induct_simp] =
 lemma adapted_io_transition:
   assumes "S \<rightarrow>\<^sub>s\<lparr>IO \<eta> A n X\<rparr> T"
   shows "S \<guillemotleft> \<E> \<rightarrow>\<^sub>s\<lparr>IO \<eta> (A \<guillemotleft> \<E>) n (X \<guillemotleft> on_suffix n \<E>)\<rparr> T \<guillemotleft> on_suffix n \<E>"
-using assms proof (induction "IO \<eta> A n X" S T arbitrary: \<eta> A n X \<E>)
+using assms proof (induction "IO \<eta> A n X" S T arbitrary: A n X \<E>)
   case sending
   show ?case
+    unfolding \<open>Sending = \<eta>\<close> [symmetric]
     by
       (simp only:
         adapted_after_send
@@ -162,7 +163,9 @@ next
   from scope_opening(4) have "
     \<nabla> \<P> \<guillemotleft> on_tail \<E>
     \<rightarrow>\<^sub>s\<lparr>A \<guillemotleft> tail \<guillemotleft> on_tail \<E> \<triangleleft> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move n i \<guillemotleft> on_suffix n (on_tail \<E>)\<rparr>
-    Q \<guillemotleft> move n i \<guillemotleft> on_suffix n (on_tail \<E>)" .
+    Q \<guillemotleft> move n i \<guillemotleft> on_suffix n (on_tail \<E>)"
+    unfolding \<open>Sending = \<eta>\<close> [symmetric]
+    by (simp only:)
   moreover
   have "\<nabla> \<P> \<guillemotleft> on_tail \<E> = \<nabla> (\<lambda>a. (\<P> a \<guillemotleft> \<E>))"
     unfolding on_tail_def
@@ -187,6 +190,7 @@ next
     "Q \<guillemotleft> move n i \<guillemotleft> on_suffix n (on_tail \<E>) = Q \<guillemotleft> on_suffix (Suc n) \<E> \<guillemotleft> move n i"
     by (simp_all only: composition_adapted [symmetric])
   ultimately show ?case
+    unfolding \<open>Sending = \<eta>\<close> [symmetric]
     using \<open>i \<le> n\<close>
     by (simp only: adapted_after_new_channel synchronous_transition.scope_opening)
 next
@@ -206,9 +210,10 @@ next
     finally show ?thesis .
   qed
   ultimately show ?case
+    unfolding \<open>Receiving = \<eta>\<close> [symmetric]
     by (simp only: adapted_after_receive)
 next
-  case (parallel_left_io P \<eta> A n X P' Q \<E>)
+  case (parallel_left_io P A n X P' Q \<E>)
   from parallel_left_io(2) have "P \<guillemotleft> \<E> \<rightarrow>\<^sub>s\<lparr>IO \<eta> (A \<guillemotleft> \<E>) n (X \<guillemotleft> on_suffix n \<E>)\<rparr> P' \<guillemotleft> on_suffix n \<E>" .
   then have "
     P \<guillemotleft> \<E> \<parallel> Q \<guillemotleft> \<E>
@@ -220,7 +225,7 @@ next
   ultimately show ?case
     by (simp only: adapted_after_parallel)
 next
-  case (parallel_right_io Q \<eta> A n X Q' P \<E>)
+  case (parallel_right_io Q A n X Q' P \<E>)
   from parallel_right_io(2) have "Q \<guillemotleft> \<E> \<rightarrow>\<^sub>s\<lparr>IO \<eta> (A \<guillemotleft> \<E>) n (X \<guillemotleft> on_suffix n \<E>)\<rparr> Q' \<guillemotleft> on_suffix n \<E>" .
   then have "
     P \<guillemotleft> \<E> \<parallel> Q \<guillemotleft> \<E>
@@ -232,7 +237,7 @@ next
   ultimately show ?case
     by (simp only: adapted_after_parallel)
 next
-  case (new_channel_io \<P> \<eta> A n X \<Q> \<E>)
+  case (new_channel_io \<P> A n X \<Q> \<E>)
   from new_channel_io(2) have "
     \<nabla> \<P> \<guillemotleft> on_tail \<E>
     \<rightarrow>\<^sub>s\<lparr>IO \<eta> (A \<guillemotleft> tail \<guillemotleft> on_tail \<E>) n (X \<guillemotleft> remove n \<guillemotleft> on_suffix n (on_tail \<E>))\<rparr>
