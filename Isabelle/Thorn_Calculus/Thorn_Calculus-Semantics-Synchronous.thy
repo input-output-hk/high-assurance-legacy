@@ -960,9 +960,9 @@ end
 context begin
 
 private lemma receiving_transition_with_move_adapted_target_part_backward_rule:
-  assumes "i < n" and "j < n" and "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
-  shows "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j"
-using \<open>P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T\<close> proof (induction "A \<triangleright> \<star>\<^bsup>n\<^esup> X" P T arbitrary: A X)
+  assumes "i < n" and "j < n" and "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
+  shows "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j"
+using \<open>S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T\<close> proof (induction "A \<triangleright> \<star>\<^bsup>n\<^esup> X" S T arbitrary: A X)
   case (receiving A \<P> X)
   have
     "A \<triangleright> x. \<P> x \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> (\<lambda>e. (\<P> ((X \<guillemotleft> move i j) e) \<guillemotleft> suffix n) e)"
@@ -1009,17 +1009,17 @@ qed
 
 lemma receiving_transition_with_move_adapted_target_part:
   assumes "i < n" and "j < n"
-  shows "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j \<longleftrightarrow> P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
+  shows "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j \<longleftrightarrow> S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
 proof
-  assume "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j"
-  then have "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j \<guillemotleft> move j i\<rparr> T \<guillemotleft> move i j \<guillemotleft> move j i"
+  assume "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j"
+  then have "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j \<guillemotleft> move j i\<rparr> T \<guillemotleft> move i j \<guillemotleft> move j i"
     using assms
     by (blast intro: receiving_transition_with_move_adapted_target_part_backward_rule)
-  then show "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
+  then show "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
     by (simp only: composition_adapted [symmetric] back_and_forth_moves identity_adapted)
 next
-  assume "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
-  then show "P \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j"
+  assume "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X\<rparr> T"
+  then show "S \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move i j\<rparr> T \<guillemotleft> move i j"
     using assms
     by (intro receiving_transition_with_move_adapted_target_part_backward_rule)
 qed

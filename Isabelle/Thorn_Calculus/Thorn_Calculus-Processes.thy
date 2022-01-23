@@ -150,7 +150,7 @@ lemma family_uncurry_after_stop:
   by simp
 
 lemma family_uncurry_after_send:
-  shows "\<nabla> (\<lambda>b. \<A> b \<triangleleft> X b) = \<nabla> \<A> \<triangleleft> \<nabla> X"
+  shows "\<nabla> (\<lambda>b. \<A> b \<triangleleft> \<X> b) = \<nabla> \<A> \<triangleleft> \<nabla> \<X>"
   by simp
 
 lemma family_uncurry_after_receive:
