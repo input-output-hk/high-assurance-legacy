@@ -38,8 +38,8 @@ next
   case (backward_simulation \<alpha> S)
   then show ?case
   proof cases
-    case opening
-    from opening(4) show ?thesis
+    case scope_opening
+    from scope_opening(4) show ?thesis
       by cases
   next
     case (new_channel_io \<eta> A' n X \<Q>)
@@ -91,11 +91,11 @@ proof (coinduction arbitrary: \<P> rule: synchronous.symmetric_up_to_rule [where
   case (simulation \<alpha> S \<P>)
   then show ?case
   proof cases
-    case (opening i n X A)
+    case (scope_opening i n X A)
     from \<open>\<nu> b. \<nabla> (\<lambda>a. \<P> a b) \<rightarrow>\<^sub>s\<lparr>A \<guillemotleft> tail \<triangleleft> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move n i\<rparr> S \<guillemotleft> move n i\<close> show ?thesis
     proof cases
-      case (opening j m)
-      from opening(4) have "
+      case (scope_opening j m)
+      from scope_opening(4) have "
         \<nabla> (\<lambda>b. \<nabla> (\<lambda>a. \<P> a b)) \<guillemotleft> move 0 1
         \<rightarrow>\<^sub>s\<lparr>A \<guillemotleft> tail \<guillemotleft> tail \<guillemotleft> move 0 1 \<triangleleft> \<star>\<^bsup>m\<^esup> X \<guillemotleft> move (Suc m) i \<guillemotleft> move m j \<guillemotleft> on_suffix m (move 0 1)\<rparr>
         S \<guillemotleft> move (Suc m) i \<guillemotleft> move m j \<guillemotleft> on_suffix m (move 0 1)"
@@ -222,7 +222,7 @@ proof (coinduction arbitrary: \<P> rule: synchronous.symmetric_up_to_rule [where
         using \<open>dependent_on_chan_at i X\<close> and \<open>dependent_on_chan_at j (X \<guillemotleft> move n i)\<close>
         unfolding \<open>n = Suc m\<close>
         using \<open>i' \<le> Suc m\<close> and \<open>j' \<le> m\<close>
-        by (simp only: synchronous_transition.opening family_uncurry_after_new_channel)
+        by (simp only: synchronous_transition.scope_opening family_uncurry_after_new_channel)
       then show ?thesis
         unfolding \<open>\<alpha> = A \<triangleleft> \<star>\<^bsup>Suc n\<^esup> X\<close> and \<open>n = Suc m\<close>
         by (intro exI conjI, assumption) simp
@@ -300,7 +300,7 @@ proof (coinduction arbitrary: \<P> rule: synchronous.symmetric_up_to_rule [where
         using \<open>i \<le> n\<close> and \<open>dependent_on_chan_at i X\<close>
         by
           (simp only:
-            synchronous_transition.opening
+            synchronous_transition.scope_opening
             family_uncurry_after_new_channel
             synchronous_transition.new_channel_io
           )
@@ -312,7 +312,7 @@ proof (coinduction arbitrary: \<P> rule: synchronous.symmetric_up_to_rule [where
     case (new_channel_io \<eta> A n X \<Q>)
     from \<open>\<nu> b. \<nabla> (\<lambda>a. \<P> a b) \<rightarrow>\<^sub>s\<lparr>IO \<eta> (A \<guillemotleft> tail) n (X \<guillemotleft> remove n)\<rparr> \<nabla>\<^bsub>n\<^esub> \<Q>\<close> show ?thesis
     proof cases
-      case (opening i m)
+      case (scope_opening i m)
       have "dependent_on_chan_at i (X \<guillemotleft> remove (Suc m)) \<longleftrightarrow> dependent_on_chan_at i X"
       proof -
         have "
@@ -326,7 +326,7 @@ proof (coinduction arbitrary: \<P> rule: synchronous.symmetric_up_to_rule [where
         finally show ?thesis .
       qed
       moreover
-      from opening(5) have "
+      from scope_opening(5) have "
         \<nabla> (\<lambda>b. \<nabla> (\<lambda>a. \<P> a b)) \<guillemotleft> move 0 1
         \<rightarrow>\<^sub>s\<lparr>A \<guillemotleft> tail \<guillemotleft> tail \<guillemotleft> move 0 1 \<triangleleft> \<star>\<^bsup>m\<^esup> X \<guillemotleft> remove (Suc m) \<guillemotleft> move m i \<guillemotleft> on_suffix m (move 0 1)\<rparr>
         \<nabla>\<^bsub>Suc m\<^esub> \<Q> \<guillemotleft> move m i \<guillemotleft> on_suffix m (move 0 1)"
@@ -382,7 +382,7 @@ proof (coinduction arbitrary: \<P> rule: synchronous.symmetric_up_to_rule [where
             synchronous_transition.new_channel_io
             family_uncurry_after_new_channel
             adapted_after_new_channel
-            synchronous_transition.opening
+            synchronous_transition.scope_opening
           )
       then show ?thesis
         unfolding \<open>\<alpha> = IO \<eta> A n X\<close> and \<open>\<eta> = Sending\<close> and \<open>n = Suc m\<close> and \<open>S = \<nu> a. \<Q> a\<close>
@@ -601,7 +601,7 @@ proof (coinduction arbitrary: \<P> Q rule: synchronous.up_to_rule [where \<F> = 
     case (communication \<eta> \<mu> A n X R Q')
     from \<open>\<nu> a. \<P> a \<rightarrow>\<^sub>s\<lparr>IO \<eta> A n X\<rparr> R\<close> show ?thesis
     proof cases
-      case (opening i m)
+      case (scope_opening i m)
       from \<open>\<eta> \<noteq> \<mu>\<close> and \<open>\<eta> = Sending\<close> have "\<mu> = Receiving"
         by (cases \<mu>) simp
       from \<open>Q \<rightarrow>\<^sub>s\<lparr>IO \<mu> A n X\<rparr> Q'\<close> and \<open>i \<le> m\<close> have "Q \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>Suc m\<^esup> X \<guillemotleft> move m i\<rparr> Q' \<guillemotleft> move m i"
@@ -675,7 +675,7 @@ proof (coinduction arbitrary: \<P> Q rule: synchronous.up_to_rule [where \<F> = 
     case (parallel_left_io \<eta> A n X R)
     from \<open>\<nu> a. \<P> a \<rightarrow>\<^sub>s\<lparr>IO \<eta> A n X\<rparr> R\<close> show ?thesis
     proof cases
-      case (opening i m)
+      case (scope_opening i m)
       from \<open>\<nabla> \<P> \<rightarrow>\<^sub>s\<lparr>A \<guillemotleft> tail \<triangleleft> \<star>\<^bsup>m\<^esup> X \<guillemotleft> move m i\<rparr> R \<guillemotleft> move m i\<close>
       have "\<nabla> \<P> \<parallel> Q \<guillemotleft> tail \<rightarrow>\<^sub>s\<lparr>A \<guillemotleft> tail \<triangleleft> \<star>\<^bsup>m\<^esup> X \<guillemotleft> move m i\<rparr> R \<guillemotleft> move m i \<parallel> Q \<guillemotleft> tail \<guillemotleft> suffix m"
         by (fact synchronous_transition.parallel_left_io)
@@ -687,7 +687,7 @@ proof (coinduction arbitrary: \<P> Q rule: synchronous.up_to_rule [where \<F> = 
           (transfer, simp)
       with \<open>i \<le> m\<close> and \<open>dependent_on_chan_at i X\<close>
       have "\<nu> a. (\<P> a \<parallel> Q) \<rightarrow>\<^sub>s\<lparr>A \<triangleleft> \<star>\<^bsup>Suc m\<^esup> X\<rparr> R \<parallel> Q \<guillemotleft> suffix (Suc m)"
-        by (fact synchronous_transition.opening)
+        by (fact synchronous_transition.scope_opening)
       then show ?thesis
         unfolding \<open>\<alpha> = IO \<eta> A n X\<close> and \<open>S = R \<parallel> Q \<guillemotleft> suffix n\<close> and \<open>\<eta> = Sending\<close> and \<open>n = Suc m\<close>
         by (intro exI conjI, use in assumption) simp
@@ -762,7 +762,7 @@ next
   case (backward_simulation \<alpha> S \<P> Q)
   then show ?case
   proof cases
-    case (opening i n X A)
+    case (scope_opening i n X A)
     from \<open>\<nabla> \<P> \<parallel> Q \<guillemotleft> tail \<rightarrow>\<^sub>s\<lparr>A \<guillemotleft> tail \<triangleleft> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move n i\<rparr> S \<guillemotleft> move n i\<close> show ?thesis
     proof cases
       case (parallel_left_io P')
@@ -782,7 +782,7 @@ next
       have "\<nu> a. \<P> a \<rightarrow>\<^sub>s\<lparr>A \<triangleleft> \<star>\<^bsup>Suc n\<^esup> X\<rparr> P' \<guillemotleft> move i n"
         by
           (simp only:
-            synchronous_transition.opening
+            synchronous_transition.scope_opening
             composition_adapted [symmetric]
             back_and_forth_moves identity_adapted
           )
@@ -901,7 +901,7 @@ next
             unfolding \<open>\<eta> = Sending\<close> and \<open>A' = A \<guillemotleft> tail\<close>
             by (simp only: identity_as_move [symmetric] identity_adapted)
           with \<open>dependent_on_chan_at n X'\<close> have "\<nu> a. \<P> a \<rightarrow>\<^sub>s\<lparr>A \<triangleleft> \<star>\<^bsup>Suc n\<^esup> X'\<rparr> P'"
-            by (simp only: opening [where i = n])
+            by (simp only: scope_opening [where i = n])
           moreover
           from \<open>Q \<guillemotleft> remove 0 \<rightarrow>\<^sub>s\<lparr>A \<guillemotleft> remove 0 \<triangleright> \<star>\<^bsup>n\<^esup> X'\<rparr> U\<close> have "Q \<rightarrow>\<^sub>s\<lparr>A \<triangleright> \<star>\<^bsup>Suc n\<^esup> X'\<rparr> U"
             by
@@ -1287,7 +1287,7 @@ proof (coinduction rule: synchronous.up_to_rule [where \<F> = \<bottom>])
   case (forward_simulation \<alpha> S)
   from \<open>\<nu> _. \<zero> \<rightarrow>\<^sub>s\<lparr>\<alpha>\<rparr> S\<close> show ?case
   proof cases
-    case (opening i n X A)
+    case (scope_opening i n X A)
     from \<open>\<zero> \<rightarrow>\<^sub>s\<lparr>A \<guillemotleft> tail \<triangleleft> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move n i\<rparr> S \<guillemotleft> move n i\<close> show ?thesis
       by cases
   next

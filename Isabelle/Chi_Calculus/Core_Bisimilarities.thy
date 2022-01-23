@@ -40,12 +40,12 @@ private lemma parallel_scope_extension_left_subaux_opening_conveyance:
   shows "\<exists>T. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. parallel_scope_extension_left_subaux q (P a) (T a))"
 using transition and initial_relation and transition
 proof (induction (no_simp) p "\<lbrace>\<nu> a\<rbrace> P a" arbitrary: P t)
-  case (opening P P' t)
-  from opening.prems show ?case
+  case (scope_opening P P' t)
+  from scope_opening.prems show ?case
   proof cases
     case with_new_channel
     with \<open>\<lbrace>\<nu> a\<rbrace> P a = \<lbrace>\<nu> a\<rbrace> P' a\<close> show ?thesis
-      using basic_transition.opening
+      using basic_transition.scope_opening
       by blast
   qed parallel_scope_extension_left_subaux_opening_left_conveyance
 next
@@ -192,8 +192,8 @@ next
       using parallel_scope_extension_left_aux.without_new_channel_ltr and acting_lift
       by auto
   next
-    case (opening S t)
-    from opening.prems show ?case
+    case (scope_opening S t)
+    from scope_opening.prems show ?case
     proof cases
       case (without_new_channel_rtl q p)
       from \<open>parallel_scope_extension_left_subaux q p (\<nu> a. S a)\<close> show ?thesis
@@ -201,7 +201,7 @@ next
         case with_new_channel
         with \<open>t = p \<parallel> q\<close> show ?thesis
           using
-            basic_transition.opening and
+            basic_transition.scope_opening and
             opening_left and
             parallel_scope_extension_left_aux.without_new_channel_rtl and
             opening_lift and
@@ -211,7 +211,7 @@ next
     next
       case with_new_channel
       then show ?thesis
-        using basic_transition.opening and opening_lift and rel_funI
+        using basic_transition.scope_opening and opening_lift and rel_funI
         by metis
     qed
   next
@@ -364,8 +364,8 @@ proof (standard, intro allI, intro impI)
   assume "\<nu> b. \<nu> a. P a b \<rightarrow>\<^sub>\<flat>c"
   then have "\<nu> a. \<nu> b. P a b \<rightarrow>\<^sub>\<flat>c"
   proof (induction "\<nu> b. \<nu> a. P a b" c)
-    case opening
-    show ?case using basic_transition.opening by (intro opening_scope)
+    case scope_opening
+    show ?case using basic_transition.scope_opening by (intro opening_scope)
   next
     case scoped_acting
     then show ?case by (simp add: basic_transition.scoped_acting)
@@ -438,12 +438,12 @@ next
         by (simp add: no_basic_transitions_from_stop)
     qed parallel_neutrality_left_aux_trivial_conveyance
   next
-    case opening
-    from opening.prems show ?case
+    case scope_opening
+    from scope_opening.prems show ?case
     proof cases
       case with_new_channel
       then show ?thesis
-        using basic_transition.opening and opening_lift and rel_funI
+        using basic_transition.scope_opening and opening_lift and rel_funI
         by metis
     qed parallel_neutrality_left_aux_trivial_conveyance
   next
@@ -509,12 +509,12 @@ private lemma nested_parallel_commutativity_subaux_opening_conveyance:
   shows "\<exists>T. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. nested_parallel_commutativity_subaux r (U a) (T a))"
 using transition and initial_relation
 proof (induction u "\<lbrace>\<nu> a\<rbrace> U a" arbitrary: U t)
-  case (opening U t)
-  from opening.prems show ?case
+  case (scope_opening U t)
+  from scope_opening.prems show ?case
   proof cases
     case with_new_channel
     then show ?thesis
-      using basic_transition.opening
+      using basic_transition.scope_opening
       by blast
   qed
 next
@@ -673,8 +673,8 @@ next
         acting_lift
       by auto
   next
-    case (opening S t)
-    from opening.prems show ?case
+    case (scope_opening S t)
+    from scope_opening.prems show ?case
     proof cases
       case (without_new_channel_rtl r u)
       from \<open>nested_parallel_commutativity_subaux r u (\<nu> a. S a)\<close> show ?thesis
@@ -682,7 +682,7 @@ next
         case with_new_channel
         with \<open>t = u \<parallel> r\<close> show ?thesis
           using
-            basic_transition.opening and
+            basic_transition.scope_opening and
             opening_left and
             nested_parallel_commutativity_aux.without_new_channel_rtl and
             opening_lift and
@@ -692,7 +692,7 @@ next
     next
       case with_new_channel
       then show ?thesis
-        using basic_transition.opening and opening_lift
+        using basic_transition.scope_opening and opening_lift
         by blast
     qed
   next
@@ -927,7 +927,7 @@ qed
 private lemma opening_transitions_from_new_channel_receive:
   "\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b \<Longrightarrow> Q b = a \<triangleright> x . P x b"
 proof (induction "\<nu> b. a \<triangleright> x. P x b" "\<lbrace>\<nu> b\<rbrace> Q b" arbitrary: Q rule: basic_transition.induct)
-  case opening
+  case scope_opening
   show ?case by (fact refl)
 next
   case scoped_opening
@@ -1018,7 +1018,7 @@ proof -
   assume "\<nu> a. \<zero> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a"
   then show "P a = \<zero>"
   proof (induction "\<nu> a. \<zero>" "\<lbrace>\<nu> a\<rbrace> P a" arbitrary: P)
-    case opening
+    case scope_opening
     show ?case by (fact refl)
   next
     case scoped_opening

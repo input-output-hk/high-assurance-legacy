@@ -9,11 +9,11 @@ proof
   assume ?v
   then show False
   proof cases
-    case opening
-    from opening(4) show False
+    case scope_opening
+    from scope_opening(4) show False
     proof cases
-      case opening
-      from opening(4) show False
+      case scope_opening
+      from scope_opening(4) show False
         by cases
     next
       case new_channel_io
@@ -24,8 +24,8 @@ proof
     case new_channel_io
     from new_channel_io(3) show False
     proof cases
-      case opening
-      from opening(5) show False
+      case scope_opening
+      from scope_opening(5) show False
         by cases
     next
       case new_channel_io
@@ -49,14 +49,14 @@ proof
   assume ?v
   then show False
   proof cases
-    case opening
-    from opening(4) show False
+    case scope_opening
+    from scope_opening(4) show False
     proof cases
-      case opening
-      from opening(4) show False
+      case scope_opening
+      from scope_opening(4) show False
       proof cases
-        case opening
-        from opening(4) show False
+        case scope_opening
+        from scope_opening(4) show False
           by cases
       next
         case new_channel_io
@@ -67,8 +67,8 @@ proof
       case new_channel_io
       from new_channel_io(2) show False
       proof cases
-        case opening
-        from opening(4) show False
+        case scope_opening
+        from scope_opening(4) show False
           by cases
       next
         case new_channel_io
@@ -80,11 +80,11 @@ proof
     case new_channel_io
     from new_channel_io(3) show False
     proof cases
-      case opening
-      from opening(5) show False
+      case scope_opening
+      from scope_opening(5) show False
       proof cases
-        case opening
-        from opening(4) show False
+        case scope_opening
+        from scope_opening(4) show False
           by cases
       next
         case new_channel_io
@@ -95,8 +95,8 @@ proof
       case new_channel_io
       from new_channel_io(2) show False
       proof cases
-        case opening
-        from opening(5) show False
+        case scope_opening
+        from scope_opening(5) show False
           by cases
       next
         case new_channel_io
@@ -125,8 +125,8 @@ proof
   assume ?v
   then show False
   proof cases
-    case opening
-    from opening(4) show False
+    case scope_opening
+    from scope_opening(4) show False
     proof cases
       case parallel_left_io
       from parallel_left_io(2) show False
