@@ -95,7 +95,7 @@ where
   \<comment> \<open>Execution of actions:\<close>
   sending:
     "A \<triangleleft> X \<rightarrow>\<^sub>s\<lparr>A \<triangleleft> \<star>\<^bsup>0\<^esup> X\<rparr> \<zero>" |
-  opening:
+  scope_opening:
     "\<nu> a. \<P> a \<rightarrow>\<^sub>s\<lparr>A \<triangleleft> \<star>\<^bsup>Suc n\<^esup> X\<rparr> Q"
     if
       "i \<le> n"
@@ -155,11 +155,11 @@ using assms proof (induction "IO \<eta> A n X" S T arbitrary: \<eta> A n X \<E>)
         synchronous_transition.sending
       )
 next
-  case (opening i n X \<P> A Q \<E>)
+  case (scope_opening i n X \<P> A Q \<E>)
   from \<open>dependent_on_chan_at i X\<close> have "dependent_on_chan_at i (X \<guillemotleft> on_suffix (Suc n) \<E>)"
     unfolding dependent_on_chan_at_after_on_suffix_adapted [OF \<open>i \<le> n\<close>] .
   moreover
-  from opening(4) have "
+  from scope_opening(4) have "
     \<nabla> \<P> \<guillemotleft> on_tail \<E>
     \<rightarrow>\<^sub>s\<lparr>A \<guillemotleft> tail \<guillemotleft> on_tail \<E> \<triangleleft> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move n i \<guillemotleft> on_suffix n (on_tail \<E>)\<rparr>
     Q \<guillemotleft> move n i \<guillemotleft> on_suffix n (on_tail \<E>)" .
@@ -188,7 +188,7 @@ next
     by (simp_all only: composition_adapted [symmetric])
   ultimately show ?case
     using \<open>i \<le> n\<close>
-    by (simp only: adapted_after_new_channel synchronous_transition.opening)
+    by (simp only: adapted_after_new_channel synchronous_transition.scope_opening)
 next
   case (receiving A \<P> n X \<E>)
   have "
@@ -328,13 +328,13 @@ using assms proof (induction "A' \<triangleleft> \<star>\<^bsup>n\<^esup> X'" "S
         intro: synchronous_transition.sending
       )
 next
-  case (opening i n X' \<P>' A' Q' S \<E> thesis)
+  case (scope_opening i n X' \<P>' A' Q' S \<E> thesis)
   from \<open>\<nu> a. \<P>' a = S \<guillemotleft> \<E>\<close> obtain \<P> where "\<P>' = (\<lambda>a. \<P> a \<guillemotleft> \<E>)" and "S = \<nu> a. \<P> a"
     by (erule new_channel_and_adapted)
   from \<open>\<P>' = (\<lambda>a. \<P> a \<guillemotleft> \<E>)\<close> have "\<nabla> \<P>' = \<nabla> \<P> \<guillemotleft> on_tail \<E>"
     unfolding on_tail_def
     by transfer (simp add: comp_def)
-  with opening(4)
+  with scope_opening(4)
   obtain B and Y and R
     where
       B_equation: "A' \<guillemotleft> tail = B \<guillemotleft> on_tail \<E>"
@@ -362,7 +362,7 @@ next
     by (simp only: dependent_on_chan_at_after_on_suffix_adapted)
   with \<open>i \<le> n\<close> and \<open>\<nabla> \<P> \<rightarrow>\<^sub>s\<lparr>B \<triangleleft> \<star>\<^bsup>n\<^esup> Y\<rparr> R\<close> have "\<nu> a. \<P> a \<rightarrow>\<^sub>s\<lparr>A \<triangleleft> \<star>\<^bsup>Suc n\<^esup> X\<rparr> Q"
     unfolding \<open>B = A \<guillemotleft> tail\<close> and \<open>Y = X \<guillemotleft> move n i\<close> and \<open>R = Q \<guillemotleft> move n i\<close>
-    by (simp only: synchronous_transition.opening)
+    by (simp only: synchronous_transition.scope_opening)
   with
     \<open>A' = A \<guillemotleft> \<E>\<close>
   and
@@ -370,7 +370,7 @@ next
   and
     \<open>Q' = Q \<guillemotleft> on_suffix (Suc n) \<E>\<close>
   and
-    opening(6)
+    scope_opening(6)
   show ?case
     unfolding \<open>S = \<nu> a. \<P> a\<close>
     by simp
@@ -1150,7 +1150,7 @@ where
   mutation_parallel_right_communication:
     "{P \<parallel> \<hole>} \<longrightarrow>\<^sub>s\<lparr>\<tau> \<bar> Some \<tau>\<rparr> {P \<parallel> \<hole>}" |
   \<comment> \<open>\<^term>\<open>{\<star> \<hole>}\<close>:\<close>
-  mutation_opening:
+  mutation_scope_opening:
     "{\<star> \<hole>} \<longrightarrow>\<^sub>s\<lparr>A \<triangleleft> \<star>\<^bsup>Suc n\<^esup> X \<bar> Some (A \<guillemotleft> tail \<triangleleft> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move n i)\<rparr> {\<hole> \<guillemotleft> move i n}"
     if "i \<le> n" and "dependent_on_chan_at i X" |
   mutation_new_channel_io:
@@ -1269,7 +1269,7 @@ next
       by simp
     then show ?case
     proof cases
-      case (opening i n X A)
+      case (scope_opening i n X A)
       from \<open>\<nabla> (\<Delta> P) \<rightarrow>\<^sub>s\<lparr>A \<guillemotleft> tail \<triangleleft> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move n i\<rparr> S' \<guillemotleft> move n i\<close>
       have "P \<rightarrow>\<^sub>s\<lparr>A \<guillemotleft> tail \<triangleleft> \<star>\<^bsup>n\<^esup> X \<guillemotleft> move n i\<rparr> S' \<guillemotleft> move n i"
         by simp
@@ -1280,7 +1280,7 @@ next
       ultimately show ?thesis
         unfolding \<open>\<alpha> = A \<triangleleft> \<star>\<^bsup>Suc n\<^esup> X\<close>
         using \<open>i \<le> n\<close> and \<open>dependent_on_chan_at i X\<close>
-        by (blast intro: mutation_opening)
+        by (blast intro: mutation_scope_opening)
     next
       case (new_channel_io \<eta> A n X \<Q>)
       from \<open>\<nabla> (\<Delta> P) \<rightarrow>\<^sub>s\<lparr>IO \<eta> (A \<guillemotleft> tail) n (X \<guillemotleft> remove n)\<rparr> \<nabla>\<^bsub>n\<^esub> \<Q>\<close>
@@ -1504,9 +1504,9 @@ next
       using parallel_right_communication
       by simp
   next
-    case mutation_opening
+    case mutation_scope_opening
     then show ?case
-      using opening
+      using scope_opening
       by (simp add: composition_adapted [symmetric] back_and_forth_moves identity_adapted)
   next
     case (mutation_new_channel_io \<eta> A n X S P P')
