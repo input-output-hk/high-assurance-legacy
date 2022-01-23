@@ -368,6 +368,8 @@ lemma adapted_after_guard:
   shows "(v ? P) \<guillemotleft> \<E> = v ? P \<guillemotleft> \<E>"
   by transfer (simp add: comp_def)
 
+(* FIXME: Check if we should also have a \<^theory_text>\<open>guard_and_adapted\<close>. *)
+
 text \<open>
   We define parallel composition over a list of processes families.
 \<close>
@@ -402,6 +404,8 @@ lemma adapted_after_general_parallel:
   by
     (induction vs)
     (simp_all only: general_parallel.simps adapted_after_stop adapted_after_parallel)
+
+(* FIXME: Check if we should also have a \<^theory_text>\<open>general_parallel_and_adapted\<close>. *)
 
 lemma environment_dependent_general_parallel:
   shows "(\<lambda>e. (\<Prod>v \<leftarrow> vs. \<P> v e) e) = \<Prod>v \<leftarrow> vs. (\<lambda>e. \<P> v e e)"

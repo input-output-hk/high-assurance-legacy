@@ -3,6 +3,7 @@ theory "Thorn_Calculus-Core_Bisimilarities"
 begin
 
 named_theorems thorn_simps
+(*FIXME: Don't name this \<^theory_text>\<open>thorn_simps\<close>, as \<^theory_text>\<open>simps\<close> alsways stands for equalities. *)
 
 lemma receive_scope_extension [thorn_simps]:
   shows "A \<triangleright> x. \<nu> b. \<P> x b \<sim>\<^sub>s \<nu> b. A \<triangleright> x. \<P> x b"
