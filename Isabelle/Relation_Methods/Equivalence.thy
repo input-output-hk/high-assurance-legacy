@@ -8,31 +8,29 @@ method equivalence = (
   \<comment> \<open>Add the declared extra premises to the list of goal premises:\<close>
   insert equivalence,
   \<comment> \<open>Turn the chained facts into goal premises:\<close>
-  insert TrueI,
-  erule_tac TrueE,
+  -,
   \<comment> \<open>Uncurry all conditional premises:\<close>
   ((match premises in prem [thin]: "_ \<Longrightarrow> _ \<Longrightarrow> _" (cut) \<Rightarrow> \<open>insert prem [uncurry]\<close>)+)?,
   \<comment> \<open>Relax the equivalence premises:\<close>
   (
     (
-      match premises in
-        inclusion [thin]: "\<X> \<le> \<Y>" (cut) for \<X> :: "['a, 'a] \<Rightarrow> bool" and \<Y> \<Rightarrow> \<open>
-          \<comment> \<open>If the conclusion uses~\<^term>\<open>\<Y>\<close>, relax all equivalence premises that use~\<^term>\<open>\<X>\<close>:\<close>
-          match conclusion in
-            "\<Y> _ _" (cut) \<Rightarrow> \<open>
-              match premises in
-                equivalences [thin]: "\<X> _ _" (cut, multi) \<Rightarrow> \<open>
-                  insert equivalences [THEN predicate2D [OF inclusion]]
-                \<close> \<bar>
-                _ (cut) \<Rightarrow> \<open>succeed\<close>,
-              match premises in
-                conditional_equivalences [thin]: "_ \<Longrightarrow> \<X> _ _" (cut, multi) \<Rightarrow> \<open>
-                  insert conditional_equivalences [THEN predicate2D [OF inclusion]]
-                \<close> \<bar>
-                _ (cut) \<Rightarrow> \<open>succeed\<close>
-            \<close> \<bar>
-            _ (cut) \<Rightarrow> \<open>succeed\<close>
-        \<close>
+      match premises in inclusion [thin]: "R \<le> S" (cut) for R :: "['a, 'a] \<Rightarrow> bool" and S \<Rightarrow> \<open>
+        \<comment> \<open>If the conclusion uses~\<^term>\<open>S\<close>, relax all equivalence premises that use~\<^term>\<open>R\<close>:\<close>
+        (
+          match conclusion in "S _ _" (cut) \<Rightarrow> \<open>
+            (
+              match premises in equivalences [thin]: "R _ _" (cut, multi) \<Rightarrow> \<open>
+                insert equivalences [THEN predicate2D [OF inclusion]]
+              \<close>
+            )?,
+            (
+              match premises in conditional_equivalences [thin]: "_ \<Longrightarrow> R _ _" (cut, multi) \<Rightarrow> \<open>
+                insert conditional_equivalences [THEN predicate2D [OF inclusion]]
+              \<close>
+            )?
+          \<close>
+        )?
+      \<close>
     )+
   )?,
   \<comment> \<open>Curry all conditional premises:\<close>
@@ -41,8 +39,8 @@ method equivalence = (
   (match premises in prems [thin]: _ (cut, multi) \<Rightarrow> \<open>insert prems [transferred]\<close>)?,
   \<comment> \<open>Try to solve the constructed goal:\<close>
   (
-    \<comment> \<open>Turn the conclusion into a quotient type equality with process operations lifted:\<close>
-    simp (no_asm) only: equivalence_transfer [THEN sym] id_def comp_def;
+    \<comment> \<open>Turn the conclusion into a quotient type equality:\<close>
+    simp (no_asm) only: equivalence_transfer [symmetric] id_def comp_def;
       \<comment> \<open>
         We need \<^theory_text>\<open>comp_def\<close> and perhaps \<^theory_text>\<open>id_def\<close>, because @{command lift_definition} creates facts
         involving \<^term>\<open>(\<circ>)\<close> and \<^const>\<open>id\<close>.
