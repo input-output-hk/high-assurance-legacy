@@ -117,7 +117,7 @@ where
     "a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleright> x\<rbrace> P x" |
   communication:
     "\<lbrakk> \<eta> \<bowtie> \<mu>; p \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'; q \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q' \<rbrakk> \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> p' \<parallel> q'" |
-  opening:
+  scope_opening:
     "\<nu> a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a" |
   acting_left:
     "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p' \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p' \<parallel> q" |
@@ -160,13 +160,13 @@ text \<open>
 
 text \<open>
   An acting and an opening version of the \texttt{Scope} rule in Edsko's definition can be derived
-  by combining \<open>opening\<close> with the closing rules.
+  by combining \<open>scope_opening\<close> with the closing rules.
 \<close>
 
 lemma acting_scope: "(\<And>a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q a) \<Longrightarrow> \<nu> a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. Q a"
-  using opening by (intro scoped_acting)
+  using scope_opening by (intro scoped_acting)
 lemma opening_scope: "(\<And>a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q a b) \<Longrightarrow> \<nu> a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. Q a b"
-  using opening by (intro scoped_opening)
+  using scope_opening by (intro scoped_opening)
 
 text \<open>
   No transitions are possible from~\<open>\<zero>\<close>. This is not as trivial as it might seem, because also
@@ -426,12 +426,12 @@ next
         by auto
     qed
   next
-    case opening
-    from opening.prems show ?case
+    case scope_opening
+    from scope_opening.prems show ?case
     proof cases
       case with_new_channel
       then show ?thesis
-        using basic_transition.opening and opening_lift and rel_funI
+        using basic_transition.scope_opening and opening_lift and rel_funI
         by (metis (full_types))
     qed
   next
@@ -551,12 +551,12 @@ next
     from communication.prems show ?case
       by cases new_channel_preservation_aux_trivial_conveyance
   next
-    case opening
-    from opening.prems show ?case
+    case scope_opening
+    from scope_opening.prems show ?case
     proof cases
       case with_new_channel
       then show ?thesis
-        using basic_transition.opening and opening_lift
+        using basic_transition.scope_opening and opening_lift
         by blast
     qed new_channel_preservation_aux_trivial_conveyance
   next
@@ -616,6 +616,10 @@ private lift_definition new_channel' :: "(chan \<Rightarrow> basic_behavior) \<R
   is NewChannel
   using basic_new_channel_preservation .
 
+private lift_definition guard' :: "[bool, basic_behavior] \<Rightarrow> basic_behavior"
+  is guard
+  using basic.guard_preservation .
+
 private lift_definition general_parallel' :: "['a \<Rightarrow> basic_behavior, 'a list] \<Rightarrow> basic_behavior"
   is general_parallel
   using basic.general_parallel_preservation .
@@ -626,6 +630,7 @@ lemmas [equivalence_transfer] =
   receive'.abs_eq
   parallel'.abs_eq
   new_channel'.abs_eq
+  guard'.abs_eq
   general_parallel'.abs_eq
 
 end

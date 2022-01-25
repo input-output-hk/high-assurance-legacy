@@ -1,5 +1,6 @@
 chapter Ouroboros
 
+(* FIXME: Prefix the theory names with the session names. *)
 session Relation_Methods (ouroboros) = HOL +
   description
     \<open>Proof methods for dealing with relations.\<close>
