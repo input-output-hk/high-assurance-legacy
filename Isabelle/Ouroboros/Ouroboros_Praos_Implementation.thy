@@ -745,6 +745,21 @@ instance broadcast_msg :: (countable, countable, countable, countable) countable
 type_synonym ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) broadcast_channel = "
   ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) broadcast_msg channel"
 
+text \<open>
+  We assume that each stakeholder has access to a channel used to receive messages broadcasted by
+  the network and a channel used to broadcast messages to the network, which constitute the
+  stakeholder's network interface:
+\<close>
+
+type_synonym ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) receive_channel = "
+  ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) broadcast_msg channel"
+
+type_synonym ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) send_channel = "
+  ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) broadcast_msg channel"
+
+type_synonym ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) network_interface = "
+  ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) send_channel \<times> ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) receive_channel"
+
 subsection \<open> The stakeholder process \label{sec:sh-process-ref} \<close>
 
 text \<open>
@@ -1051,25 +1066,25 @@ text \<open>
 
 private abbreviation
   start_of_slot :: "
-    ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) broadcast_channel \<Rightarrow>
+    ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) network_interface \<Rightarrow>
     ('skey, 'vkey, 'hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig, 'nonce) stakeholder_state \<Rightarrow>
     slot \<Rightarrow>
-    (('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) broadcast_channel \<Rightarrow>
+    (('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) network_interface \<Rightarrow>
     ('skey, 'vkey, 'hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig, 'nonce) stakeholder_state \<Rightarrow> slot \<Rightarrow> process) \<Rightarrow>
     process"
 where
-  "start_of_slot bc ss sl \<K> \<equiv> (
+  "start_of_slot ni ss sl \<K> \<equiv> (
     let
       (U, sk\<^sub>v\<^sub>r\<^sub>f, \<eta>, (_, \<S>\<^sub>0, _), \<C>) = (ss_id ss, ss_sk\<^sub>v\<^sub>r\<^sub>f ss, ss_\<eta> ss, ss_G ss, ss_\<C> ss)
     in (
       case is_slot_leader U sl sk\<^sub>v\<^sub>r\<^sub>f \<eta> \<S>\<^sub>0 \<C> of
           None \<Rightarrow>
-            \<zero> \<parallel> \<K> bc ss sl \<comment> \<open>\<open>\<zero> \<parallel>\<close> is added to fulfill corecursive function requirements\<close>
+            \<zero> \<parallel> \<K> ni ss sl \<comment> \<open>\<open>\<zero> \<parallel>\<close> is added to fulfill corecursive function requirements\<close>
         | Some v \<Rightarrow>
           let
             ss' = extend_chain ss sl v
           in
-            bc \<triangleleft>\<degree> BroadcastChain (ss_\<C> ss') \<parallel> \<K> bc ss' sl))"
+            (fst ni) \<triangleleft>\<degree> BroadcastChain (ss_\<C> ss') \<parallel> \<K> ni ss' sl))"
 
 text \<open>
   Then we define a process that executes the `main loop' of the protocol:
@@ -1077,26 +1092,26 @@ text \<open>
 
 private corec
   main_loop :: "
-    ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) broadcast_channel \<Rightarrow>
+    ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) network_interface \<Rightarrow>
     ('skey, 'vkey, 'hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig, 'nonce) stakeholder_state \<Rightarrow>
     slot \<Rightarrow>
     process"
 where
-  "main_loop bc ss sl =
-    bc \<triangleright>\<degree> msg. (
+  "main_loop ni ss sl =
+    (snd ni) \<triangleright>\<degree> msg. (
       case msg of
         BroadcastTx tx \<Rightarrow> (
          \<comment> \<open>Store new transaction\<close>
           let
             ss' = store_tx ss tx
           in
-            main_loop bc ss' sl)
+            main_loop ni ss' sl)
       | BroadcastChain \<C> \<Rightarrow> (
          \<comment> \<open>Store new chain\<close>
           let
             ss' = store_chain sl \<C> ss
           in
-            main_loop bc ss' sl)
+            main_loop ni ss' sl)
       | BroadcastEndSlot sl\<^sub>n\<^sub>e\<^sub>x\<^sub>t \<Rightarrow> (
           let
             \<comment> \<open>If new epoch, compute and store new epoch randomness\<close>
@@ -1104,7 +1119,7 @@ where
             \<comment> \<open>Update local chain\<close>
             ss' = update_local_chain ss'
           in
-            start_of_slot bc ss' sl\<^sub>n\<^sub>e\<^sub>x\<^sub>t main_loop))"
+            start_of_slot ni ss' sl\<^sub>n\<^sub>e\<^sub>x\<^sub>t main_loop))"
 
 text \<open>
   Finally, we define a process that implements a stakeholder running the protocol:
@@ -1117,14 +1132,14 @@ definition
     'skey \<Rightarrow>
     'skey \<Rightarrow>
     'skey \<Rightarrow>
-    ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) broadcast_channel \<Rightarrow>
+    ('hash, 'vrf\<^sub>y, 'vrf\<^sub>\<pi>, 'sig) network_interface \<Rightarrow>
     process"
 where
-  "stakeholder U\<^sub>i G sk\<^sub>v\<^sub>r\<^sub>f sk\<^sub>k\<^sub>e\<^sub>s sk\<^sub>d\<^sub>s\<^sub>i\<^sub>g bc = (
+  "stakeholder U\<^sub>i G sk\<^sub>v\<^sub>r\<^sub>f sk\<^sub>k\<^sub>e\<^sub>s sk\<^sub>d\<^sub>s\<^sub>i\<^sub>g ni = (
     let
       ss\<^sub>i\<^sub>n\<^sub>i\<^sub>t = init_stakeholder_state U\<^sub>i G sk\<^sub>v\<^sub>r\<^sub>f sk\<^sub>k\<^sub>e\<^sub>s sk\<^sub>d\<^sub>s\<^sub>i\<^sub>g
     in
-      start_of_slot bc ss\<^sub>i\<^sub>n\<^sub>i\<^sub>t first_slot main_loop)"
+      start_of_slot ni ss\<^sub>i\<^sub>n\<^sub>i\<^sub>t first_slot main_loop)"
 
 end
 

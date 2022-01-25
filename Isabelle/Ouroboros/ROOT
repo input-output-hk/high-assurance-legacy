@@ -10,6 +10,7 @@ session Ouroboros (ouroboros) = Chi_Calculus_Examples +
     Ouroboros_BFT_Implementation
     Ouroboros_BFT_Forwarding_Broadcasting_Equivalence
     Ouroboros_Praos_Implementation
+    Ouroboros_Praos_Forwarding_Broadcasting_Equivalence
     Finite_Map_Extras
     "Genesis/Chain_Selection_Density_Equivalence/Timing"
     "Genesis/Chain_Selection_Density_Equivalence/Protocol_Parameters"
