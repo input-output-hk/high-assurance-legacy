@@ -1,12 +1,24 @@
 chapter Ouroboros
-
 session Ouroboros (ouroboros) = Chi_Calculus_Examples +
-  description \<open>Formalization of the Ouroboros protocol.\<close>
+  description
+    \<open>Implementations of protocols from the Ouroboros family.\<close>
+  sessions
+    "HOL-Library"
+  directories
+    "Genesis/Chain_Selection_Density_Equivalence"
   theories
     Ouroboros_BFT_Implementation
     Ouroboros_BFT_Forwarding_Broadcasting_Equivalence
     Ouroboros_Praos_Implementation
     Finite_Map_Extras
+    "Genesis/Chain_Selection_Density_Equivalence/Timing"
+    "Genesis/Chain_Selection_Density_Equivalence/Protocol_Parameters"
+    "Genesis/Chain_Selection_Density_Equivalence/Blocks"
+    "Genesis/Chain_Selection_Density_Equivalence/Chains"
+    "Genesis/Chain_Selection_Density_Equivalence/Proof"
   document_files
+    "root.tex"
+    "root.bib"
+  document_files (in "Genesis/Chain_Selection_Density_Equivalence/document")
     "root.tex"
     "root.bib"
