@@ -31,35 +31,35 @@ private method parallel_scope_extension_left_subaux_communication_conveyance =
 private method parallel_scope_extension_left_subaux_acting_left_conveyance =
   (parallel_scope_extension_left_subaux_trivial_conveyance intro: acting_left)
 
-private method parallel_scope_extension_left_subaux_extruding_left_conveyance =
-  (parallel_scope_extension_left_subaux_trivial_conveyance intro: extruding_left)
+private method parallel_scope_extension_left_subaux_opening_left_conveyance =
+  (parallel_scope_extension_left_subaux_trivial_conveyance intro: opening_left)
 
-private lemma parallel_scope_extension_left_subaux_extruding_conveyance:
+private lemma parallel_scope_extension_left_subaux_opening_conveyance:
   assumes initial_relation: "parallel_scope_extension_left_subaux q p t"
   assumes transition: "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a"
   shows "\<exists>T. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. parallel_scope_extension_left_subaux q (P a) (T a))"
 using transition and initial_relation and transition
 proof (induction (no_simp) p "\<lbrace>\<nu> a\<rbrace> P a" arbitrary: P t)
-  case (extruding P P' t)
-  from extruding.prems show ?case
+  case (scope_opening P P' t)
+  from scope_opening.prems show ?case
   proof cases
     case with_new_channel
     with \<open>\<lbrace>\<nu> a\<rbrace> P a = \<lbrace>\<nu> a\<rbrace> P' a\<close> show ?thesis
-      using basic_transition.extruding
+      using basic_transition.scope_opening
       by blast
-  qed parallel_scope_extension_left_subaux_extruding_left_conveyance
+  qed parallel_scope_extension_left_subaux_opening_left_conveyance
 next
-  case extruding_left
-  from extruding_left.prems show ?case
-    by cases parallel_scope_extension_left_subaux_extruding_left_conveyance
+  case opening_left
+  from opening_left.prems show ?case
+    by cases parallel_scope_extension_left_subaux_opening_left_conveyance
 next
-  case extruding_right
-  from extruding_right.prems show ?case
-    by cases parallel_scope_extension_left_subaux_extruding_left_conveyance
+  case opening_right
+  from opening_right.prems show ?case
+    by cases parallel_scope_extension_left_subaux_opening_left_conveyance
 next
-  case (scoped_extruding p P\<^sub>1 P\<^sub>2 P' t)
+  case (scoped_opening p P\<^sub>1 P\<^sub>2 P' t)
   from
-    scoped_extruding.IH(1) and
+    scoped_opening.IH(1) and
     \<open>parallel_scope_extension_left_subaux q p t\<close> and
     \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P\<^sub>1 a\<close>
   obtain T\<^sub>1 where
@@ -71,7 +71,7 @@ next
     "\<And>a b. parallel_scope_extension_left_subaux q (P\<^sub>2 a b) (T\<^sub>2 a b)"
   proof -
     from
-      scoped_extruding.IH(2) and
+      scoped_opening.IH(2) and
       \<open>\<And>a. parallel_scope_extension_left_subaux q (P\<^sub>1 a) (T\<^sub>1 a)\<close> and
       \<open>\<And>a. P\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> P\<^sub>2 a b\<close>
     have "
@@ -83,7 +83,7 @@ next
     with that show ?thesis by blast
   qed
   from \<open>t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a\<close> and \<open>\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b\<close> have "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. T\<^sub>2 a b"
-    by (fact basic_transition.scoped_extruding)
+    by (fact basic_transition.scoped_opening)
   with
     \<open>\<lbrace>\<nu> b\<rbrace> \<nu> a. P\<^sub>2 a b = \<lbrace>\<nu> b\<rbrace> P' b\<close> and
     \<open>\<And>a b. parallel_scope_extension_left_subaux q (P\<^sub>2 a b) (T\<^sub>2 a b)\<close>
@@ -161,7 +161,7 @@ next
       obtain T\<^sub>1 where
         "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
         "\<And>a. parallel_scope_extension_left_subaux q (P\<^sub>1 a) (T\<^sub>1 a)"
-        using parallel_scope_extension_left_subaux_extruding_conveyance
+        using parallel_scope_extension_left_subaux_opening_conveyance
         by blast
       obtain T\<^sub>2 where
         "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a" and
@@ -192,8 +192,8 @@ next
       using parallel_scope_extension_left_aux.without_new_channel_ltr and acting_lift
       by auto
   next
-    case (extruding S t)
-    from extruding.prems show ?case
+    case (scope_opening S t)
+    from scope_opening.prems show ?case
     proof cases
       case (without_new_channel_rtl q p)
       from \<open>parallel_scope_extension_left_subaux q p (\<nu> a. S a)\<close> show ?thesis
@@ -201,17 +201,17 @@ next
         case with_new_channel
         with \<open>t = p \<parallel> q\<close> show ?thesis
           using
-            basic_transition.extruding and
-            extruding_left and
+            basic_transition.scope_opening and
+            opening_left and
             parallel_scope_extension_left_aux.without_new_channel_rtl and
-            extruding_lift and
+            opening_lift and
             rel_funI
           by (metis (mono_tags, lifting))
       qed
     next
       case with_new_channel
       then show ?thesis
-        using basic_transition.extruding and extruding_lift and rel_funI
+        using basic_transition.scope_opening and opening_lift and rel_funI
         by metis
     qed
   next
@@ -248,7 +248,7 @@ next
       obtain T\<^sub>1 where
         "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
         "\<And>a. parallel_scope_extension_left_subaux q (P\<^sub>1 a) (T\<^sub>1 a)"
-        using parallel_scope_extension_left_subaux_extruding_conveyance
+        using parallel_scope_extension_left_subaux_opening_conveyance
         by blast
       obtain T\<^sub>2 where
         "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a" and
@@ -302,30 +302,30 @@ next
         by metis
     qed
     then show ?case
-      using parallel_scope_extension_left_aux.without_new_channel_ltr and extruding_lift
+      using parallel_scope_extension_left_aux.without_new_channel_ltr and opening_lift
       by auto
   next
-    case (extruding_left p P q t)
-    from extruding_left.prems have "parallel_scope_extension_left_subaux q p t"
+    case (opening_left p P q t)
+    from opening_left.prems have "parallel_scope_extension_left_subaux q p t"
       by (fact parallel_scope_extension_left_aux_without_new_channel_normalization)
-    with extruding_left.hyps show ?case
+    with opening_left.hyps show ?case
       using
-        parallel_scope_extension_left_subaux_extruding_conveyance and
+        parallel_scope_extension_left_subaux_opening_conveyance and
         parallel_scope_extension_left_aux.without_new_channel_ltr and
-        extruding_lift and
+        opening_lift and
         rel_funI
       by smt
   next
-    case (extruding_right q Q p t)
-    from extruding_right.prems have "parallel_scope_extension_left_subaux q p t"
+    case (opening_right q Q p t)
+    from opening_right.prems have "parallel_scope_extension_left_subaux q p t"
       by (fact parallel_scope_extension_left_aux_without_new_channel_normalization)
-    from this and extruding_right.hyps
+    from this and opening_right.hyps
     have "\<exists>T. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. parallel_scope_extension_left_subaux (Q a) p (T a))"
     proof induction
       case without_new_channel
       then show ?case
         using
-          basic_transition.extruding_right and
+          basic_transition.opening_right and
           parallel_scope_extension_left_subaux.without_new_channel
         by blast
     next
@@ -337,13 +337,13 @@ next
         \<exists>T'. \<forall>a. T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T' a b \<and> (\<forall>b. parallel_scope_extension_left_subaux (Q b) (P a) (T' a b))"
         by (fact choice)
       then show ?case
-        using extruding_scope and parallel_scope_extension_left_subaux.with_new_channel
+        using opening_scope and parallel_scope_extension_left_subaux.with_new_channel
         by metis
     qed
     then show ?case
       using
         parallel_scope_extension_left_aux.without_new_channel_ltr and
-        extruding_lift and
+        opening_lift and
         rel_funI
       by smt
   qed (blast elim:
@@ -364,14 +364,14 @@ proof (standard, intro allI, intro impI)
   assume "\<nu> b. \<nu> a. P a b \<rightarrow>\<^sub>\<flat>c"
   then have "\<nu> a. \<nu> b. P a b \<rightarrow>\<^sub>\<flat>c"
   proof (induction "\<nu> b. \<nu> a. P a b" c)
-    case extruding
-    show ?case using basic_transition.extruding by (intro extruding_scope)
+    case scope_opening
+    show ?case using basic_transition.scope_opening by (intro opening_scope)
   next
     case scoped_acting
     then show ?case by (simp add: basic_transition.scoped_acting)
   next
-    case scoped_extruding
-    then show ?case by (simp add: basic_transition.scoped_extruding)
+    case scoped_opening
+    then show ?case by (simp add: basic_transition.scoped_opening)
   qed
   show "\<exists>d. \<nu> a. \<nu> b. P a b \<rightarrow>\<^sub>\<flat>d \<and> basic_lift (\<lambda>p q. p \<lesssim>\<^sub>\<flat> q \<and> q \<lesssim>\<^sub>\<flat> p) c d"
   proof -
@@ -406,7 +406,7 @@ where
 private method parallel_neutrality_left_aux_trivial_conveyance =
   (blast intro:
     acting_right
-    extruding_right
+    opening_right
     parallel_neutrality_left_aux.without_new_channel_rtl
     basic_lift_intros
   )
@@ -438,12 +438,12 @@ next
         by (simp add: no_basic_transitions_from_stop)
     qed parallel_neutrality_left_aux_trivial_conveyance
   next
-    case extruding
-    from extruding.prems show ?case
+    case scope_opening
+    from scope_opening.prems show ?case
     proof cases
       case with_new_channel
       then show ?thesis
-        using basic_transition.extruding and extruding_lift and rel_funI
+        using basic_transition.scope_opening and opening_lift and rel_funI
         by metis
     qed parallel_neutrality_left_aux_trivial_conveyance
   next
@@ -464,22 +464,22 @@ next
         by auto
     qed parallel_neutrality_left_aux_trivial_conveyance
   next
-    case extruding_left
-    from extruding_left.prems show ?case
+    case opening_left
+    from opening_left.prems show ?case
     proof cases
       case without_new_channel_ltr
-      with extruding_left.hyps show ?thesis
+      with opening_left.hyps show ?thesis
         by (simp add: no_basic_transitions_from_stop)
     qed parallel_neutrality_left_aux_trivial_conveyance
   next
-    case extruding_right
-    from extruding_right.prems show ?case
+    case opening_right
+    from opening_right.prems show ?case
     proof cases
       case without_new_channel_ltr
-      with extruding_right.hyps show ?thesis
+      with opening_right.hyps show ?thesis
         using
           parallel_neutrality_left_aux.without_new_channel_ltr and
-          extruding_lift and
+          opening_lift and
           rel_funI
         by smt
     qed parallel_neutrality_left_aux_trivial_conveyance
@@ -503,45 +503,45 @@ where
     (\<And>a. nested_parallel_commutativity_subaux r (U a) (T a)) \<Longrightarrow>
     nested_parallel_commutativity_subaux r (\<nu> a. U a) (\<nu> a. T a)"
 
-private lemma nested_parallel_commutativity_subaux_extruding_conveyance:
+private lemma nested_parallel_commutativity_subaux_opening_conveyance:
   assumes initial_relation: "nested_parallel_commutativity_subaux r u t"
   assumes transition: "u \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> U a"
   shows "\<exists>T. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. nested_parallel_commutativity_subaux r (U a) (T a))"
 using transition and initial_relation
 proof (induction u "\<lbrace>\<nu> a\<rbrace> U a" arbitrary: U t)
-  case (extruding U t)
-  from extruding.prems show ?case
+  case (scope_opening U t)
+  from scope_opening.prems show ?case
   proof cases
     case with_new_channel
     then show ?thesis
-      using basic_transition.extruding
+      using basic_transition.scope_opening
       by blast
   qed
 next
-  case (extruding_left p P q t)
-  from extruding_left.prems show ?case
+  case (opening_left p P q t)
+  from opening_left.prems show ?case
   proof cases
     case without_new_channel
     with \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a\<close> show ?thesis
       using
-        basic_transition.extruding_left and
+        basic_transition.opening_left and
         nested_parallel_commutativity_subaux.without_new_channel
       by blast
   qed
 next
-  case (extruding_right q Q p t)
-  from extruding_right.prems show ?case
+  case (opening_right q Q p t)
+  from opening_right.prems show ?case
   proof cases
     case without_new_channel
     with \<open>q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a\<close> show ?thesis
       using
-        basic_transition.extruding_right and
+        basic_transition.opening_right and
         nested_parallel_commutativity_subaux.without_new_channel
       by blast
   qed
 next
-  case (scoped_extruding u U\<^sub>1 U\<^sub>2 t)
-  from scoped_extruding.hyps(2) and \<open>nested_parallel_commutativity_subaux r u t\<close>
+  case (scoped_opening u U\<^sub>1 U\<^sub>2 t)
+  from scoped_opening.hyps(2) and \<open>nested_parallel_commutativity_subaux r u t\<close>
   obtain T\<^sub>1 where
     "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
     "\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>1 a) (T\<^sub>1 a)"
@@ -550,7 +550,7 @@ next
     "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b" and
     "\<And>a b. nested_parallel_commutativity_subaux r (U\<^sub>2 a b) (T\<^sub>2 a b)"
   proof -
-    from scoped_extruding.hyps(4) and \<open>\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>1 a) (T\<^sub>1 a)\<close>
+    from scoped_opening.hyps(4) and \<open>\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>1 a) (T\<^sub>1 a)\<close>
     have "
       \<forall>a. \<exists>V. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> V b \<and> (\<forall>b. nested_parallel_commutativity_subaux r (U\<^sub>2 a b) (V b))"
       by blast
@@ -560,7 +560,7 @@ next
     with that show ?thesis by blast
   qed
   from \<open>t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a\<close> and \<open>\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b\<close> have "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. T\<^sub>2 a b"
-    by (fact basic_transition.scoped_extruding)
+    by (fact basic_transition.scoped_opening)
   with \<open>\<And>a b. nested_parallel_commutativity_subaux r (U\<^sub>2 a b) (T\<^sub>2 a b)\<close> show ?case
     using nested_parallel_commutativity_subaux.with_new_channel
     by metis
@@ -644,7 +644,7 @@ next
       obtain T\<^sub>1 where
         "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
         "\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>1 a) (T\<^sub>1 a)"
-        using nested_parallel_commutativity_subaux_extruding_conveyance
+        using nested_parallel_commutativity_subaux_opening_conveyance
         by blast
       obtain T\<^sub>2 where
         "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> T\<^sub>2 a" and
@@ -673,8 +673,8 @@ next
         acting_lift
       by auto
   next
-    case (extruding S t)
-    from extruding.prems show ?case
+    case (scope_opening S t)
+    from scope_opening.prems show ?case
     proof cases
       case (without_new_channel_rtl r u)
       from \<open>nested_parallel_commutativity_subaux r u (\<nu> a. S a)\<close> show ?thesis
@@ -682,17 +682,17 @@ next
         case with_new_channel
         with \<open>t = u \<parallel> r\<close> show ?thesis
           using
-            basic_transition.extruding and
-            extruding_left and
+            basic_transition.scope_opening and
+            opening_left and
             nested_parallel_commutativity_aux.without_new_channel_rtl and
-            extruding_lift and
+            opening_lift and
             rel_funI
           by (metis (mono_tags, lifting))
       qed
     next
       case with_new_channel
       then show ?thesis
-        using basic_transition.extruding and extruding_lift
+        using basic_transition.scope_opening and opening_lift
         by blast
     qed
   next
@@ -741,7 +741,7 @@ next
       obtain T\<^sub>1 where
         "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a" and
         "\<And>a. nested_parallel_commutativity_subaux r (U\<^sub>1 a) (T\<^sub>1 a)"
-        using nested_parallel_commutativity_subaux_extruding_conveyance
+        using nested_parallel_commutativity_subaux_opening_conveyance
         by blast
       obtain T\<^sub>2 where
         "\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> T\<^sub>2 a" and
@@ -801,28 +801,28 @@ next
         acting_lift
       by auto
   next
-    case (extruding_left u U r t)
-    from extruding_left.prems have "nested_parallel_commutativity_subaux r u t"
+    case (opening_left u U r t)
+    from opening_left.prems have "nested_parallel_commutativity_subaux r u t"
       by (fact nested_parallel_commutativity_aux_without_new_channel_normalization)
-    with extruding_left.hyps show ?case
+    with opening_left.hyps show ?case
       using
-        nested_parallel_commutativity_subaux_extruding_conveyance and
+        nested_parallel_commutativity_subaux_opening_conveyance and
         nested_parallel_commutativity_aux.without_new_channel_ltr and
-        extruding_lift and
+        opening_lift and
         rel_funI
       by smt
   next
-    case (extruding_right r R u t)
-    from extruding_right.prems have "nested_parallel_commutativity_subaux r u t"
+    case (opening_right r R u t)
+    from opening_right.prems have "nested_parallel_commutativity_subaux r u t"
       by (fact nested_parallel_commutativity_aux_without_new_channel_normalization)
-    from this and extruding_right.hyps
+    from this and opening_right.hyps
     have "\<exists>T. t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T a \<and> (\<forall>a. nested_parallel_commutativity_subaux (R a) u (T a))"
     proof induction
       case without_new_channel
       then show ?case
         using
-          basic_transition.extruding_right and
-          basic_transition.extruding_left and
+          basic_transition.opening_right and
+          basic_transition.opening_left and
           nested_parallel_commutativity_subaux.without_new_channel
         by blast
     next
@@ -835,13 +835,13 @@ next
         T a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T' a b \<and> (\<forall>b. nested_parallel_commutativity_subaux (R b) (U a) (T' a b))"
         by (fact choice)
       then show ?case
-        using extruding_scope and nested_parallel_commutativity_subaux.with_new_channel
+        using opening_scope and nested_parallel_commutativity_subaux.with_new_channel
         by metis
     qed
     then show ?case
       using
         nested_parallel_commutativity_aux.without_new_channel_ltr and
-        extruding_lift and
+        opening_lift and
         rel_funI
       by smt
   next
@@ -913,25 +913,25 @@ proof (standard, intro allI, intro impI)
       with \<open>\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<sharp>c\<close> show ?thesis by blast
     qed
   next
-    case (output_without_extruding a x q)
+    case (output_without_opening a x q)
     then show ?thesis
       by (blast elim: basic_transitions_from_receive)
   next
-    case output_with_extruding
+    case output_with_opening
     then show ?thesis
-      using no_extruding_transitions_from_receive
+      using no_opening_transitions_from_receive
       by simp
   qed
 qed
 
-private lemma extruding_transitions_from_new_channel_receive:
+private lemma opening_transitions_from_new_channel_receive:
   "\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b \<Longrightarrow> Q b = a \<triangleright> x . P x b"
 proof (induction "\<nu> b. a \<triangleright> x. P x b" "\<lbrace>\<nu> b\<rbrace> Q b" arbitrary: Q rule: basic_transition.induct)
-  case extruding
+  case scope_opening
   show ?case by (fact refl)
 next
-  case scoped_extruding
-  then show ?case using no_extruding_transitions_from_receive by metis
+  case scoped_opening
+  then show ?case using no_opening_transitions_from_receive by metis
 qed
 
 private lemma pre_receive_scope_extension_rtl: "\<nu> b. a \<triangleright> x. P x b \<lesssim>\<^sub>\<sharp> a \<triangleright> x. \<nu> b. P x b"
@@ -945,7 +945,7 @@ proof (standard, intro allI, intro impI)
     proof cases
       case (scoped_acting Q R)
       from \<open>\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b\<close> have "\<And>b. Q b = a \<triangleright> x . P x b"
-        by (fact extruding_transitions_from_new_channel_receive)
+        by (fact opening_transitions_from_new_channel_receive)
       with \<open>\<And>b. Q b \<rightarrow>\<^sub>\<flat>\<lbrace>basic_action_of \<delta>\<rbrace> R b\<close>
       obtain x where "basic_action_of \<delta> = a \<triangleright> x" and "\<And>b. R b = P x b"
         using
@@ -972,30 +972,30 @@ proof (standard, intro allI, intro impI)
       qed
     qed
   next
-    case (output_without_extruding a' x r)
+    case (output_without_opening a' x r)
     from \<open>\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>a' \<triangleleft> x\<rbrace> r\<close> show ?thesis
     proof cases
       case (scoped_acting Q R)
       from \<open>\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b\<close> have "\<And>b. Q b = a \<triangleright> x. P x b"
-        by (fact extruding_transitions_from_new_channel_receive)
+        by (fact opening_transitions_from_new_channel_receive)
       with \<open>\<And>b. Q b \<rightarrow>\<^sub>\<flat>\<lbrace>a' \<triangleleft> x\<rbrace> R b\<close> show ?thesis
         by (auto elim: basic_transitions_from_receive)
     qed
   next
-    case (output_with_extruding Q a' K)
+    case (output_with_opening Q a' K)
     from \<open>\<nu> b. a \<triangleright> x. P x b \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b\<close> have "\<And>b. Q b = a \<triangleright> x. P x b"
-      by (fact extruding_transitions_from_new_channel_receive)
+      by (fact opening_transitions_from_new_channel_receive)
     with \<open>\<And>b. Q b \<rightarrow>\<^sub>\<sharp>\<lparr>a' \<triangleleft> K b\<close> have "a \<triangleright> x. P x undefined \<rightarrow>\<^sub>\<sharp>\<lparr>a' \<triangleleft> K undefined"
       by simp
     then show ?thesis
     proof cases
-      case (output_without_extruding x q)
+      case (output_without_opening x q)
       then show ?thesis
         by (blast elim: basic_transitions_from_receive)
     next
-      case output_with_extruding
+      case output_with_opening
       then show ?thesis
-        using no_extruding_transitions_from_receive
+        using no_opening_transitions_from_receive
         by simp
     qed
   qed
@@ -1012,16 +1012,16 @@ end
 
 context begin
 
-private lemma extruding_transitions_from_new_channel_stop: "\<nu> a. \<zero> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<Longrightarrow> P a = \<zero>"
+private lemma opening_transitions_from_new_channel_stop: "\<nu> a. \<zero> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<Longrightarrow> P a = \<zero>"
 proof -
   fix P and a
   assume "\<nu> a. \<zero> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a"
   then show "P a = \<zero>"
   proof (induction "\<nu> a. \<zero>" "\<lbrace>\<nu> a\<rbrace> P a" arbitrary: P)
-    case extruding
+    case scope_opening
     show ?case by (fact refl)
   next
-    case scoped_extruding
+    case scoped_opening
     then show ?case using no_basic_transitions_from_stop by metis
   qed
 qed
@@ -1034,7 +1034,7 @@ proof
   proof cases
     case (scoped_acting Q\<^sub>1 Q\<^sub>2)
     from \<open>\<nu> a. \<zero> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q\<^sub>1 a\<close> have "\<And>a. Q\<^sub>1 a = \<zero>"
-      by (fact extruding_transitions_from_new_channel_stop)
+      by (fact opening_transitions_from_new_channel_stop)
     with \<open>\<And>a. Q\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q\<^sub>2 a\<close> show ?thesis
       by (simp add: no_basic_transitions_from_stop)
   qed
@@ -1046,9 +1046,9 @@ proof
   assume "\<nu> a. \<zero> \<rightarrow>\<^sub>\<sharp>c"
   then show False
   proof cases
-    case (output_with_extruding P a K)
+    case (output_with_opening P a K)
     from \<open>\<nu> b. \<zero> \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> P b\<close> have "\<And>b. P b = \<zero>"
-      by (fact extruding_transitions_from_new_channel_stop)
+      by (fact opening_transitions_from_new_channel_stop)
     with \<open>\<And>b. P b \<rightarrow>\<^sub>\<sharp>\<lparr>a \<triangleleft> K b\<close> show ?thesis
       by (simp add: no_proper_transitions_from_stop)
   qed (simp_all add: no_acting_transitions_from_new_channel_stop)

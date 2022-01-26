@@ -25,7 +25,7 @@ subsection \<open>Residuals\<close>
 
 text \<open>
   There are two kinds of residuals in the basic transition system: acting residuals, written \<open>\<lbrace>\<alpha>\<rbrace> q\<close>
-  where \<open>\<alpha>\<close> is an action, and scope extruding residuals, written \<open>\<lbrace>\<nu> a\<rbrace> Q a\<close> where \<open>a\<close> is a channel
+  where \<open>\<alpha>\<close> is an action, and scope opening residuals, written \<open>\<lbrace>\<nu> a\<rbrace> Q a\<close> where \<open>a\<close> is a channel
   variable.
 \<close>
 
@@ -55,7 +55,7 @@ where
 
 lemmas basic_lift_intros = basic_residual.rel_intros
 lemmas acting_lift = basic_lift_intros(1)
-lemmas extruding_lift = basic_lift_intros(2)
+lemmas opening_lift = basic_lift_intros(2)
 lemmas basic_lift_cases = basic_residual.rel_cases
 
 text \<open>
@@ -117,23 +117,23 @@ where
     "a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>a \<triangleright> x\<rbrace> P x" |
   communication:
     "\<lbrakk> \<eta> \<bowtie> \<mu>; p \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<eta>\<rbrace> p'; q \<rightarrow>\<^sub>\<flat>\<lbrace>IO \<mu>\<rbrace> q' \<rbrakk> \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<tau>\<rbrace> p' \<parallel> q'" |
-  extruding:
+  scope_opening:
     "\<nu> a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a" |
   acting_left:
     "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p' \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p' \<parallel> q" |
   acting_right:
     "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> q' \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> p \<parallel> q'" |
-  extruding_left:
+  opening_left:
     "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a \<parallel> q" |
-  extruding_right:
+  opening_right:
     "q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<Longrightarrow> p \<parallel> q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> p \<parallel> Q a" |
   scoped_acting:
     "\<lbrakk> p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a; \<And>a. Q a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> R a \<rbrakk> \<Longrightarrow> p \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. R a" |
-  scoped_extruding:
+  scoped_opening:
     "\<lbrakk> p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a; \<And>a. Q a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> R a b \<rbrakk> \<Longrightarrow> p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. R a b"
 
 text \<open>
-  Note that \<open>scoped_acting\<close> and\<open>scoped_extruding\<close> are the rules that perform closing.
+  Note that \<open>scoped_acting\<close> and\<open>scoped_opening\<close> are the rules that perform closing.
 \<close>
 
 text \<open>
@@ -153,24 +153,24 @@ notation basic.bisimilarity (infix \<open>\<sim>\<^sub>\<flat>\<close> 50)
 subsection \<open>Fundamental Properties of the Transition System\<close>
 
 text \<open>
-  Edsko's \texttt{Com} rule can be simulated using a combination of \<open>extruding_left\<close> (or, in the
-  right-to-left case, \<open>extruding_right\<close>), \<open>communication\<close>, and \<open>scoped_acting\<close>. Reordering of extrudings
-  can be simulated using \<open>scoped_extruding\<close>.
+  Edsko's \texttt{Com} rule can be simulated using a combination of \<open>opening_left\<close> (or, in the
+  right-to-left case, \<open>opening_right\<close>), \<open>communication\<close>, and \<open>scoped_acting\<close>. Reordering of openings
+  can be simulated using \<open>scoped_opening\<close>.
 \<close>
 
 text \<open>
-  An acting and an extruding version of the \texttt{Scope} rule in Edsko's definition can be derived
-  by combining \<open>extruding\<close> with the closing rules.
+  An acting and an opening version of the \texttt{Scope} rule in Edsko's definition can be derived
+  by combining \<open>scope_opening\<close> with the closing rules.
 \<close>
 
 lemma acting_scope: "(\<And>a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> Q a) \<Longrightarrow> \<nu> a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<alpha>\<rbrace> \<nu> a. Q a"
-  using extruding by (intro scoped_acting)
-lemma extruding_scope: "(\<And>a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q a b) \<Longrightarrow> \<nu> a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. Q a b"
-  using extruding by (intro scoped_extruding)
+  using scope_opening by (intro scoped_acting)
+lemma opening_scope: "(\<And>a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q a b) \<Longrightarrow> \<nu> a. P a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. Q a b"
+  using scope_opening by (intro scoped_opening)
 
 text \<open>
   No transitions are possible from~\<open>\<zero>\<close>. This is not as trivial as it might seem, because also
-  \<open>scoped_acting\<close> and \<open>scoped_extruding\<close> have to be taken into account.
+  \<open>scoped_acting\<close> and \<open>scoped_opening\<close> have to be taken into account.
 \<close>
 
 lemma no_basic_transitions_from_stop: "\<not> \<zero> \<rightarrow>\<^sub>\<flat>c"
@@ -196,7 +196,7 @@ proof -
     case scoped_acting
     then show ?case by simp
   next
-    case scoped_extruding
+    case scoped_opening
     then show ?case by simp
   qed
 qed
@@ -210,17 +210,17 @@ next
   case scoped_acting
   then show ?case by blast
 next
-  case scoped_extruding
+  case scoped_opening
   then show ?case by blast
 qed
 
 text \<open>
-  No extruding transitions are possible from send and receive processes.
+  No opening transitions are possible from send and receive processes.
 \<close>
 
-lemma no_extruding_transitions_from_send: "\<not> a \<triangleleft> x \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b"
+lemma no_opening_transitions_from_send: "\<not> a \<triangleleft> x \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b"
   using basic_transitions_from_send by blast
-lemma no_extruding_transitions_from_receive: "\<not> a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b"
+lemma no_opening_transitions_from_receive: "\<not> a \<triangleright> x. P x \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> Q b"
   using basic_transitions_from_receive by blast
 
 subsection \<open>Proof Tools\<close>
@@ -291,7 +291,7 @@ proof -
     by smt
 qed
 
-private lemma sim_scoped_extruding_intro:
+private lemma sim_scoped_opening_intro:
   assumes with_new_channel:
     "\<And>P Q. (\<And>a. \<X> (P a) (Q a)) \<Longrightarrow> \<X> (\<nu> a. P a) (\<nu> a. Q a)"
   assumes step_1:
@@ -326,9 +326,9 @@ proof -
     with that show ?thesis by blast
   qed
   from \<open>t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> T\<^sub>1 a\<close> and \<open>\<And>a. T\<^sub>1 a \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> T\<^sub>2 a b\<close> have "t \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> b\<rbrace> \<nu> a. T\<^sub>2 a b"
-    by (fact basic_transition.scoped_extruding)
+    by (fact basic_transition.scoped_opening)
   with \<open>\<And>a b. \<X> (S\<^sub>2 a b) (T\<^sub>2 a b)\<close> show ?thesis
-    using with_new_channel and extruding_lift and rel_funI
+    using with_new_channel and opening_lift and rel_funI
     by smt
 qed
 
@@ -346,7 +346,7 @@ private method solve_sim_scoped uses with_new_channel = (
     "\<exists>d\<^sub>2. _ \<rightarrow>\<^sub>\<flat>d\<^sub>2 \<and> basic_lift _ (\<lbrace>\<nu> b\<rbrace> \<nu> a. _ a b) d\<^sub>2" (cut) \<Rightarrow> \<open>
       match premises in "s \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> S\<^sub>1 a" for s and S\<^sub>1 \<Rightarrow> \<open>
         match premises in prems [thin]: _ (multi) \<Rightarrow> \<open>
-          intro sim_scoped_extruding_intro [where s = s and S\<^sub>1 = S\<^sub>1],
+          intro sim_scoped_opening_intro [where s = s and S\<^sub>1 = S\<^sub>1],
           simp add: with_new_channel,
           simp_all add: prems
         \<close>
@@ -376,7 +376,7 @@ proof (standard, intro allI, intro impI)
       unfolding basic.bisimilarity_def
       using basic_transition.receiving and acting_lift
       by (metis (no_types, lifting))
-  qed (simp_all add: no_extruding_transitions_from_receive)
+  qed (simp_all add: no_opening_transitions_from_receive)
 qed
 
 lemma basic_receive_preservation: "(\<And>x. P x \<sim>\<^sub>\<flat> Q x) \<Longrightarrow> a \<triangleright> x. P x \<sim>\<^sub>\<flat> a \<triangleright> x. Q x"
@@ -426,12 +426,12 @@ next
         by auto
     qed
   next
-    case extruding
-    from extruding.prems show ?case
+    case scope_opening
+    from scope_opening.prems show ?case
     proof cases
       case with_new_channel
       then show ?thesis
-        using basic_transition.extruding and extruding_lift and rel_funI
+        using basic_transition.scope_opening and opening_lift and rel_funI
         by (metis (full_types))
     qed
   next
@@ -466,8 +466,8 @@ next
         by metis
     qed
   next
-    case (extruding_left p P r t)
-    from extruding_left.prems show ?case
+    case (opening_left p P r t)
+    from opening_left.prems show ?case
     proof cases
       case (without_new_channel q)
       from \<open>p \<sim>\<^sub>\<flat> q\<close> and \<open>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> P a\<close>
@@ -475,25 +475,25 @@ next
         unfolding basic.bisimilarity_def
         by (force elim: basic.pre_bisimilarity.cases basic_lift_cases rel_funE)
       from \<open>q \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a\<close> have "q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> Q a \<parallel> r"
-        by (fact basic_transition.extruding_left)
+        by (fact basic_transition.opening_left)
       with \<open>t = q \<parallel> r\<close> and \<open>\<And>a. P a \<sim>\<^sub>\<flat> Q a\<close> show ?thesis
         using
           parallel_preservation_left_aux.without_new_channel and
-          extruding_lift and
+          opening_lift and
           rel_funI
         by smt
     qed
   next
-    case (extruding_right r R p t)
-    from extruding_right.prems show ?case
+    case (opening_right r R p t)
+    from opening_right.prems show ?case
     proof cases
       case (without_new_channel q)
       from \<open>r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> R a\<close> have "q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> q \<parallel> R a"
-        by (fact basic_transition.extruding_right)
+        by (fact basic_transition.opening_right)
       from \<open>p \<sim>\<^sub>\<flat> q\<close> have "\<And>a. parallel_preservation_left_aux (p \<parallel> R a) (q \<parallel> R a)"
         by (fact parallel_preservation_left_aux.without_new_channel)
       with \<open>t = q \<parallel> r\<close> and \<open>q \<parallel> r \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu> a\<rbrace> q \<parallel> R a\<close> show ?thesis
-        using extruding_lift and rel_funI
+        using opening_lift and rel_funI
         by smt
     qed
   qed (blast elim: parallel_preservation_left_aux.cases)+
@@ -551,12 +551,12 @@ next
     from communication.prems show ?case
       by cases new_channel_preservation_aux_trivial_conveyance
   next
-    case extruding
-    from extruding.prems show ?case
+    case scope_opening
+    from scope_opening.prems show ?case
     proof cases
       case with_new_channel
       then show ?thesis
-        using basic_transition.extruding and extruding_lift
+        using basic_transition.scope_opening and opening_lift
         by blast
     qed new_channel_preservation_aux_trivial_conveyance
   next
@@ -568,12 +568,12 @@ next
     from acting_right.prems show ?case
       by cases new_channel_preservation_aux_trivial_conveyance
   next
-    case extruding_left
-    from extruding_left.prems show ?case
+    case opening_left
+    from opening_left.prems show ?case
       by cases new_channel_preservation_aux_trivial_conveyance
   next
-    case extruding_right
-    from extruding_right.prems show ?case
+    case opening_right
+    from opening_right.prems show ?case
       by cases new_channel_preservation_aux_trivial_conveyance
   qed
 qed
@@ -616,6 +616,10 @@ private lift_definition new_channel' :: "(chan \<Rightarrow> basic_behavior) \<R
   is NewChannel
   using basic_new_channel_preservation .
 
+private lift_definition guard' :: "[bool, basic_behavior] \<Rightarrow> basic_behavior"
+  is guard
+  using basic.guard_preservation .
+
 private lift_definition general_parallel' :: "['a \<Rightarrow> basic_behavior, 'a list] \<Rightarrow> basic_behavior"
   is general_parallel
   using basic.general_parallel_preservation .
@@ -626,6 +630,7 @@ lemmas [equivalence_transfer] =
   receive'.abs_eq
   parallel'.abs_eq
   new_channel'.abs_eq
+  guard'.abs_eq
   general_parallel'.abs_eq
 
 end
