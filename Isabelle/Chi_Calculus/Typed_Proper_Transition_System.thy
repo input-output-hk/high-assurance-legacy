@@ -21,7 +21,7 @@ primrec untyped_output_rest :: "('a::countable, 'p) typed_output_rest \<Rightarr
   "untyped_output_rest (TypedWithOpening K) = WithOpening (untyped_output_rest \<circ> K)"
 
 abbreviation
-  typed_with_opening :: "('a channel \<Rightarrow> ('b, 'p) typed_output_rest) \<Rightarrow> ('b, 'p) typed_output_rest"
+  typed_with_extruding :: "('a channel \<Rightarrow> ('b, 'p) typed_output_rest) \<Rightarrow> ('b, 'p) typed_output_rest"
   (binder "\<nu>\<degree>" 51)
 where
   "\<nu>\<degree>\<aa>. \<KK> \<aa> \<equiv> TypedWithOpening (\<KK> \<circ> typed_channel)"
@@ -32,10 +32,10 @@ abbreviation
 where
   "\<lparr>\<aa> \<triangleleft>\<degree> \<kk> \<equiv> \<lparr>untyped_channel \<aa> \<triangleleft> untyped_output_rest \<kk>"
 
-lemma typed_output_without_opening: "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<aa> \<triangleleft>\<degree> \<xx>\<rbrace> q \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>\<aa> \<triangleleft>\<degree> \<xx>\<rparr> q"
-  by (simp add: output_without_opening)
-lemma typed_output_with_opening:
+lemma typed_output_without_extruding: "p \<rightarrow>\<^sub>\<flat>\<lbrace>\<aa> \<triangleleft>\<degree> \<xx>\<rbrace> q \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>\<aa> \<triangleleft>\<degree> \<xx>\<rparr> q"
+  by (simp add: output_without_extruding)
+lemma typed_output_with_extruding:
   "\<lbrakk>p \<rightarrow>\<^sub>\<flat>\<lbrace>\<nu>\<degree>\<bb>\<rbrace> \<QQ> \<bb>; \<And>\<bb>. \<QQ> \<bb> \<rightarrow>\<^sub>\<sharp>\<lparr>\<aa> \<triangleleft>\<degree> \<KK> \<bb>\<rbrakk> \<Longrightarrow> p \<rightarrow>\<^sub>\<sharp>\<lparr>\<aa> \<triangleleft>\<degree> \<nu>\<degree>\<bb>. \<KK> \<bb>"
-  by (simp add: output_with_opening)
+  by (simp add: output_with_extruding)
 
 end
