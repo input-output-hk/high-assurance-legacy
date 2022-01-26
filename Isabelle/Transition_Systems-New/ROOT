@@ -3,7 +3,6 @@ chapter Ouroboros
 session "Transition_Systems-New" (ouroboros) = HOL +
   description \<open>Generic support for transition systems.\<close>
   sessions
-    "HOL-Library"
     "HOL-Eisbach"
   theories
     "Transition_Systems-Foundations"
