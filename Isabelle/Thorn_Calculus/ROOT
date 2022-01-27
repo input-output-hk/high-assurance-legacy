@@ -7,7 +7,6 @@ chapter Ouroboros
 session Thorn_Calculus (ouroboros) = HOL +
   description \<open>Formalization of the thorn calculus.\<close>
   sessions
-    "HOL-Library"
     "Relation_Methods"
     "Transition_Systems-New"
   theories
@@ -16,6 +15,7 @@ session Thorn_Calculus (ouroboros) = HOL +
     "Thorn_Calculus-Actions"
     "Thorn_Calculus-Semantics-Synchronous"
     "Thorn_Calculus-Semantics-Asynchronous"
+    "Thorn_Calculus-Core_Bisimilarities"
     "Thorn_Calculus-Communication"
   document_files
     "root.tex"
