@@ -1,17 +1,25 @@
 Overview
 ========
 
-The goal of this project is to develop implementations of blockchain
-consensus protocols from the Ouroboros family in a process calculus and
-verify that they have various key properties.
+This is the old repository of the project to develop implementations of
+blockchain consensus protocols from the Ouroboros family in a process
+calculus and verify that they have various key properties.
 
-The bulk of the code in this repository is written in Isabelle/HOL and
-falls into the following parts:
+In this final, archived form, this repository contains only some old
+exploratory material as well as code we have chosen not to develop
+further, in most cases because it got superseded by superior
+components. We keep this repository around merely for people interested
+in the history of this project.
 
-  * A framework for labeled transition systems
+The actively developed code of this project can be found in the
+following GitHub repositories:
 
-  * The implementation of the Þ-calculus, the process calculus we use
-    for our protocol implementations
+  * [equivalence-reasoner](https://github.com/input-output-hk/equivalence-reasoner)
 
-  * Implementations of consensus protocols in the Þ-calculus along with
-    proofs of key properties they have
+  * [transition-systems](https://github.com/input-output-hk/transition-systems)
+
+  * [thorn-calculus](https://github.com/input-output-hk/thorn-calculus)
+
+  * [network-equivalences](https://github.com/input-output-hk/network-equivalences)
+
+  * [ouroboros-high-assurance](https://github.com/input-output-hk/ouroboros-high-assurance)
